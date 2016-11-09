@@ -5,8 +5,13 @@
  *      Author: zhuqian
  */
 #include "raiden.h"
+#include "geometry.h"
 int main(){
-	std::cout<<"hello raiden!!"<<std::endl;
+	Vector3<Float> v1(1,1,1);
+	Vector3<Float> v2(2,2,2);
+	Vector3<Float> v3=v1+v2;
+	std::cout<<v3.x<<std::endl;
+	std::cout<<"hello raiden!!!"<<std::endl;
 }
 
 
