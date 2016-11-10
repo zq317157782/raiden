@@ -19,7 +19,7 @@ typedef float Float;
 
 
 
-//todo 根据编译选项设置断言宏
+//根据编译选项设置断言宏
 #ifdef DEBUG_BUILD
 #define Assert(x) assert(x)
 #else
@@ -28,5 +28,6 @@ typedef float Float;
 
 template<typename T> class Vector3;
 template<typename T> class Vector2;
+template<typename T> class Point3;
 
 #endif /* SRC_CORE_RAIDEN_H_ */
