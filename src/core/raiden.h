@@ -27,5 +27,6 @@ typedef float Float;
 #endif
 
 template<typename T> class Vector3;
+template<typename T> class Vector2;
 
 #endif /* SRC_CORE_RAIDEN_H_ */
