@@ -14,7 +14,7 @@ inline bool IsNaN(T n) {
 	return std::isnan(n);
 }
 
-//todo Vector3向量类
+
 template<typename T>
 class Vector3 {
 public:
@@ -28,6 +28,7 @@ public:
 		//只有为每个分量单独赋值的时候才需要下NaN的断言
 		Assert(!HasNaNs());
 	}
+
 	Vector3(const Vector3<T>& v) {
 		x = v.x;
 		y = v.y;
@@ -41,7 +42,8 @@ public:
 		return *this;
 	}
 
-	Vector3<T> operator+(const Vector3<T>& v) {
+	//todo explicit Vector3(const Point3<T>)
+	Vector3<T> operator+(const Vector3<T>& v) const{
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x + v.x, y + v.y, z + v.z);
 	}
@@ -54,7 +56,7 @@ public:
 		return *this;
 	}
 
-	Vector3<T> operator-(const Vector3<T>& v) {
+	Vector3<T> operator-(const Vector3<T>& v) const{
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x - v.x, y - v.y, z - v.z);
 	}
@@ -67,13 +69,14 @@ public:
 		return *this;
 	}
 
-
-	Vector3<T> operator*(T n) {
+	template<typename U>
+	Vector3<T> operator*(U n) const{
 		Assert(!IsNaN(n));
 		return Vector3<T>(x * n, y * n, z * n);
 	}
 
-	Vector3<T>& operator*=(T n) {
+	template<typename U>
+	Vector3<T>& operator*=(U n) {
 		Assert(!IsNaN(n));
 		x *= n;
 		y *= n;
@@ -81,17 +84,82 @@ public:
 		return *this;
 	}
 
+	template<typename U>
+	Vector3<T> operator/(U n) const{
+		Assert(!IsNaN(n));
+		Assert(n!=0);
+		T f=(Float)1/n;
+		return Vector3<T>(f*x,f*y,f*z);
+	}
+
+	template<typename U>
+	Vector3<T>& operator/=(U n){
+		Assert(!IsNaN(n));
+		Assert(n!=0);
+		T f=(Float)1/n;
+		x*=f;
+		y*=f;
+		z*=f;
+		return *this;
+	}
+
 	Vector3<T> operator-() const {
 		return Vector3<T>(-x, -y, -z);
 	}
 
+	bool operator==(const Vector3<T>& v) const{
+		if(x==v.x&&y==v.y&&z==v.z) return true;
+		return false;
+	}
 
+	bool operator!=(const Vector3<T>& v) const{
+		if(x!=v.x||y!=v.y||z!=v.z) return true;
+		return false;
+	}
 
+	//返回向量的数量级的平方
+	T MagnitudeSquared() const{
+		return x*x+y*y+z*z;
+	}
+
+	T LengthSquared() const{
+		return MagnitudeSquared();
+	}
+
+	//返回向量的数量级 有开根操作
+	T Magnitude() const{
+		return std::sqrt(x*x+y*y+z*z);
+	}
+
+	T Length() const{
+		return Magnitude();
+	}
+
+	T operator[](int index) const{
+		Assert(index>=0&&index<3);
+		return (&x)[index];
+	}
+
+	T& operator[](int index){
+		Assert(index>=0&&index<3);
+		return (&x)[index];
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os, const Vector3<T> &v) {
+	        os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
+	        return os;
+	}
 private:
 	//判断三个分量中有没有NaN的变量
 	bool HasNaNs() const{
 		return ::IsNaN(x) || ::IsNaN(y) || ::IsNaN(z);
 	}
 };
+
+
+typedef Vector3<Float> Vector3f;
+typedef Vector3<int> Vector3i;
+
 
 #endif /* SRC_CORE_GEOMETRY_H_ */

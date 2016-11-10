@@ -15,12 +15,11 @@
 #include <assert.h>
 
 //定义一个Float宏 可能指向float可能指向double
-#define Float float
+typedef float Float;
 
 
 
 //todo 根据编译选项设置断言宏
-#define DEBUG_BUILD
 #ifdef DEBUG_BUILD
 #define Assert(x) assert(x)
 #else
