@@ -158,10 +158,9 @@ TEST(Point3,add) {
 
 TEST(Point3,sub) {
 	Point3<int> p1(1, 1, 1);
-	Point3<int> p2 = p1 - p1;
-	p2 -= p1;
-	Point3<int> p3(-1, -1, -1);
-	ASSERT_EQ(p2, p3);
+	Vector3<int> p2 = p1 - p1;
+	Vector3<int> v1(0, 0, 0);
+	ASSERT_EQ(p2, v1);
 }
 
 TEST(Point3,mul) {
@@ -201,6 +200,36 @@ TEST(Point3,index) {
 	ASSERT_EQ(p1[0], 3);
 	ASSERT_EQ(p1[1], 2);
 	ASSERT_EQ(p1[2], 1);
+}
+
+TEST(VectorOp,distance) {
+	Vector2<float> v1(1,0);
+	Vector2<float> v2(0,1);
+	ASSERT_EQ(Dot(v1,v2),0);
+
+	Vector2<float> v3(1,0);
+	Vector2<float> v4(-1,0);
+	ASSERT_EQ(AbsDot(v3,v4),1);
+
+	Vector3f biasX(1,0,0);
+	Vector3f biasY(0,1,0);
+	Vector3f biasZ=Cross(biasX,biasY);
+	ASSERT_EQ(biasZ,Vector3f(0,0,1));
+
+	Vector3f unnormalV(4,0,0);
+	Vector3f normalV=Normalize(unnormalV);
+	ASSERT_EQ(normalV,Vector3f(1,0,0));
+	Vector3f vv=6*unnormalV;
+	ASSERT_EQ(vv,Vector3f(24,0,0));
+
+}
+
+
+TEST(PointOp,distance) {
+	Point3<float> p1(2,2,2);
+	Point3<float> p2(0,0,0);
+	ASSERT_EQ(DistanceSquared(p1,p2),12);
+	ASSERT_LE(Distance(p1,p2)-sqrt(12),0.1e-10);
 }
 
 void UnitTest(int argc, char* argv[]) {

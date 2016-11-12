@@ -9,10 +9,13 @@
 #define SRC_CORE_GEOMETRY_H_
 #include "raiden.h"
 
+//判断是否有NaN的值出现，只需要在DEBUG状态下才需要定义
+#ifdef DEBUG_BUILD
 template<typename T>
 inline bool IsNaN(T n) {
 	return std::isnan(n);
 }
+#endif
 
 //三维向量
 template<typename T>
@@ -36,11 +39,11 @@ public:
 		z = v.z;
 	}
 
-	explicit Vector3(const Point3<T>& p){
+	explicit Vector3(const Point3<T>& p) {
 		Assert(!p.HasNaNs());
-		x=p.x;
-		y=p.y;
-		z=p.z;
+		x = p.x;
+		y = p.y;
+		z = p.z;
 	}
 
 	Vector3<T>& operator=(const Vector3<T>& v) {
@@ -49,8 +52,6 @@ public:
 		z = v.z;
 		return *this;
 	}
-
-
 
 	Vector3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
@@ -193,6 +194,11 @@ public:
 		y = v.y;
 	}
 
+	explicit Vector2(const Point2<T> p) {
+		Assert(!p.HasNaNs());
+		x = p.x;
+		y = p.y;
+	}
 	Vector2<T>& operator=(const Vector2<T>& v) {
 		Assert(v.HasNaNs());
 		x = v.x;
@@ -200,7 +206,6 @@ public:
 		return *this;
 	}
 
-	//todo explicit Vector2(const Point2<T>)
 	Vector2<T> operator+(const Vector2<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector2<T>(x + v.x, y + v.y);
@@ -317,6 +322,48 @@ typedef Vector2<Float> Vector2f;
 typedef Vector2<int> Vector2i;
 
 template<typename T>
+inline Float Dot(const Vector3<T>& v1, const Vector3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+template<typename T>
+inline Float Dot(const Vector2<T>& v1, const Vector2<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+template<typename T>
+inline Float AbsDot(const Vector3<T>& v1, const Vector3<T>& v2) {
+	return std::fabsf(Dot(v1, v2));
+}
+
+template<typename T>
+inline Float AbsDot(const Vector2<T>& v1, const Vector2<T>& v2) {
+	return std::fabsf(Dot(v1, v2));
+}
+
+//基于左手坐标系
+template<typename T>
+inline Vector3<T> Cross(const const Vector3<T>& v1, const const Vector3<T>& v2) {
+	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x);
+}
+
+template<typename T>
+inline Vector3<T> Normalize(const Vector3<T>& v) {
+	return v / v.Magnitude();
+}
+template<typename T>
+inline Vector2<T> Normalize(const Vector2<T>& v) {
+	return v / v.Magnitude();
+}
+
+//标量乘以向量的操作，其实就是换个位置，使用向量乘以标量的方式
+template<typename T,typename U>
+inline Vector3<T> operator*(U n,const Vector3<T>& v){
+	return v*n;
+}
+
+template<typename T>
 class Point3 {
 public:
 	T x, y, z;
@@ -359,17 +406,10 @@ public:
 		return *this;
 	}
 
-	Point3<T> operator-(const Point3<T>& p) const {
+	//两个空间点相减 返回的是一个空间向量
+	Vector3<T> operator-(const Point3<T>& p) const {
 		Assert(!p.HasNaNs());
-		return Point3<T>(x - p.x, y - p.y, z - p.z);
-	}
-
-	Point3<T>& operator-=(const Point3<T>& p) {
-		Assert(!p.HasNaNs());
-		x -= p.x;
-		y -= p.y;
-		z -= p.z;
-		return *this;
+		return Vector3<T>(x - p.x, y - p.y, z - p.z);
 	}
 
 	template<typename U>
@@ -435,13 +475,13 @@ public:
 		return false;
 	}
 
-	T operator[](int index) const{
-		Assert(index>=0&&index<3);
+	T operator[](int index) const {
+		Assert(index >= 0 && index < 3);
 		return (&x)[index];
 	}
-	T& operator[](int index){
-			Assert(index>=0&&index<3);
-			return (&x)[index];
+	T& operator[](int index) {
+		Assert(index >= 0 && index < 3);
+		return (&x)[index];
 	}
 
 	//重构ostream方法
@@ -458,6 +498,9 @@ public:
 #endif
 };
 
+typedef Point3<Float> Point3f;
+typedef Point3<int> Point3i;
+
 template<typename T>
 class Point2 {
 public:
@@ -468,7 +511,7 @@ public:
 	}
 
 	Point2(T xx, T yy, T zz) :
-			x(xx), y(yy){
+			x(xx), y(yy) {
 		Assert(!HasNaNs());
 	}
 
@@ -497,16 +540,9 @@ public:
 		return *this;
 	}
 
-	Point2<T> operator-(const Point2<T>& p) const {
+	Vector2<T> operator-(const Point2<T>& p) const {
 		Assert(!p.HasNaNs());
 		return Point2<T>(x - p.x, y - p.y);
-	}
-
-	Point2<T>& operator-=(const Point2<T>& p) {
-		Assert(!p.HasNaNs());
-		x -= p.x;
-		y -= p.y;
-		return *this;
 	}
 
 	template<typename U>
@@ -569,13 +605,13 @@ public:
 		return false;
 	}
 
-	T operator[](int index) const{
-		Assert(index>=0&&index<3);
+	T operator[](int index) const {
+		Assert(index >= 0 && index < 3);
 		return (&x)[index];
 	}
-	T& operator[](int index){
-			Assert(index>=0&&index<3);
-			return (&x)[index];
+	T& operator[](int index) {
+		Assert(index >= 0 && index < 3);
+		return (&x)[index];
 	}
 
 	//重构ostream方法
@@ -591,5 +627,30 @@ public:
 	}
 #endif
 };
+
+typedef Point2<Float> Point2f;
+typedef Point2<int> Point2i;
+
+template<typename T>
+inline Float DistanceSquared(const Point3<T>& p1, const Point3<T>& p2) {
+	Assert(!p1.HasNaNs() && !p2.HasNaNs());
+	return (p1 - p2).MagnitudeSquared();
+}
+
+template<typename T>
+inline Float Distance(const Point3<T>& p1, const Point3<T>& p2) {
+	return std::sqrt(DistanceSquared(p1, p2));
+}
+
+template<typename T>
+inline Float DistanceSquared(const Point2<T>& p1, const Point2<T>& p2) {
+	Assert(!p1.HasNaNs() && !p2.HasNaNs());
+	return (p1 - p2).MagnitudeSquared();
+}
+
+template<typename T>
+inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
+	return std::sqrt(DistanceSquared(p1, p2));
+}
 
 #endif /* SRC_CORE_GEOMETRY_H_ */
