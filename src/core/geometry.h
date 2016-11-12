@@ -36,6 +36,13 @@ public:
 		z = v.z;
 	}
 
+	explicit Vector3(const Point3<T>& p){
+		Assert(!p.HasNaNs());
+		x=p.x;
+		y=p.y;
+		z=p.z;
+	}
+
 	Vector3<T>& operator=(const Vector3<T>& v) {
 		x = v.x;
 		y = v.y;
@@ -43,7 +50,8 @@ public:
 		return *this;
 	}
 
-	//todo explicit Vector3(const Point3<T>)
+
+
 	Vector3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x + v.x, y + v.y, z + v.z);
@@ -439,6 +447,140 @@ public:
 	//重构ostream方法
 	friend std::ostream &operator<<(std::ostream &os, const Point3<T> &v) {
 		os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
+		return os;
+	}
+
+#ifdef DEBUG_BUILD
+	//判断分量中有没有NaN的变量
+	bool HasNaNs() const {
+		return ::IsNaN(x) || ::IsNaN(y);
+	}
+#endif
+};
+
+template<typename T>
+class Point2 {
+public:
+	T x, y;
+public:
+	Point2() {
+		x = y = 0;
+	}
+
+	Point2(T xx, T yy, T zz) :
+			x(xx), y(yy){
+		Assert(!HasNaNs());
+	}
+
+	Point2(const Point2<T>& p) {
+		Assert(!p.HasNaNs());
+		x = p.x;
+		y = p.y;
+	}
+
+	Point2<T>& operator=(const Point2<T>& p) {
+		Assert(!p.HasNaNs());
+		x = p.x;
+		y = p.y;
+		return *this;
+	}
+
+	Point2<T> operator+(const Point2<T>& p) const {
+		Assert(!p.HasNaNs());
+		return Point2<T>(x + p.x, y + p.y);
+	}
+
+	Point2<T>& operator+=(const Point2<T>& p) {
+		Assert(!p.HasNaNs());
+		x += p.x;
+		y += p.y;
+		return *this;
+	}
+
+	Point2<T> operator-(const Point2<T>& p) const {
+		Assert(!p.HasNaNs());
+		return Point2<T>(x - p.x, y - p.y);
+	}
+
+	Point2<T>& operator-=(const Point2<T>& p) {
+		Assert(!p.HasNaNs());
+		x -= p.x;
+		y -= p.y;
+		return *this;
+	}
+
+	template<typename U>
+	Point2<T> operator*(U u) const {
+		Assert(!IsNaN(u));
+		return Point2<T>(x * u, y * u);
+	}
+
+	template<typename U>
+	Point2<T>& operator*=(U u) {
+		Assert(!IsNaN(u));
+		x *= u;
+		y *= u;
+		return *this;
+	}
+
+	template<typename U>
+	Point2<T> operator/(U u) const {
+		Assert(!IsNaN(u));
+		Assert(u != 0);
+		Float f = (Float) 1 / u;
+		return Point2<T>(x * f, y * f);
+	}
+
+	template<typename U>
+	Point2<T>& operator/=(U u) {
+		Assert(!IsNaN(u));
+		Assert(u != 0);
+		Float f = (Float) 1 / u;
+		x *= f;
+		y *= f;
+		return *this;
+	}
+
+	Point2<T> operator-() const {
+		return Point2<T>(-x, -y);
+	}
+
+	//和Vector相关的操作
+	Point2<T> operator+(const Vector3<T>& v) const {
+		Assert(!v.HasNaNs());
+		return Point2<T>(x + v.x, y + v.y);
+	}
+	Point2<T>& operator+=(const Vector3<T>& v) {
+		Assert(!v.HasNaNs());
+		x += v.x;
+		y += v.y;
+		return *this;
+	}
+
+	bool operator==(const Point2<T>& p) const {
+		if (p.x == x && p.y == y)
+			return true;
+		return false;
+	}
+
+	bool operator!=(const Point2<T>& p) const {
+		if (p.x != x || p.y != y)
+			return true;
+		return false;
+	}
+
+	T operator[](int index) const{
+		Assert(index>=0&&index<3);
+		return (&x)[index];
+	}
+	T& operator[](int index){
+			Assert(index>=0&&index<3);
+			return (&x)[index];
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os, const Point2<T> &v) {
+		os << "[" << v.x << ", " << v.y << "]";
 		return os;
 	}
 
