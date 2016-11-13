@@ -9,13 +9,12 @@
 #define SRC_CORE_GEOMETRY_H_
 #include "raiden.h"
 
-//判断是否有NaN的值出现，只需要在DEBUG状态下才需要定义
-#ifdef DEBUG_BUILD
+//判断是否有NaN的值出现
 template<typename T>
 inline bool IsNaN(T n) {
-	return std::isnan(n);
+	return !(n==n);//使用自己和自己比较的方式 如果一个数是NaN的话，它和任意数比较都为false
+	//return std::isnan(n); 这是使用标准库的判断方法
 }
-#endif
 
 //三维向量
 template<typename T>
@@ -162,12 +161,10 @@ public:
 		os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
 		return os;
 	}
-#ifdef DEBUG_BUILD
 	//判断三个分量中有没有NaN的变量
 	bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y) || ::IsNaN(z);
 	}
-#endif
 };
 
 typedef Vector3<Float> Vector3f;
@@ -311,12 +308,10 @@ public:
 		os << "[" << v.x << ", " << v.y << "]";
 		return os;
 	}
-#ifdef DEBUG_BUILD
 	//判断分量中有没有NaN的变量
 	bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y);
 	}
-#endif
 };
 typedef Vector2<Float> Vector2f;
 typedef Vector2<int> Vector2i;
@@ -490,12 +485,10 @@ public:
 		return os;
 	}
 
-#ifdef DEBUG_BUILD
 	//判断分量中有没有NaN的变量
 	bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y);
 	}
-#endif
 };
 
 typedef Point3<Float> Point3f;
@@ -619,13 +612,10 @@ public:
 		os << "[" << v.x << ", " << v.y << "]";
 		return os;
 	}
-
-#ifdef DEBUG_BUILD
 	//判断分量中有没有NaN的变量
 	bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y);
 	}
-#endif
 };
 
 typedef Point2<Float> Point2f;
