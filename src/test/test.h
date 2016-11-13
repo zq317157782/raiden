@@ -232,6 +232,14 @@ TEST(PointOp,distance) {
 	ASSERT_LE(Distance(p1,p2)-sqrt(12),0.1e-10);
 }
 
+TEST(FloatOp,all){
+float f=0;
+f=NextFloatUp(f);
+ASSERT_EQ(f,BitsToFloat(0x00000001));
+f=NextFloatDown(f);
+ASSERT_EQ(f,0);
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();
