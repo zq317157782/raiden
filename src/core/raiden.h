@@ -23,7 +23,7 @@ typedef float Float;
 #ifdef DEBUG_BUILD
 #define Assert(x) assert(x)
 #else
-#define Assert(x)
+#define Assert(x) ((void)0)
 #endif
 
 
@@ -80,6 +80,11 @@ inline float NextFloatDown(float f){
 	return BitsToFloat(bits);
 }
 
+//todo double operation
 
+//这个MachineEpsion是数值分析下的MachineEpsion；为2的-24次方；
+//C++标准库提供的Epsion是大于1的ULP，为2的-23次方
+//所以需要再除以2
+static constexpr Float MachineEpsion=0.5f*std::numeric_limits<Float>::epsilon();
 
 #endif /* SRC_CORE_RAIDEN_H_ */
