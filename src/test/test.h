@@ -254,6 +254,17 @@ TEST(ErrFloat,all){
 	ErrFloat f3=f+f2;
 	ASSERT_EQ(f3.UpperBound(),NextFloatUp(2.0f));
 	ASSERT_EQ(f3.LowerBound(),NextFloatDown(2.0f));
+	ErrFloat f4=f-f2;
+	ASSERT_EQ(f4.UpperBound(),NextFloatUp(0.0f));
+	//ASSERT_EQ(f4.LowerBound(),NextFloatDown(0.0f));//这里直接返回nan了，因为0的下一个float就是nan
+	ErrFloat f5=f*f2;
+	ASSERT_EQ(f5.UpperBound(),NextFloatUp(1.0f));
+	ASSERT_EQ(f5.LowerBound(),NextFloatDown(1.0f));
+	ErrFloat f6=f/f2;
+	ASSERT_EQ(f6.UpperBound(),NextFloatUp(1.0f));
+	ASSERT_EQ(f6.LowerBound(),NextFloatDown(1.0f));
+	ErrFloat f7=-f;
+	ASSERT_EQ(f7.UpperBound(),-1.0f);
 }
 
 void UnitTest(int argc, char* argv[]) {

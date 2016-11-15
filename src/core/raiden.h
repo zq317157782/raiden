@@ -16,6 +16,8 @@
 
 //定义一个Float宏 可能指向float可能指向double
 typedef float Float;
+//无限大数
+static constexpr Float Infinity=std::numeric_limits<Float>::infinity();
 
 //根据编译选项设置断言宏
 #ifdef DEBUG_BUILD

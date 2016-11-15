@@ -25,13 +25,22 @@ private:
 public:
 	ErrFloat(){}
 	ErrFloat(float,float err=0.0f);
+	ErrFloat(const ErrFloat&);
+	ErrFloat& operator=(const ErrFloat&);
 	ErrFloat operator+(ErrFloat) const;
+	ErrFloat operator-(ErrFloat) const;
+	ErrFloat operator*(ErrFloat) const;
+	ErrFloat operator/(ErrFloat) const;
+	ErrFloat operator-() const;
+	bool operator==(ErrFloat) const;
+
 
 	//强制转换成float
 	explicit operator float() const{
 		return _value;
 	}
 
+	//强制转换成double
 	explicit operator double() const{
 		return _value;
 	}
