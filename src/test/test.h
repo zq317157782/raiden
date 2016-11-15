@@ -238,6 +238,7 @@ f=NextFloatUp(f);
 ASSERT_EQ(f,BitsToFloat(0x00000001));
 f=NextFloatDown(f);
 ASSERT_EQ(f,0);
+
 //ASSERT_EQ(MachineEpsion,0);
 }
 

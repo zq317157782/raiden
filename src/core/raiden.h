@@ -50,6 +50,20 @@ inline float BitsToFloat(uint32_t bits){
 	return f;
 }
 
+//double版本的 FloatToBits
+inline uint64_t DoubleToBits(double d){
+	Assert(!std::isnan(d));
+	uint64_t bits=0;
+	std::memcpy(&bits,&d,sizeof(double));
+	return d;
+}
+
+inline double BitsToDouble(uint64_t bits){
+	double d=0;
+	std::memcpy(&d,&bits,sizeof(uint64_t));
+	return d;
+}
+
 //获取下一个大于本float变量的float变量
 //1.先判断是否是无限值，是的话直接返回
 //2.如果是负0的话，先转换成正0，因为下面的比较需要0是一个正0
