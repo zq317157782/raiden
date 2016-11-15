@@ -56,7 +56,19 @@ public:
 	}
 };
 
-
+//一些float类型和ErrFloat的混合操作
+inline ErrFloat operator+(float f,ErrFloat ef){
+	return ErrFloat(f)+ef;
+}
+inline ErrFloat operator-(float f,ErrFloat ef){
+	return ErrFloat(f)-ef;
+}
+inline ErrFloat operator*(float f,ErrFloat ef){
+	return ErrFloat(f)*ef;
+}
+inline ErrFloat operator/(float f,ErrFloat ef){
+	return ErrFloat(f)/ef;
+}
 
 
 #endif /* SRC_CORE_ERRFLOAT_H_ */
