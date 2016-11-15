@@ -26,6 +26,16 @@ public:
 	ErrFloat(){}
 	ErrFloat(float,float err=0.0f);
 	ErrFloat operator+(ErrFloat) const;
+
+	//强制转换成float
+	explicit operator float() const{
+		return _value;
+	}
+
+	explicit operator double() const{
+		return _value;
+	}
+
 	float UpperBound() const{return _high;}
 	float LowerBound() const{return _low;}
 	//Check函数是内敛函数，然后内部的实现只在DEBUG_BUILD模式有用
