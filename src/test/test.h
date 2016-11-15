@@ -244,8 +244,16 @@ d=NextFloatUp(d);
 ASSERT_EQ(d,BitsToFloat((uint64_t)0x0000000000000001));
 
 ASSERT_NE(gamma(1),1);
-
 //ASSERT_EQ(MachineEpsion,0);
+}
+
+#include "errfloat.h"
+TEST(ErrFloat,all){
+	ErrFloat f(1);
+	ErrFloat f2(1);
+	ErrFloat f3=f+f2;
+	ASSERT_EQ(f3.UpperBound(),NextFloatUp(2.0f));
+	ASSERT_EQ(f3.LowerBound(),NextFloatDown(2.0f));
 }
 
 void UnitTest(int argc, char* argv[]) {
