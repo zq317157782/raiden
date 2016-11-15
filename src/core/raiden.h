@@ -30,6 +30,8 @@ template<typename T> class Vector3;
 template<typename T> class Vector2;
 template<typename T> class Point3;
 template<typename T> class Point2;
+template<typename T> class Normal3;
+class ErrFloat;//计算累积误差的浮点数实现
 
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，

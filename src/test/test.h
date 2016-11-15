@@ -267,6 +267,76 @@ TEST(ErrFloat,all){
 	ASSERT_EQ(f7.UpperBound(),-1.0f);
 }
 
+TEST(Normal3,add) {
+	Normal3<float> v1(1, 1, 1);
+	Normal3<float> v2 = v1 + v1;
+	Normal3<float> v3(2, 2, 2);
+	ASSERT_EQ(v2, v3);
+	Normal3<float> v4(0, 0, 0);
+	Normal3<float> v5(0, 0, 0);
+	v4 += v4;
+	ASSERT_EQ(v4, v5);
+}
+
+TEST(Normal3,sub) {
+	Normal3<float> v1(1, 1, 1);
+	Normal3<float> v2 = v1 - v1;
+	Normal3<float> v3(0, 0, 0);
+	ASSERT_EQ(v2, v3);
+	Normal3<float> v4(0, 0, 0);
+	Normal3<float> v5(-1, -1, -1);
+	v4 -= Normal3<float>(1, 1, 1);
+	ASSERT_EQ(v4, v5);
+}
+
+TEST(Normal3,mul) {
+	Normal3<float> v1(2, 2, 2);
+	Normal3<float> v2 = v1 * 2;
+	Normal3<float> v3(4, 4, 4);
+	ASSERT_EQ(v2, v3);
+	Normal3<float> v4(10, 10, 10);
+	Normal3<float> v5(0, 0, 0);
+	v4 *= 0;
+	ASSERT_EQ(v4, v5);
+}
+
+TEST(Normal3,div) {
+	Normal3<float> v1(2, 2, 2);
+	Normal3<float> v2 = v1 / 2;
+	Normal3<float> v3(1, 1, 1);
+	ASSERT_EQ(v2, v3);
+	v1 /= 2;
+	ASSERT_EQ(v1, v3);
+}
+
+TEST(Normal3,length) {
+	Normal3<float> v1(2, 2, 2);
+	float magnitude = v1.Length();
+	ASSERT_LE(magnitude - std::sqrt(2.0 * 2.0 + 2.0 * 2.0 + 2.0 * 2.0),
+			0.1E-10);
+	float magnitudeSquared = v1.LengthSquared();
+	ASSERT_LE(magnitudeSquared - (2.0 * 2.0 + 2.0 * 2.0 + 2.0 * 2.0), 0.1E-10);
+}
+
+TEST(Normal3,index) {
+	Normal3<float> v1(1, 2, 3);
+	ASSERT_EQ(v1[0], 1);
+	ASSERT_EQ(v1[1], 2);
+	ASSERT_EQ(v1[2], 3);
+	v1[0] = 3;
+	v1[1] = 2;
+	v1[2] = 1;
+	ASSERT_EQ(v1[0], 3);
+	ASSERT_EQ(v1[1], 2);
+	ASSERT_EQ(v1[2], 1);
+}
+
+TEST(Normal3,eq) {
+	Normal3<float> v1(0.0, 0.0, 0.0);
+	Normal3<float> v2(v1);
+	ASSERT_EQ(v1, v2);
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();

@@ -135,7 +135,7 @@ public:
 	}
 
 	T LengthSquared() const {
-		return MagnitudeSquared();
+		return x * x + y * y + z * z;
 	}
 
 	//返回向量的数量级 有开根操作
@@ -144,7 +144,7 @@ public:
 	}
 
 	T Length() const {
-		return Magnitude();
+		return std::sqrt(x * x + y * y + z * z);
 	}
 
 	T operator[](int index) const {
@@ -658,7 +658,8 @@ public:
 			x(0), y(0), z(0) {
 	}
 
-	Normal3(T xx, T yy, T zz):x(xx), y(yy), z(zz) {
+	Normal3(T xx, T yy, T zz) :
+			x(xx), y(yy), z(zz) {
 		Assert(!HasNaNs());
 	}
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
@@ -675,6 +676,104 @@ public:
 		y = nl.y;
 		z = nl.z;
 		return *this;
+	}
+
+	Normal3<T> operator-() const {
+		return Normal3<T>(-x, -y, -z);
+	}
+	Normal3<T> operator+(const Normal3<T>& nl) const {
+		Assert(!nl.HasNaNs());
+		return Normal3<T>(x + nl.x, y + nl.y, z + nl.z);
+	}
+
+	Normal3<T>& operator+=(const Normal3<T>& nl) {
+		Assert(!nl.HasNaNs());
+		x += nl.x;
+		y += nl.y;
+		z += nl.z;
+		return *this;
+	}
+	Normal3<T> operator-(const Normal3<T>& n) const {
+		Assert(!n.HasNaNs());
+		return Normal3<T>(x - n.x, y - n.y, z - n.z);
+	}
+
+	Normal3<T> operator-=(const Normal3<T>& n) {
+		Assert(!n.HasNaNs());
+		x -= n.x;
+		y -= n.y;
+		z -= n.z;
+		return *this;
+	}
+
+	template<typename U>
+	Normal3<T> operator*(U n) const {
+		Assert(!IsNaN(n));
+		return Normal3<T>(x * n, y * n, z * n);
+	}
+
+	template<typename U>
+	Normal3<T>& operator*=(U f) {
+		Assert(!IsNaN(f));
+		x *= f;
+		y *= f;
+		z *= f;
+		return *this;
+	}
+	template<typename U>
+	Normal3<T> operator/(U f) const {
+		Assert(!IsNaN(f));
+		Assert(f != 0);
+		float inv = 1.0f / f;
+		return Normal3<T>(x * inv, y * inv, z * inv);
+	}
+
+	template<typename U>
+	Normal3<T>& operator/=(U f) {
+		Assert(!IsNaN(f));
+		Assert(f != 0);
+		float inv = 1.0f / f;
+		x *= inv;
+		y *= inv;
+		z *= inv;
+		return *this;
+	}
+
+	T operator[](int i) const {
+		Assert(i >= 0 && i <= 2);
+		return (&x)[i];
+	}
+
+	T& operator[](int i) {
+		Assert(i >= 0 && i <= 2);
+		return (&x)[i];
+	}
+
+	bool operator==(const Normal3<T>& n) const {
+		Assert(!n.HasNaNs());
+		if (x == n.x && y == n.y && z == n.z) {
+			return true;
+		}
+		return false;
+	}
+
+	bool operator!=(const Normal3<T>& n) const {
+		Assert(!n.HasNaNs());
+		if (x != n.x || y != n.y || z != n.z) {
+			return true;
+		}
+		return false;
+	}
+	T LengthSquared() const {
+		return x * x + y * y + z * z;
+	}
+	T Length() const {
+		return std::sqrt(x * x + y * y + z * z);
+	}
+
+	explicit Normal3<T>(const Vector3<T>& v) :
+			x(v.x), y(v.y), z(v.z) {
+		Assert(!HasNaNs());
 	}
 #endif
 	//判断分量中有没有NaN的变量
