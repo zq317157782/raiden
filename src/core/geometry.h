@@ -31,18 +31,19 @@ public:
 		Assert(!HasNaNs());
 	}
 
-	Vector3(const Vector3<T>& v) {
-		Assert(!v.HasNaNs());
-		x = v.x;
-		y = v.y;
-		z = v.z;
-	}
-
 	explicit Vector3(const Point3<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
 		z = p.z;
+	}
+//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
+#ifdef DEBUG_BUILD
+	Vector3(const Vector3<T>& v) {
+		Assert(!v.HasNaNs());
+		x = v.x;
+		y = v.y;
+		z = v.z;
 	}
 
 	Vector3<T>& operator=(const Vector3<T>& v) {
@@ -51,7 +52,7 @@ public:
 		z = v.z;
 		return *this;
 	}
-
+#endif
 	Vector3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x + v.x, y + v.y, z + v.z);
@@ -185,16 +186,17 @@ public:
 		Assert(!HasNaNs());
 	}
 
-	Vector2(const Vector2<T>& v) {
-		Assert(!v.HasNaNs());
-		x = v.x;
-		y = v.y;
-	}
-
 	explicit Vector2(const Point2<T> p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
+	}
+//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
+#ifdef DEBUG_BUILD
+	Vector2(const Vector2<T>& v) {
+		Assert(!v.HasNaNs());
+		x = v.x;
+		y = v.y;
 	}
 	Vector2<T>& operator=(const Vector2<T>& v) {
 		Assert(v.HasNaNs());
@@ -202,7 +204,7 @@ public:
 		y = v.y;
 		return *this;
 	}
-
+#endif
 	Vector2<T> operator+(const Vector2<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector2<T>(x + v.x, y + v.y);
@@ -338,7 +340,8 @@ inline Float AbsDot(const Vector2<T>& v1, const Vector2<T>& v2) {
 
 //基于左手坐标系
 template<typename T>
-inline Vector3<T> Cross(const const Vector3<T>& v1, const const Vector3<T>& v2) {
+inline Vector3<T> Cross(const const Vector3<T>& v1,
+		const const Vector3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
@@ -353,9 +356,9 @@ inline Vector2<T> Normalize(const Vector2<T>& v) {
 }
 
 //标量乘以向量的操作，其实就是换个位置，使用向量乘以标量的方式
-template<typename T,typename U>
-inline Vector3<T> operator*(U n,const Vector3<T>& v){
-	return v*n;
+template<typename T, typename U>
+inline Vector3<T> operator*(U n, const Vector3<T>& v) {
+	return v * n;
 }
 
 template<typename T>
@@ -372,6 +375,8 @@ public:
 		Assert(!HasNaNs());
 	}
 
+//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
+#ifdef DEBUG_BUILD
 	Point3(const Point3<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
@@ -379,7 +384,6 @@ public:
 		z = p.z;
 
 	}
-
 	Point3<T>& operator=(const Point3<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
@@ -387,6 +391,7 @@ public:
 		z = p.z;
 		return *this;
 	}
+#endif
 
 	Point3<T> operator+(const Point3<T>& p) const {
 		Assert(!p.HasNaNs());
@@ -507,20 +512,20 @@ public:
 			x(xx), y(yy) {
 		Assert(!HasNaNs());
 	}
-
+	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
+#ifdef DEBUG_BUILD
 	Point2(const Point2<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
 	}
-
 	Point2<T>& operator=(const Point2<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
 		return *this;
 	}
-
+#endif
 	Point2<T> operator+(const Point2<T>& p) const {
 		Assert(!p.HasNaNs());
 		return Point2<T>(x + p.x, y + p.y);
@@ -642,5 +647,40 @@ template<typename T>
 inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
 	return std::sqrt(DistanceSquared(p1, p2));
 }
+
+//三分量法线
+template<typename T>
+class Normal3 {
+public:
+	T x, y, z;
+public:
+	Normal3() :
+			x(0), y(0), z(0) {
+	}
+
+	Normal3(T xx, T yy, T zz):x(xx), y(yy), z(zz) {
+		Assert(!HasNaNs());
+	}
+	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
+#ifdef DEBUG_BUILD
+	Normal3(const Normal3& nl) {
+		Assert(!nl.HasNaNs());
+		x = nl.x;
+		y = nl.y;
+		z = nl.z;
+	}
+	Normal3<T>& operator=(const Normal3& nl) {
+		Assert(!nl.HasNaNs());
+		x = nl.x;
+		y = nl.y;
+		z = nl.z;
+		return *this;
+	}
+#endif
+	//判断分量中有没有NaN的变量
+	bool HasNaNs() const {
+		return ::IsNaN(x) || ::IsNaN(y) || ::IsNaN(z);
+	}
+};
 
 #endif /* SRC_CORE_GEOMETRY_H_ */
