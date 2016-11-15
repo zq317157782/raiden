@@ -243,6 +243,7 @@ double d=0;
 d=NextFloatUp(d);
 ASSERT_EQ(d,BitsToFloat((uint64_t)0x0000000000000001));
 
+ASSERT_NE(gamma(1),1);
 
 //ASSERT_EQ(MachineEpsion,0);
 }

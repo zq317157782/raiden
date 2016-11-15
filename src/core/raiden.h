@@ -94,7 +94,6 @@ inline float NextFloatDown(float f) {
 	return BitsToFloat(bits);
 }
 
-//todo double operation
 inline double NextFloatUp(double d, int delta = 1) {
 	Assert(!std::isnan(d));
 	if (std::isinf(d) && d > 0.0)
@@ -128,5 +127,10 @@ inline double NextFloatDown(double d, int delta = 1) {
 //所以需要再除以2
 static constexpr Float MachineEpsion = 0.5f
 		* std::numeric_limits<Float>::epsilon();
+
+//这个gamma不是用来做Gamma校正的gamma，这个gamma是浮点数运算中，每一次运算后的最大ERR边界
+inline constexpr Float gamma(int n){return (n*MachineEpsion)/(1-n*MachineEpsion);}
+
+
 
 #endif /* SRC_CORE_RAIDEN_H_ */
