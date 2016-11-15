@@ -235,9 +235,14 @@ TEST(PointOp,distance) {
 TEST(FloatOp,all){
 float f=0;
 f=NextFloatUp(f);
-ASSERT_EQ(f,BitsToFloat(0x00000001));
+ASSERT_EQ(f,BitsToFloat((uint32_t)0x00000001));
 f=NextFloatDown(f);
 ASSERT_EQ(f,0);
+
+double d=0;
+d=NextFloatUp(d);
+ASSERT_EQ(d,BitsToFloat((uint64_t)0x0000000000000001));
+
 
 //ASSERT_EQ(MachineEpsion,0);
 }
