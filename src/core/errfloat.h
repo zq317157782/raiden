@@ -20,7 +20,7 @@ private:
 	float _high;//round值加上绝对error后的值
 	float _low;//round值减去绝对error后的值
 #ifdef DEBUG_BUILD
-	double _highPrecisionValue;//调试模式下需要计算的高精度的值
+	long double _highPrecisionValue;//调试模式下需要计算的高精度的值
 #endif
 public:
 	ErrFloat(){}
