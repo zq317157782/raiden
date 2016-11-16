@@ -355,9 +355,19 @@ TEST(Bound3,all) {
 	ASSERT_EQ(bound.Corner(5), Point3<Float>(3, 1, 5));
 	ASSERT_EQ(bound.Corner(6), Point3<Float>(0, 4, 5));
 	ASSERT_EQ(bound.Corner(7), Point3<Float>(3, 4, 5));
-	bound=Union(bound,Point3<Float>(6,6,6));
+	bound = Union(bound, Point3<Float>(6, 6, 6));
 	ASSERT_EQ(bound.Corner(0), Point3<Float>(0, 1, 2));
 	ASSERT_EQ(bound.Corner(7), Point3<Float>(6, 6, 6));
+
+	Point3<Float> b1p1(1, 1, 1);
+	Point3<Float> b1p2(2, 2, 2);
+	Bound3<Float> b1(b1p1, b1p2);
+	Point3<Float> b2p1(2, 2, 2);
+	Point3<Float> b2p2(3, 3, 3);
+	Bound3<Float> b2(b2p1, b2p2);
+	Bound3<Float> b3=Union(b1,b2);
+	ASSERT_EQ(b3[0], Point3<Float>(1, 1, 1));
+	ASSERT_EQ(b3[1], Point3<Float>(3, 3, 3));
 }
 
 void UnitTest(int argc, char* argv[]) {

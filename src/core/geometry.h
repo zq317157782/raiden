@@ -801,14 +801,11 @@ public:
 	}
 	Bound3(const Point3<T>& p) :
 			minPoint(p), maxPoint(p) {
-		Assert(!p.HasNaNs());
 	}
 	Bound3(const Point3<T>& p1, const Point3<T>& p2) :
 			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
 					std::min(p1.z, p2.z)), maxPoint(std::max(p1.x, p2.x),
 					std::max(p1.y, p2.y), std::max(p1.z, p2.z)) {
-		Assert(!p1.HasNaNs());
-		Assert(!p2.HasNaNs());
 	}
 	//这里通过索引来访问minPoint和maxPoint属性
 	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
@@ -833,13 +830,21 @@ public:
 
 };
 
+
+typedef Bound3<Float> Bound3f;
+typedef Bound3<int> Bound3i;
+
+//AABB和point之间的合并
 template<typename T>
 Bound3<T> Union(const Bound3<T>& b,const Point3<T> p){
 	return Bound3<T>(Point3<T>(std::min(b.minPoint.x,p.x),std::min(b.minPoint.y,p.y),std::min(b.minPoint.z,p.z))
 			,Point3<T>(std::max(b.maxPoint.x,p.x),std::max(b.maxPoint.y,p.y),std::max(b.maxPoint.z,p.z)));
 }
-
-typedef Bound3<Float> Bound3f;
-typedef Bound3<int> Bound3i;
+//AABB和AABB之间的合并
+template<typename T>
+Bound3<T> Union(const Bound3<T>& b,const Bound3<T>& b2){
+	return Bound3<T>(Point3<T>(std::min(b.minPoint.x,b2.minPoint.x),std::min(b.minPoint.y,b2.minPoint.y),std::min(b.minPoint.z,b2.minPoint.z))
+				,Point3<T>(std::max(b.maxPoint.x,b2.maxPoint.x),std::max(b.maxPoint.y,b2.maxPoint.y),std::max(b.maxPoint.z,b2.maxPoint.z)));
+}
 
 #endif /* SRC_CORE_GEOMETRY_H_ */
