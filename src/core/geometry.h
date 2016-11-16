@@ -796,8 +796,8 @@ public:
 		//PBRT_V2中是取了float的两个无限值
 		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
 		T maxValue = std::numeric_limits<T>::max();
-		minPoint(maxValue, maxValue, maxValue);
-		maxPoint(minValue, minValue, minValue);
+		minPoint = Point3<T>(maxValue, maxValue, maxValue);
+		maxPoint = Point3<T>(minValue, minValue, minValue);
 	}
 	Bound3(const Point3<T>& p) :
 			minPoint(p), maxPoint(p) {
@@ -820,31 +820,118 @@ public:
 	}
 
 	//顺序0~7: 前：左下，右下，左上，右上，后：左下，右下，左上，右上
-	Point3<T> Corner(int index) const{
+	Point3<T> Corner(int index) const {
 		Assert(index >= 0 && index < 8);
-		T x=(*this)[index&1].x;//偶数取minPoint.x 奇数取maxPoint.x;
-		T y=(*this)[index&2?1:0].y;//index第二位是0取minPoint.y,否则取maxPoint.y;
-		T z=(*this)[index&4?1:0].z;//类推z
-		return Point3<T>(x,y,z);
+		T x = (*this)[index & 1].x;	//偶数取minPoint.x 奇数取maxPoint.x;
+		T y = (*this)[index & 2 ? 1 : 0].y;	//index第二位是0取minPoint.y,否则取maxPoint.y;
+		T z = (*this)[index & 4 ? 1 : 0].z;	//类推z
+		return Point3<T>(x, y, z);
+	}
+
+	//返回对角线向量
+	Vector3<T> Diagonal() const {
+		return (maxPoint - minPoint);
+	}
+
+	//求面积
+	T SurfaceArea() const {
+		Vector3<T> d = Diagonal();
+		return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.0f;
+	}
+
+	//求体积
+	T Volume() const {
+		Vector3<T> d = Diagonal();
+		return d.x * d.y * d.z;
+	}
+
+	//获取最大的边界
+	int MaximumExtent() const {
+		Vector3<T> diag = Diagonal();
+		if (diag.x > diag.y && diag.x > diag.z)
+			return 0;
+		else if (diag.y > diag.z)
+			return 1;
+		else
+			return 2;
 	}
 
 };
-
 
 typedef Bound3<Float> Bound3f;
 typedef Bound3<int> Bound3i;
 
 //AABB和point之间的合并
 template<typename T>
-Bound3<T> Union(const Bound3<T>& b,const Point3<T> p){
-	return Bound3<T>(Point3<T>(std::min(b.minPoint.x,p.x),std::min(b.minPoint.y,p.y),std::min(b.minPoint.z,p.z))
-			,Point3<T>(std::max(b.maxPoint.x,p.x),std::max(b.maxPoint.y,p.y),std::max(b.maxPoint.z,p.z)));
+Bound3<T> Union(const Bound3<T>& b, const Point3<T> p) {
+	return Bound3<T>(
+			Point3<T>(std::min(b.minPoint.x, p.x), std::min(b.minPoint.y, p.y),
+					std::min(b.minPoint.z, p.z)),
+			Point3<T>(std::max(b.maxPoint.x, p.x), std::max(b.maxPoint.y, p.y),
+					std::max(b.maxPoint.z, p.z)));
 }
 //AABB和AABB之间的合并
 template<typename T>
-Bound3<T> Union(const Bound3<T>& b,const Bound3<T>& b2){
-	return Bound3<T>(Point3<T>(std::min(b.minPoint.x,b2.minPoint.x),std::min(b.minPoint.y,b2.minPoint.y),std::min(b.minPoint.z,b2.minPoint.z))
-				,Point3<T>(std::max(b.maxPoint.x,b2.maxPoint.x),std::max(b.maxPoint.y,b2.maxPoint.y),std::max(b.maxPoint.z,b2.maxPoint.z)));
+Bound3<T> Union(const Bound3<T>& b, const Bound3<T>& b2) {
+	return Bound3<T>(
+			Point3<T>(std::min(b.minPoint.x, b2.minPoint.x),
+					std::min(b.minPoint.y, b2.minPoint.y),
+					std::min(b.minPoint.z, b2.minPoint.z)),
+			Point3<T>(std::max(b.maxPoint.x, b2.maxPoint.x),
+					std::max(b.maxPoint.y, b2.maxPoint.y),
+					std::max(b.maxPoint.z, b2.maxPoint.z)));
+}
+
+//AABB盒之间的交集
+template<typename T>
+Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
+	return Bound3<T>(
+			Point3<T>(std::max(b.minPoint.x, b2.minPoint.x),
+					std::max(b.minPoint.y, b2.minPoint.y),
+					std::max(b.minPoint.z, b2.minPoint.z)),
+			Point3<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
+					std::min(b.maxPoint.y, b2.maxPoint.y),
+					std::min(b.maxPoint.z, b2.maxPoint.z)));
+}
+
+//判断两个AABB盒是否重叠
+template<typename T>
+bool Overlap(const Bound3<T> &b1, const Bound3<T> &b2) {
+	bool x = (b1.maxPoint.x >= b2.minPoint.x)
+			&& (b1.minPoint.x <= b2.maxPoint.x);
+	bool y = (b1.maxPoint.y >= b2.minPoint.y)
+			&& (b1.minPoint.y <= b2.maxPoint.y);
+	bool z = (b1.maxPoint.z >= b2.minPoint.z)
+			&& (b1.minPoint.z <= b2.maxPoint.z);
+	return (x && y && z);
+}
+
+//判断一个点是否在AABB中
+template<typename T>
+bool Inside(const Point3<T>& p, const Bound3<T> &b) {
+	bool x = p.x >= b.minPoint.x && p.x <= b.maxPoint.x;
+	bool y = p.y >= b.minPoint.y && p.x <= b.maxPoint.y;
+	bool z = p.z >= b.minPoint.z && p.z <= b.maxPoint.z;
+	return (x && y && z);
+}
+
+//判断一个点是否在AABB中,不包括上边界
+template<typename T>
+bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
+	bool x = p.x >= b.minPoint.x && p.x < b.maxPoint.x;
+	bool y = p.y >= b.minPoint.y && p.x < b.maxPoint.y;
+	bool z = p.z >= b.minPoint.z && p.z < b.maxPoint.z;
+	return (x && y && z);
+}
+
+//扩充AABB,各个维都扩充delta分量
+template<typename T>
+Bound3<T> Expand(const Bound3<T>& b, T delta) {
+	Assert(!IsNaN(delta));
+	Bound3<T> result;
+	result.minPoint = b.minPoint + Vector3<T>(-delta, -delta, -delta);
+	result.maxPoint = b.maxPoint + Vector3<T>(delta, delta, delta);
+	return result;
 }
 
 #endif /* SRC_CORE_GEOMETRY_H_ */

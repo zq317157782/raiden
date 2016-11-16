@@ -368,6 +368,19 @@ TEST(Bound3,all) {
 	Bound3<Float> b3=Union(b1,b2);
 	ASSERT_EQ(b3[0], Point3<Float>(1, 1, 1));
 	ASSERT_EQ(b3[1], Point3<Float>(3, 3, 3));
+	Bound3<Float> b4=Intersect(b1,b2);
+	ASSERT_EQ(b4[0], Point3<Float>(2, 2, 2));
+	ASSERT_EQ(b4[1], Point3<Float>(2, 2, 2));
+
+	ASSERT_TRUE(Inside(Point3<Float>(2, 2, 2),b4));
+	ASSERT_TRUE(Overlap(b1,b2));
+	ASSERT_TRUE(Overlap(b1,b4));
+
+	b4=Expand(b4,1.0f);
+	ASSERT_EQ(b4[0], Point3<Float>(1, 1, 1));
+	ASSERT_EQ(b4[1], Point3<Float>(3, 3, 3));
+	ASSERT_EQ(b4.MaximumExtent(), 2);
+
 }
 
 void UnitTest(int argc, char* argv[]) {
