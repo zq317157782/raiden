@@ -934,4 +934,24 @@ Bound3<T> Expand(const Bound3<T>& b, T delta) {
 	return result;
 }
 
+//基础射线
+class Ray {
+public:
+	Point3f o;	//射线原点
+	Vector3f d;	//射线的方向
+	mutable Float tMax; //最大参数值
+	Float time; //曝光时间相关
+	//todo 和中间介质相关的变量还没有加入
+public:
+	Ray(const Point3f& oo, const Vector3f& dd,float tmax = Infinity,Float t=0.0f) :
+			o(oo), d(dd),tMax(tmax), time(t){
+	}
+	Ray():tMax(Infinity),time(0){
+	}
+	Point3f operator()(Float t) const {
+		return o + d * t;
+	}
+};
+
+//todo geomtry相关函数的扩充
 #endif /* SRC_CORE_GEOMETRY_H_ */

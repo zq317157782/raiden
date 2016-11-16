@@ -383,6 +383,12 @@ TEST(Bound3,all) {
 
 }
 
+TEST(Ray,all){
+	Ray r(Point3f(0,0,0),Vector3f(1,0,0));
+	Point3f p=r(0.5f);
+
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();
