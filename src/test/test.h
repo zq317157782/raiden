@@ -397,6 +397,26 @@ TEST(RayDifferential,all){
 	ASSERT_EQ(r.dx,Vector3f(0.5,0.5,0));
 
 }
+#include "transform.h"
+TEST(Matrix4x4,all){
+Matrix4x4 mat;
+Matrix4x4 mat2;
+Matrix4x4 mat3=mat*mat2;
+ASSERT_EQ(mat,mat3);
+mat=Transpose(mat);
+ASSERT_EQ(mat,mat3);
+mat=Inverse(mat);
+ASSERT_EQ(mat,mat3);
+Float aa[4][4]={0.1,0.2,0.3,0.4
+			,0.5,0.6,0.7,0.8,
+			0.9,1.0,1.1,1.2,
+			1.3,1.4,1.5,1.6};
+Matrix4x4 mataa(aa);
+ASSERT_EQ(mataa.m[0][1],0.2f);
+mataa=Transpose(mataa);
+ASSERT_EQ(mataa.m[0][1],0.5f);
+
+}
 
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

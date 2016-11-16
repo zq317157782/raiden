@@ -26,6 +26,8 @@ static constexpr Float Infinity=std::numeric_limits<Float>::infinity();
 #define Assert(x) ((void)0)
 #endif
 
+#define Error(x) std::cerr<<x<<std::endl;
+
 template<typename T> class Vector3;
 template<typename T> class Vector2;
 template<typename T> class Point3;
