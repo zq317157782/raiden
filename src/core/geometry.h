@@ -782,6 +782,64 @@ public:
 	}
 };
 
-typedef  Normal3<Float> Normal3f;
+typedef Normal3<Float> Normal3f;
+
+//AABB盒
+template<typename T>
+class Bound3 {
+public:
+//AABB盒的最小顶点和最大顶点
+	Point3<T> minPoint, maxPoint;
+public:
+	Bound3() {
+		//默认构造函数最小点取最大值，最大点取最小值
+		//PBRT_V2中是取了float的两个无限值
+		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
+		T maxValue = std::numeric_limits<T>::max();
+		minPoint(maxValue, maxValue, maxValue);
+		maxPoint(minValue, minValue, minValue);
+	}
+	Bound3(const Point3<T>& p) :
+			minPoint(p), maxPoint(p) {
+		Assert(!p.HasNaNs());
+	}
+	Bound3(const Point3<T>& p1, const Point3<T>& p2) :
+			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
+					std::min(p1.z, p2.z)), maxPoint(std::max(p1.x, p2.x),
+					std::max(p1.y, p2.y), std::max(p1.z, p2.z)) {
+		Assert(!p1.HasNaNs());
+		Assert(!p2.HasNaNs());
+	}
+	//这里通过索引来访问minPoint和maxPoint属性
+	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
+	const Point3<T>& operator[](int index) const {
+		Assert(index >= 0 && index < 2);
+		return (&minPoint)[index];
+	}
+
+	Point3<T>& operator[](int index) {
+		Assert(index >= 0 && index < 2);
+		return (&minPoint)[index];
+	}
+
+	//顺序0~7: 前：左下，右下，左上，右上，后：左下，右下，左上，右上
+	Point3<T> Corner(int index) const{
+		Assert(index >= 0 && index < 8);
+		T x=(*this)[index&1].x;//偶数取minPoint.x 奇数取maxPoint.x;
+		T y=(*this)[index&2?1:0].y;//index第二位是0取minPoint.y,否则取maxPoint.y;
+		T z=(*this)[index&4?1:0].z;//类推z
+		return Point3<T>(x,y,z);
+	}
+
+};
+
+template<typename T>
+Bound3<T> Union(const Bound3<T>& b,const Point3<T> p){
+	return Bound3<T>(Point3<T>(std::min(b.minPoint.x,p.x),std::min(b.minPoint.y,p.y),std::min(b.minPoint.z,p.z))
+			,Point3<T>(std::max(b.maxPoint.x,p.x),std::max(b.maxPoint.y,p.y),std::max(b.maxPoint.z,p.z)));
+}
+
+typedef Bound3<Float> Bound3f;
+typedef Bound3<int> Bound3i;
 
 #endif /* SRC_CORE_GEOMETRY_H_ */

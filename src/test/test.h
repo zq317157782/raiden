@@ -203,68 +203,67 @@ TEST(Point3,index) {
 }
 
 TEST(VectorOp,distance) {
-	Vector2<float> v1(1,0);
-	Vector2<float> v2(0,1);
-	ASSERT_EQ(Dot(v1,v2),0);
+	Vector2<float> v1(1, 0);
+	Vector2<float> v2(0, 1);
+	ASSERT_EQ(Dot(v1, v2), 0);
 
-	Vector2<float> v3(1,0);
-	Vector2<float> v4(-1,0);
-	ASSERT_EQ(AbsDot(v3,v4),1);
+	Vector2<float> v3(1, 0);
+	Vector2<float> v4(-1, 0);
+	ASSERT_EQ(AbsDot(v3, v4), 1);
 
-	Vector3f biasX(1,0,0);
-	Vector3f biasY(0,1,0);
-	Vector3f biasZ=Cross(biasX,biasY);
-	ASSERT_EQ(biasZ,Vector3f(0,0,1));
+	Vector3f biasX(1, 0, 0);
+	Vector3f biasY(0, 1, 0);
+	Vector3f biasZ = Cross(biasX, biasY);
+	ASSERT_EQ(biasZ, Vector3f(0, 0, 1));
 
-	Vector3f unnormalV(4,0,0);
-	Vector3f normalV=Normalize(unnormalV);
-	ASSERT_EQ(normalV,Vector3f(1,0,0));
-	Vector3f vv=6*unnormalV;
-	ASSERT_EQ(vv,Vector3f(24,0,0));
+	Vector3f unnormalV(4, 0, 0);
+	Vector3f normalV = Normalize(unnormalV);
+	ASSERT_EQ(normalV, Vector3f(1, 0, 0));
+	Vector3f vv = 6 * unnormalV;
+	ASSERT_EQ(vv, Vector3f(24, 0, 0));
 
 }
-
 
 TEST(PointOp,distance) {
-	Point3<float> p1(2,2,2);
-	Point3<float> p2(0,0,0);
-	ASSERT_EQ(DistanceSquared(p1,p2),12);
-	ASSERT_LE(Distance(p1,p2)-sqrt(12),0.1e-10);
+	Point3<float> p1(2, 2, 2);
+	Point3<float> p2(0, 0, 0);
+	ASSERT_EQ(DistanceSquared(p1, p2), 12);
+	ASSERT_LE(Distance(p1, p2) - sqrt(12), 0.1e-10);
 }
 
-TEST(FloatOp,all){
-float f=0;
-f=NextFloatUp(f);
-ASSERT_EQ(f,BitsToFloat((uint32_t)0x00000001));
-f=NextFloatDown(f);
-ASSERT_EQ(f,0);
+TEST(FloatOp,all) {
+	float f = 0;
+	f = NextFloatUp(f);
+	ASSERT_EQ(f, BitsToFloat((uint32_t )0x00000001));
+	f = NextFloatDown(f);
+	ASSERT_EQ(f, 0);
 
-double d=0;
-d=NextFloatUp(d);
-ASSERT_EQ(d,BitsToFloat((uint64_t)0x0000000000000001));
+	double d = 0;
+	d = NextFloatUp(d);
+	ASSERT_EQ(d, BitsToFloat((uint64_t )0x0000000000000001));
 
-ASSERT_NE(gamma(1),1);
+	ASSERT_NE(gamma(1), 1);
 //ASSERT_EQ(MachineEpsion,0);
 }
 
 #include "errfloat.h"
-TEST(ErrFloat,all){
+TEST(ErrFloat,all) {
 	ErrFloat f(1);
 	ErrFloat f2(1);
-	ErrFloat f3=f+f2;
-	ASSERT_EQ(f3.UpperBound(),NextFloatUp(2.0f));
-	ASSERT_EQ(f3.LowerBound(),NextFloatDown(2.0f));
-	ErrFloat f4=f-f2;
-	ASSERT_EQ(f4.UpperBound(),NextFloatUp(0.0f));
+	ErrFloat f3 = f + f2;
+	ASSERT_EQ(f3.UpperBound(), NextFloatUp(2.0f));
+	ASSERT_EQ(f3.LowerBound(), NextFloatDown(2.0f));
+	ErrFloat f4 = f - f2;
+	ASSERT_EQ(f4.UpperBound(), NextFloatUp(0.0f));
 	//ASSERT_EQ(f4.LowerBound(),NextFloatDown(0.0f));//这里直接返回nan了，因为0的下一个float就是nan
-	ErrFloat f5=f*f2;
-	ASSERT_EQ(f5.UpperBound(),NextFloatUp(1.0f));
-	ASSERT_EQ(f5.LowerBound(),NextFloatDown(1.0f));
-	ErrFloat f6=f/f2;
-	ASSERT_EQ(f6.UpperBound(),NextFloatUp(1.0f));
-	ASSERT_EQ(f6.LowerBound(),NextFloatDown(1.0f));
-	ErrFloat f7=-f;
-	ASSERT_EQ(f7.UpperBound(),-1.0f);
+	ErrFloat f5 = f * f2;
+	ASSERT_EQ(f5.UpperBound(), NextFloatUp(1.0f));
+	ASSERT_EQ(f5.LowerBound(), NextFloatDown(1.0f));
+	ErrFloat f6 = f / f2;
+	ASSERT_EQ(f6.UpperBound(), NextFloatUp(1.0f));
+	ASSERT_EQ(f6.LowerBound(), NextFloatDown(1.0f));
+	ErrFloat f7 = -f;
+	ASSERT_EQ(f7.UpperBound(), -1.0f);
 }
 
 TEST(Normal3,add) {
@@ -335,6 +334,30 @@ TEST(Normal3,eq) {
 	Normal3<float> v1(0.0, 0.0, 0.0);
 	Normal3<float> v2(v1);
 	ASSERT_EQ(v1, v2);
+}
+
+TEST(Bound3,all) {
+//ASSERT_EQ(std::numeric_limits<float>::lowest(),std::numeric_limits<float>::min());
+	Point3<Float> p1(1, 1, 1);
+	Point3<Float> p2(2, 2, 2);
+	Bound3<Float> bound(p1, p2);
+	ASSERT_EQ(bound[0], p1);
+	ASSERT_EQ(bound[1], p2);
+	bound[1] = p1;
+	ASSERT_EQ(bound[1], p1);
+	bound[0] = Point3<Float>(0, 1, 2);
+	bound[1] = Point3<Float>(3, 4, 5);
+	ASSERT_EQ(bound.Corner(0), Point3<Float>(0, 1, 2));
+	ASSERT_EQ(bound.Corner(1), Point3<Float>(3, 1, 2));
+	ASSERT_EQ(bound.Corner(2), Point3<Float>(0, 4, 2));
+	ASSERT_EQ(bound.Corner(3), Point3<Float>(3, 4, 2));
+	ASSERT_EQ(bound.Corner(4), Point3<Float>(0, 1, 5));
+	ASSERT_EQ(bound.Corner(5), Point3<Float>(3, 1, 5));
+	ASSERT_EQ(bound.Corner(6), Point3<Float>(0, 4, 5));
+	ASSERT_EQ(bound.Corner(7), Point3<Float>(3, 4, 5));
+	bound=Union(bound,Point3<Float>(6,6,6));
+	ASSERT_EQ(bound.Corner(0), Point3<Float>(0, 1, 2));
+	ASSERT_EQ(bound.Corner(7), Point3<Float>(6, 6, 6));
 }
 
 void UnitTest(int argc, char* argv[]) {
