@@ -677,7 +677,7 @@ public:
 		z = nl.z;
 		return *this;
 	}
-
+#endif
 	Normal3<T> operator-() const {
 		return Normal3<T>(-x, -y, -z);
 	}
@@ -775,10 +775,16 @@ public:
 			x(v.x), y(v.y), z(v.z) {
 		Assert(!HasNaNs());
 	}
-#endif
+
 	//判断分量中有没有NaN的变量
 	bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y) || ::IsNaN(z);
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os, const Normal3<T> &n) {
+		os << "[" << n.x << ", " << n.y << ", " << n.z << "]";
+		return os;
 	}
 };
 
@@ -854,6 +860,12 @@ public:
 			return 1;
 		else
 			return 2;
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
+		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
+		return os;
 	}
 
 };
@@ -943,13 +955,74 @@ public:
 	Float time; //曝光时间相关
 	//todo 和中间介质相关的变量还没有加入
 public:
-	Ray(const Point3f& oo, const Vector3f& dd,float tmax = Infinity,Float t=0.0f) :
-			o(oo), d(dd),tMax(tmax), time(t){
+	Ray(const Point3f& oo, const Vector3f& dd, float tmax = Infinity, Float t =
+			0.0f) :
+			o(oo), d(dd), tMax(tmax), time(t) {
+		Assert(!HasNaNs());
 	}
-	Ray():tMax(Infinity),time(0){
+	Ray() :
+			tMax(Infinity), time(0) {
 	}
 	Point3f operator()(Float t) const {
 		return o + d * t;
+	}
+
+	//判断射线是否包含NaN变量
+	bool HasNaNs() const {
+		return o.HasNaNs() || d.HasNaNs() || IsNaN(time) || IsNaN(tMax);
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os, const Ray &r) {
+		os << "< o:" << r.o << " ,d:" << r.d << " ,tMax:" << r.tMax << " ,time:"
+				<< r.time << ">";
+		return os;
+	}
+};
+
+class RayDifferential: Ray {
+public:
+	bool hasDifferential;	//判断是否包含微分信息
+	Point3f ox, oy;
+	Vector3f dx, dy;
+public:
+	RayDifferential() :
+			Ray() {
+		hasDifferential = false;	//默认没有微分信息
+	}
+	RayDifferential(const Point3f& oo, const Vector3f& dd,
+			float tmax = Infinity, Float t = 0.0f) :
+			Ray(oo, dd, tmax, t) {
+		Assert(!HasNaNs());
+		hasDifferential = false;
+	}
+	RayDifferential(const Ray& r) :
+			Ray(r) {
+		Assert(!r.HasNaNs());
+		hasDifferential = false;
+	}
+
+	//判断射线是否包含NaN变量
+	bool HasNaNs() const {
+		return Ray::HasNaNs() || ox.HasNaNs() || oy.HasNaNs() || dx.HasNaNs()
+				|| dy.HasNaNs();
+	}
+
+	//缩放微分信息，默认的差分是一个像素的信息(1 dx ==1 pixel)
+	void ScaleRayDifferential(Float s) {
+		ox = o + (ox - o) * s;
+		oy = o + (oy - o) * s;
+		dx = d + (dx - d) * s;
+		dy = d + (dy - d) * s;
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os,
+			const RayDifferential &r) {
+		os << "< o:" << r.o << " ,d:" << r.d << " ,tMax:" << r.tMax << " ,time:"
+				<< r.time << " ,hasDifferential:" << r.hasDifferential << " ,ox:"
+				<< r.ox << " ,dx:"<<r.dx<< " ,oy:" << r.oy << " ,dy:"<<r.dy << ">";
+		return os;
 	}
 };
 

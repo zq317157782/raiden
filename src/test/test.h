@@ -386,6 +386,15 @@ TEST(Bound3,all) {
 TEST(Ray,all){
 	Ray r(Point3f(0,0,0),Vector3f(1,0,0));
 	Point3f p=r(0.5f);
+}
+
+TEST(RayDifferential,all){
+	RayDifferential r(Point3f(0,0,0),Vector3f(1,0,0));
+	r.hasDifferential=true;
+	r.ox=Point3f(0,0,0);
+	r.dx=Vector3f(0,1,0);
+	r.ScaleRayDifferential(0.5f);
+	ASSERT_EQ(r.dx,Vector3f(0.5,0.5,0));
 
 }
 
