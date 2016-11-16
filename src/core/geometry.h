@@ -782,4 +782,6 @@ public:
 	}
 };
 
+typedef  Normal3<Float> Normal3f;
+
 #endif /* SRC_CORE_GEOMETRY_H_ */
