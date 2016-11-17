@@ -418,6 +418,15 @@ ASSERT_EQ(mataa.m[0][1],0.5f);
 
 }
 
+TEST(Vector3,CoordinateSystem){
+	Vector3f V(1.0f,0.0f,0.0f);
+	Vector3f VT;
+	Vector3f VB;
+	CoordinateSystem(V,&VT,&VB);
+	ASSERT_EQ(VT,Vector3f(0,0,1));
+	ASSERT_EQ(VB,Vector3f(0,-1,0));
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();

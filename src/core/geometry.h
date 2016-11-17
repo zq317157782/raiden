@@ -1101,5 +1101,22 @@ inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
 	return std::sqrt(DistanceSquared(p1, p2));
 }
 
+//根据一个向量V(x,y,z)生成一个新的坐标系
+//1.首先生成一个和V正交的向量VT(-z,0,x),并且标准化
+//2.叉乘生成第三个变量VB
+//3.为了保证当x,z都为0的时候发生错误，所以这里判断当x>y:VT(-z,0,x)不然VT(0,-z,y)
+template<typename T>
+inline void CoordinateSystem(const Vector3<T>& V,Vector3<T>* VT,Vector3<T>* VB){
+	if(V.x>V.y){
+		Float inv=1.0f/std::sqrt(V.x*V.x+V.z*V.z);//用来标准化的参数
+		(*VT)=Vector3<T>(-V.z*inv,0,V.x*inv);
+	}
+	else{
+		Float inv=1.0f/std::sqrt(V.y*V.y+V.z*V.z);//用来标准化的参数
+		(*VT)=Vector3<T>(0,-V.z*inv,V.y*inv);
+	}
+	(*VB)=Cross(V,*VT);
+}
+
 //todo geomtry相关函数的扩充
 #endif /* SRC_CORE_GEOMETRY_H_ */
