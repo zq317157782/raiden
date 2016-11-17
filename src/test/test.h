@@ -427,6 +427,11 @@ TEST(Vector3,CoordinateSystem){
 	ASSERT_EQ(VB,Vector3f(0,-1,0));
 }
 
+TEST(Vector3,SphericalDirection){
+	Vector3f v=SphericalDirection(0.0f,1.0f,0.0f);
+	ASSERT_EQ(v,Vector3f(0,0,1));
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();

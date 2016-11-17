@@ -1118,5 +1118,16 @@ inline void CoordinateSystem(const Vector3<T>& V,Vector3<T>* VT,Vector3<T>* VB){
 	(*VB)=Cross(V,*VT);
 }
 
+//球坐标到向量的变换
+//theta是和Z轴之间的角度
+//phi是从x轴往y轴旋转的角度
+//1.costheta就是Z坐标
+//2.1-Z=x+y=>x+y=sintheta
+//3.不考虑Z轴的情况下,x==cosphi,y==sinphi
+
+inline Vector3f SphericalDirection(Float sintheta, Float costheta, Float phi) {
+	return Vector3f(sintheta * std::cos(phi), sintheta * std::sin(phi), costheta);
+}
+
 //todo geomtry相关函数的扩充
 #endif /* SRC_CORE_GEOMETRY_H_ */
