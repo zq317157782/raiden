@@ -29,6 +29,8 @@ static constexpr Float Infinity=std::numeric_limits<Float>::infinity();
 //打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
 #define Error(x) std::cerr<<x<<std::endl;
 
+static const Float Pi = 3.14159265358979323846;
+
 template<typename T> class Vector3;
 template<typename T> class Vector2;
 template<typename T> class Point3;
@@ -37,6 +39,8 @@ template<typename T> class Normal3;
 template<typename T> class Bound3;
 class Ray;
 class RayDifferential;
+struct Matrix4x4;
+class Transform;
 class ErrFloat;//计算累积误差的浮点数实现
 
 //float类型相应的IEEE标准的BIT格式
@@ -142,5 +146,12 @@ static constexpr Float MachineEpsion = 0.5f
 inline constexpr Float gamma(int n){return (n*MachineEpsion)/(1-n*MachineEpsion);}
 
 
+
+//裁剪函数
+inline Float Clamp(Float val, Float low, Float high) {
+    if (val < low) return low;
+    else if (val > high) return high;
+    else return val;
+}
 
 #endif /* SRC_CORE_RAIDEN_H_ */

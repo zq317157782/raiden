@@ -9,7 +9,6 @@
 #define SRC_CORE_TRANSFORM_H_
 
 #include "raiden.h"
-//这个矩阵结构应该只有Transform使用，其他地方应该是不需要直接操作矩阵级别的变换
 struct Matrix4x4 {
 	Float m[4][4];
 

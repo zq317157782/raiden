@@ -39,10 +39,10 @@ public:
 	}
 
 	explicit Vector3(const Normal3<T>& n) {
-			Assert(!n.HasNaNs());
-			x = n.x;
-			y = n.y;
-			z = n.z;
+		Assert(!n.HasNaNs());
+		x = n.x;
+		y = n.y;
+		z = n.z;
 	}
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
@@ -1012,30 +1012,25 @@ inline Float AbsDot(const Vector2<T>& v1, const Vector2<T>& v2) {
 //叉乘
 //基于左手坐标系
 template<typename T>
-inline Vector3<T> Cross(const Vector3<T>& v1,
-		const Vector3<T>& v2) {
+inline Vector3<T> Cross(const Vector3<T>& v1, const Vector3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
 template<typename T>
-inline Vector3<T> Cross(const Normal3<T>& v1,
-		const const Vector3<T>& v2) {
+inline Vector3<T> Cross(const Normal3<T>& v1, const const Vector3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
 template<typename T>
-inline Vector3<T> Cross(const Normal3<T>& v1,
-		const const Normal3<T>& v2) {
+inline Vector3<T> Cross(const Normal3<T>& v1, const const Normal3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
 template<typename T>
-inline Vector3<T> Cross(const Vector3<T>& v1,
-		const const Normal3<T>& v2) {
+inline Vector3<T> Cross(const Vector3<T>& v1, const const Normal3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
-
 
 //标准化
 template<typename T>
@@ -1080,7 +1075,6 @@ inline Vector3<T> Faceforward(const Vector3<T> &n, const Normal3<T> &v) {
 	return (Dot(n, v) < 0.f) ? -n : n;
 }
 
-
 //距离相关
 template<typename T>
 inline Float DistanceSquared(const Point3<T>& p1, const Point3<T>& p2) {
@@ -1106,16 +1100,16 @@ inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
 //2.叉乘生成第三个变量VB
 //3.为了保证当x,z都为0的时候发生错误，所以这里判断当x>y:VT(-z,0,x)不然VT(0,-z,y)
 template<typename T>
-inline void CoordinateSystem(const Vector3<T>& V,Vector3<T>* VT,Vector3<T>* VB){
-	if(V.x>V.y){
-		Float inv=1.0f/std::sqrt(V.x*V.x+V.z*V.z);//用来标准化的参数
-		(*VT)=Vector3<T>(-V.z*inv,0,V.x*inv);
+inline void CoordinateSystem(const Vector3<T>& V, Vector3<T>* VT,
+		Vector3<T>* VB) {
+	if (V.x > V.y) {
+		Float inv = 1.0f / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
+		(*VT) = Vector3<T>(-V.z * inv, 0, V.x * inv);
+	} else {
+		Float inv = 1.0f / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
+		(*VT) = Vector3<T>(0, -V.z * inv, V.y * inv);
 	}
-	else{
-		Float inv=1.0f/std::sqrt(V.y*V.y+V.z*V.z);//用来标准化的参数
-		(*VT)=Vector3<T>(0,-V.z*inv,V.y*inv);
-	}
-	(*VB)=Cross(V,*VT);
+	(*VB) = Cross(V, *VT);
 }
 
 //球坐标到向量的变换
@@ -1126,7 +1120,26 @@ inline void CoordinateSystem(const Vector3<T>& V,Vector3<T>* VT,Vector3<T>* VB){
 //3.不考虑Z轴的情况下,x==cosphi,y==sinphi
 
 inline Vector3f SphericalDirection(Float sintheta, Float costheta, Float phi) {
-	return Vector3f(sintheta * std::cos(phi), sintheta * std::sin(phi), costheta);
+	return Vector3f(sintheta * std::cos(phi), sintheta * std::sin(phi),
+			costheta);
+}
+//任意坐标系下的球面坐标转向量
+inline Vector3f SphericalDirection(Float sinTheta, Float cosTheta, Float phi,
+		const Vector3f &x, const Vector3f &y, const Vector3f &z) {
+	return sinTheta * std::cos(phi) * x + sinTheta * std::sin(phi) * y
+			+ cosTheta * z;
+}
+
+//通过向量返回球面坐标theta
+inline Float SphericalTheta(const Vector3f& v){
+	Float z=Clamp(v.z,-1,1);
+	return std::acos(z);
+}
+
+//通过向量返回球面坐标phi
+inline Float SphericalPhi(const Vector3f &v) {
+    Float p = std::atan2(v.y, v.x);//因为phi是0~2PI 所以不能直接考虑cosphi
+    return (p < 0) ? (p + 2 * Pi) : p;
 }
 
 //todo geomtry相关函数的扩充

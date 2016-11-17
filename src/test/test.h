@@ -430,6 +430,10 @@ TEST(Vector3,CoordinateSystem){
 TEST(Vector3,SphericalDirection){
 	Vector3f v=SphericalDirection(0.0f,1.0f,0.0f);
 	ASSERT_EQ(v,Vector3f(0,0,1));
+	Float theta=SphericalTheta(v);
+	Float phi=SphericalTheta(v);
+	ASSERT_EQ(theta,0);
+	ASSERT_EQ(phi,0);
 }
 
 void UnitTest(int argc, char* argv[]) {
