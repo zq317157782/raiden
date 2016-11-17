@@ -790,6 +790,22 @@ public:
 
 typedef Normal3<Float> Normal3f;
 
+
+template<typename T>
+inline Float Dot(const Normal3<T>& v1, const Vector3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+template<typename T>
+inline Float Dot(const Vector3<T>& v1, const Normal3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+template<typename T>
+inline Normal3<T> Normalize(const Normal3<T>& n) {
+	Assert(!n.HasNaNs());
+	return n / n.Length();
+}
 //AABB盒
 template<typename T>
 class Bound3 {
@@ -939,7 +955,6 @@ bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
 //扩充AABB,各个维都扩充delta分量
 template<typename T>
 Bound3<T> Expand(const Bound3<T>& b, T delta) {
-	Assert(!IsNaN(delta));
 	Bound3<T> result;
 	result.minPoint = b.minPoint + Vector3<T>(-delta, -delta, -delta);
 	result.maxPoint = b.maxPoint + Vector3<T>(delta, delta, delta);
