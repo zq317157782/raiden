@@ -37,6 +37,13 @@ public:
 		y = p.y;
 		z = p.z;
 	}
+
+	explicit Vector3(const Normal3<T>& n) {
+			Assert(!n.HasNaNs());
+			x = n.x;
+			y = n.y;
+			z = n.z;
+	}
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
 	Vector3(const Vector3<T>& v) {
@@ -319,49 +326,6 @@ typedef Vector2<Float> Vector2f;
 typedef Vector2<int> Vector2i;
 
 template<typename T>
-inline Float Dot(const Vector3<T>& v1, const Vector3<T>& v2) {
-	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-template<typename T>
-inline Float Dot(const Vector2<T>& v1, const Vector2<T>& v2) {
-	return v1.x * v2.x + v1.y * v2.y;
-}
-
-template<typename T>
-inline Float AbsDot(const Vector3<T>& v1, const Vector3<T>& v2) {
-	return std::fabsf(Dot(v1, v2));
-}
-
-template<typename T>
-inline Float AbsDot(const Vector2<T>& v1, const Vector2<T>& v2) {
-	return std::fabsf(Dot(v1, v2));
-}
-
-//基于左手坐标系
-template<typename T>
-inline Vector3<T> Cross(const const Vector3<T>& v1,
-		const const Vector3<T>& v2) {
-	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
-			v1.x * v2.y - v1.y * v2.x);
-}
-
-template<typename T>
-inline Vector3<T> Normalize(const Vector3<T>& v) {
-	return v / v.Magnitude();
-}
-template<typename T>
-inline Vector2<T> Normalize(const Vector2<T>& v) {
-	return v / v.Magnitude();
-}
-
-//标量乘以向量的操作，其实就是换个位置，使用向量乘以标量的方式
-template<typename T, typename U>
-inline Vector3<T> operator*(U n, const Vector3<T>& v) {
-	return v * n;
-}
-
-template<typename T>
 class Point3 {
 public:
 	T x, y, z;
@@ -626,28 +590,6 @@ public:
 typedef Point2<Float> Point2f;
 typedef Point2<int> Point2i;
 
-template<typename T>
-inline Float DistanceSquared(const Point3<T>& p1, const Point3<T>& p2) {
-	Assert(!p1.HasNaNs() && !p2.HasNaNs());
-	return (p1 - p2).MagnitudeSquared();
-}
-
-template<typename T>
-inline Float Distance(const Point3<T>& p1, const Point3<T>& p2) {
-	return std::sqrt(DistanceSquared(p1, p2));
-}
-
-template<typename T>
-inline Float DistanceSquared(const Point2<T>& p1, const Point2<T>& p2) {
-	Assert(!p1.HasNaNs() && !p2.HasNaNs());
-	return (p1 - p2).MagnitudeSquared();
-}
-
-template<typename T>
-inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
-	return std::sqrt(DistanceSquared(p1, p2));
-}
-
 //三分量法线
 template<typename T>
 class Normal3 {
@@ -790,22 +732,6 @@ public:
 
 typedef Normal3<Float> Normal3f;
 
-
-template<typename T>
-inline Float Dot(const Normal3<T>& v1, const Vector3<T>& v2) {
-	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-template<typename T>
-inline Float Dot(const Vector3<T>& v1, const Normal3<T>& v2) {
-	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-template<typename T>
-inline Normal3<T> Normalize(const Normal3<T>& n) {
-	Assert(!n.HasNaNs());
-	return n / n.Length();
-}
 //AABB盒
 template<typename T>
 class Bound3 {
@@ -1035,11 +961,145 @@ public:
 	friend std::ostream &operator<<(std::ostream &os,
 			const RayDifferential &r) {
 		os << "< o:" << r.o << " ,d:" << r.d << " ,tMax:" << r.tMax << " ,time:"
-				<< r.time << " ,hasDifferential:" << r.hasDifferential << " ,ox:"
-				<< r.ox << " ,dx:"<<r.dx<< " ,oy:" << r.oy << " ,dy:"<<r.dy << ">";
+				<< r.time << " ,hasDifferential:" << r.hasDifferential
+				<< " ,ox:" << r.ox << " ,dx:" << r.dx << " ,oy:" << r.oy
+				<< " ,dy:" << r.dy << ">";
 		return os;
 	}
 };
+
+//Dot运算
+template<typename T>
+inline Float Dot(const Vector3<T>& v1, const Vector3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+template<typename T>
+inline Float Dot(const Vector3<T>& v1, const Normal3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+template<typename T>
+inline Float Dot(const Normal3<T>& v1, const Vector3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+template<typename T>
+inline Float Dot(const Normal3<T>& v1, const Normal3<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+template<typename T>
+inline Float Dot(const Vector2<T>& v1, const Vector2<T>& v2) {
+	return v1.x * v2.x + v1.y * v2.y;
+}
+template<typename T>
+inline Float AbsDot(const Vector3<T>& v1, const Vector3<T>& v2) {
+	return std::abs(Dot(v1, v2));
+}
+template<typename T>
+inline Float AbsDot(const Normal3<T>& v1, const Vector3<T>& v2) {
+	return std::abs(Dot(v1, v2));
+}
+template<typename T>
+inline Float AbsDot(const Vector3<T>& v1, const Normal3<T>& v2) {
+	return std::abs(Dot(v1, v2));
+}
+template<typename T>
+inline Float AbsDot(const Normal3<T>& v1, const Normal3<T>& v2) {
+	return std::abs(Dot(v1, v2));
+}
+template<typename T>
+inline Float AbsDot(const Vector2<T>& v1, const Vector2<T>& v2) {
+	return std::abs(Dot(v1, v2));
+}
+//叉乘
+//基于左手坐标系
+template<typename T>
+inline Vector3<T> Cross(const Vector3<T>& v1,
+		const Vector3<T>& v2) {
+	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x);
+}
+template<typename T>
+inline Vector3<T> Cross(const Normal3<T>& v1,
+		const const Vector3<T>& v2) {
+	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x);
+}
+template<typename T>
+inline Vector3<T> Cross(const Normal3<T>& v1,
+		const const Normal3<T>& v2) {
+	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x);
+}
+template<typename T>
+inline Vector3<T> Cross(const Vector3<T>& v1,
+		const const Normal3<T>& v2) {
+	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x);
+}
+
+
+//标准化
+template<typename T>
+inline Vector3<T> Normalize(const Vector3<T>& v) {
+	return v / v.Magnitude();
+}
+template<typename T>
+inline Vector2<T> Normalize(const Vector2<T>& v) {
+	return v / v.Magnitude();
+}
+template<typename T>
+inline Normal3<T> Normalize(const Normal3<T>& n) {
+	Assert(!n.HasNaNs());
+	return n / n.Length();
+}
+
+//标量乘以向量的操作，其实就是换个位置，使用向量乘以标量的方式
+template<typename T, typename U>
+inline Vector3<T> operator*(U n, const Vector3<T>& v) {
+	return v * n;
+}
+
+//把第一个参数转换到和第二个参数相同的空间半球中
+//4系列
+template<typename T>
+inline Normal3<T> Faceforward(const Normal3<T> &n, const Vector3<T> &v) {
+	return (Dot(n, v) < 0.f) ? -n : n;
+}
+
+template<typename T>
+inline Normal3<T> Faceforward(const Normal3<T> &n, const Normal3<T> &v) {
+	return (Dot(n, v) < 0.f) ? -n : n;
+}
+
+template<typename T>
+inline Vector3<T> Faceforward(const Vector3<T> &n, const Vector3<T> &v) {
+	return (Dot(n, v) < 0.f) ? -n : n;
+}
+
+template<typename T>
+inline Vector3<T> Faceforward(const Vector3<T> &n, const Normal3<T> &v) {
+	return (Dot(n, v) < 0.f) ? -n : n;
+}
+
+
+//距离相关
+template<typename T>
+inline Float DistanceSquared(const Point3<T>& p1, const Point3<T>& p2) {
+	Assert(!p1.HasNaNs() && !p2.HasNaNs());
+	return (p1 - p2).MagnitudeSquared();
+}
+template<typename T>
+inline Float Distance(const Point3<T>& p1, const Point3<T>& p2) {
+	return std::sqrt(DistanceSquared(p1, p2));
+}
+template<typename T>
+inline Float DistanceSquared(const Point2<T>& p1, const Point2<T>& p2) {
+	Assert(!p1.HasNaNs() && !p2.HasNaNs());
+	return (p1 - p2).MagnitudeSquared();
+}
+template<typename T>
+inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
+	return std::sqrt(DistanceSquared(p1, p2));
+}
 
 //todo geomtry相关函数的扩充
 #endif /* SRC_CORE_GEOMETRY_H_ */
