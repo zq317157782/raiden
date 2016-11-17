@@ -1142,5 +1142,5 @@ inline Float SphericalPhi(const Vector3f &v) {
     return (p < 0) ? (p + 2 * Pi) : p;
 }
 
-//todo geomtry相关函数的扩充
+//todo geomtry相关函数的扩充(补充说明:还有一小部分)
 #endif /* SRC_CORE_GEOMETRY_H_ */

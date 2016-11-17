@@ -163,6 +163,7 @@ public:
 	inline const Matrix4x4 &GetInverseMatrix() const {
 		return _invM;
 	}
+	//todo finish transform
 };
 
 #endif /* SRC_CORE_TRANSFORM_H_ */
