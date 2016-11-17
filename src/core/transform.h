@@ -67,7 +67,7 @@ struct Matrix4x4 {
 	friend Matrix4x4 Inverse(const Matrix4x4 &mm);
 
 	//矩阵相乘
-	Matrix4x4 operator*(const Matrix4x4 &mm) const{
+	Matrix4x4 operator*(const Matrix4x4 &mm) const {
 		Matrix4x4 mat;
 		for (int i = 0; i < 4; ++i)
 			for (int j = 0; j < 4; ++j)
@@ -95,6 +95,74 @@ struct Matrix4x4 {
 //						+ mm1.m[i][3] * mm2.m[3][j];
 //		return mat;
 //	}
+};
+
+//变换
+class Transform {
+private:
+	Matrix4x4 _m, _invM;
+public:
+	Transform() {
+
+	}
+
+	Transform(Float mm[4][4]) {
+		_m = Matrix4x4(mm);
+		_invM = Inverse(_m); //取逆
+		Assert(!_m.HasNaNs());
+	}
+
+	Transform(const Matrix4x4& mm) :
+			_m(mm), _invM(Inverse(mm)) {
+		Assert(!_m.HasNaNs());
+	}
+
+	Transform(const Matrix4x4& mm, const Matrix4x4& invMm) :
+			_m(mm), _invM(invMm) {
+		Assert(!_m.HasNaNs());
+		Assert(!_invM.HasNaNs());
+	}
+	friend Transform Inverse(const Transform &t) {
+		return Transform(t._invM, t._m);
+	}
+	friend Transform Transpose(const Transform &t) {
+		return Transform(Transpose(t._m), Transpose(t._invM));
+	}
+	bool operator==(const Transform &t) const {
+		return t._m == _m && t._invM == _invM;
+	}
+	bool operator!=(const Transform &t) const {
+		return t._m != _m || t._invM != _invM;
+	}
+
+	bool operator<(const Transform &t2) const {
+		//从第一个元素往最后一个元素比较
+		for (int i = 0; i < 4; ++i)
+			for (int j = 0; j < 4; ++j) {
+				if (_m.m[i][j] < t2._m.m[i][j])
+					return true;
+				if (_m.m[i][j] > t2._m.m[i][j])
+					return false;
+			}
+		return false;
+	}
+
+	bool IsIdentity() const {
+		return (_m.m[0][0] == 1.0f && _m.m[0][1] == 0.0f && _m.m[0][2] == 0.0f
+				&& _m.m[0][3] == 0.f && _m.m[1][0] == 0.0f && _m.m[1][1] == 1.0f
+				&& _m.m[1][2] == 0.0f && _m.m[1][3] == 0.0f
+				&& _m.m[2][0] == 0.0f && _m.m[2][1] == 0.0f
+				&& _m.m[2][2] == 1.0f && _m.m[2][3] == 0.0f
+				&& _m.m[3][0] == 0.0f && _m.m[3][1] == 0.0f
+				&& _m.m[3][2] == 0.0f && _m.m[3][3] == 1.0f);
+	}
+
+	inline const Matrix4x4 &GetMatrix() const {
+		return _m;
+	}
+	inline const Matrix4x4 &GetInverseMatrix() const {
+		return _invM;
+	}
 };
 
 #endif /* SRC_CORE_TRANSFORM_H_ */
