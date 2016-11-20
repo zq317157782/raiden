@@ -163,7 +163,126 @@ public:
 	inline const Matrix4x4 &GetInverseMatrix() const {
 		return _invM;
 	}
+
+	//以下转换操作基本都提供了两个版本，一个普通的变换以及另外一个计算浮点数误差的版本
+	template<typename T>
+	inline Point3<T> operator()(const Point3<T>& p) const;
+	template<typename T>
+	inline Point3<T> operator()(const Point3<T>& p, Vector3<T>* err) const;
+	template<typename T>
+	inline Point3<T> operator()(const Point3<T>& p, const Vector3<T>& cErr,
+			Vector3<T>* err) const;
+	template<typename T>
+	inline Vector3<T> operator()(const Vector3<T>& v) const;
+	template<typename T>
+	inline Normal3<T> operator()(const Normal3<T>& n) const;
+	//inline Ray operator()(const Ray& r) const;
 	//todo finish transform
 };
+
+//对Point3的变换操作
+template<typename T>
+inline Point3<T> Transform::operator()(const Point3<T>& p) const {
+	T x = p.x, y = p.y, z = p.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z + _m.m[0][3];	//*1
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z + _m.m[1][3];	//*1
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z + _m.m[2][3];	//*1
+	T ww = _m.m[3][0] * x + _m.m[3][1] * y + _m.m[3][2] * z + _m.m[3][3];	//*1
+	Assert(ww != 0.0f);
+	if (ww == 1.0f) {
+		return Point3<T>(xx, yy, zz);
+	} else {
+		return Point3<T>(xx, yy, zz) / ww;
+	}
+}
+
+template<typename T>
+inline Point3<T> Transform::operator()(const Point3<T>& p,
+		Vector3<T>* err/*绝对误差*/) const {
+	T x = p.x, y = p.y, z = p.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z + _m.m[0][3];	//*1
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z + _m.m[1][3];	//*1
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z + _m.m[2][3];	//*1
+	T ww = _m.m[3][0] * x + _m.m[3][1] * y + _m.m[3][2] * z + _m.m[3][3];	//*1
+
+	//计算transform对于point的浮点数误差边界
+	T absX = std::abs(_m.m[0][0] * x) + std::abs(_m.m[0][1] * y)
+			+ std::abs(_m.m[0][2] * z) + std::abs(_m.m[0][3]);
+	T absY = std::abs(_m.m[1][0] * x) + std::abs(_m.m[1][1] * y)
+			+ std::abs(_m.m[1][2] * z) + std::abs(_m.m[1][3]);
+	T absZ = std::abs(_m.m[2][0] * x) + std::abs(_m.m[2][1] * y)
+			+ std::abs(_m.m[2][2] * z) + std::abs(_m.m[2][3]);
+	*err = Vector3<T>(absX, absY, absZ) * gamma(3);
+
+	Assert(ww != 0.0f);
+	if (ww == 1.0f) {
+		return Point3<T>(xx, yy, zz);
+	} else {
+		return Point3<T>(xx, yy, zz) / ww;
+	}
+}
+template<typename T>
+inline Point3<T> Transform::operator()(const Point3<T>& p,
+		const Vector3<T>& cErr/*累积误差*/, Vector3<T>* err/*绝对误差*/) const {
+	T x = p.x, y = p.y, z = p.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z + _m.m[0][3];	//*1
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z + _m.m[1][3];	//*1
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z + _m.m[2][3];	//*1
+	T ww = _m.m[3][0] * x + _m.m[3][1] * y + _m.m[3][2] * z + _m.m[3][3];	//*1
+
+	//计算transform对于point的浮点数误差边界
+	T absX = std::abs(_m.m[0][0] * x) + std::abs(_m.m[0][1] * y)
+			+ std::abs(_m.m[0][2] * z) + std::abs(_m.m[0][3]);
+	T absY = std::abs(_m.m[1][0] * x) + std::abs(_m.m[1][1] * y)
+			+ std::abs(_m.m[1][2] * z) + std::abs(_m.m[1][3]);
+	T absZ = std::abs(_m.m[2][0] * x) + std::abs(_m.m[2][1] * y)
+			+ std::abs(_m.m[2][2] * z) + std::abs(_m.m[2][3]);
+	*err = Vector3<T>(absX, absY, absZ) * gamma(3);
+
+	//这里是把累积误差也考虑进去
+	err->x += (gamma(3) + (T) 1)
+			* (std::abs(_m.m[0][0]) * cErr.x + std::abs(_m.m[0][1]) * cErr.y
+					+ std::abs(_m.m[0][2]) * cErr.z);
+	err->y += (gamma(3) + (T) 1)
+			* (std::abs(_m.m[1][0]) * cErr.x + std::abs(_m.m[1][1]) * cErr.y
+					+ std::abs(_m.m[1][2]) * cErr.z);
+	err->z += (gamma(3) + (T) 1)
+			* (std::abs(_m.m[2][0]) * cErr.x + std::abs(_m.m[2][1]) * cErr.y
+					+ std::abs(_m.m[2][2]) * cErr.z);
+
+	Assert(ww != 0.0f);
+	if (ww == 1.0f) {
+		return Point3<T>(xx, yy, zz);
+	} else {
+		return Point3<T>(xx, yy, zz) / ww;
+	}
+}
+
+//对Vector3的变换操作
+template<typename T>
+inline Vector3<T> Transform::operator()(const Vector3<T>& p) const {
+	T x = p.x, y = p.y, z = p.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z;	//+_m.m[0][3]*0
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z;	//+_m.m[1][3]*0
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z;	//+_m.m[2][3]*0
+	//T ww=_m.m[3][0]*x+_m.m[3][1]*y+_m.m[3][2]*z;//+_m.m[3][3]*0
+	return Vector3<T>(xx, yy, zz);
+}
+
+//对Vector3的变换操作
+template<typename T>
+inline Normal3<T> Transform::operator()(const Normal3<T>& n) const {
+	T x = n.x, y = n.y, z = n.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z;	//+_m.m[0][3]*0
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z;	//+_m.m[1][3]*0
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z;	//+_m.m[2][3]*0
+	//T ww=_m.m[3][0]*x+_m.m[3][1]*y+_m.m[3][2]*z;//+_m.m[3][3]*0
+	return Normal3<T>(xx, yy, zz);
+}
+
+////对射线的变换
+//inline Ray Transform::operator()(const Ray& r) const{
+//
+//}
 
 #endif /* SRC_CORE_TRANSFORM_H_ */

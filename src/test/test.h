@@ -436,6 +436,20 @@ TEST(Vector3,SphericalDirection){
 	ASSERT_EQ(phi,0);
 }
 
+TEST(TRANSFORM,all){
+	Transform trans;
+	Point3f point(1,1,1);
+	Vector3f cerr(1.78814e-07,1.78814e-07,1.78814e-07);
+	Vector3f err;
+	Point3f ret=trans(point,cerr,&err);
+	ASSERT_EQ(point,ret);
+	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
+
+	Vector3f v1(1,1,1);
+	Vector3f v2=trans(v1);
+	ASSERT_EQ(v2,v1);
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();
