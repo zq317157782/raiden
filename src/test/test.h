@@ -457,6 +457,10 @@ TEST(TRANSFORM,all){
 	v2=trans(v1,cerr,&err);
 	ASSERT_EQ(v2,v1);
 	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
+
+	Ray ray(Point3f(1,1,1),Vector3f(1,0,0));
+	Ray r=trans(ray);
+	//ASSERT_EQ(r.o,ray.o);
 }
 
 void UnitTest(int argc, char* argv[]) {

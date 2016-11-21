@@ -29,7 +29,7 @@ static constexpr Float Infinity=std::numeric_limits<Float>::infinity();
 //打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
 #define Error(x) std::cerr<<x<<std::endl;
 
-static const Float Pi = 3.14159265358979323846;
+static constexpr Float Pi = 3.14159265358979323846;
 
 template<typename T> class Vector3;
 template<typename T> class Vector2;

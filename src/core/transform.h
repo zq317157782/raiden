@@ -9,6 +9,7 @@
 #define SRC_CORE_TRANSFORM_H_
 
 #include "raiden.h"
+#include "geometry.h"
 struct Matrix4x4 {
 	Float m[4][4];
 
@@ -181,7 +182,7 @@ public:
 			Vector3<T>* err) const;
 	template<typename T>
 	inline Normal3<T> operator()(const Normal3<T>& n) const;
-	//inline Ray operator()(const Ray& r) const;
+	inline Ray operator()(const Ray& ray) const;
 	//todo finish transform
 };
 
@@ -331,9 +332,17 @@ inline Normal3<T> Transform::operator()(const Normal3<T>& n) const {
 	return Normal3<T>(xx, yy, zz);
 }
 
-////对射线的变换
-//inline Ray Transform::operator()(const Ray& r) const{
-//
-//}
+//对射线的变换
+//todo 寻求PBRT作者的帮助
+inline Ray Transform::operator()(const Ray& r) const {
+	Vector3f err;	//用来记录对原点进行transform后引入的err
+	Point3f o = (*this)(r.o, &err);
+	Vector3f d = (*this)(r.d);
+	Float tMax = r.tMax;
+	Float offset = Dot(err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
+	o += (d * offset);
+	tMax -= offset;//tMax需要缩减
+	return Ray(o, d, tMax, r.time);
+}
 
 #endif /* SRC_CORE_TRANSFORM_H_ */

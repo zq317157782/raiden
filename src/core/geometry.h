@@ -1131,15 +1131,21 @@ inline Vector3f SphericalDirection(Float sinTheta, Float cosTheta, Float phi,
 }
 
 //通过向量返回球面坐标theta
-inline Float SphericalTheta(const Vector3f& v){
-	Float z=Clamp(v.z,-1,1);
+inline Float SphericalTheta(const Vector3f& v) {
+	Float z = Clamp(v.z, -1, 1);
 	return std::acos(z);
 }
 
 //通过向量返回球面坐标phi
 inline Float SphericalPhi(const Vector3f &v) {
-    Float p = std::atan2(v.y, v.x);//因为phi是0~2PI 所以不能直接考虑cosphi
-    return (p < 0) ? (p + 2 * Pi) : p;
+	Float p = std::atan2(v.y, v.x);	//因为phi是0~2PI 所以不能直接考虑cosphi
+	return (p < 0) ? (p + 2 * Pi) : p;
+}
+
+//返回Vector3<T>的绝对值
+template<typename T>
+inline Vector3<T> Abs(const Vector3<T>& v) {
+	return Vector3<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
 }
 
 //todo geomtry相关函数的扩充(补充说明:还有一小部分)
