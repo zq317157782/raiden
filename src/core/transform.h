@@ -358,6 +358,7 @@ inline RayDifferential Transform::operator()(const RayDifferential& ray) const{
 		rayDifferential.dx=(*this)(ray.dx);
 		rayDifferential.dy=(*this)(ray.dy);
 	}
+	return rayDifferential;
 }
 
 #endif /* SRC_CORE_TRANSFORM_H_ */
