@@ -183,6 +183,7 @@ public:
 	template<typename T>
 	inline Normal3<T> operator()(const Normal3<T>& n) const;
 	inline Ray operator()(const Ray& ray) const;
+	inline RayDifferential operator()(const RayDifferential& ray) const;
 	//todo finish transform
 };
 
@@ -343,6 +344,20 @@ inline Ray Transform::operator()(const Ray& r) const {
 	o += (d * offset);
 	tMax -= offset;//tMax需要缩减
 	return Ray(o, d, tMax, r.time);
+}
+
+
+//对微分射线的变换
+inline RayDifferential Transform::operator()(const RayDifferential& ray) const{
+	Ray r=(*this)(Ray(ray));
+	RayDifferential rayDifferential=RayDifferential(r.o,r.d,r.tMax,r.time);
+	if(ray.hasDifferential){
+		rayDifferential.hasDifferential=ray.hasDifferential;
+		rayDifferential.ox=(*this)(ray.ox);
+		rayDifferential.oy=(*this)(ray.oy);
+		rayDifferential.dx=(*this)(ray.dx);
+		rayDifferential.dy=(*this)(ray.dy);
+	}
 }
 
 #endif /* SRC_CORE_TRANSFORM_H_ */

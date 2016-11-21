@@ -921,7 +921,7 @@ public:
 	}
 };
 
-class RayDifferential: Ray {
+class RayDifferential:public Ray {
 public:
 	bool hasDifferential;	//判断是否包含微分信息
 	Point3f ox, oy;
