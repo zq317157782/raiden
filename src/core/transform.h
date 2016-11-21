@@ -175,6 +175,11 @@ public:
 	template<typename T>
 	inline Vector3<T> operator()(const Vector3<T>& v) const;
 	template<typename T>
+	inline Vector3<T> operator()(const Vector3<T>& v, Vector3<T>* err) const;
+	template<typename T>
+	inline Vector3<T> operator()(const Vector3<T>& v, const Vector3<T>& cErr,
+			Vector3<T>* err) const;
+	template<typename T>
 	inline Normal3<T> operator()(const Normal3<T>& n) const;
 	//inline Ray operator()(const Ray& r) const;
 	//todo finish transform
@@ -269,7 +274,53 @@ inline Vector3<T> Transform::operator()(const Vector3<T>& p) const {
 	return Vector3<T>(xx, yy, zz);
 }
 
-//对Vector3的变换操作
+template<typename T>
+inline Vector3<T> Transform::operator()(const Vector3<T>& v,
+		Vector3<T>* err/*绝对误差*/) const {
+	T x = v.x, y = v.y, z = v.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z;	//+_m.m[0][3]*0
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z;	//+_m.m[1][3]*0
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z;	//+_m.m[2][3]*0
+	/*其实这里应该是 gamma(3)*m*x+gamma(3)*m*y+gamma(2)*m*z; 但是多一个gamma(1)*m*z并不影响什么，还是保守误差边界*/
+	err->x = (std::abs(_m.m[0][0] * x) + std::abs(_m.m[0][1] * y)
+			+ std::abs(_m.m[0][2] * z)) * gamma(3);
+	err->y = (std::abs(_m.m[1][0] * x) + std::abs(_m.m[1][1] * y)
+			+ std::abs(_m.m[1][2] * z)) * gamma(3);
+	err->z = (std::abs(_m.m[2][0] * x) + std::abs(_m.m[2][1] * y)
+			+ std::abs(_m.m[2][2] * z)) * gamma(3);
+	return Vector3<T>(xx, yy, zz);
+}
+
+template<typename T>
+inline Vector3<T> Transform::operator()(const Vector3<T>& v,
+		const Vector3<T>& cErr, Vector3<T>* err) const {
+	T x = v.x, y = v.y, z = v.z;
+	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z;	//+_m.m[0][3]*0
+	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z;	//+_m.m[1][3]*0
+	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z;	//+_m.m[2][3]*0
+
+	/*其实这里应该是 gamma(3)*m*x+gamma(3)*m*y+gamma(2)*m*z; 但是多一个gamma(1)*m*z并不影响什么，还是保守误差边界*/
+	err->x = (std::abs(_m.m[0][0] * x) + std::abs(_m.m[0][1] * y)
+			+ std::abs(_m.m[0][2] * z)) * gamma(3);
+	err->y = (std::abs(_m.m[1][0] * x) + std::abs(_m.m[1][1] * y)
+			+ std::abs(_m.m[1][2] * z)) * gamma(3);
+	err->z = (std::abs(_m.m[2][0] * x) + std::abs(_m.m[2][1] * y)
+			+ std::abs(_m.m[2][2] * z)) * gamma(3);
+	//计算累积误差
+	err->x += (gamma(3) + (T) 1)
+			* (std::abs(_m.m[0][0]) * cErr.x + std::abs(_m.m[0][1]) * cErr.y
+					+ std::abs(_m.m[0][2]) * cErr.z);
+	err->y += (gamma(3) + (T) 1)
+			* (std::abs(_m.m[1][0]) * cErr.x + std::abs(_m.m[1][1]) * cErr.y
+					+ std::abs(_m.m[1][2]) * cErr.z);
+	err->z += (gamma(3) + (T) 1)
+			* (std::abs(_m.m[2][0]) * cErr.x + std::abs(_m.m[2][1]) * cErr.y
+					+ std::abs(_m.m[2][2]) * cErr.z);
+
+	return Vector3<T>(xx, yy, zz);
+}
+
+//对Normal3的变换操作
 template<typename T>
 inline Normal3<T> Transform::operator()(const Normal3<T>& n) const {
 	T x = n.x, y = n.y, z = n.z;

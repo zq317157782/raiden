@@ -441,13 +441,22 @@ TEST(TRANSFORM,all){
 	Point3f point(1,1,1);
 	Vector3f cerr(1.78814e-07,1.78814e-07,1.78814e-07);
 	Vector3f err;
-	Point3f ret=trans(point,cerr,&err);
+	Point3f ret=trans(point);
+	ASSERT_EQ(point,ret);
+	ret=trans(point,&err);
+	ASSERT_EQ(point,ret);
+	ret=trans(point,cerr,&err);
 	ASSERT_EQ(point,ret);
 	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
 
 	Vector3f v1(1,1,1);
 	Vector3f v2=trans(v1);
 	ASSERT_EQ(v2,v1);
+	v2=trans(v1,&err);
+	ASSERT_EQ(v2,v1);
+	v2=trans(v1,cerr,&err);
+	ASSERT_EQ(v2,v1);
+	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
 }
 
 void UnitTest(int argc, char* argv[]) {
