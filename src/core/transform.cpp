@@ -84,3 +84,13 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 	return Matrix4x4(minv);
 }
 
+
+bool Transform::SwapsHandedness() const{
+//计算行列式值
+//这里只计算3x3矩阵的行列式就够了
+	Float det=_m.m[0][0]*(_m.m[1][1]*_m.m[2][2]-_m.m[2][1]*_m.m[1][2])
+			-_m.m[0][1]*(_m.m[1][0]*_m.m[2][2]-_m.m[2][0]*_m.m[1][2])
+			+_m.m[0][2]*(_m.m[1][0]*_m.m[2][1]-_m.m[2][0]*_m.m[1][1]);
+	return det<0;
+}
+

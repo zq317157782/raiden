@@ -469,6 +469,8 @@ TEST(TRANSFORM,all){
 	Bound3f b(Point3f(-1,-1,-1),Point3f(1,1,1));
 	Bound3f b2=trans(b);
 	ASSERT_EQ(b.minPoint,b2.minPoint);
+
+	ASSERT_FALSE(trans.SwapsHandedness());
 }
 
 void UnitTest(int argc, char* argv[]) {
