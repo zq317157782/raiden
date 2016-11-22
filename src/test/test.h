@@ -472,6 +472,14 @@ TEST(TRANSFORM,all){
 	ASSERT_EQ(b.minPoint,b2.minPoint);
 
 	ASSERT_FALSE(trans.SwapsHandedness());
+
+	Transform transform=Translate(Vector3f(1,1,1));
+	ret=transform(point);
+	ASSERT_EQ(Point3f(2,2,2),ret);
+	transform=RotateX(90);
+	ret=transform(point);
+	ASSERT_EQ(Point3f(1,-1,1),ret);
+
 }
 
 void UnitTest(int argc, char* argv[]) {

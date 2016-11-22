@@ -154,4 +154,7 @@ inline Float Clamp(Float val, Float low, Float high) {
     else return val;
 }
 
+//角度转换弧度
+inline Float Radians(Float deg) { return (Pi / 180) * deg; }
+
 #endif /* SRC_CORE_RAIDEN_H_ */

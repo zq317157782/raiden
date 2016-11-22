@@ -84,13 +84,101 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 	return Matrix4x4(minv);
 }
 
-
-bool Transform::SwapsHandedness() const{
+bool Transform::SwapsHandedness() const {
 //计算行列式值
 //这里只计算3x3矩阵的行列式就够了
-	Float det=_m.m[0][0]*(_m.m[1][1]*_m.m[2][2]-_m.m[2][1]*_m.m[1][2])
-			-_m.m[0][1]*(_m.m[1][0]*_m.m[2][2]-_m.m[2][0]*_m.m[1][2])
-			+_m.m[0][2]*(_m.m[1][0]*_m.m[2][1]-_m.m[2][0]*_m.m[1][1]);
-	return det<0;
+	Float det = _m.m[0][0] * (_m.m[1][1] * _m.m[2][2] - _m.m[2][1] * _m.m[1][2])
+			- _m.m[0][1] * (_m.m[1][0] * _m.m[2][2] - _m.m[2][0] * _m.m[1][2])
+			+ _m.m[0][2] * (_m.m[1][0] * _m.m[2][1] - _m.m[2][0] * _m.m[1][1]);
+	return det < 0;
 }
 
+//位移转换 参考PBRT
+Transform Translate(const Vector3f &delta) {
+	Matrix4x4 m(1, 0, 0, delta.x, 0, 1, 0, delta.y, 0, 0, 1, delta.z, 0, 0, 0,
+			1);
+	Matrix4x4 minv(1, 0, 0, -delta.x, 0, 1, 0, -delta.y, 0, 0, 1, -delta.z, 0,
+			0, 0, 1);
+	return Transform(m, minv);
+}
+
+//缩放
+Transform Scale(Float x, Float y, Float z) {
+	Matrix4x4 m(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
+	Matrix4x4 minv(1.0f / x, 0, 0, 0, 0, 1.0f / y, 0, 0, 0, 0, 1.0f / z, 0, 0,
+			0, 0, 1);
+	return Transform(m, minv);
+}
+
+//旋转矩阵的逆 等于旋转矩阵的转置  所以是正交矩阵
+Transform RotateX(Float angle) {
+	float sinR = std::sin(Radians(angle));
+	float cosR = std::cos(Radians(angle));
+	Matrix4x4 m(1, 0, 0, 0, 0, cosR, -sinR, 0, 0, sinR, cosR, 0, 0, 0, 0, 1);
+	return Transform(m, Transpose(m));
+}
+
+Transform RotateY(float angle) {
+	float sinR = std::sin(Radians(angle));
+	float cosR = std::cos(Radians(angle));
+	Matrix4x4 m(cosR, 0, sinR, 0, 0, 1, 0, 0, -sinR, 0, cosR, 0, 0, 0, 0, 1);
+	return Transform(m, Transpose(m));
+}
+
+Transform RotateZ(float angle) {
+	float sinR = std::sin(Radians(angle));
+	float cosR = std::cos(Radians(angle));
+	Matrix4x4 m(cosR, -sinR, 0, 0, sinR, cosR, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	return Transform(m, Transpose(m));
+}
+
+//计算 绕任意轴旋转某角度的方法
+// v`=v_c+v_p*cos(theta)+v_2*sin(theta);
+Transform Rotate(Float angle, const Vector3f &axis) {
+	Vector3f a = Normalize(axis);
+	float s = std::sin(Radians(angle));
+	float c = std::cos(Radians(angle));
+	float m[4][4];
+
+	m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
+	m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
+	m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
+	m[0][3] = 0;
+
+	m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
+	m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
+	m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
+	m[1][3] = 0;
+
+	m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
+	m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
+	m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
+	m[2][3] = 0;
+
+	m[3][0] = 0;
+	m[3][1] = 0;
+	m[3][2] = 0;
+	m[3][3] = 1;
+
+	Matrix4x4 mat = Matrix4x4(m);
+	return Transform(mat, Transpose(mat));
+}
+
+Transform Orthographic(float znear, float zfar) {
+	return Scale(1.f, 1.f, 1.f / (zfar - znear))
+			* Translate(Vector3f(0.f, 0.f, -znear));
+}
+
+Transform Perspective(float fov, float n, float f) {
+	Matrix4x4 persp = Matrix4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, f / (f - n),
+			-f * n / (f - n), 0, 0, 1, 0);
+	//使用fov来缩放到标准空间
+	float invTanAng = 1.f / tanf(Radians(fov) / 2.f);
+	return Scale(invTanAng, invTanAng, 1) * Transform(persp);
+}
+
+Transform Transform::operator*(const Transform& tran) const {
+	Matrix4x4 m = this->_m * tran._m;
+	Matrix4x4 mInv = tran._invM * this->_invM;
+	return Transform(m, mInv);
+}

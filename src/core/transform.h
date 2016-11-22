@@ -204,6 +204,9 @@ public:
 	        os << "t=" << t._m << ", inv=" << t._invM;
 	        return os;
 	}
+
+	//变换之间的相乘，不满足交换律
+	Transform operator*(const Transform& tran) const;
 	//todo finish transform
 };
 
@@ -416,5 +419,17 @@ inline Bound3f Transform::operator()(const Bound3f& b) const {
 	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
 	return ret;
 }
+
+
+Transform Translate(const Vector3f &delta);
+Transform Scale(Float x,Float y,Float z);
+
+
+Transform RotateX(Float angle);
+Transform RotateY(Float angle);
+Transform RotateZ(Float angle);
+Transform Rotate(Float angle, const Vector3f &axis);
+Transform Orthographic(Float znear, Float zfar);//正交变换
+Transform Perspective(Float fov, Float znear, Float zfar);//透视变换 fov:field of view
 
 #endif /* SRC_CORE_TRANSFORM_H_ */
