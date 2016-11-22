@@ -459,8 +459,16 @@ TEST(TRANSFORM,all){
 	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
 
 	Ray ray(Point3f(1,1,1),Vector3f(1,0,0));
-	Ray r=trans(ray);
-	//ASSERT_EQ(r.o,ray.o);
+	Vector3f oerr,derr;
+	Vector3f coerr(1,1,1),cderr(1,1,1);
+	Ray r=trans(ray,&oerr,&derr);
+	//ASSERT_EQ(oerr,Vector3f(0,0,0));
+	r=trans(ray,coerr,cderr,&oerr,&derr);
+	//ASSERT_EQ(oerr,Vector3f(0,0,0));
+
+	Bound3f b(Point3f(-1,-1,-1),Point3f(1,1,1));
+	Bound3f b2=trans(b);
+	ASSERT_EQ(b.minPoint,b2.minPoint);
 }
 
 void UnitTest(int argc, char* argv[]) {

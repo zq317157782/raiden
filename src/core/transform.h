@@ -183,7 +183,12 @@ public:
 	template<typename T>
 	inline Normal3<T> operator()(const Normal3<T>& n) const;
 	inline Ray operator()(const Ray& ray) const;
+	inline Ray operator()(const Ray& ray, Vector3f *oErr,
+			Vector3f *odErr) const;
+	inline Ray operator()(const Ray& ray, const Vector3f& coErr,
+			const Vector3f& cdErr, Vector3f *oErr, Vector3f *odErr) const;
 	inline RayDifferential operator()(const RayDifferential& ray) const;
+	inline Bound3f operator()(const Bound3f& bound) const;
 	//todo finish transform
 };
 
@@ -342,23 +347,59 @@ inline Ray Transform::operator()(const Ray& r) const {
 	Float tMax = r.tMax;
 	Float offset = Dot(err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
 	o += (d * offset);
-	tMax -= offset;//tMax需要缩减
+	tMax -= offset;	//tMax需要缩减
+	return Ray(o, d, tMax, r.time);
+}
+//todo 寻求PBRT作者的帮助
+inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝对误差*/,
+		Vector3f *dErr/*射线方向的绝对误差*/) const {
+	Point3f o = (*this)(r.o, err);
+	Vector3f d = (*this)(r.d, dErr);
+	Float tMax = r.tMax;
+	Float offset = Dot(*err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
+	o += (d * offset);
+	tMax -= offset;	//tMax需要缩减
 	return Ray(o, d, tMax, r.time);
 }
 
+inline Ray Transform::operator()(const Ray& r, const Vector3f& coErr,
+		const Vector3f& cdErr, Vector3f *err, Vector3f *dErr) const {
+	Point3f o = (*this)(r.o, coErr,err);
+	Vector3f d = (*this)(r.d,cdErr,dErr);
+	Float tMax = r.tMax;
+	Float offset = Dot(*err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
+	o += (d * offset);
+	tMax -= offset;	//tMax需要缩减
+	return Ray(o, d, tMax, r.time);
+}
 
 //对微分射线的变换
-inline RayDifferential Transform::operator()(const RayDifferential& ray) const{
-	Ray r=(*this)(Ray(ray));
-	RayDifferential rayDifferential=RayDifferential(r.o,r.d,r.tMax,r.time);
-	if(ray.hasDifferential){
-		rayDifferential.hasDifferential=ray.hasDifferential;
-		rayDifferential.ox=(*this)(ray.ox);
-		rayDifferential.oy=(*this)(ray.oy);
-		rayDifferential.dx=(*this)(ray.dx);
-		rayDifferential.dy=(*this)(ray.dy);
+inline RayDifferential Transform::operator()(const RayDifferential& ray) const {
+	Ray r = (*this)(Ray(ray));
+	RayDifferential rayDifferential = RayDifferential(r.o, r.d, r.tMax, r.time);
+	if (ray.hasDifferential) {
+		rayDifferential.hasDifferential = ray.hasDifferential;
+		rayDifferential.ox = (*this)(ray.ox);
+		rayDifferential.oy = (*this)(ray.oy);
+		rayDifferential.dx = (*this)(ray.dx);
+		rayDifferential.dy = (*this)(ray.dy);
 	}
 	return rayDifferential;
+}
+
+//对AABB包围盒进行变换
+inline Bound3f Transform::operator()(const Bound3f& b) const {
+	const Transform& T = (*this);
+	//对包围盒的8个顶点都进行变换，然后求合并
+	Bound3f ret(T(Point3f(b.minPoint.x, b.minPoint.y, b.minPoint.z)));
+	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.minPoint.z)));
+	Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.minPoint.z)));
+	Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.maxPoint.z)));
+	Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.maxPoint.z)));
+	Union(ret, T(Point3f(b.minPoint.x, b.minPoint.y, b.maxPoint.z)));
+	Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.minPoint.z)));
+	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
+	return ret;
 }
 
 #endif /* SRC_CORE_TRANSFORM_H_ */
