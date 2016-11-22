@@ -365,7 +365,7 @@ inline Ray Transform::operator()(const Ray& r) const {
 	Float offset = Dot(err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
 	o += (d * offset);
 	tMax -= offset;	//tMax需要缩减
-	return Ray(o, d, tMax, r.time);
+	return Ray(o, d, tMax, r.time,r.medium);
 }
 //todo 寻求PBRT作者的帮助
 inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝对误差*/,
@@ -376,7 +376,7 @@ inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝
 	Float offset = Dot(*err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
 	o += (d * offset);
 	tMax -= offset;	//tMax需要缩减
-	return Ray(o, d, tMax, r.time);
+	return Ray(o, d, tMax, r.time,r.medium);
 }
 
 inline Ray Transform::operator()(const Ray& r, const Vector3f& coErr,
@@ -387,7 +387,7 @@ inline Ray Transform::operator()(const Ray& r, const Vector3f& coErr,
 	Float offset = Dot(*err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
 	o += (d * offset);
 	tMax -= offset;	//tMax需要缩减
-	return Ray(o, d, tMax, r.time);
+	return Ray(o, d, tMax, r.time,r.medium);
 }
 
 //对微分射线的变换
