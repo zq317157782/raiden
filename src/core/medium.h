@@ -14,6 +14,11 @@ class Medium{
 
 };
 
+//todo 实现MediumInterface
+struct MediumInterface{
+
+}
+
 
 
 #endif /* SRC_CORE_MEDIUM_H_ */
