@@ -438,6 +438,7 @@ TEST(Vector3,SphericalDirection){
 
 TEST(TRANSFORM,all){
 	Transform trans;
+	//std::cout<<trans<<std::endl;
 	Point3f point(1,1,1);
 	Vector3f cerr(1.78814e-07,1.78814e-07,1.78814e-07);
 	Vector3f err;

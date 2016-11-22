@@ -86,6 +86,14 @@ struct Matrix4x4 {
 		return false;
 	}
 
+	friend std::ostream &operator<<(std::ostream &os, const Matrix4x4 &m) {
+	        os <<"[["<<m.m[0][0]<<" "<<m.m[0][1]<<" "<<m.m[0][2]<<" "<<m.m[0][3]<<"]"
+	        	<<" ["<<m.m[1][0]<<" "<<m.m[1][1]<<" "<<m.m[1][2]<<" "<<m.m[1][3]<<"]"
+				<<" ["<<m.m[2][0]<<" "<<m.m[2][1]<<" "<<m.m[2][2]<<" "<<m.m[2][3]<<"]"
+				<<" ["<<m.m[3][0]<<" "<<m.m[3][1]<<" "<<m.m[3][2]<<" "<<m.m[3][3]<<"]]";
+	        return os;
+	    }
+
 //	//矩阵相乘
 //	static Matrix4x4 Mul(const Matrix4x4 &mm1, const Matrix4x4 &mm2) {
 //		Matrix4x4 mat;
@@ -191,6 +199,11 @@ public:
 	inline Bound3f operator()(const Bound3f& bound) const;
 
 	bool SwapsHandedness() const;//判断当前是否变换了坐标系true:右手坐标系 false:左手坐标系
+
+	 friend std::ostream &operator<<(std::ostream &os, const Transform &t) {
+	        os << "t=" << t._m << ", inv=" << t._invM;
+	        return os;
+	}
 	//todo finish transform
 };
 
