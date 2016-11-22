@@ -9,6 +9,7 @@
 #define SRC_CORE_INTERSECTION_H_
 #include "raiden.h"
 #include "geometry.h"
+#include "medium.h"
 class Intersection {
 public:
 	Point3f p; //交点

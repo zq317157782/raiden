@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <assert.h>
+#include <thread>
 
 //定义一个Float宏 可能指向float可能指向double
 typedef float Float;

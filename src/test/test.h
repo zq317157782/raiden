@@ -482,6 +482,17 @@ TEST(TRANSFORM,all){
 
 }
 
+#include "statsTest.h"
+#include "stats.h"
+TEST(Stats,all){
+	StatsTest st1;
+	StatsTest st2;
+	StatsTest st3;
+	StatsTest st4;
+	ReportThreadStats();
+	LogStats();
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();
