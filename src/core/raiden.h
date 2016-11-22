@@ -42,6 +42,7 @@ class RayDifferential;
 struct Matrix4x4;
 class Transform;
 class ErrFloat;//计算累积误差的浮点数实现
+class Medium;
 
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，

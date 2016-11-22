@@ -207,7 +207,6 @@ public:
 
 	//变换之间的相乘，不满足交换律
 	Transform operator*(const Transform& tran) const;
-	//todo finish transform
 };
 
 //对Point3的变换操作
