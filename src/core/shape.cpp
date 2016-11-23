@@ -17,3 +17,6 @@ Shape::Shape(const Transform *objectToWorld, const Transform *worldToObject,
 
 Shape::~Shape(){};
 
+Bound3f Shape::WorldBound() const{
+	return (*objectToWorld)(ObjectBound());
+}
