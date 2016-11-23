@@ -480,6 +480,21 @@ TEST(TRANSFORM,all){
 	ret=transform(point);
 	//ASSERT_EQ(Point3f(1,-1,1),ret);
 
+	Point3f pp(0,0,0);
+	Transform move_x_one=Translate(Vector3f(1,0,0));
+	Transform move_x_two=move_x_one*move_x_one;
+	pp=move_x_two(pp);
+	ASSERT_EQ(pp,Point3f(2,0,0));
+}
+
+#include "shapes/sphere.h"
+TEST(Sphere,All){
+	Transform move_z_one=Translate(Vector3f(0,0,1));
+	Transform move_z_none=Inverse(move_z_one);
+	Sphere sphere(&move_z_one,&move_z_none,false,1,-1,1,360);
+	ASSERT_EQ(sphere.Area(),4*Pi);
+	Ray ray(Point3f(0,0,0),Vector3f(0,0,1));
+	ASSERT_TRUE(sphere.IntersectP(ray));
 }
 
 #include "statsTest.h"

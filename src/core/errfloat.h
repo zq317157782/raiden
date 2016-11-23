@@ -64,7 +64,6 @@ public:
 	friend ErrFloat Abs(ErrFloat f);
 	friend bool Quadratic(ErrFloat A,ErrFloat B,ErrFloat C,ErrFloat* t0,ErrFloat* t1);//求解二次多项式
 };
-
 //一些float类型和ErrFloat的混合操作
 inline ErrFloat operator+(float f, ErrFloat ef) {
 	return ErrFloat(f) + ef;

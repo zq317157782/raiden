@@ -89,7 +89,7 @@ inline float NextFloatUp(float f) {
 	if (f == -0.0f)
 		f = 0.0f;
 	uint32_t bits = FloatToBits(f);
-	if (bits >= 0)
+	if (f >= 0)
 		++bits;
 	else
 		--bits;
@@ -101,10 +101,10 @@ inline float NextFloatDown(float f) {
 	Assert(!std::isnan(f));
 	if (std::isinf(f) && f < 0.0f)
 		return f;
-	if (f == -0.0f)
-		f = 0.0f;
+	if (f == 0.0f)
+		f = -0.0f;
 	uint32_t bits = FloatToBits(f);
-	if (bits >= 0)
+	if (f > 0)
 		--bits;
 	else
 		++bits;
@@ -118,7 +118,7 @@ inline double NextFloatUp(double d, int delta = 1) {
 	if (d == -0.0)
 		d = 0.0;
 	uint64_t bits = FloatToBits(d);
-	if (bits >= 0)
+	if (d >= 0)
 		bits += delta;
 	else
 		bits -= delta;
@@ -129,10 +129,10 @@ inline double NextFloatDown(double d, int delta = 1) {
 	Assert(!std::isnan(d));
 	if (std::isinf(d) && d < 0.0)
 		return d;
-	if (d == -0.0)
-		d = 0.0;
+	if (d == 0.0)
+		d = -0.0;
 	uint64_t bits = FloatToBits(d);
-	if (bits >= 0)
+	if (d > 0)
 		bits -= delta;
 	else
 		bits += delta;
