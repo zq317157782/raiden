@@ -28,9 +28,9 @@ public:
 
 Bound3f ObjectBound() const override;
 Float Area() const override;
-bool Intersect(const Ray& ray,Float* tHit,SurfaceIntersection* surfaceIsect,bool testAlpha=true) const override;
+bool Intersect(const Ray& ray,Float* tHit,SurfaceInteraction* surfaceIsect,bool testAlpha=true) const override;
 bool IntersectP(const Ray& ray,bool testAlpha=true) const override;
-Intersection Sample(const Point2f& uv,Float *pdf) const override{}
+Interaction Sample(const Point2f& uv,Float *pdf) const override{}
 };
 
 

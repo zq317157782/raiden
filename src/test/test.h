@@ -489,7 +489,7 @@ TEST(TRANSFORM,all){
 
 #include "shapes/sphere.h"
 TEST(Sphere,All){
-	Transform move_z_one=Translate(Vector3f(0,0,1));
+	Transform move_z_one=Translate(Vector3f(0,0,1.1));
 	Transform move_z_none=Inverse(move_z_one);
 	Sphere sphere(&move_z_one,&move_z_none,false,1,-1,1,360);
 	ASSERT_EQ(sphere.Area(),4*Pi);
@@ -497,6 +497,9 @@ TEST(Sphere,All){
 	ASSERT_TRUE(sphere.IntersectP(ray));
 	Ray ray2(Point3f(0,0,0),Vector3f(0,0,-1));
 	ASSERT_TRUE(!sphere.IntersectP(ray2));
+	Float tHit;
+	sphere.Intersect(ray,&tHit,nullptr);
+	ASSERT_EQ(0.1f,tHit);
 }
 
 #include "statsTest.h"

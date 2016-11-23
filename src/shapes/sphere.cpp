@@ -17,7 +17,7 @@ Float Sphere::Area() const {
 }
 
 bool Sphere::Intersect(const Ray& ray, Float* tHit,
-		SurfaceIntersection* surfaceIsect, bool testAlpha) const {
+		SurfaceInteraction* surfaceIsect, bool testAlpha) const {
 	Vector3f oErr, dErr;
 	Ray oRay = (*worldToObject)(ray, &oErr, &dErr); //把射线转换到球体局部空间,并且计算转换过程中的浮点数误差
 	//带误差的Ray原点
@@ -54,7 +54,7 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 	}
 
 	Point3f pHit = oRay((Float) tShapeHit);	//获得相交点空间位置数据
-	pHit = pHit * (_radius / Distance(pHit, Point3f(0, 0, 0)));	//refine?为啥?这么保守?
+	pHit = pHit * (_radius / Distance(pHit, Point3f(0, 0, 0)));	//重新refine 缩小ulp
 	if (pHit.x == 0 && pHit.y == 0) {
 		pHit.x = 1e-5f * _radius;	//防止0/0产生NaN这样悲催的事情发生
 	}
@@ -89,7 +89,45 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 			return false;		//失败
 		}
 	}
-	//todo Sphere微分数据相关计算
+	//开始计算球体的参数表达式
+	Float u = (phi / _phiMax);
+	Float theta = std::acos(Clamp(pHit.z / _radius, -1, 1));
+	Float v = (theta - _thetaMin) / (_thetaMax - _thetaMin);//这里也可以(_thetaMax-theta)/(_thetaMax-_thetaMin),其实方向反了
+	Vector3f dpdu(-_phiMax * pHit.y, _phiMax * pHit.x, 0);
+	//三角函数关系计算cosPhi和sinPhi
+	Float phiEdge = std::sqrt(pHit.x * pHit.x + pHit.y * pHit.y);
+	Float invPhiEdge = 1.0f / phiEdge;
+	Float cosPhi = pHit.x * invPhiEdge;
+	Float sinPhi = pHit.y * invPhiEdge;
+	Vector3f dpdv = Vector3f(pHit.z * cosPhi, pHit.z * sinPhi,
+			-_radius * std::sin(theta)) * (_thetaMax - _thetaMin);
+
+	//以下代码计算法线的偏导，公式来自PBRT以及RayDiffereinal论文，我还没有仔细研究为啥是这样子
+	Vector3f d2Pduu = -_phiMax * _phiMax * Vector3f(pHit.x, pHit.y, 0);
+	Vector3f d2Pduv = (_thetaMax - _thetaMin) * pHit.z * _phiMax
+			* Vector3f(-sinPhi, cosPhi, 0.);
+	Vector3f d2Pdvv = -(_thetaMax - _thetaMin) * (_thetaMax - _thetaMin)
+			* Vector3f(pHit.x, pHit.y, pHit.z);
+	Float E = Dot(dpdu, dpdu);
+	Float F = Dot(dpdu, dpdv);
+	Float G = Dot(dpdv, dpdv);
+	Vector3f N = Normalize(Cross(dpdu, dpdv));
+	Float e = Dot(N, d2Pduu);
+	Float f = Dot(N, d2Pduv);
+	Float g = Dot(N, d2Pdvv);
+	Float invEGF2 = 1 / (E * G - F * F);
+	Normal3f dndu = Normal3f(
+			(f * F - e * G) * invEGF2 * dpdu
+					+ (e * F - f * E) * invEGF2 * dpdv);
+	Normal3f dndv = Normal3f(
+			(g * F - f * G) * invEGF2 * dpdu
+					+ (f * F - g * E) * invEGF2 * dpdv);
+	//Refine交点产生的绝对误差
+	Vector3f pError = gamma(5) * Abs((Vector3f)pHit);
+	//todo Sphere 填充SurfaceIntersection
+
+	//这里的tShapeHit并没有考虑refine,所以误差可能有点高
+	 *tHit = (Float)tShapeHit;
 	return true;
 }
 

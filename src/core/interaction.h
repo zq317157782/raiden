@@ -5,12 +5,13 @@
  *      Author: zhuqian
  */
 
-#ifndef SRC_CORE_INTERSECTION_H_
-#define SRC_CORE_INTERSECTION_H_
+#ifndef SRC_CORE_INTERACTION_H_
+#define SRC_CORE_INTERACTION_H_
 #include "raiden.h"
 #include "geometry.h"
 #include "medium.h"
-class Intersection {
+#include "shape.h"
+class Interaction {
 public:
 	Point3f p; //交点
 	Normal3f n; //表面法线
@@ -19,10 +20,10 @@ public:
 	Float time; //时间
 	MediumInterface mediumInterface;
 public:
-	Intersection() :
+	Interaction() :
 			time(0) {
 	}
-	Intersection(const Point3f& pp, const Normal3f& nn, const Vector3f& perr,
+	Interaction(const Point3f& pp, const Normal3f& nn, const Vector3f& perr,
 			const Vector3f& wo, Float t, const MediumInterface& mediumInterface) :
 			p(pp), n(nn), pErr(perr), wo(wo), time(t), mediumInterface(
 					mediumInterface) {
@@ -30,12 +31,12 @@ public:
 };
 
 //表面交点，射线与几何体表面之间的交点
-class SurfaceIntersection: public Intersection {
+class SurfaceInteraction: public Interaction {
 public:
 	Point3f uv; //表面的参数坐标
 	Vector3f dpdu, dpdv; //参数坐标和空间点之间的一阶导数/梯度
 	Normal3f dndu, dndv; //参数坐标和法线之间的一阶导数/梯度
-	//todo Shape指针
+	const Shape* shape;
 	//todo Primitive指针
 	//todo BSDF指针
 	//todo BSSRDF指针
@@ -48,4 +49,4 @@ public:
 	mutable Float dudx,dudy,dvdx,dvdy;
 };
 
-#endif /* SRC_CORE_INTERSECTION_H_ */
+#endif /* SRC_CORE_INTERACTION_H_ */
