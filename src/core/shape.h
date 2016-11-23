@@ -28,7 +28,7 @@ public:
 
 	//相交测试函数
 	virtual bool Intersect(const Ray& ray,Float* tHit,SurfaceIntersection* surfaceIsect,bool testAlpha=true) const=0;
-	virtual bool Intersect(const Ray& ray,bool testAlpha=true) const{return Intersect(ray,nullptr,nullptr,testAlpha);}
+	virtual bool IntersectP(const Ray& ray,bool testAlpha=true) const{return Intersect(ray,nullptr,nullptr,testAlpha);}
 
 	//返回Shape表面面积
 	virtual Float Area() const=0;

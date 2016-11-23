@@ -495,6 +495,8 @@ TEST(Sphere,All){
 	ASSERT_EQ(sphere.Area(),4*Pi);
 	Ray ray(Point3f(0,0,0),Vector3f(0,0,1));
 	ASSERT_TRUE(sphere.IntersectP(ray));
+	Ray ray2(Point3f(0,0,0),Vector3f(0,0,-1));
+	ASSERT_TRUE(!sphere.IntersectP(ray2));
 }
 
 #include "statsTest.h"
