@@ -16,6 +16,7 @@ class Medium{
 
 //todo 实现MediumInterface
 struct MediumInterface{
+public:
 
 };
 

@@ -33,7 +33,7 @@ public:
 //表面交点，射线与几何体表面之间的交点
 class SurfaceInteraction: public Interaction {
 public:
-	Point3f uv; //表面的参数坐标
+	Point2f uv; //表面的参数坐标
 	Vector3f dpdu, dpdv; //参数坐标和空间点之间的一阶导数/梯度
 	Normal3f dndu, dndv; //参数坐标和法线之间的一阶导数/梯度
 	const Shape* shape;
@@ -41,12 +41,19 @@ public:
 	//todo BSDF指针
 	//todo BSSRDF指针
 	struct {
-		Point3f uv;
+		Normal3f n;
 		Vector3f dpdu, dpdv;
 		Normal3f dndu, dndv;
 	} shading;//非几何着色信息
 	mutable Vector3f dpdx,dpdy;//空间点和屏幕坐标之间的导数/梯度
 	mutable Float dudx,dudy,dvdx,dvdy;
+public:
+	SurfaceInteraction() {}
+	SurfaceInteraction(const Point3f &p, const Vector3f &pError,
+	                       const Point2f &uv, const Vector3f &wo,
+	                       const Vector3f &dpdu, const Vector3f &dpdv,
+	                       const Normal3f &dndu, const Normal3f &dndv, Float time,
+	                       const Shape *sh);
 };
 
 #endif /* SRC_CORE_INTERACTION_H_ */
