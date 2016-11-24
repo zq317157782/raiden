@@ -87,12 +87,14 @@ struct Matrix4x4 {
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const Matrix4x4 &m) {
-	        os <<"[["<<m.m[0][0]<<" "<<m.m[0][1]<<" "<<m.m[0][2]<<" "<<m.m[0][3]<<"]"
-	        	<<" ["<<m.m[1][0]<<" "<<m.m[1][1]<<" "<<m.m[1][2]<<" "<<m.m[1][3]<<"]"
-				<<" ["<<m.m[2][0]<<" "<<m.m[2][1]<<" "<<m.m[2][2]<<" "<<m.m[2][3]<<"]"
-				<<" ["<<m.m[3][0]<<" "<<m.m[3][1]<<" "<<m.m[3][2]<<" "<<m.m[3][3]<<"]]";
-	        return os;
-	    }
+		os << "[[" << m.m[0][0] << " " << m.m[0][1] << " " << m.m[0][2] << " "
+				<< m.m[0][3] << "]" << " [" << m.m[1][0] << " " << m.m[1][1]
+				<< " " << m.m[1][2] << " " << m.m[1][3] << "]" << " ["
+				<< m.m[2][0] << " " << m.m[2][1] << " " << m.m[2][2] << " "
+				<< m.m[2][3] << "]" << " [" << m.m[3][0] << " " << m.m[3][1]
+				<< " " << m.m[3][2] << " " << m.m[3][3] << "]]";
+		return os;
+	}
 
 //	//矩阵相乘
 //	static Matrix4x4 Mul(const Matrix4x4 &mm1, const Matrix4x4 &mm2) {
@@ -198,11 +200,11 @@ public:
 	inline RayDifferential operator()(const RayDifferential& ray) const;
 	inline Bound3f operator()(const Bound3f& bound) const;
 
-	bool SwapsHandedness() const;//判断当前是否变换了坐标系true:右手坐标系 false:左手坐标系
+	bool SwapsHandedness() const; //判断当前是否变换了坐标系true:右手坐标系 false:左手坐标系
 
-	 friend std::ostream &operator<<(std::ostream &os, const Transform &t) {
-	        os << "t=" << t._m << ", inv=" << t._invM;
-	        return os;
+	friend std::ostream &operator<<(std::ostream &os, const Transform &t) {
+		os << "t=" << t._m << ", inv=" << t._invM;
+		return os;
 	}
 
 	//变换之间的相乘，不满足交换律
@@ -356,16 +358,18 @@ inline Normal3<T> Transform::operator()(const Normal3<T>& n) const {
 }
 
 //对射线的变换
-//todo 寻求PBRT作者的帮助
 inline Ray Transform::operator()(const Ray& r) const {
 	Vector3f err;	//用来记录对原点进行transform后引入的err
 	Point3f o = (*this)(r.o, &err);
 	Vector3f d = (*this)(r.d);
 	Float tMax = r.tMax;
-	Float offset = Dot(err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
-	o += (d * offset);
-	tMax -= offset;	//tMax需要缩减
-	return Ray(o, d, tMax, r.time,r.medium);
+	Float dLengthSquared = d.LengthSquared();
+	if (dLengthSquared > 0) {
+		Float offset = Dot(err, Abs(d)) / dLengthSquared;//全部用绝对值来计算就能获得偏离原点最小的合理的offset
+		o += (d * offset);
+		tMax -= offset;	//tMax需要缩减
+	}
+	return Ray(o, d, tMax, r.time, r.medium);
 }
 //todo 寻求PBRT作者的帮助
 inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝对误差*/,
@@ -373,21 +377,27 @@ inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝
 	Point3f o = (*this)(r.o, err);
 	Vector3f d = (*this)(r.d, dErr);
 	Float tMax = r.tMax;
-	Float offset = Dot(*err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
-	o += (d * offset);
-	tMax -= offset;	//tMax需要缩减
-	return Ray(o, d, tMax, r.time,r.medium);
+	Float dLengthSquared = d.LengthSquared();
+	if (dLengthSquared > 0) {
+		Float offset = Dot(*err, Abs(d)) / dLengthSquared;//全部用绝对值来计算就能获得偏离原点最小的合理的offset
+		o += (d * offset);
+		tMax -= offset;	//tMax需要缩减
+	}
+	return Ray(o, d, tMax, r.time, r.medium);
 }
 
 inline Ray Transform::operator()(const Ray& r, const Vector3f& coErr,
 		const Vector3f& cdErr, Vector3f *err, Vector3f *dErr) const {
-	Point3f o = (*this)(r.o, coErr,err);
-	Vector3f d = (*this)(r.d,cdErr,dErr);
+	Point3f o = (*this)(r.o, coErr, err);
+	Vector3f d = (*this)(r.d, cdErr, dErr);
 	Float tMax = r.tMax;
-	Float offset = Dot(*err, Abs(d));	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
-	o += (d * offset);
-	tMax -= offset;	//tMax需要缩减
-	return Ray(o, d, tMax, r.time,r.medium);
+	Float dLengthSquared=d.LengthSquared();
+		if(dLengthSquared>0){
+			Float offset = Dot(*err, Abs(d))/dLengthSquared;	//全部用绝对值来计算就能获得偏离原点最小的合理的offset
+			o += (d * offset);
+			tMax -= offset;	//tMax需要缩减
+	}
+	return Ray(o, d, tMax, r.time, r.medium);
 }
 
 //对微分射线的变换
@@ -419,16 +429,14 @@ inline Bound3f Transform::operator()(const Bound3f& b) const {
 	return ret;
 }
 
-
 Transform Translate(const Vector3f &delta);
-Transform Scale(Float x,Float y,Float z);
-
+Transform Scale(Float x, Float y, Float z);
 
 Transform RotateX(Float angle);
 Transform RotateY(Float angle);
 Transform RotateZ(Float angle);
 Transform Rotate(Float angle, const Vector3f &axis);
-Transform Orthographic(Float znear, Float zfar);//正交变换
+Transform Orthographic(Float znear, Float zfar);	//正交变换
 Transform Perspective(Float fov, Float znear, Float zfar);//透视变换 fov:field of view
 
 #endif /* SRC_CORE_TRANSFORM_H_ */
