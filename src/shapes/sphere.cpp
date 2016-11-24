@@ -125,7 +125,7 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 	//Refine交点产生的绝对误差
 	Vector3f pError = gamma(5) * Abs((Vector3f)pHit);
 	//todo Sphere 填充SurfaceIntersection
-
+	*surfaceIsect=(*objectToWorld)(SurfaceInteraction(pHit,pError,Point2f(u,v),-oRay.d,dpdu,dpdv,dndu,dndv,oRay.time,this));
 	//这里的tShapeHit并没有考虑refine,所以误差可能有点高
 	 *tHit = (Float)tShapeHit;
 	return true;
@@ -205,4 +205,5 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 	}
 	return true;
 }
+
 

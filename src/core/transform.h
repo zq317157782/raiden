@@ -199,7 +199,7 @@ public:
 			const Vector3f& cdErr, Vector3f *oErr, Vector3f *odErr) const;
 	inline RayDifferential operator()(const RayDifferential& ray) const;
 	inline Bound3f operator()(const Bound3f& bound) const;
-	inline SurfaceInteraction operator()(const SurfaceInteraction&) const;//变换表面相交点
+	SurfaceInteraction operator()(const SurfaceInteraction&) const;//变换表面相交点
 
 	bool SwapsHandedness() const; //判断当前是否变换了坐标系true:右手坐标系 false:左手坐标系
 

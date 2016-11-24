@@ -184,7 +184,7 @@ Transform Transform::operator*(const Transform& tran) const {
 }
 
 //对SurfaceInteraction进行变换
-inline SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const{
+SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const{
 	SurfaceInteraction ret;
 	const Transform& t=(*this);
 	ret.p=t(si.p,si.pErr,&ret.pErr);

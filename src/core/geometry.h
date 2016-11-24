@@ -472,7 +472,7 @@ public:
 		x = y = 0;
 	}
 
-	Point2(T xx, T yy, T zz) :
+	Point2(T xx, T yy) :
 			x(xx), y(yy) {
 		Assert(!HasNaNs());
 	}
@@ -1017,17 +1017,17 @@ inline Vector3<T> Cross(const Vector3<T>& v1, const Vector3<T>& v2) {
 			v1.x * v2.y - v1.y * v2.x);
 }
 template<typename T>
-inline Vector3<T> Cross(const Normal3<T>& v1, const const Vector3<T>& v2) {
+inline Vector3<T> Cross(const Normal3<T>& v1, const Vector3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
 template<typename T>
-inline Vector3<T> Cross(const Normal3<T>& v1, const const Normal3<T>& v2) {
+inline Vector3<T> Cross(const Normal3<T>& v1, const Normal3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }
 template<typename T>
-inline Vector3<T> Cross(const Vector3<T>& v1, const const Normal3<T>& v2) {
+inline Vector3<T> Cross(const Vector3<T>& v1, const Normal3<T>& v2) {
 	return Vector3<T>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
 			v1.x * v2.y - v1.y * v2.x);
 }

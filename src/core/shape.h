@@ -32,10 +32,10 @@ public:
 
 	//返回Shape表面面积
 	virtual Float Area() const=0;
-
-	//采样Shape上的一个点以及相应的PDF
-	virtual Interaction Sample(const Point2f& uv,Float *pdf) const=0;
-	virtual Float Pdf(const Interaction&) const{return 1.0f/Area();}//默认返回均匀分布Pdf
+//
+//	//采样Shape上的一个点以及相应的PDF
+//	virtual Interaction Sample(const Point2f& uv,Float *pdf) const=0;
+//	virtual Float Pdf(const Interaction&) const{return 1.0f/Area();}//默认返回均匀分布Pdf
 
 };
 
