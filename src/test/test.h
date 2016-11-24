@@ -503,6 +503,10 @@ TEST(Sphere,All){
 	//ASSERT_EQ(s.shading.dpdu,Vector3f(0,0,0));
 }
 
+TEST(Primitive,all){
+
+}
+
 #include "statsTest.h"
 #include "stats.h"
 TEST(Stats,all){

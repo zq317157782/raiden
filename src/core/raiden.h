@@ -48,6 +48,10 @@ struct MediumInterface;
 class Interaction;
 class SurfaceInteraction;
 class Shape;
+class Primitive;
+class GeomPrimitive;
+class Material;
+class AreaLight;
 
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，

@@ -37,7 +37,7 @@ public:
 	Vector3f dpdu, dpdv; //参数坐标和空间点之间的一阶导数/梯度
 	Normal3f dndu, dndv; //参数坐标和法线之间的一阶导数/梯度
 	const Shape* shape;
-	//todo Primitive指针
+	const Primitive* primitive;
 	//todo BSDF指针
 	//todo BSSRDF指针
 	struct {
