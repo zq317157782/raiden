@@ -6,7 +6,7 @@
  */
 
 #include "transform.h"
-
+#include "interaction.h"
 Matrix4x4::Matrix4x4(Float mm[4][4]) {
 	memcpy(m, mm, 16 * sizeof(Float));
 	Assert(!HasNaNs());
@@ -181,4 +181,44 @@ Transform Transform::operator*(const Transform& tran) const {
 	Matrix4x4 m = this->_m * tran._m;
 	Matrix4x4 mInv = tran._invM * this->_invM;
 	return Transform(m, mInv);
+}
+
+//对SurfaceInteraction进行变换
+inline SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const{
+	SurfaceInteraction ret;
+	const Transform& t=(*this);
+	ret.p=t(si.p,si.pErr,&ret.pErr);
+	ret.n=Normalize(t(si.n));//变换法线
+	ret.wo=Normalize(t(si.wo));
+	ret.uv=si.uv;
+	ret.time=si.time;
+	ret.mediumInterface=si.mediumInterface;
+	ret.shape=si.shape;
+	//todo赋值BRDF相关
+	//todo赋值Primitive相关
+
+	//空间点与参数之间的梯度
+	ret.dpdu=t(si.dpdu);
+	ret.dpdv=t(si.dpdv);
+	//法线与参数之间的梯度
+	ret.dndu=t(si.dndu);
+	ret.dndv=t(si.dndv);
+	//空间点与屏幕空间之间的梯度
+	ret.dpdx=t(si.dpdx);
+	ret.dpdy=t(si.dpdy);
+	//参数与屏幕空间之间的梯度
+	ret.dudx=si.dudx;
+	ret.dvdx=si.dvdx;
+	ret.dudy=si.dudy;
+	ret.dvdy=si.dvdy;
+	//变换着色相关变量
+	ret.shading.n=Normalize(t(si.shading.n));
+	ret.shading.dpdu=t(si.shading.dpdu);
+	ret.shading.dpdv=t(si.shading.dpdv);
+	ret.shading.dndu=t(si.shading.dndu);
+	ret.shading.dndv=t(si.shading.dndv);
+
+	//使着色法线和结构法线在同一个半球中
+	ret.shading.n=Faceforward(ret.shading.n,ret.n);
+	return ret;
 }

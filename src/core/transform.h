@@ -199,6 +199,7 @@ public:
 			const Vector3f& cdErr, Vector3f *oErr, Vector3f *odErr) const;
 	inline RayDifferential operator()(const RayDifferential& ray) const;
 	inline Bound3f operator()(const Bound3f& bound) const;
+	inline SurfaceInteraction operator()(const SurfaceInteraction&) const;//变换表面相交点
 
 	bool SwapsHandedness() const; //判断当前是否变换了坐标系true:右手坐标系 false:左手坐标系
 
@@ -371,7 +372,6 @@ inline Ray Transform::operator()(const Ray& r) const {
 	}
 	return Ray(o, d, tMax, r.time, r.medium);
 }
-//todo 寻求PBRT作者的帮助
 inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝对误差*/,
 		Vector3f *dErr/*射线方向的绝对误差*/) const {
 	Point3f o = (*this)(r.o, err);
@@ -428,6 +428,7 @@ inline Bound3f Transform::operator()(const Bound3f& b) const {
 	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
 	return ret;
 }
+
 
 Transform Translate(const Vector3f &delta);
 Transform Scale(Float x, Float y, Float z);
