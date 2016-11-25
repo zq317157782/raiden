@@ -52,6 +52,8 @@ class Primitive;
 class GeomPrimitive;
 class Material;
 class AreaLight;
+template<int num> class CoefficientSpectrum;
+class SampledSpectrum;
 
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，
@@ -162,6 +164,11 @@ inline Float Clamp(Float val, Float low, Float high) {
     if (val < low) return low;
     else if (val > high) return high;
     else return val;
+}
+
+//线性插值
+inline Float Lerp(Float val, Float min, Float max){
+	return min+(max-min)*val;
 }
 
 //角度转换弧度

@@ -507,6 +507,23 @@ TEST(Primitive,all){
 
 }
 
+#include "spectrum.h"
+TEST(CoefficientSpectrum,all){
+	SampledSpectrum::Init();
+	CoefficientSpectrum<100> c;
+
+	Float lambda[]={500,400,600};
+	Float vals[]={5,4,6};
+	ASSERT_FALSE(SpectrumSamplesSorted(lambda,vals,3));
+	SortSpectrumSamples(lambda,vals,3);
+	ASSERT_TRUE(SpectrumSamplesSorted(lambda,vals,3));
+	SampledSpectrum s=SampledSpectrum::FromSampled(lambda,vals,3);
+	ASSERT_NE(s[0],4);
+	Float xyz[3];
+	s.ToXYZ(xyz);
+	//ASSERT_EQ(xyz[2],4);
+}
+
 #include "statsTest.h"
 #include "stats.h"
 TEST(Stats,all){
