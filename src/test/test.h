@@ -522,6 +522,9 @@ TEST(CoefficientSpectrum,all){
 	Float xyz[3];
 	s.ToXYZ(xyz);
 	//ASSERT_EQ(xyz[2],4);
+	Float rgb[3];
+	s.ToRGB(rgb);
+	ASSERT_EQ(rgb[0],4);
 }
 
 #include "statsTest.h"
