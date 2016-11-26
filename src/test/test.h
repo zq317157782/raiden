@@ -522,9 +522,15 @@ TEST(CoefficientSpectrum,all){
 	Float xyz[3];
 	s.ToXYZ(xyz);
 	//ASSERT_EQ(xyz[2],4);
+
+	SampledSpectrum s1=SampledSpectrum::FromSampled(lambda,vals,3);
 	Float rgb[3];
-	s.ToRGB(rgb);
-	//ASSERT_EQ(rgb[0],4);
+	s1.ToRGB(rgb);
+	RGBSpectrum s2=RGBSpectrum::FromSampled(lambda,vals,3);
+	Float rgb2[3];
+	s2.ToRGB(rgb2);
+	//ASSERT_EQ(rgb[1],rgb2[1]);
+
 }
 
 #include "statsTest.h"

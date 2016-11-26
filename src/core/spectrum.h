@@ -110,8 +110,8 @@ Float AverageSpectrumSamples(const Float *lambda, const Float *vals, int n,
 bool SpectrumSamplesSorted(const Float *lambda, const Float *vals/*这参数压根没有用到*/,
 		int n);
 //根据提供的波长wl，来插值计算wl波长下的SPD的值
-Float InterpolateSpectrumSamples(const Float *lambda/*样本波长*/, const Float *vals/*样本值*/,
-                                        int n/*样本大小*/, Float wl/*提供的波长*/);
+Float InterpolateSpectrumSamples(const Float *lambda/*样本波长*/,
+		const Float *vals/*样本值*/, int n/*样本大小*/, Float wl/*提供的波长*/);
 
 //xyz到RGB的转换
 inline void XYZToRGB(const Float xyz[3], Float rgb[3]) {
@@ -208,7 +208,7 @@ public:
 
 class RGBSpectrum: public CoefficientSpectrum<3> {
 public:
-	RGBSpectrum(Float cc) :
+	RGBSpectrum(Float cc=0.0f) :
 			CoefficientSpectrum<3>(cc) {
 	}
 	RGBSpectrum(const CoefficientSpectrum<3>& cc) :
@@ -228,6 +228,32 @@ public:
 	Float y() const {
 		constexpr Float YWeight[3] = { 0.212671f, 0.715160f, 0.072169f };
 		return YWeight[0] * _c[0] + YWeight[1] * _c[1] + YWeight[2] * _c[2];
+	}
+
+	static RGBSpectrum FromSampled(const Float *lambda, const Float *v, int n) {
+		if (!SpectrumSamplesSorted(lambda, v, n)) {
+			std::vector<Float> slambda(&lambda[0], &lambda[n]);
+			std::vector<Float> sv(&v[0], &v[n]);
+			SortSpectrumSamples(&slambda[0], &sv[0], n); //我去，这样子取Float数组的地址
+			return FromSampled(&slambda[0], &sv[0], n);
+		}
+		//这里使用了计算xyz的积分式
+		Float xyz[3];
+		for (int i = 0; i < numCIESample; ++i) {
+			Float val = InterpolateSpectrumSamples(lambda, v, n, CIE_lambda[i]);
+			xyz[0] += val * CIE_X[i];
+			xyz[1] += val * CIE_Y[i];
+			xyz[2] += val * CIE_Z[i];
+		}
+		Float scale = Float(CIE_lambda[numCIESample - 1] - CIE_lambda[0])
+				/ Float(CIE_Y_integral * numCIESample);
+		xyz[0] *= scale;
+		xyz[1] *= scale;
+		xyz[2] *= scale;
+		//转换xyz到rgb
+		RGBSpectrum ret;
+		XYZToRGB(xyz,ret._c);
+		return ret;
 	}
 };
 
