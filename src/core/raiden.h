@@ -18,7 +18,7 @@
 //定义一个Float宏 可能指向float可能指向double
 typedef float Float;
 //无限大数
-static constexpr Float Infinity=std::numeric_limits<Float>::infinity();
+static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 
 //根据编译选项设置断言宏
 #ifdef DEBUG_BUILD
@@ -42,7 +42,8 @@ class Ray;
 class RayDifferential;
 struct Matrix4x4;
 class Transform;
-class ErrFloat;//计算累积误差的浮点数实现
+class ErrFloat;
+//计算累积误差的浮点数实现
 class Medium;
 struct MediumInterface;
 class Interaction;
@@ -155,23 +156,46 @@ static constexpr Float MachineEpsion = 0.5f
 		* std::numeric_limits<Float>::epsilon();
 
 //这个gamma不是用来做Gamma校正的gamma，这个gamma是浮点数运算中，每一次运算后的最大ERR边界
-inline constexpr Float gamma(int n){return (n*MachineEpsion)/(1-n*MachineEpsion);}
-
-
+inline constexpr Float gamma(int n) {
+	return (n * MachineEpsion) / (1 - n * MachineEpsion);
+}
 
 //裁剪函数
 inline Float Clamp(Float val, Float low, Float high) {
-    if (val < low) return low;
-    else if (val > high) return high;
-    else return val;
+	if (val < low)
+		return low;
+	else if (val > high)
+		return high;
+	else
+		return val;
 }
 
 //线性插值
-inline Float Lerp(Float val, Float min, Float max){
-	return min+(max-min)*val;
+inline Float Lerp(Float val, Float min, Float max) {
+	return min + (max - min) * val;
 }
 
 //角度转换弧度
-inline Float Radians(Float deg) { return (Pi / 180) * deg; }
+inline Float Radians(Float deg) {
+	return (Pi / 180) * deg;
+}
+
+//寻找区间 返回offset
+//使用二分法来寻找区间,区间为offset~offset+1
+//保证值有效的情况下，val[offset]满足预测函数，val[offset]不满足预测函数
+//如果值不在提供的范围中，就会返回最前面或者最后的两个区间中的一个
+template<typename PredicateFunc>
+int FindInterval(int size, const PredicateFunc &pred) {
+	int first = 0, len = size;
+	while (len > 0) {
+		int half = len >> 1, middle = first + half;
+		if (pred(middle)) {
+			first = middle + 1;
+			len -= half + 1;
+		} else
+			len = half;
+	}
+	return Clamp(first - 1, 0, size - 2);
+}
 
 #endif /* SRC_CORE_RAIDEN_H_ */

@@ -217,7 +217,6 @@ public:
 		rgb[1] = _c[1];
 		rgb[2] = _c[2];
 	}
-
 	inline void ToXYZ(Float xyz[3]) const {
 		Float rgb[3];
 		ToRGB(rgb);
