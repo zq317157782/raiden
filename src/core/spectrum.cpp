@@ -87,6 +87,32 @@ void SortSpectrumSamples(Float *lambda, Float *vals, int n) {
 		vals[i] = sorted[i].second;
 	}
 }
+
+
+Float InterpolateSpectrumSamples(const Float *lambda/*样本波长*/, const Float *vals/*样本值*/,
+                                        int n/*样本大小*/, Float wl/*提供的波长*/){
+#ifdef DEBUG_BUILD
+	//数据检查
+	for (int i = 0; i < n - 1; ++i) {
+		Assert(lambda[i] < lambda[i + 1]);
+	}
+#endif
+	if(wl<lambda[0]){
+		return vals[0];
+	}
+	if(wl>lambda[n-1]){
+		return vals[n-1];
+	}
+	if(n==1){
+		return vals[0];
+	}
+	//使用二分法，需找到波长所在的区间
+	//这里的lambda表达式，是我第二次运用，oh yeah
+	int offset=FindInterval(n,[&](int index){return lambda[index]<wl;});
+	Float t=(wl-lambda[offset])/(lambda[offset+1]-lambda[offset]);
+	return Lerp(t,vals[offset],vals[offset+1]);
+}
+
 //
 //void SampledSpectrum::ToXYZ(Float xyz[3]) const {
 //	xyz[0] = xyz[1] = xyz[2] = 0;

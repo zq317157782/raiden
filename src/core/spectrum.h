@@ -109,6 +109,9 @@ Float AverageSpectrumSamples(const Float *lambda, const Float *vals, int n,
 //判断整个波长数组有没有按从小到大排列
 bool SpectrumSamplesSorted(const Float *lambda, const Float *vals/*这参数压根没有用到*/,
 		int n);
+//根据提供的波长wl，来插值计算wl波长下的SPD的值
+Float InterpolateSpectrumSamples(const Float *lambda/*样本波长*/, const Float *vals/*样本值*/,
+                                        int n/*样本大小*/, Float wl/*提供的波长*/);
 
 //xyz到RGB的转换
 inline void XYZToRGB(const Float xyz[3], Float rgb[3]) {
