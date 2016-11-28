@@ -16,7 +16,11 @@
 #include <thread>
 
 //定义一个Float宏 可能指向float可能指向double
+#ifdef FLOAT_IS_DOUBLE
+typedef double Float;
+#else
 typedef float Float;
+#endif
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 
