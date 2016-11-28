@@ -534,8 +534,9 @@ TEST(CoefficientSpectrum,all){
 }
 
 #include "camera.h"
+#include "camera/pinhole.h"
 TEST(Camera,all){
-
+PinholeCamera camera();
 }
 
 #include "statsTest.h"
