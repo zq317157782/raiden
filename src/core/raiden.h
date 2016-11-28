@@ -55,6 +55,9 @@ class Material;
 class AreaLight;
 template<int num> class CoefficientSpectrum;
 class SampledSpectrum;
+class RGBSpectrum;
+class Film;
+class Camera;
 
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，

@@ -533,6 +533,11 @@ TEST(CoefficientSpectrum,all){
 
 }
 
+#include "camera.h"
+TEST(Camera,all){
+
+}
+
 #include "statsTest.h"
 #include "stats.h"
 TEST(Stats,all){
