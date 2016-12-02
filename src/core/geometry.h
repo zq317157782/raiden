@@ -504,7 +504,7 @@ public:
 
 	Vector2<T> operator-(const Point2<T>& p) const {
 		Assert(!p.HasNaNs());
-		return Point2<T>(x - p.x, y - p.y);
+		return Vector2<T>(x - p.x, y - p.y);
 	}
 
 	template<typename U>
@@ -758,12 +758,12 @@ public:
 	//这里通过索引来访问minPoint和maxPoint属性
 	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
 	const Point3<T>& operator[](int index) const {
-		Assert(index >= 0 && index < 2);
+		Assert(index >= 0 && index < 3);
 		return (&minPoint)[index];
 	}
 
 	Point3<T>& operator[](int index) {
-		Assert(index >= 0 && index < 2);
+		Assert(index >= 0 && index < 3);
 		return (&minPoint)[index];
 	}
 
@@ -814,6 +814,76 @@ public:
 
 typedef Bound3<Float> Bound3f;
 typedef Bound3<int> Bound3i;
+
+//平面Rect
+template<typename T>
+class Bound2 {
+public:
+	Point2<T> minPoint, maxPoint;
+public:
+	Bound2() {
+		//默认构造函数最小点取最大值，最大点取最小值
+		//PBRT_V2中是取了float的两个无限值
+		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
+		T maxValue = std::numeric_limits<T>::max();
+		minPoint = Point2<T>(maxValue, maxValue);
+		maxPoint = Point2<T>(minValue, minValue);
+	}
+	Bound2(const Point2<T>& p) :
+			minPoint(p), maxPoint(p) {
+	}
+	Bound2(const Point2<T>& p1, const Point2<T>& p2) :
+			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y)), maxPoint(std::max(p1.x, p2.x),
+					std::max(p1.y, p2.y)) {
+	}
+	//这里通过索引来访问minPoint和maxPoint属性
+	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
+	const Point2<T>& operator[](int index) const {
+		Assert(index >= 0 && index < 2);
+		return (&minPoint)[index];
+	}
+
+	Point2<T>& operator[](int index) {
+		Assert(index >= 0 && index < 2);
+		return (&minPoint)[index];
+	}
+
+	Point2<T> Corner(int index) const {
+		Assert(index >= 0 && index < 4);
+		T x = (*this)[index & 1].x;	//偶数取minPoint.x 奇数取maxPoint.x;
+		T y = (*this)[index & 2 ? 1 : 0].y;	//index第二位是0取minPoint.y,否则取maxPoint.y;
+		return Point2<T>(x, y);
+	}
+
+	//返回对角线向量
+	Vector2<T> Diagonal() const {
+		return (maxPoint - minPoint);
+	}
+
+	//求面积
+	T SurfaceArea() const {
+		Vector2<T> d = Diagonal();
+		return d.x * d.y;
+	}
+
+	//获取最大的边界
+	int MaximumExtent() const {
+		Vector2<T> diag = Diagonal();
+		if (diag.x > diag.y )
+			return 0;
+		else
+			return 1;
+	}
+
+	//重构ostream方法
+	friend std::ostream &operator<<(std::ostream &os, const Bound2<T> &n) {
+		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
+		return os;
+	}
+
+};
+typedef Bound2<Float> Bound2f;
+typedef Bound2<int> Bound2i;
 
 //AABB和point之间的合并
 template<typename T>

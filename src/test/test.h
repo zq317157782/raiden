@@ -533,6 +533,11 @@ TEST(CoefficientSpectrum,all){
 
 }
 
+TEST(Bound2,all){
+	Bound2<float> b(Point2f(0,0),Point2f(2,2));
+	ASSERT_EQ(b.SurfaceArea(),4);
+}
+
 #include "camera.h"
 #include "camera/pinhole.h"
 TEST(Camera,all){
