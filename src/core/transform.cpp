@@ -192,7 +192,6 @@ SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const{
 	ret.wo=Normalize(t(si.wo));
 	ret.uv=si.uv;
 	ret.time=si.time;
-	ret.mediumInterface=si.mediumInterface;
 	ret.shape=si.shape;
 	//todo赋值BRDF相关
 	//todo赋值Primitive相关

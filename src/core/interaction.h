@@ -9,7 +9,6 @@
 #define SRC_CORE_INTERACTION_H_
 #include "raiden.h"
 #include "geometry.h"
-#include "medium.h"
 #include "shape.h"
 class Interaction {
 public:
@@ -18,15 +17,13 @@ public:
 	Vector3f pErr; //累积的浮点数绝对误差
 	Vector3f wo; //入射方向
 	Float time; //时间
-	MediumInterface mediumInterface;
 public:
 	Interaction() :
 			time(0) {
 	}
 	Interaction(const Point3f& pp, const Normal3f& nn, const Vector3f& perr,
-			const Vector3f& wo, Float t, const MediumInterface& mediumInterface) :
-			p(pp), n(nn), pErr(perr), wo(wo), time(t), mediumInterface(
-					mediumInterface) {
+			const Vector3f& wo, Float t) :
+			p(pp), n(nn), pErr(perr), wo(wo), time(t){
 	}
 };
 

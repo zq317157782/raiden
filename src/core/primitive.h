@@ -30,7 +30,7 @@ private:
 	Bound3f WorldBound() const override;
 	bool IntersectP(const Ray&) const override;
 public:
-	GeomPrimitive(const std::shared_ptr<Shape>&,const std::shared_ptr<Material>&,const std::shared_ptr<AreaLight>&,const MediumInterface&);
+	GeomPrimitive(const std::shared_ptr<Shape>&,const std::shared_ptr<Material>&,const std::shared_ptr<AreaLight>&);
 };
 
 #endif /* SRC_CORE_PRIMITIVE_H_ */

@@ -22,9 +22,8 @@ public:
 	Film * film;
 	Transform cameraToWorld;
 	const Float shutterOpen,shutterEnd;//曝光时间区间
-	const Medium* medium; //相机所处的介质
 public:
-	Camera(const Transform& c2w,Float shutterOpen,Float shutterEnd,Film * f,const Medium* m);
+	Camera(const Transform& c2w,Float shutterOpen,Float shutterEnd,Film * f);
 	virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const = 0;
 	virtual Float GenerateRayDifferential(const CameraSample &sample,
 			RayDifferential *rd) const;

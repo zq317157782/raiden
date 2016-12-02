@@ -7,9 +7,9 @@
 
 #include "camera.h"
 Camera::Camera(const Transform& c2w, Float shutterOpen, Float shutterEnd,
-		Film * f, const Medium* m) :
+		Film * f) :
 		film(f), cameraToWorld(c2w), shutterOpen(shutterOpen), shutterEnd(
-				shutterEnd), medium(medium) {
+				shutterEnd) {
 
 }
 

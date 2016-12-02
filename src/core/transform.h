@@ -370,7 +370,7 @@ inline Ray Transform::operator()(const Ray& r) const {
 		o += (d * offset);
 		tMax -= offset;	//tMax需要缩减
 	}
-	return Ray(o, d, tMax, r.time, r.medium);
+	return Ray(o, d, tMax, r.time);
 }
 inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝对误差*/,
 		Vector3f *dErr/*射线方向的绝对误差*/) const {
@@ -383,7 +383,7 @@ inline Ray Transform::operator()(const Ray& r, Vector3f *err/*射线起点的绝
 		o += (d * offset);
 		tMax -= offset;	//tMax需要缩减
 	}
-	return Ray(o, d, tMax, r.time, r.medium);
+	return Ray(o, d, tMax, r.time);
 }
 
 inline Ray Transform::operator()(const Ray& r, const Vector3f& coErr,
@@ -397,7 +397,7 @@ inline Ray Transform::operator()(const Ray& r, const Vector3f& coErr,
 			o += (d * offset);
 			tMax -= offset;	//tMax需要缩减
 	}
-	return Ray(o, d, tMax, r.time, r.medium);
+	return Ray(o, d, tMax, r.time);
 }
 
 //对微分射线的变换

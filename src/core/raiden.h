@@ -48,8 +48,6 @@ struct Matrix4x4;
 class Transform;
 class ErrFloat;
 //计算累积误差的浮点数实现
-class Medium;
-struct MediumInterface;
 class Interaction;
 class SurfaceInteraction;
 class Shape;

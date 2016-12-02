@@ -9,8 +9,7 @@ SurfaceInteraction::SurfaceInteraction(const Point3f &p, const Vector3f &pError,
 		const Point2f &uv, const Vector3f &wo, const Vector3f &dpdu,
 		const Vector3f &dpdv, const Normal3f &dndu, const Normal3f &dndv,
 		Float time, const Shape *sh) :
-		Interaction(p, Normal3f(Cross(dpdu, dpdv)), pError, wo, time,
-				MediumInterface()), uv(uv), dpdu(dpdu), dpdv(dpdv), dndu(dndu), dndv(
+		Interaction(p, Normal3f(Cross(dpdu, dpdv)), pError, wo, time), uv(uv), dpdu(dpdu), dpdv(dpdv), dndu(dndu), dndv(
 				dndv), shape(sh) {
 	//初始化着色数据
 	shading.n=n;
