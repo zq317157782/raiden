@@ -36,6 +36,8 @@ static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 
 static constexpr Float Pi = 3.14159265358979323846;
 
+
+
 template<typename T> class Vector3;
 template<typename T> class Vector2;
 template<typename T> class Point3;
@@ -61,6 +63,7 @@ class RGBSpectrum;
 class Film;
 class Camera;
 
+typedef  RGBSpectrum Spectrum;
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，
 //指数为0的时候没有默认最高位的1
