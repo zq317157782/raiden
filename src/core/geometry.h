@@ -836,6 +836,13 @@ public:
 			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y)), maxPoint(std::max(p1.x, p2.x),
 					std::max(p1.y, p2.y)) {
 	}
+
+//	Bound2<T>& operator=(const Bound2<T>& b){
+//		minPoint=b.minPoint;
+//		maxPoint=b.maxPoint;
+//		return *this;
+//	}
+
 	//这里通过索引来访问minPoint和maxPoint属性
 	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
 	const Point2<T>& operator[](int index) const {
