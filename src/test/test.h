@@ -537,6 +537,11 @@ TEST(Bound2,all){
 	Bound2<float> b(Point2f(0,0),Point2f(2,2));
 	ASSERT_EQ(b.SurfaceArea(),4);
 }
+#include "film.h"
+TEST(Film,all){
+	Film film(Point2i(32,32),Bound2f(Point2f(0.1,0.1),Point2f(0.9,0.9)),"test");
+	ASSERT_EQ(film.croppedPixelBound,Bound2i(Point2i(4,4),Point2i(28,28)));
+}
 
 #include "camera.h"
 #include "camera/pinhole.h"

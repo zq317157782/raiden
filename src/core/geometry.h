@@ -804,6 +804,19 @@ public:
 			return 2;
 	}
 
+	bool operator==(const Bound3<T>& b) const {
+		if (minPoint == b.minPoint && maxPoint == b.maxPoint) {
+			return true;
+		}
+		return false;
+	}
+
+	bool operator!=(const Bound3<T>& b) const {
+		if (minPoint != b.minPoint || maxPoint != b.maxPoint) {
+			return true;
+		}
+		return false;
+	}
 	//重构ostream方法
 	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
 		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
@@ -833,8 +846,8 @@ public:
 			minPoint(p), maxPoint(p) {
 	}
 	Bound2(const Point2<T>& p1, const Point2<T>& p2) :
-			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y)), maxPoint(std::max(p1.x, p2.x),
-					std::max(p1.y, p2.y)) {
+			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y)), maxPoint(
+					std::max(p1.x, p2.x), std::max(p1.y, p2.y)) {
 	}
 
 //	Bound2<T>& operator=(const Bound2<T>& b){
@@ -876,10 +889,24 @@ public:
 	//获取最大的边界
 	int MaximumExtent() const {
 		Vector2<T> diag = Diagonal();
-		if (diag.x > diag.y )
+		if (diag.x > diag.y)
 			return 0;
 		else
 			return 1;
+	}
+
+	bool operator==(const Bound2<T>& b) const {
+		if (minPoint == b.minPoint && maxPoint == b.maxPoint) {
+			return true;
+		}
+		return false;
+	}
+
+	bool operator!=(const Bound2<T>& b) const {
+		if (minPoint != b.minPoint || maxPoint != b.maxPoint) {
+			return true;
+		}
+		return false;
 	}
 
 	//重构ostream方法
@@ -974,7 +1001,7 @@ public:
 public:
 	Ray(const Point3f& oo, const Vector3f& dd, float tmax = Infinity, Float t =
 			0.0f) :
-			o(oo), d(dd), tMax(tmax), time(t){
+			o(oo), d(dd), tMax(tmax), time(t) {
 		Assert(!HasNaNs());
 	}
 	Ray() :
@@ -997,7 +1024,7 @@ public:
 	}
 };
 
-class RayDifferential:public Ray {
+class RayDifferential: public Ray {
 public:
 	bool hasDifferential;	//判断是否包含微分信息
 	Point3f ox, oy;
