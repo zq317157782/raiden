@@ -532,6 +532,12 @@ TEST(CoefficientSpectrum,all){
 	//ASSERT_EQ(rgb[1],rgb2[1]);
 
 }
+#include "parallel.h"
+TEST(AtomicFloat,all){
+	AtomicFloat a(0);
+	a.Add(1.0f);
+	ASSERT_EQ(a,1f);
+}
 
 TEST(Bound2,all){
 	Bound2<float> b(Point2f(0,0),Point2f(2,2));
