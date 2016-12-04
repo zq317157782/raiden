@@ -11,6 +11,6 @@ int main(int argc, char* argv[]) {
 #ifdef DEBUG_BUILD
 	UnitTest(argc, argv);
 #endif
-	std::cout << "hello raiden!!!" << std::endl;
+	std::cout << "hello raiden!!" << std::endl;
 }
 

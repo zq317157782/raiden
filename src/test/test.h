@@ -536,7 +536,7 @@ TEST(CoefficientSpectrum,all){
 TEST(AtomicFloat,all){
 	AtomicFloat a(0);
 	a.Add(1.0f);
-	ASSERT_EQ(a,1f);
+	ASSERT_EQ(a,1.0f);
 }
 
 TEST(Bound2,all){
