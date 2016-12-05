@@ -62,6 +62,7 @@ class SampledSpectrum;
 class RGBSpectrum;
 class Film;
 class Camera;
+class Filter;
 
 typedef  RGBSpectrum Spectrum;
 //float类型相应的IEEE标准的BIT格式

@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_TEST_CPP_
 #define SRC_TEST_TEST_CPP_
+
 #ifdef DEBUG_BUILD
 #include "gtest/gtest.h"
 
@@ -544,13 +545,15 @@ TEST(Bound2,all){
 	ASSERT_EQ(b.SurfaceArea(),4);
 }
 #include "film.h"
+#include "filters/box.h"
 TEST(Film,all){
-	Film film(Point2i(32,32),Bound2f(Point2f(0.1,0.1),Point2f(0.9,0.9)),"test");
+	Film film(Point2i(32,32),Bound2f(Point2f(0.1,0.1),Point2f(0.9,0.9)),std::unique_ptr<Filter>(new BoxFilter(Vector2f(1,1))),"test");
+	film.WriteImage();
 	ASSERT_EQ(film.croppedPixelBound,Bound2i(Point2i(4,4),Point2i(28,28)));
 }
 
 #include "camera.h"
-#include "camera/pinhole.h"
+#include <cameras/pinhole.h>
 TEST(Camera,all){
 PinholeCamera camera();
 }

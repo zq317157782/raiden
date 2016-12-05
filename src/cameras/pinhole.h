@@ -5,8 +5,8 @@
  *      Author: zhuqian
  */
 
-#ifndef SRC_CAMERA_PINHOLE_H_
-#define SRC_CAMERA_PINHOLE_H_
+#ifndef SRC_CAMERAS_PINHOLE_H_
+#define SRC_CAMERAS_PINHOLE_H_
 #include "raiden.h"
 #include "camera.h"
 
@@ -30,4 +30,4 @@ public:
 	}
 };
 
-#endif /* SRC_CAMERA_PINHOLE_H_ */
+#endif /* SRC_CAMERAS_PINHOLE_H_ */
