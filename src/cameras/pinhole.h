@@ -21,9 +21,10 @@ public:
 
 	virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const
 			override {
+		Vector2i res=film->croppedPixelBound.maxPoint-film->croppedPixelBound.minPoint;
 		Point3f origin(0, 0, 0);
 		Vector3f dir = Normalize(
-				Vector3f(sample.pFilm.x, sample.pFilm.y, distanceToView));
+				Vector3f(sample.pFilm.x-res.x/2, sample.pFilm.y-res.y/2, distanceToView));
 		*ray = Ray(origin, dir);
 		ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
 		*ray=cameraToWorld(*ray);

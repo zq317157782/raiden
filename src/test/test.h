@@ -366,201 +366,200 @@ TEST(Bound3,all) {
 	Point3<Float> b2p1(2, 2, 2);
 	Point3<Float> b2p2(3, 3, 3);
 	Bound3<Float> b2(b2p1, b2p2);
-	Bound3<Float> b3=Union(b1,b2);
+	Bound3<Float> b3 = Union(b1, b2);
 	ASSERT_EQ(b3[0], Point3<Float>(1, 1, 1));
 	ASSERT_EQ(b3[1], Point3<Float>(3, 3, 3));
-	Bound3<Float> b4=Intersect(b1,b2);
+	Bound3<Float> b4 = Intersect(b1, b2);
 	ASSERT_EQ(b4[0], Point3<Float>(2, 2, 2));
 	ASSERT_EQ(b4[1], Point3<Float>(2, 2, 2));
 
-	ASSERT_TRUE(Inside(Point3<Float>(2, 2, 2),b4));
-	ASSERT_TRUE(Overlap(b1,b2));
-	ASSERT_TRUE(Overlap(b1,b4));
+	ASSERT_TRUE(Inside(Point3<Float>(2, 2, 2), b4));
+	ASSERT_TRUE(Overlap(b1, b2));
+	ASSERT_TRUE(Overlap(b1, b4));
 
-	b4=Expand(b4,1.0f);
+	b4 = Expand(b4, 1.0f);
 	ASSERT_EQ(b4[0], Point3<Float>(1, 1, 1));
 	ASSERT_EQ(b4[1], Point3<Float>(3, 3, 3));
 	ASSERT_EQ(b4.MaximumExtent(), 2);
 
 }
 
-TEST(Ray,all){
-	Ray r(Point3f(0,0,0),Vector3f(1,0,0));
-	Point3f p=r(0.5f);
+TEST(Ray,all) {
+	Ray r(Point3f(0, 0, 0), Vector3f(1, 0, 0));
+	Point3f p = r(0.5f);
 }
 
-TEST(RayDifferential,all){
-	RayDifferential r(Point3f(0,0,0),Vector3f(1,0,0));
-	r.hasDifferential=true;
-	r.ox=Point3f(0,0,0);
-	r.dx=Vector3f(0,1,0);
+TEST(RayDifferential,all) {
+	RayDifferential r(Point3f(0, 0, 0), Vector3f(1, 0, 0));
+	r.hasDifferential = true;
+	r.ox = Point3f(0, 0, 0);
+	r.dx = Vector3f(0, 1, 0);
 	r.ScaleRayDifferential(0.5f);
-	ASSERT_EQ(r.dx,Vector3f(0.5,0.5,0));
+	ASSERT_EQ(r.dx, Vector3f(0.5, 0.5, 0));
 
 }
 #include "transform.h"
-TEST(Matrix4x4,all){
-Matrix4x4 mat;
-Matrix4x4 mat2;
-Matrix4x4 mat3=mat*mat2;
-ASSERT_EQ(mat,mat3);
-mat=Transpose(mat);
-ASSERT_EQ(mat,mat3);
-mat=Inverse(mat);
-ASSERT_EQ(mat,mat3);
-Float aa[4][4]={0.1,0.2,0.3,0.4
-			,0.5,0.6,0.7,0.8,
-			0.9,1.0,1.1,1.2,
-			1.3,1.4,1.5,1.6};
-Matrix4x4 mataa(aa);
-ASSERT_EQ(mataa.m[0][1],0.2f);
-mataa=Transpose(mataa);
-ASSERT_EQ(mataa.m[0][1],0.5f);
+TEST(Matrix4x4,all) {
+	Matrix4x4 mat;
+	Matrix4x4 mat2;
+	Matrix4x4 mat3 = mat * mat2;
+	ASSERT_EQ(mat, mat3);
+	mat = Transpose(mat);
+	ASSERT_EQ(mat, mat3);
+	mat = Inverse(mat);
+	ASSERT_EQ(mat, mat3);
+	Float aa[4][4] = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
+			1.2, 1.3, 1.4, 1.5, 1.6 };
+	Matrix4x4 mataa(aa);
+	ASSERT_EQ(mataa.m[0][1], 0.2f);
+	mataa = Transpose(mataa);
+	ASSERT_EQ(mataa.m[0][1], 0.5f);
 
 }
 
-TEST(Vector3,CoordinateSystem){
-	Vector3f V(1.0f,0.0f,0.0f);
+TEST(Vector3,CoordinateSystem) {
+	Vector3f V(1.0f, 0.0f, 0.0f);
 	Vector3f VT;
 	Vector3f VB;
-	CoordinateSystem(V,&VT,&VB);
-	ASSERT_EQ(VT,Vector3f(0,0,1));
-	ASSERT_EQ(VB,Vector3f(0,-1,0));
+	CoordinateSystem(V, &VT, &VB);
+	ASSERT_EQ(VT, Vector3f(0, 0, 1));
+	ASSERT_EQ(VB, Vector3f(0, -1, 0));
 }
 
-TEST(Vector3,SphericalDirection){
-	Vector3f v=SphericalDirection(0.0f,1.0f,0.0f);
-	ASSERT_EQ(v,Vector3f(0,0,1));
-	Float theta=SphericalTheta(v);
-	Float phi=SphericalTheta(v);
-	ASSERT_EQ(theta,0);
-	ASSERT_EQ(phi,0);
+TEST(Vector3,SphericalDirection) {
+	Vector3f v = SphericalDirection(0.0f, 1.0f, 0.0f);
+	ASSERT_EQ(v, Vector3f(0, 0, 1));
+	Float theta = SphericalTheta(v);
+	Float phi = SphericalTheta(v);
+	ASSERT_EQ(theta, 0);
+	ASSERT_EQ(phi, 0);
 }
 
-TEST(TRANSFORM,all){
+TEST(TRANSFORM,all) {
 	Transform trans;
 	//std::cout<<trans<<std::endl;
-	Point3f point(1,1,1);
-	Vector3f cerr(1.78814e-07,1.78814e-07,1.78814e-07);
+	Point3f point(1, 1, 1);
+	Vector3f cerr(1.78814e-07, 1.78814e-07, 1.78814e-07);
 	Vector3f err;
-	Point3f ret=trans(point);
-	ASSERT_EQ(point,ret);
-	ret=trans(point,&err);
-	ASSERT_EQ(point,ret);
-	ret=trans(point,cerr,&err);
-	ASSERT_EQ(point,ret);
+	Point3f ret = trans(point);
+	ASSERT_EQ(point, ret);
+	ret = trans(point, &err);
+	ASSERT_EQ(point, ret);
+	ret = trans(point, cerr, &err);
+	ASSERT_EQ(point, ret);
 	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
 
-	Vector3f v1(1,1,1);
-	Vector3f v2=trans(v1);
-	ASSERT_EQ(v2,v1);
-	v2=trans(v1,&err);
-	ASSERT_EQ(v2,v1);
-	v2=trans(v1,cerr,&err);
-	ASSERT_EQ(v2,v1);
+	Vector3f v1(1, 1, 1);
+	Vector3f v2 = trans(v1);
+	ASSERT_EQ(v2, v1);
+	v2 = trans(v1, &err);
+	ASSERT_EQ(v2, v1);
+	v2 = trans(v1, cerr, &err);
+	ASSERT_EQ(v2, v1);
 	//ASSERT_EQ(err,Vector3f(1.78814e-07,1.78814e-07,1.78814e-07));
 
-	Ray ray(Point3f(1,1,1),Vector3f(1,0,0));
-	Vector3f oerr,derr;
-	Vector3f coerr(1,1,1),cderr(1,1,1);
-	Ray r=trans(ray,&oerr,&derr);
+	Ray ray(Point3f(1, 1, 1), Vector3f(1, 0, 0));
+	Vector3f oerr, derr;
+	Vector3f coerr(1, 1, 1), cderr(1, 1, 1);
+	Ray r = trans(ray, &oerr, &derr);
 	//ASSERT_EQ(oerr,Vector3f(0,0,0));
-	r=trans(ray,coerr,cderr,&oerr,&derr);
+	r = trans(ray, coerr, cderr, &oerr, &derr);
 	//ASSERT_EQ(oerr,Vector3f(0,0,0));
 
-	Bound3f b(Point3f(-1,-1,-1),Point3f(1,1,1));
-	Bound3f b2=trans(b);
-	ASSERT_EQ(b.minPoint,b2.minPoint);
+	Bound3f b(Point3f(-1, -1, -1), Point3f(1, 1, 1));
+	Bound3f b2 = trans(b);
+	ASSERT_EQ(b.minPoint, b2.minPoint);
 
 	ASSERT_FALSE(trans.SwapsHandedness());
 
-	Transform transform=Translate(Vector3f(1,1,1));
-	ret=transform(point);
-	ASSERT_EQ(Point3f(2,2,2),ret);
-	transform=RotateX(90);
-	ret=transform(point);
+	Transform transform = Translate(Vector3f(1, 1, 1));
+	ret = transform(point);
+	ASSERT_EQ(Point3f(2, 2, 2), ret);
+	transform = RotateX(90);
+	ret = transform(point);
 	//ASSERT_EQ(Point3f(1,-1,1),ret);
 
-	Point3f pp(0,0,0);
-	Transform move_x_one=Translate(Vector3f(1,0,0));
-	Transform move_x_two=move_x_one*move_x_one;
-	pp=move_x_two(pp);
-	ASSERT_EQ(pp,Point3f(2,0,0));
+	Point3f pp(0, 0, 0);
+	Transform move_x_one = Translate(Vector3f(1, 0, 0));
+	Transform move_x_two = move_x_one * move_x_one;
+	pp = move_x_two(pp);
+	ASSERT_EQ(pp, Point3f(2, 0, 0));
 }
 
 #include "shapes/sphere.h"
-TEST(Sphere,All){
-	Transform move_z_one=Translate(Vector3f(0,0,2));
-	Transform move_z_none=Inverse(move_z_one);
-	Sphere sphere(&move_z_one,&move_z_none,false,1,-1,1,360);
-	ASSERT_EQ(sphere.Area(),4*Pi);
-	Ray ray(Point3f(0,0,0),Vector3f(0,0,1));
+TEST(Sphere,All) {
+	Transform move_z_one = Translate(Vector3f(0, 0, 2));
+	Transform move_z_none = Inverse(move_z_one);
+	Sphere sphere(&move_z_one, &move_z_none, false, 1, -1, 1, 360);
+	ASSERT_EQ(sphere.Area(), 4 * Pi);
+	Ray ray(Point3f(0, 0, 0), Vector3f(0, 0, 1));
 	ASSERT_TRUE(sphere.IntersectP(ray));
-	Ray ray2(Point3f(0,0,0),Vector3f(0,0,-1));
+	Ray ray2(Point3f(0, 0, 0), Vector3f(0, 0, -1));
 	ASSERT_TRUE(!sphere.IntersectP(ray2));
 	Float tHit;
 	SurfaceInteraction s;
-	sphere.Intersect(ray,&tHit,&s);
+	sphere.Intersect(ray, &tHit, &s);
 	//ASSERT_EQ(s.shading.dpdu,Vector3f(0,0,0));
 }
 
-TEST(Primitive,all){
+TEST(Primitive,all) {
 
 }
 
 #include "spectrum.h"
-TEST(CoefficientSpectrum,all){
+TEST(CoefficientSpectrum,all) {
 	SampledSpectrum::Init();
 	CoefficientSpectrum<100> c;
 
-	Float lambda[]={500,400,600};
-	Float vals[]={5,4,6};
-	ASSERT_FALSE(SpectrumSamplesSorted(lambda,vals,3));
-	SortSpectrumSamples(lambda,vals,3);
-	ASSERT_TRUE(SpectrumSamplesSorted(lambda,vals,3));
-	SampledSpectrum s=SampledSpectrum::FromSampled(lambda,vals,3);
-	ASSERT_NE(s[0],4);
+	Float lambda[] = { 500, 400, 600 };
+	Float vals[] = { 5, 4, 6 };
+	ASSERT_FALSE(SpectrumSamplesSorted(lambda, vals, 3));
+	SortSpectrumSamples(lambda, vals, 3);
+	ASSERT_TRUE(SpectrumSamplesSorted(lambda, vals, 3));
+	SampledSpectrum s = SampledSpectrum::FromSampled(lambda, vals, 3);
+	ASSERT_NE(s[0], 4);
 	Float xyz[3];
 	s.ToXYZ(xyz);
 	//ASSERT_EQ(xyz[2],4);
 
-	SampledSpectrum s1=SampledSpectrum::FromSampled(lambda,vals,3);
+	SampledSpectrum s1 = SampledSpectrum::FromSampled(lambda, vals, 3);
 	Float rgb[3];
 	s1.ToRGB(rgb);
-	RGBSpectrum s2=RGBSpectrum::FromSampled(lambda,vals,3);
+	RGBSpectrum s2 = RGBSpectrum::FromSampled(lambda, vals, 3);
 	Float rgb2[3];
 	s2.ToRGB(rgb2);
 	//ASSERT_EQ(rgb[1],rgb2[1]);
 
 }
 #include "parallel.h"
-TEST(AtomicFloat,all){
+TEST(AtomicFloat,all) {
 	AtomicFloat a(0);
 	a.Add(1.0f);
-	ASSERT_EQ(a,1.0f);
+	ASSERT_EQ(a, 1.0f);
 }
 
-TEST(Bound2,all){
-	Bound2<float> b(Point2f(0,0),Point2f(2,2));
-	ASSERT_EQ(b.SurfaceArea(),4);
+TEST(Bound2,all) {
+	Bound2<float> b(Point2f(0, 0), Point2f(2, 2));
+	ASSERT_EQ(b.SurfaceArea(), 4);
 }
 #include "film.h"
 #include "filters/box.h"
-TEST(Film,all){
-	Film film(Point2i(32,32),Bound2f(Point2f(0.1,0.1),Point2f(0.9,0.9)),std::unique_ptr<Filter>(new BoxFilter(Vector2f(1,1))),"test");
+TEST(Film,all) {
+	Film film(Point2i(32, 32), Bound2f(Point2f(0.1, 0.1), Point2f(0.9, 0.9)),
+			std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))), "test");
 	film.WriteImage();
-	ASSERT_EQ(film.croppedPixelBound,Bound2i(Point2i(4,4),Point2i(28,28)));
+	ASSERT_EQ(film.croppedPixelBound, Bound2i(Point2i(4, 4), Point2i(28, 28)));
 }
 
 #include "camera.h"
 #include <cameras/pinhole.h>
-TEST(Camera,all){
-PinholeCamera camera();
+TEST(Camera,all) {
+	PinholeCamera camera();
 }
 
 #include "statsTest.h"
 #include "stats.h"
-TEST(Stats,all){
+TEST(Stats,all) {
 	StatsTest st1;
 	StatsTest st2;
 	StatsTest st3;
@@ -570,16 +569,48 @@ TEST(Stats,all){
 }
 
 #include "rng.h"
-TEST(RNG,all){
+TEST(RNG,all) {
 	RNG rng;
-	float a=rng.UniformFloat();
+	float a = rng.UniformFloat();
 	//ASSERT_EQ(a,rng.UniformFloat());
 }
 
 #include "samplers/random.h"
-TEST(RandomSampler,all){
-RandomSampler sampler(4);
-Float f=sampler.Get1DSample();
+TEST(RandomSampler,all) {
+	RandomSampler sampler(4);
+	Float f = sampler.Get1DSample();
+}
+
+TEST(TestSceneOne,all) {
+	Transform move_z_one = Translate(Vector3f(0, 0, 3));
+	Transform move_z_none = Inverse(move_z_one);
+	Sphere sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360);
+
+	RandomSampler sampler(1);
+	Transform trans = Translate(Vector3f(0, 0, 0));
+	PinholeCamera camera(trans, 0, 1,
+			new Film(Point2i(256, 256), Bound2f(Point2f(0, 0), Point2f(1, 1)),
+					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
+					"result/testRandomSampler.png"),50);
+	for (int j = 0; j < 256; ++j)
+		for (int i = 0; i < 256; ++i) {
+			sampler.StartPixel(Point2i(i, j));
+			do {
+				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
+				Ray r;
+				camera.GenerateRay(cs, &r);
+				if (sphere.IntersectP(r)) {
+					Float rgb[3]={1,1,1};
+					Float xyz[3];
+					RGBToXYZ(rgb,xyz);
+					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
+					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
+					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
+					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
+				}
+			}while (sampler.StartNextSample()) ;
+		}
+	camera.film->WriteImage();
 }
 
 void UnitTest(int argc, char* argv[]) {

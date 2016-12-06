@@ -122,7 +122,7 @@ inline ErrFloat Abs(ErrFloat f) {
 //这样子求解二次多项式，我高中没学过啊！
 inline bool Quadratic(ErrFloat A,ErrFloat B,ErrFloat C,ErrFloat* t0,ErrFloat* t1){
 	//delta=B^2-4AC
-	double delta=B._value*B._value-4*A._value*C._value;
+	double delta=(double)B._value*(double)B._value-4*(double)A._value*(double)C._value;
 	if(delta<0.0f) return false;
 	double rootDelta=std::sqrt(delta);
 	ErrFloat errRootDelta(rootDelta,MachineEpsion*rootDelta);

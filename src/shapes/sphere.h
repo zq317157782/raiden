@@ -24,7 +24,8 @@ public:
  _zMax(Clamp(std::max(zMin,zMax),-radius,radius)),
  _thetaMin(std::acos(Clamp(std::min(zMin,zMax)/radius,-1,1))),
  _thetaMax(std::acos(Clamp(std::max(zMin,zMax)/radius,-1,1))),
- _phiMax(Radians(Clamp(phiMax,0,360))){}
+ _phiMax(Radians(Clamp(phiMax,0,360))){
+	}
 
 Bound3f ObjectBound() const override;
 Float Area() const override;

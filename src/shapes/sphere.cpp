@@ -157,7 +157,6 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 	if (oRay.tMax < t0.UpperBound() || 0 >= t1.LowerBound()) {
 		return false;
 	}
-
 	//开始比较是取t0还是t1
 	ErrFloat tShapeHit = t0;
 
@@ -166,7 +165,6 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 		if (tShapeHit.UpperBound() > oRay.tMax)
 			return false;	//两个变量都不满足射线的有效范围，返回fasle
 	}
-
 	Point3f pHit = oRay((Float) tShapeHit);	//获得相交点空间位置数据
 	pHit = pHit * (_radius / Distance(pHit, Point3f(0, 0, 0)));	//refine?为啥?这么保守?
 	if (pHit.x == 0 && pHit.y == 0) {

@@ -33,6 +33,11 @@ private:
 	};
 	std::unique_ptr<Pixel[]> _pixels;
 	//根据位置获取像素的引用
+#ifdef DEBUG_BUILD
+public:
+#else
+private:
+#endif
 	Pixel& GetPixel(const Point2i& pos) {
 		Assert(InsideExclusive(pos, croppedPixelBound));
 		int width = croppedPixelBound.maxPoint.x - croppedPixelBound.minPoint.x;
@@ -60,20 +65,20 @@ public:
 		std::ofstream out(fileName);
 		Vector2i res = croppedPixelBound[1] - croppedPixelBound[0];
 		out << "P3\n" << (res.x) << " " << res.y << "\n255\n";
-		for (int j = croppedPixelBound[1].y - 1; j >= croppedPixelBound[0].y; --j) {
-			for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
+		for (int j = croppedPixelBound[1].y - 1; j >= croppedPixelBound[0].y;
+				--j) {
+			for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x;
+					++i) {
 				Pixel p = GetPixel(Point2i(i, j));
 				Float rgb[3];
-				XYZToRGB(p.xyz,rgb);
-				//cout<<p.r<<p.g<<p.b<<endl;
+				XYZToRGB(p.xyz, rgb);
 				Float invWeight = 1.0 / p.filterWeightSum;
-				Spectrum finalSpectrum;
-				finalSpectrum[0]=rgb[0] * invWeight;
-				finalSpectrum[1]=rgb[1] * invWeight;
-				finalSpectrum[2]=rgb[2] * invWeight;
-				out << (int) (finalSpectrum[0] * 255) << " "
-						<< (int) (finalSpectrum[1] * 255) << " "
-						<< (int) (finalSpectrum[2] * 255) << " ";
+				rgb[0] *= invWeight;
+				rgb[1] *= invWeight;
+				rgb[2] *= invWeight;
+				out << (int) (rgb[0] * 255) << " "
+						<< (int) (rgb[1] * 255) << " "
+						<< (int) (rgb[2] * 255) << " ";
 			}
 		}
 		out.close();
