@@ -542,14 +542,26 @@ TEST(Bound2,all) {
 	Bound2<float> b(Point2f(0, 0), Point2f(2, 2));
 	ASSERT_EQ(b.SurfaceArea(), 4);
 }
+
+#include "reflection.h"
+TEST(reflection,all){
+	Vector3f wo(1,0,0);
+	Normal3f n(0,0,1);
+	Vector3f wi=Reflect(wo,n);
+	ASSERT_EQ(wi,Vector3f(-1,0,0));
+	wo=Vector3f(0.5f,0.0f,0.5f);
+	Vector3f wt;
+	ASSERT_TRUE(Refract(wo,n,1.0f,&wt));
+	ASSERT_EQ(wt,Vector3f(-0.5,0,-0.5));
+}
 #include "film.h"
 #include "filters/box.h"
-TEST(Film,all) {
-	Film film(Point2i(32, 32), Bound2f(Point2f(0.1, 0.1), Point2f(0.9, 0.9)),
-			std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))), "test");
-	film.WriteImage();
-	ASSERT_EQ(film.croppedPixelBound, Bound2i(Point2i(4, 4), Point2i(28, 28)));
-}
+//TEST(Film,all) {
+//	Film film(Point2i(32, 32), Bound2f(Point2f(0.1, 0.1), Point2f(0.9, 0.9)),
+//			std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))), "test");
+//	film.WriteImage();
+//	ASSERT_EQ(film.croppedPixelBound, Bound2i(Point2i(4, 4), Point2i(28, 28)));
+//}
 
 #include "camera.h"
 #include <cameras/pinhole.h>
@@ -580,38 +592,38 @@ TEST(RandomSampler,all) {
 	RandomSampler sampler(4);
 	Float f = sampler.Get1DSample();
 }
-
-TEST(TestSceneOne,all) {
-	Transform move_z_one = Translate(Vector3f(0, 0, 3));
-	Transform move_z_none = Inverse(move_z_one);
-	Sphere sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360);
-
-	RandomSampler sampler(1);
-	Transform trans = Translate(Vector3f(0, 0, 0));
-	PinholeCamera camera(trans, 0, 1,
-			new Film(Point2i(256, 256), Bound2f(Point2f(0, 0), Point2f(1, 1)),
-					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
-					"result/testRandomSampler.png"),50);
-	for (int j = 0; j < 256; ++j)
-		for (int i = 0; i < 256; ++i) {
-			sampler.StartPixel(Point2i(i, j));
-			do {
-				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
-				Ray r;
-				camera.GenerateRay(cs, &r);
-				if (sphere.IntersectP(r)) {
-					Float rgb[3]={1,1,1};
-					Float xyz[3];
-					RGBToXYZ(rgb,xyz);
-					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
-					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
-					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
-					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
-				}
-			}while (sampler.StartNextSample()) ;
-		}
-	camera.film->WriteImage();
-}
+//
+//TEST(TestSceneOne,all) {
+//	Transform move_z_one = Translate(Vector3f(0, 0, 3));
+//	Transform move_z_none = Inverse(move_z_one);
+//	Sphere sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360);
+//
+//	RandomSampler sampler(1);
+//	Transform trans = Translate(Vector3f(0, 0, 0));
+//	PinholeCamera camera(trans, 0, 1,
+//			new Film(Point2i(256, 256), Bound2f(Point2f(0, 0), Point2f(1, 1)),
+//					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
+//					"result/TestSceneOne_randomSampler.png"),50);
+//	for (int j = 0; j < 256; ++j)
+//		for (int i = 0; i < 256; ++i) {
+//			sampler.StartPixel(Point2i(i, j));
+//			do {
+//				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
+//				Ray r;
+//				camera.GenerateRay(cs, &r);
+//				if (sphere.IntersectP(r)) {
+//					Float rgb[3]={1,1,1};
+//					Float xyz[3];
+//					RGBToXYZ(rgb,xyz);
+//					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
+//					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
+//					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
+//					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
+//				}
+//			}while (sampler.StartNextSample()) ;
+//		}
+//	camera.film->WriteImage();
+//}
 
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

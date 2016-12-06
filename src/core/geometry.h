@@ -606,6 +606,7 @@ public:
 			x(xx), y(yy), z(zz) {
 		Assert(!HasNaNs());
 	}
+
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
 	Normal3(const Normal3& nl) {
@@ -1172,6 +1173,11 @@ inline Normal3<T> Normalize(const Normal3<T>& n) {
 //标量乘以向量的操作，其实就是换个位置，使用向量乘以标量的方式
 template<typename T, typename U>
 inline Vector3<T> operator*(U n, const Vector3<T>& v) {
+	return v * n;
+}
+
+template<typename T, typename U>
+inline Normal3<T> operator*(U n, const Normal3<T>& v) {
 	return v * n;
 }
 
