@@ -569,6 +569,19 @@ TEST(Stats,all){
 	LogStats();
 }
 
+#include "rng.h"
+TEST(RNG,all){
+	RNG rng;
+	float a=rng.UniformFloat();
+	//ASSERT_EQ(a,rng.UniformFloat());
+}
+
+#include "samplers/random.h"
+TEST(RandomSampler,all){
+RandomSampler sampler(4);
+Float f=sampler.Get1DSample();
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();

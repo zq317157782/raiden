@@ -341,7 +341,8 @@ public:
 
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
-	Point3(const Point3<T>& p) {
+	template<typename U>
+	Point3(const Point3<U>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
@@ -478,7 +479,8 @@ public:
 	}
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
-	Point2(const Point2<T>& p) {
+	template <typename U>
+	Point2(const Point2<U>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
