@@ -10,13 +10,13 @@
 #include "raiden.h"
 //过滤器
 class Filter {
-private:
-	Vector2f _radius;//filter的作用域
-	Vector2f _invRadius;
+public:
+	const Vector2f radius;//filter的作用域
+	const Vector2f invRadius;
 public:
 	/*返回 point处的 filter权重*/
 	virtual Float Evaluate(const Point2f& point) const=0;
-	Filter(const Vector2f& radius):_radius(radius),_invRadius(Vector2f(1.0f/radius.x,1.0f/radius.y)){
+	Filter(const Vector2f& radius):radius(radius),invRadius(Vector2f(1.0f/radius.x,1.0f/radius.y)){
 		Assert(radius.x>0||radius.y>0);
 	}
 	virtual ~Filter(){}
