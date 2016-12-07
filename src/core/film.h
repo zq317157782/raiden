@@ -11,6 +11,7 @@
 #include "geometry.h"
 #include "filter.h"
 #include "spectrum.h"
+
 class Film {
 public:
 
@@ -30,11 +31,11 @@ private:
 		//到这里是(float)32字节/(double)64字节
 		//in cache line
 	};
-	std::unique_ptr<Pixel[]> _pixels;//像素值数组，最终要写入image
-	const Float _maxSampleLuminance;//最大的样本能量值
-	static constexpr int filterTableWidth = 16;//默认filterTable宽度为16
-	Float _filterTable[filterTableWidth*filterTableWidth];
-
+	std::unique_ptr<Pixel[]> _pixels;		//像素值数组，最终要写入image
+	const Float _maxSampleLuminance;		//最大的样本能量值
+	static constexpr int filterTableWidth = 16;		//默认filterTable宽度为16
+	Float _filterTable[filterTableWidth * filterTableWidth];
+	std::mutex _mutex;
 	//根据位置获取像素的引用
 #ifdef DEBUG_BUILD
 public:
@@ -51,15 +52,61 @@ private:
 public:
 	Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染窗口比例*/,
 			std::unique_ptr<Filter> filter,
-			const std::string& fileName/*输出文件名*/,Float maxSampleLuminance=Infinity);
+			const std::string& fileName/*输出文件名*/, Float maxSampleLuminance =
+					Infinity);
 	void WriteImage();
+	//获取一个tile
+	std::unique_ptr<FilmTile> GetFilmTile(const Bound2i &sampleBounds);
+	//合并1个tile
+	void MergeFilmTile(std::unique_ptr<FilmTile> tile);
+};
+
+struct FilmTilePixel {
+	Spectrum contribSum = 0.0f;
+	Float filterWeightSum = 0.0f;
 };
 
 //代表Film上的一个Tile
-class FilmTile{
+class FilmTile {
 private:
-	Bound2i _pixelBound;
+	const Bound2i _pixelBound;
+	const Vector2f _filterRadius, _invFilterRadius;
+	const Float* _filterTable;
+	const int _filterTableWidth;
+	const Float _maxSampleLuminance;
+	std::vector<FilmTilePixel> _pixels;
+	friend class Film;
+public:
+	FilmTile(const Bound2i& pixelBound, const Vector2f& filterRadius,
+			const Float* filterTable, int filterTableWidth,
+			Float maxSampleLuminance) :
+			_pixelBound(pixelBound), _filterRadius(filterRadius), _invFilterRadius(
+					filterRadius.x, filterRadius.y), _filterTable(filterTable), _filterTableWidth(
+					filterTableWidth), _maxSampleLuminance(maxSampleLuminance) {
+		_pixels = std::vector<FilmTilePixel>(std::max(0, pixelBound.Area()));
+	}
 
+	FilmTilePixel& GetPixel(const Point2i& pos) {
+		Assert(InsideExclusive(pos, _pixelBound));
+		int width = _pixelBound.maxPoint.x - _pixelBound.minPoint.x;
+		int index = pos.x - _pixelBound.minPoint.x
+				+ (pos.y - _pixelBound.minPoint.y) * width;
+		return _pixels[index];
+	}
+
+	FilmTilePixel GetPixel(const Point2i& pos) const {
+		Assert(InsideExclusive(pos, _pixelBound));
+		int width = _pixelBound.maxPoint.x - _pixelBound.minPoint.x;
+		int index = pos.x - _pixelBound.minPoint.x
+				+ (pos.y - _pixelBound.minPoint.y) * width;
+		return _pixels[index];
+	}
+	//向tile中贡献样本
+	void AddSample(const Point2f& pFilm, Spectrum L, Float weight);
+
+	const Bound2i& GetPixelBound() const {
+		return _pixelBound;
+	}
 };
 
 #endif /* SRC_CORE_FILM_H_ */

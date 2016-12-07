@@ -64,6 +64,7 @@ template<int num> class CoefficientSpectrum;
 class SampledSpectrum;
 class RGBSpectrum;
 class Film;
+class FilmTile;
 class Camera;
 class Filter;
 class Scene;

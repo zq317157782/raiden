@@ -497,6 +497,11 @@ public:
 		return Point2<T>(x + p.x, y + p.y);
 	}
 
+	Point2<T> operator+(const Vector2<T>& p) const {
+		Assert(!p.HasNaNs());
+		return Point2<T>(x + p.x, y + p.y);
+	}
+
 	Point2<T>& operator+=(const Point2<T>& p) {
 		Assert(!p.HasNaNs());
 		x += p.x;
@@ -858,6 +863,10 @@ public:
 					std::max(p1.x, p2.x), std::max(p1.y, p2.y)) {
 	}
 
+	template<typename U>
+	explicit operator Bound2<U>() const {
+		return Bound2<U>((Point2<U> ) minPoint, (Point2<U> ) maxPoint);
+	}
 //	Bound2<T>& operator=(const Bound2<T>& b){
 //		minPoint=b.minPoint;
 //		maxPoint=b.maxPoint;
@@ -1007,6 +1016,15 @@ Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
 			Point3<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
 					std::min(b.maxPoint.y, b2.maxPoint.y),
 					std::min(b.maxPoint.z, b2.maxPoint.z)));
+}
+
+template<typename T>
+Bound2<T> Intersect(const Bound2<T>& b, const Bound2<T>& b2) {
+	return Bound2<T>(
+			Point2<T>(std::max(b.minPoint.x, b2.minPoint.x),
+					std::max(b.minPoint.y, b2.minPoint.y)),
+			Point2<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
+					std::min(b.maxPoint.y, b2.maxPoint.y)));
 }
 
 //判断两个AABB盒是否重叠
@@ -1365,5 +1383,53 @@ inline Point3<T> Floor(const Point3<T>& p) {
 	return Point3<T>(std::floor(p.x), std::floor(p.y), std::floor(p.z));
 }
 
+//Max and Min
+template<typename T>
+inline Point3<T> Max(const Point3<T>& p1, const Point3<T>& p2) {
+	return Point3<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y),
+			std::max(p1.z, p2.z));
+}
+template<typename T>
+inline Point2<T> Max(const Point2<T>& p1, const Point2<T>& p2) {
+	return Point2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
+}
+template<typename T>
+inline Vector3<T> Max(const Vector3<T>& p1, const Vector3<T>& p2) {
+	return Vector3<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y),
+			std::max(p1.z, p2.z));
+}
+template<typename T>
+inline Vector2<T> Max(const Vector2<T>& p1, const Vector2<T>& p2) {
+	return Vector2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
+}
+template<typename T>
+inline Normal3<T> Max(const Normal3<T>& p1, const Normal3<T>& p2) {
+	return Normal3<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y),
+			std::max(p1.z, p2.z));
+}
+
+template<typename T>
+inline Point3<T> Min(const Point3<T>& p1, const Point3<T>& p2) {
+	return Point3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
+			std::min(p1.z, p2.z));
+}
+template<typename T>
+inline Point2<T> Min(const Point2<T>& p1, const Point2<T>& p2) {
+	return Point2<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
+}
+template<typename T>
+inline Vector3<T> Min(const Vector3<T>& p1, const Vector3<T>& p2) {
+	return Vector3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
+			std::min(p1.z, p2.z));
+}
+template<typename T>
+inline Vector2<T> Min(const Vector2<T>& p1, const Vector2<T>& p2) {
+	return Vector2<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
+}
+template<typename T>
+inline Normal3<T> Min(const Normal3<T>& p1, const Normal3<T>& p2) {
+	return Normal3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
+			std::min(p1.z, p2.z));
+}
 //todo geomtry相关函数的扩充(补充说明:还有一小部分)
 #endif /* SRC_CORE_GEOMETRY_H_ */
