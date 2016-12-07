@@ -539,8 +539,11 @@ TEST(AtomicFloat,all) {
 }
 
 TEST(Bound2,all) {
-	Bound2<float> b(Point2f(0, 0), Point2f(2, 2));
+	Bound2<int> b(Point2f(0, 0), Point2f(2, 2));
 	ASSERT_EQ(b.SurfaceArea(), 4);
+	for(Point2i p: b){
+		Error(p);
+	}
 }
 
 #include "reflection.h"
@@ -607,7 +610,7 @@ TEST(TestSceneOne,all) {
 					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
 					"result/TestSceneOne_randomSampler.png"),50));
 	SamplerIntegrator integrator(camera,sampler);
-	integrator.RenderScene(scene);
+	//integrator.RenderScene(scene);
 //	for (int j = 0; j < 256; ++j)
 //		for (int i = 0; i < 256; ++i) {
 //			sampler.StartPixel(Point2i(i, j));

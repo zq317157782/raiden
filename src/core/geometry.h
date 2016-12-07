@@ -922,6 +922,54 @@ public:
 typedef Bound2<Float> Bound2f;
 typedef Bound2<int> Bound2i;
 
+
+#include <iterator>
+class Bound2iIterator : public std::forward_iterator_tag {
+  public:
+	Bound2iIterator(const Bound2i &b, const Point2i &pt)
+        : p(pt), bounds(&b) {}
+	Bound2iIterator operator++() {
+        advance();
+        return *this;
+    }
+	Bound2iIterator operator++(int) {
+		Bound2iIterator old = *this;
+        advance();
+        return old;
+    }
+    bool operator==(const Bound2iIterator &bi) const {
+        return p == bi.p && bounds == bi.bounds;
+    }
+    bool operator!=(const Bound2iIterator &bi) const {
+        return p != bi.p || bounds != bi.bounds;
+    }
+
+    Point2i operator*() const { return p; }
+
+  private:
+    void advance() {
+        ++p.x;
+        if (p.x == bounds->maxPoint.x) {
+            p.x = bounds->minPoint.x;
+            ++p.y;
+        }
+    }
+    Point2i p;
+    const Bound2i *bounds;
+};
+
+inline Bound2iIterator begin(const Bound2i &b) {
+    return Bound2iIterator(b, b.minPoint);
+}
+
+inline Bound2iIterator end(const Bound2i &b) {
+    Point2i pEnd(b.minPoint.x, b.maxPoint.y);
+    if (b.minPoint.x >= b.maxPoint.x || b.minPoint.y >= b.maxPoint.y)
+        pEnd = b.minPoint;
+    return Bound2iIterator(b, pEnd);
+}
+
+
 //AABB和point之间的合并
 template<typename T>
 Bound3<T> Union(const Bound3<T>& b, const Point3<T> p) {
