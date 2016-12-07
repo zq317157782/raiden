@@ -609,8 +609,8 @@ TEST(TestSceneOne,all) {
 			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
 					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
 					"result/TestSceneOne_randomSampler.png"),50));
-	SamplerIntegrator integrator(camera,sampler);
-	//integrator.RenderScene(scene);
+	SamplerIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
+	integrator.RenderScene(scene);
 //	for (int j = 0; j < 256; ++j)
 //		for (int i = 0; i < 256; ++i) {
 //			sampler.StartPixel(Point2i(i, j));
