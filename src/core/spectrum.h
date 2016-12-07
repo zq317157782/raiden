@@ -43,6 +43,41 @@ public:
 	}
 #endif
 
+	CoefficientSpectrum operator+(const CoefficientSpectrum& cc) const {
+		Assert(!cc.HasNaNs());
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = _c[i] + cc._c[i];
+		}
+		return result;
+	}
+
+	CoefficientSpectrum operator-(const CoefficientSpectrum& cc) const {
+		Assert(!cc.HasNaNs());
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = _c[i] - cc._c[i];
+		}
+		return result;
+	}
+
+	CoefficientSpectrum operator*(Float f) const {
+		Assert(!std::isnan(f));
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = _c[i] * f;
+		}
+		return result;
+	}
+
+	CoefficientSpectrum& operator*=(Float f) {
+		Assert(!std::isnan(f));
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			_c[i] = _c[i] * f;
+		}
+		return *this;
+	}
+
 	//用来遍历样本的函数
 	Float operator[](int index) const {
 		Assert(index >= 0 && index < numSpectrumSample);
@@ -208,7 +243,7 @@ public:
 
 class RGBSpectrum: public CoefficientSpectrum<3> {
 public:
-	RGBSpectrum(Float cc=0.0f) :
+	RGBSpectrum(Float cc = 0.0f) :
 			CoefficientSpectrum<3>(cc) {
 	}
 	RGBSpectrum(const CoefficientSpectrum<3>& cc) :
@@ -252,7 +287,7 @@ public:
 		xyz[2] *= scale;
 		//转换xyz到rgb
 		RGBSpectrum ret;
-		XYZToRGB(xyz,ret._c);
+		XYZToRGB(xyz, ret._c);
 		return ret;
 	}
 };

@@ -479,7 +479,7 @@ public:
 	}
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
-	template <typename U>
+	template<typename U>
 	Point2(const Point2<U>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
@@ -507,6 +507,11 @@ public:
 	Vector2<T> operator-(const Point2<T>& p) const {
 		Assert(!p.HasNaNs());
 		return Vector2<T>(x - p.x, y - p.y);
+	}
+
+	Point2<T> operator-(const Vector2<T>& p) const {
+		Assert(!p.HasNaNs());
+		return Point2<T>(x - p.x, y - p.y);
 	}
 
 	template<typename U>
@@ -884,7 +889,7 @@ public:
 	}
 
 	//求面积
-	T SurfaceArea() const {
+	T Area() const {
 		Vector2<T> d = Diagonal();
 		return d.x * d.y;
 	}
@@ -922,53 +927,54 @@ public:
 typedef Bound2<Float> Bound2f;
 typedef Bound2<int> Bound2i;
 
-
 #include <iterator>
-class Bound2iIterator : public std::forward_iterator_tag {
-  public:
-	Bound2iIterator(const Bound2i &b, const Point2i &pt)
-        : p(pt), bounds(&b) {}
+class Bound2iIterator: public std::forward_iterator_tag {
+public:
+	Bound2iIterator(const Bound2i &b, const Point2i &pt) :
+			p(pt), bounds(&b) {
+	}
 	Bound2iIterator operator++() {
-        advance();
-        return *this;
-    }
+		advance();
+		return *this;
+	}
 	Bound2iIterator operator++(int) {
 		Bound2iIterator old = *this;
-        advance();
-        return old;
-    }
-    bool operator==(const Bound2iIterator &bi) const {
-        return p == bi.p && bounds == bi.bounds;
-    }
-    bool operator!=(const Bound2iIterator &bi) const {
-        return p != bi.p || bounds != bi.bounds;
-    }
+		advance();
+		return old;
+	}
+	bool operator==(const Bound2iIterator &bi) const {
+		return p == bi.p && bounds == bi.bounds;
+	}
+	bool operator!=(const Bound2iIterator &bi) const {
+		return p != bi.p || bounds != bi.bounds;
+	}
 
-    Point2i operator*() const { return p; }
+	Point2i operator*() const {
+		return p;
+	}
 
-  private:
-    void advance() {
-        ++p.x;
-        if (p.x == bounds->maxPoint.x) {
-            p.x = bounds->minPoint.x;
-            ++p.y;
-        }
-    }
-    Point2i p;
-    const Bound2i *bounds;
+private:
+	void advance() {
+		++p.x;
+		if (p.x == bounds->maxPoint.x) {
+			p.x = bounds->minPoint.x;
+			++p.y;
+		}
+	}
+	Point2i p;
+	const Bound2i *bounds;
 };
 
 inline Bound2iIterator begin(const Bound2i &b) {
-    return Bound2iIterator(b, b.minPoint);
+	return Bound2iIterator(b, b.minPoint);
 }
 
 inline Bound2iIterator end(const Bound2i &b) {
-    Point2i pEnd(b.minPoint.x, b.maxPoint.y);
-    if (b.minPoint.x >= b.maxPoint.x || b.minPoint.y >= b.maxPoint.y)
-        pEnd = b.minPoint;
-    return Bound2iIterator(b, pEnd);
+	Point2i pEnd(b.minPoint.x, b.maxPoint.y);
+	if (b.minPoint.x >= b.maxPoint.x || b.minPoint.y >= b.maxPoint.y)
+		pEnd = b.minPoint;
+	return Bound2iIterator(b, pEnd);
 }
-
 
 //AABB和point之间的合并
 template<typename T>
@@ -1032,7 +1038,6 @@ bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
 	bool z = p.z >= b.minPoint.z && p.z < b.maxPoint.z;
 	return (x && y && z);
 }
-
 
 //判断一个点是否在RECT中
 template<typename T>
@@ -1322,6 +1327,42 @@ inline Float SphericalPhi(const Vector3f &v) {
 template<typename T>
 inline Vector3<T> Abs(const Vector3<T>& v) {
 	return Vector3<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
+}
+
+//取大于原始值最小的整数
+template<typename T>
+inline Vector2<T> Ceil(const Vector2<T>& p) {
+	return Vector2<T>(std::ceil(p.x), std::ceil(p.y));
+}
+template<typename T>
+inline Point2<T> Ceil(const Point2<T>& p) {
+	return Point2<T>(std::ceil(p.x), std::ceil(p.y));
+}
+template<typename T>
+inline Vector3<T> Ceil(const Vector3<T>& p) {
+	return Vector3<T>(std::ceil(p.x), std::ceil(p.y), std::ceil(p.z));
+}
+template<typename T>
+inline Point3<T> Ceil(const Point3<T>& p) {
+	return Point3<T>(std::ceil(p.x), std::ceil(p.y), std::ceil(p.z));
+}
+
+//取小于原始值最大的整数
+template<typename T>
+inline Vector2<T> Floor(const Vector2<T>& p) {
+	return Vector2<T>(std::floor(p.x), std::floor(p.y));
+}
+template<typename T>
+inline Point2<T> Floor(const Point2<T>& p) {
+	return Point2<T>(std::floor(p.x), std::floor(p.y));
+}
+template<typename T>
+inline Vector3<T> Floor(const Vector3<T>& p) {
+	return Vector3<T>(std::floor(p.x), std::floor(p.y), std::floor(p.z));
+}
+template<typename T>
+inline Point3<T> Floor(const Point3<T>& p) {
+	return Point3<T>(std::floor(p.x), std::floor(p.y), std::floor(p.z));
 }
 
 //todo geomtry相关函数的扩充(补充说明:还有一小部分)

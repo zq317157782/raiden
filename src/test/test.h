@@ -76,6 +76,14 @@ TEST(Vector3,index) {
 	ASSERT_EQ(v1[2], 1);
 }
 
+TEST(Vector3,util){
+	Vector3f v(0.5f,0.5f,0.5f);
+	Vector3f v1=Ceil(v);
+	ASSERT_EQ(v1,Vector3f(1,1,1));
+	Vector3f v2=Floor(v);
+	ASSERT_EQ(v2,Vector3f(0,0,0));
+}
+
 TEST(Vector3,eq) {
 	Vector3<float> v1(0.0, 0.0, 0.0);
 	Vector3<float> v2(v1);
@@ -540,10 +548,7 @@ TEST(AtomicFloat,all) {
 
 TEST(Bound2,all) {
 	Bound2<int> b(Point2f(0, 0), Point2f(2, 2));
-	ASSERT_EQ(b.SurfaceArea(), 4);
-	for(Point2i p: b){
-		Error(p);
-	}
+	ASSERT_EQ(b.Area(), 4);
 }
 
 #include "reflection.h"
@@ -605,12 +610,15 @@ TEST(TestSceneOne,all) {
 	Scene scene(primitive);
 	std::shared_ptr<RandomSampler> sampler(new RandomSampler(1));
 	Transform trans = Translate(Vector3f(0, 0, 0));
-	std::shared_ptr<const Camera> camera(new PinholeCamera(trans, 0, 1,
-			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
-					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
-					"result/TestSceneOne_randomSampler.png"),50));
-	SamplerIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
-	integrator.RenderScene(scene);
+	Film *f=new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
+								std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
+								"result/TestSceneOne_randomSampler.png");
+//	std::shared_ptr<const Camera> camera(new PinholeCamera(trans, 0, 1,
+//			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
+//					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
+//					"result/TestSceneOne_randomSampler.png"),50));
+//	SamplerIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
+	//integrator.RenderScene(scene);
 //	for (int j = 0; j < 256; ++j)
 //		for (int i = 0; i < 256; ++i) {
 //			sampler.StartPixel(Point2i(i, j));
