@@ -592,38 +592,39 @@ TEST(RandomSampler,all) {
 	RandomSampler sampler(4);
 	Float f = sampler.Get1DSample();
 }
-//
-//TEST(TestSceneOne,all) {
-//	Transform move_z_one = Translate(Vector3f(0, 0, 3));
-//	Transform move_z_none = Inverse(move_z_one);
-//	Sphere sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360);
-//
-//	RandomSampler sampler(1);
-//	Transform trans = Translate(Vector3f(0, 0, 0));
-//	PinholeCamera camera(trans, 0, 1,
-//			new Film(Point2i(256, 256), Bound2f(Point2f(0, 0), Point2f(1, 1)),
-//					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
-//					"result/TestSceneOne_randomSampler.png"),50);
-//	for (int j = 0; j < 256; ++j)
-//		for (int i = 0; i < 256; ++i) {
-//			sampler.StartPixel(Point2i(i, j));
-//			do {
-//				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
-//				Ray r;
-//				camera.GenerateRay(cs, &r);
-//				if (sphere.IntersectP(r)) {
-//					Float rgb[3]={1,1,1};
-//					Float xyz[3];
-//					RGBToXYZ(rgb,xyz);
-//					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
-//					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
-//					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
-//					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
-//				}
-//			}while (sampler.StartNextSample()) ;
-//		}
-//	camera.film->WriteImage();
-//}
+#include "scene.h"
+TEST(TestSceneOne,all) {
+	Transform move_z_one = Translate(Vector3f(0, 0, 3));
+	Transform move_z_none = Inverse(move_z_one);
+	std::shared_ptr<Shape> sphere(new Sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360));
+	std::shared_ptr<Primitive> primitive(new GeomPrimitive(sphere));
+	Scene scene(primitive);
+	RandomSampler sampler(1);
+	Transform trans = Translate(Vector3f(0, 0, 0));
+	PinholeCamera camera(trans, 0, 1,
+			new Film(Point2i(256, 256), Bound2f(Point2f(0, 0), Point2f(1, 1)),
+					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
+					"result/TestSceneOne_randomSampler.png"),50);
+	for (int j = 0; j < 256; ++j)
+		for (int i = 0; i < 256; ++i) {
+			sampler.StartPixel(Point2i(i, j));
+			do {
+				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
+				Ray r;
+				camera.GenerateRay(cs, &r);
+				if (scene.IntersectP(r)) {
+					Float rgb[3]={1,1,1};
+					Float xyz[3];
+					RGBToXYZ(rgb,xyz);
+					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
+					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
+					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
+					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
+				}
+			}while (sampler.StartNextSample()) ;
+		}
+	camera.film->WriteImage();
+}
 
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

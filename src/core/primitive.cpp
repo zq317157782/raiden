@@ -24,6 +24,6 @@ Bound3f GeomPrimitive::WorldBound() const{
 }
 
 
-GeomPrimitive::GeomPrimitive(const std::shared_ptr<Shape>& s,const std::shared_ptr<Material>&,const std::shared_ptr<AreaLight>&):_shape(s){
+GeomPrimitive::GeomPrimitive(const std::shared_ptr<Shape>& s):_shape(s){
 
 }
