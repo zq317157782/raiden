@@ -640,7 +640,27 @@ TEST(TestSceneOne,all) {
 //		}
 //	//camera.film->WriteImage();
 }
+#include "light.h"
+TEST(Light,all){
+	LightFlags f1=LightFlags::DeltaDirection;
+	ASSERT_TRUE(IsDeltaLight((int)f1));
+	LightFlags f2=LightFlags::Area;
+	ASSERT_FALSE(IsDeltaLight((int)f2));
 
+}
+
+#include "lights/point.h"
+TEST(pointlight,all){
+	Transform ts;
+	PointLight pl(ts,Spectrum(1));
+	Interaction ref;
+	ref.p=Point3f(0,0,3);
+	Vector3f wi;
+	Float pdf;
+	Spectrum le=pl.Sample_Li(ref,&wi,&pdf);
+	ASSERT_EQ(wi,Vector3f(0,0,-1));
+	//ASSERT_EQ(le,Spectrum(1));
+}
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();
