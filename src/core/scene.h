@@ -13,6 +13,8 @@ class Scene{
 private:
 	std::shared_ptr<Primitive> _aggregate;//图元集合
 public:
+	std::vector<std::shared_ptr<Light>> lights;
+public:
 	Scene(const std::shared_ptr<Primitive>&aggregate):_aggregate(aggregate){
 		Assert(_aggregate!=nullptr);
 	}

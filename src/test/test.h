@@ -602,12 +602,17 @@ TEST(RandomSampler,all) {
 }
 #include "scene.h"
 #include "integrator.h"
+#include "lights/point.h"
 TEST(TestSceneOne,all) {
 	Transform move_z_one = Translate(Vector3f(0, 0, 3));
 	Transform move_z_none = Inverse(move_z_one);
 	std::shared_ptr<Shape> sphere(new Sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360));
 	std::shared_ptr<Primitive> primitive(new GeomPrimitive(sphere));
+	Transform lightTrans=Translate(Vector3f(3,0,0));
+	std::shared_ptr<PointLight> pl(new PointLight(lightTrans,Spectrum(10)));
+
 	Scene scene(primitive);
+	scene.lights.push_back(pl);
 	std::shared_ptr<RandomSampler> sampler(new RandomSampler(1));
 	Transform trans = Translate(Vector3f(0, 0, 0));
 	Film *f=new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),"result/TestSceneOne_randomSampler.png");
@@ -619,7 +624,9 @@ TEST(TestSceneOne,all) {
 					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
 					"result/TestSceneOne_randomSampler.png"),50));
 	SamplerIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
-	//integrator.RenderScene(scene);
+
+
+	integrator.RenderScene(scene);
 //	for (int j = 0; j < 256; ++j)
 //		for (int i = 0; i < 256; ++i) {
 //			sampler.StartPixel(Point2i(i, j));
@@ -649,7 +656,7 @@ TEST(Light,all){
 
 }
 
-#include "lights/point.h"
+
 TEST(pointlight,all){
 	Transform ts;
 	PointLight pl(ts,Spectrum(1));
