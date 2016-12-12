@@ -46,5 +46,16 @@ public:
 };
 
 
+//当前线程索引,mian线程为0，其余的线程依次加1
+extern thread_local int ThreadIndex;
 
+//初始化工作线程池
+void ParallelInit();
+void ParallelCleanup();
+
+//并行的for循环，是并行的关键
+//openMP中也有类似的并行for循环
+void ParallelFor(std::function<void(int64_t)> func,int count,int chunkSize=1);
+//返回当前系统核心数
+int NumSystemCores();
 #endif /* SRC_CORE_PARALLEL_H_ */

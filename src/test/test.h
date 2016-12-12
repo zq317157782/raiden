@@ -613,7 +613,7 @@ TEST(TestSceneOne,all) {
 
 	Scene scene(primitive);
 	scene.lights.push_back(pl);
-	std::shared_ptr<RandomSampler> sampler(new RandomSampler(1));
+	std::shared_ptr<RandomSampler> sampler(new RandomSampler(10));
 	Transform trans = Translate(Vector3f(0, 0, 0));
 	Film *f=new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),"result/TestSceneOne_randomSampler.png");
 //	std::unique_ptr<FilmTile> tile=f->GetFilmTile(Bound2i(Point2i(100,100),Point2i(500,500)));
@@ -667,6 +667,13 @@ TEST(pointlight,all){
 	Spectrum le=pl.Sample_Li(ref,&wi,&pdf);
 	ASSERT_EQ(wi,Vector3f(0,0,-1));
 	//ASSERT_EQ(le,Spectrum(1));
+}
+#include "parallel.h"
+TEST(parallel,all){
+	ParallelInit();
+	auto func1 = [](int i) { Error(i);};
+	ParallelFor(func1,10000);
+	ParallelCleanup();
 }
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
