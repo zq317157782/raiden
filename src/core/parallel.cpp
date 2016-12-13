@@ -35,6 +35,14 @@ public:
 		next=nullptr;
 	}
 
+	ParallelForLoop(std::function<void(Point2i)> func2D,const Point2i& count):
+		func2D(std::move(func2D)),maxIndex(count.x*count.y),chunkSize(1),numX(count.x){
+				nextIndex=0;
+				activeWorkers=0;
+				func1D=nullptr;
+				next=nullptr;
+	}
+
 	//只有当索引大于最大索引并且没有active的工作线程的时候，才算结束
 	bool Finished() const {
 		return (nextIndex >= maxIndex) && (activeWorkers == 0);
@@ -100,6 +108,52 @@ void ParallelFor(std::function<void(int64_t)> func, int count, int chunkSize) {
 	//创建一个局部循环体
 	//因为这个函数需要等所有遍历都结束后才返回，所以用局部变量也没啥
 	ParallelForLoop loop(std::move(func), count, chunkSize);
+	//访问工作队列
+	workListMutex.lock();
+	loop.next = workList;
+	workList = &loop;
+	workListMutex.unlock();
+	//再次获取锁
+	std::unique_lock<std::mutex> lock(workListMutex);
+	workListCondition.notify_all();	//唤醒所有在等待的工作线程
+	while (!loop.Finished()) {
+		//获得遍历区间
+		int startIndex = loop.nextIndex;
+		int endIndex = std::min(loop.nextIndex + loop.chunkSize, loop.maxIndex);
+		loop.nextIndex = endIndex;
+		if (loop.nextIndex == loop.maxIndex) {
+			workList = loop.next;	//这个循环体已经结束了，换下个循环体
+		}
+		++loop.activeWorkers;
+		lock.unlock();
+		//遍历区间内的循环体
+		for (int i = startIndex; i < endIndex; ++i) {
+			if (loop.func1D) {
+				loop.func1D(i);
+			} else {
+				loop.func2D(Point2i(i % loop.numX, i / loop.numX));
+			}
+		}
+		//一个区间的工作完成
+		lock.lock();
+		--loop.activeWorkers;
+	}
+}
+
+void ParallelFor2D(std::function<void(Point2i)> func,const Point2i&count) {
+	Assert(count.x> 0||count.y>0);
+	//首先处理单核
+	if (NumSystemCores() == 1) {
+		for(int y=0;y<count.y;++y){
+			for(int x=0;x<count.x;++x){
+				func(Point2i(x,y));
+			}
+		}
+		return;
+	}
+	//创建一个局部循环体
+	//因为这个函数需要等所有遍历都结束后才返回，所以用局部变量也没啥
+	ParallelForLoop loop(std::move(func), count);
 	//访问工作队列
 	workListMutex.lock();
 	loop.next = workList;

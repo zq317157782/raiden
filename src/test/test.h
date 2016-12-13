@@ -671,8 +671,9 @@ TEST(pointlight,all){
 #include "parallel.h"
 TEST(parallel,all){
 	ParallelInit();
-	auto func1 = [](int i) { Error(i);};
-	ParallelFor(func1,10000);
+	auto func1 = [](Point2i i) { Error(i);};
+	Point2i count(100,100);
+	ParallelFor2D(func1,count);
 	ParallelCleanup();
 }
 void UnitTest(int argc, char* argv[]) {

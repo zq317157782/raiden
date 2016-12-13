@@ -9,6 +9,7 @@
 #define SRC_CORE_PARALLEL_H_
 #include "raiden.h"
 #include <atomic>
+#include "geometry.h"
 //原子操作的Float类型
 //c++不支持原子的Float操作
 class AtomicFloat{
@@ -56,6 +57,8 @@ void ParallelCleanup();
 //并行的for循环，是并行的关键
 //openMP中也有类似的并行for循环
 void ParallelFor(std::function<void(int64_t)> func,int count,int chunkSize=1);
+
+void ParallelFor2D(std::function<void(Point2i)> func,const Point2i&count);
 //返回当前系统核心数
 int NumSystemCores();
 #endif /* SRC_CORE_PARALLEL_H_ */
