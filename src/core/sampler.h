@@ -95,6 +95,9 @@ public:
 		Assert(_samplesArray2DSize[_array2DOffset]==n);
 		return &_sample2DArray[_array2DOffset][samplesPerPixel*n];
 	}
+
+	//克隆方法，用来克隆本sampler
+	virtual std::unique_ptr<Sampler> Clone(int seed=0/*用来设置随机策略的种子数据*/) const=0;
 };
 
 

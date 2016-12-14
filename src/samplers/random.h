@@ -23,6 +23,10 @@ public:
 	virtual Point2f Get2DSample() override {
 		return Point2f(_rng.UniformFloat(), _rng.UniformFloat());
 	}
+	virtual std::unique_ptr<Sampler> Clone(int seed=0/*RandomSampler并不需要这个种子*/) const override{
+		RandomSampler *rs=new RandomSampler(samplesPerPixel);
+		return std::unique_ptr<RandomSampler>(rs);
+	}
 };
 
 #endif /* SRC_SAMPLERS_RANDOM_H_ */

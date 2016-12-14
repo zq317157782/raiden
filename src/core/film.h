@@ -59,6 +59,13 @@ public:
 	std::unique_ptr<FilmTile> GetFilmTile(const Bound2i &sampleBounds);
 	//合并1个tile
 	void MergeFilmTile(std::unique_ptr<FilmTile> tile);
+
+	//考虑了filter范围
+	Bound2i GetSampleBounds() const{
+		Point2f minP=Floor(Point2f(croppedPixelBound.minPoint)+Vector2f(0.5f,0.5f)-filter->radius);
+		Point2f maxP=Ceil(Point2f(croppedPixelBound.maxPoint)-Vector2f(0.5f,0.5f)+filter->radius);
+		return Bound2i(minP,maxP);
+	}
 };
 
 struct FilmTilePixel {

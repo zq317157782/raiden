@@ -12,30 +12,69 @@
 #include "sampler.h"
 #include "interaction.h"
 #include "light.h"
+#include "parallel.h"
 void SamplerIntegrator::RenderScene(const Scene& scene) {
-	std::unique_ptr<FilmTile> tile=_camera->film->GetFilmTile(_pixelBound);
-	for (Point2i pos : tile->GetPixelBound()) {
-		_sampler->StartPixel(pos);
-		do {
-			CameraSample cs = _sampler->GetCameraSample(pos);
-			Ray r;
-			_camera->GenerateRay(cs, &r);
-			SurfaceInteraction ref;
-			if (scene.Intersect(r,&ref)) {
-				for(int i=0;i<scene.lights.size();++i){
-					std::shared_ptr<Light> light=scene.lights[i];
-					Vector3f wi;
-					Float pdf;
-					Spectrum I=light->Sample_Li(ref,&wi,&pdf);
-					Float cosln=Clamp(Dot(wi,ref.n),0,1);
-					tile->AddSample(pos,I*cosln/Pi,1);
+	//首先计算需要的tile数
+	Bound2i filmBound = _camera->film->GetSampleBounds();
+	Vector2i filmExtent = filmBound.Diagonal();
+	const int tileSize = 16; //默认是16*16为1个tile
+	int numTileX = (filmExtent.x + tileSize - 1) / tileSize;
+	int numTileY = (filmExtent.y + tileSize - 1) / tileSize;
+	Point2i numTile(numTileX, numTileY);
+	//开始并行处理每个tile
+	ParallelFor2D([&](Point2i tile) {
+//<<并行循环体开始>>
+			int seed=tile.y*numTile.x+tile.x;//计算种子数据
+			std::unique_ptr<Sampler> localSampler=_sampler->Clone(seed);
+			//计算这个tile覆盖的像素范围
+			int x0=filmBound.minPoint.x+tile.x*tileSize;
+			int y0=filmBound.minPoint.y+tile.y*tileSize;
+			int x1=std::min(x0+tileSize,filmBound.maxPoint.x);
+			int y1=std::min(y0+tileSize,filmBound.maxPoint.y);
+			Bound2i tileBound(Point2i(x0,y0),Point2i(x1,y1));
+			//获取tile
+			std::unique_ptr<FilmTile> filmTile=_camera->film->GetFilmTile(tileBound);
+			//遍历tile
+			for(Point2i pixel:tileBound) {
+				localSampler->StartPixel(pixel); //开始一个像素
+				//检查像素是否在积分器负责的范围内
+				//这里把检查放在StartPixel后面v3有个解释：
+				// Do this check after the StartPixel() call; this keeps
+				// the usage of RNG values from (most) Samplers that use
+				// RNGs consistent, which improves reproducability /
+				// debugging.
+				if(!InsideExclusive(pixel,_pixelBound)) {
+					continue;
 				}
-			} else {
-				tile->AddSample(pos,Spectrum(0),1);
+				do {
+					//获取相机样本
+					CameraSample cs = localSampler->GetCameraSample(pixel);
+					//生成射线
+					RayDifferential ray;
+					Float rWeight=_camera->GenerateRayDifferential(cs, &ray);
+					//根据每个像素中包含的样本数，缩放射线微分值
+					ray.ScaleRayDifferential(1.0f/std::sqrt((Float)localSampler->samplesPerPixel));
+
+					SurfaceInteraction ref;//和表面的交互点
+
+					if (scene.Intersect(ray, &ref)) {
+						for (int i = 0; i < scene.lights.size(); ++i) {
+							std::shared_ptr<Light> light = scene.lights[i];
+							Vector3f wi;//光线入射方向
+							Float pdf;
+							Spectrum I = light->Sample_Li(ref, &wi, &pdf);
+							Float cosln = Clamp(Dot(wi, ref.n), 0, 1);
+							filmTile->AddSample(pixel, I * cosln / Pi, rWeight);
+						}
+					} else {
+						filmTile->AddSample(pixel, Spectrum(0), 1);
+					}
+				}while (_sampler->StartNextSample());
 			}
-		} while (_sampler->StartNextSample());
-	}
-	_camera->film->MergeFilmTile(std::move(tile));
-	_camera->film->WriteImage();
+			//合并tile
+			_camera->film->MergeFilmTile(std::move(filmTile));
+//<<并行循环体结束>>
+		}, numTile);
+		_camera->film->WriteImage();
 }
 

@@ -564,12 +564,14 @@ TEST(reflection,all){
 }
 #include "film.h"
 #include "filters/box.h"
-//TEST(Film,all) {
-//	Film film(Point2i(32, 32), Bound2f(Point2f(0.1, 0.1), Point2f(0.9, 0.9)),
-//			std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))), "test");
-//	film.WriteImage();
-//	ASSERT_EQ(film.croppedPixelBound, Bound2i(Point2i(4, 4), Point2i(28, 28)));
-//}
+TEST(Film,all) {
+	Film film(Point2i(32, 32), Bound2f(Point2f(0.1, 0.1), Point2f(0.9, 0.9)),
+			std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))), "test");
+	//film.WriteImage();
+	ASSERT_EQ(film.croppedPixelBound, Bound2i(Point2i(4, 4), Point2i(28, 28)));
+	ASSERT_EQ(film.GetSampleBounds(), Bound2i(Point2i(3, 3), Point2i(29, 29)));
+
+}
 
 #include "camera.h"
 #include <cameras/pinhole.h>
@@ -613,7 +615,7 @@ TEST(TestSceneOne,all) {
 
 	Scene scene(primitive);
 	scene.lights.push_back(pl);
-	std::shared_ptr<RandomSampler> sampler(new RandomSampler(10));
+	std::shared_ptr<RandomSampler> sampler(new RandomSampler(100000));
 	Transform trans = Translate(Vector3f(0, 0, 0));
 	Film *f=new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),"result/TestSceneOne_randomSampler.png");
 //	std::unique_ptr<FilmTile> tile=f->GetFilmTile(Bound2i(Point2i(100,100),Point2i(500,500)));
@@ -645,7 +647,7 @@ TEST(TestSceneOne,all) {
 //				}
 //			}while (sampler.StartNextSample()) ;
 //		}
-//	//camera.film->WriteImage();
+//camera.film->WriteImage();
 }
 #include "light.h"
 TEST(Light,all){
@@ -673,7 +675,7 @@ TEST(parallel,all){
 	ParallelInit();
 	auto func1 = [](Point2i i) { Error(i);};
 	Point2i count(100,100);
-	ParallelFor2D(func1,count);
+	//ParallelFor2D(func1,count);
 	ParallelCleanup();
 }
 void UnitTest(int argc, char* argv[]) {

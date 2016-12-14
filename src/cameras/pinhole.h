@@ -28,6 +28,7 @@ public:
 		*ray = Ray(origin, dir);
 		ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
 		*ray=cameraToWorld(*ray);
+		return 1.0f;
 	}
 };
 

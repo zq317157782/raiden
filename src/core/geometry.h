@@ -1061,7 +1061,7 @@ bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
 template<typename T>
 bool Inside(const Point2<T>& p, const Bound2<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x <= b.maxPoint.x;
-	bool y = p.y >= b.minPoint.y && p.x <= b.maxPoint.y;
+	bool y = p.y >= b.minPoint.y && p.y <= b.maxPoint.y;
 	return (x && y);
 }
 
@@ -1069,7 +1069,7 @@ bool Inside(const Point2<T>& p, const Bound2<T> &b) {
 template<typename T>
 bool InsideExclusive(const Point2<T>& p, const Bound2<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x < b.maxPoint.x;
-	bool y = p.y >= b.minPoint.y && p.x < b.maxPoint.y;
+	bool y = p.y >= b.minPoint.y && p.y < b.maxPoint.y;
 	return (x && y);
 }
 
