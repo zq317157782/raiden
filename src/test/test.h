@@ -628,7 +628,7 @@ TEST(TestSceneOne,all) {
 	SamplerIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
 
 
-	integrator.RenderScene(scene);
+	//integrator.RenderScene(scene);
 //	for (int j = 0; j < 256; ++j)
 //		for (int i = 0; i < 256; ++i) {
 //			sampler.StartPixel(Point2i(i, j));
@@ -677,6 +677,13 @@ TEST(parallel,all){
 	Point2i count(100,100);
 	//ParallelFor2D(func1,count);
 	ParallelCleanup();
+}
+#include "memory.h"
+TEST(memoryManage,all){
+	void* ptr=AllocAligned(100);
+	long long address=(long long)ptr;//;
+	ASSERT_EQ(address%L1_CACHE_LINE_SIZE,0);
+	FreeAligned(ptr);
 }
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

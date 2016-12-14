@@ -14,7 +14,7 @@
 #include <string>
 #include <assert.h>
 #include <thread>
-
+#include "port.h"
 //定义一个Float宏 可能指向float可能指向double
 #ifdef FLOAT_IS_DOUBLE
 typedef double Float;
@@ -38,7 +38,6 @@ static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 #define Error(x) std::cerr<<x<<std::endl;
 
 static constexpr Float Pi = 3.14159265358979323846;
-
 
 
 template<typename T> class Vector3;
