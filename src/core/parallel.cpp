@@ -67,8 +67,8 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 		} else {
 			ParallelForLoop& loop = *workList;
 			//获得遍历区间
-			int startIndex = loop.nextIndex;
-			int endIndex = std::min(loop.nextIndex + loop.chunkSize,
+			int64_t startIndex = loop.nextIndex;
+			int64_t endIndex = std::min(loop.nextIndex + loop.chunkSize,
 					loop.maxIndex);
 			loop.nextIndex = endIndex;
 			if (loop.nextIndex == loop.maxIndex) {
@@ -77,7 +77,7 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 			++loop.activeWorkers;
 			lock.unlock();
 			//遍历区间内的循环体
-			for (int i = startIndex; i < endIndex; ++i) {
+			for (int64_t i = startIndex; i < endIndex; ++i) {
 				if (loop.func1D) {
 					loop.func1D(i);
 				} else {
@@ -96,11 +96,11 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 	std::cout<<"工作线程" <<ThreadIndex<<"结束工作"<<std::endl;
 }
 
-void ParallelFor(std::function<void(int64_t)> func, int count, int chunkSize) {
+void ParallelFor(std::function<void(int64_t)> func, int64_t count, int chunkSize) {
 	Assert(count > 0);
 	//首先处理单核以及遍历数非常小的情况
 	if (NumSystemCores() == 1 || count < chunkSize) {
-		for (int i = 0; i < count; ++i) {
+		for (int64_t i = 0; i < count; ++i) {
 			func(i);
 		}
 		return;
@@ -118,8 +118,8 @@ void ParallelFor(std::function<void(int64_t)> func, int count, int chunkSize) {
 	workListCondition.notify_all();	//唤醒所有在等待的工作线程
 	while (!loop.Finished()) {
 		//获得遍历区间
-		int startIndex = loop.nextIndex;
-		int endIndex = std::min(loop.nextIndex + loop.chunkSize, loop.maxIndex);
+		int64_t startIndex = loop.nextIndex;
+		int64_t endIndex = std::min(loop.nextIndex + loop.chunkSize, loop.maxIndex);
 		loop.nextIndex = endIndex;
 		if (loop.nextIndex == loop.maxIndex) {
 			workList = loop.next;	//这个循环体已经结束了，换下个循环体
@@ -127,7 +127,7 @@ void ParallelFor(std::function<void(int64_t)> func, int count, int chunkSize) {
 		++loop.activeWorkers;
 		lock.unlock();
 		//遍历区间内的循环体
-		for (int i = startIndex; i < endIndex; ++i) {
+		for (int64_t i = startIndex; i < endIndex; ++i) {
 			if (loop.func1D) {
 				loop.func1D(i);
 			} else {
@@ -164,8 +164,8 @@ void ParallelFor2D(std::function<void(Point2i)> func,const Point2i&count) {
 	workListCondition.notify_all();	//唤醒所有在等待的工作线程
 	while (!loop.Finished()) {
 		//获得遍历区间
-		int startIndex = loop.nextIndex;
-		int endIndex = std::min(loop.nextIndex + loop.chunkSize, loop.maxIndex);
+		int64_t startIndex = loop.nextIndex;
+		int64_t endIndex = std::min(loop.nextIndex + loop.chunkSize, loop.maxIndex);
 		loop.nextIndex = endIndex;
 		if (loop.nextIndex == loop.maxIndex) {
 			workList = loop.next;	//这个循环体已经结束了，换下个循环体
@@ -173,7 +173,7 @@ void ParallelFor2D(std::function<void(Point2i)> func,const Point2i&count) {
 		++loop.activeWorkers;
 		lock.unlock();
 		//遍历区间内的循环体
-		for (int i = startIndex; i < endIndex; ++i) {
+		for (int64_t i = startIndex; i < endIndex; ++i) {
 			if (loop.func1D) {
 				loop.func1D(i);
 			} else {
