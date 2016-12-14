@@ -21,11 +21,6 @@ void *AllocAligned(size_t size){
 }
 
 
-template <typename T>
-T *AllocAligned(size_t size){
-	return AllocAligned(size*sizeof(T));
-}
-
 void FreeAligned(void * ptr){
 	if(!ptr){
 		return;

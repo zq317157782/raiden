@@ -684,6 +684,10 @@ TEST(memoryManage,all){
 	long long address=(long long)ptr;//;
 	ASSERT_EQ(address%L1_CACHE_LINE_SIZE,0);
 	FreeAligned(ptr);
+	MemoryArena arena;
+	Point2i* ptr2=arena.Alloc<Point2i>(1024);
+	ASSERT_EQ(ptr2[0],Point2i(0,0));
+	ASSERT_EQ(arena.TotalAllocated(),100);
 }
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
