@@ -61,7 +61,7 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 					}
 					filmTile->AddSample(pixel, L, rWeight);
 					arena.Reset();
-				}while (_sampler->StartNextSample());
+				}while (localSampler->StartNextSample());
 			}
 			//合并tile
 			_camera->film->MergeFilmTile(std::move(filmTile));

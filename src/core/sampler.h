@@ -80,7 +80,7 @@ public:
 	virtual bool StartNextSample(){
 		_array1DOffset=0;
 		_array2DOffset=0;
-		return ++_currentPixelSampleIndex<samplesPerPixel;
+		return (++_currentPixelSampleIndex)<samplesPerPixel;
 	}
 
 	//返回一个包含n个样本的数组，返回的时候要根据requert的时候申请的大小做检查
