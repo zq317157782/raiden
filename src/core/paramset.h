@@ -17,7 +17,7 @@ struct ParamSetItem{
 	const int nValues;//参数的长度大于1代表数组
 	mutable bool lookUp=false;//判断是否已经查询过这个变量
 	ParamSetItem(const std::string& name,const std::unique_ptr<T[]>& values,int nValues=1):
-	name(name),values(values),nValues(nValues){}
+	name(name),values(std::move(values)),nValues(nValues){}
 };
 
 
