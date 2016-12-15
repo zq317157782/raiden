@@ -49,7 +49,7 @@ public:
 	}
 
 };
-
+Options RaidenOptions;
 //返回系统中包含的核心数
 int NumSystemCores() {
 	if(RaidenOptions.numThread==0){

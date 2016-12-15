@@ -617,7 +617,7 @@ TEST(TestSceneOne,all) {
 
 	Scene scene(primitive);
 	scene.lights.push_back(pl);
-	std::shared_ptr<RandomSampler> sampler(new RandomSampler(100000));
+	std::shared_ptr<RandomSampler> sampler(new RandomSampler(1));
 	Transform trans = Translate(Vector3f(0, 0, 0));
 	Film *f=new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),"result/TestSceneOne_randomSampler.png");
 //	std::unique_ptr<FilmTile> tile=f->GetFilmTile(Bound2i(Point2i(100,100),Point2i(500,500)));
