@@ -689,6 +689,24 @@ TEST(memoryManage,all){
 	ASSERT_EQ(ptr2[0],Point2i(0,0));
 	ASSERT_EQ(arena.TotalAllocated(),262144);
 }
+#include "paramset.h"
+TEST(paramset,all){
+	ParamSet set;
+	bool* v=new bool[2];
+	v[0]=true;
+	set.AddBool("test",std::unique_ptr<bool[]>(v),1);
+	int count;
+	set.FindBool("test",&count);
+	ASSERT_EQ(count,1);
+	ASSERT_EQ(set.FindOneBool("test",false),true);
+
+	int * ints=new int[3]{1,2,3};
+	set.AddInt("ints",std::unique_ptr<int[]>(ints),3);
+	const int * ptr=set.FindInt("ints",&count);
+	ASSERT_EQ(count,3);
+	ASSERT_EQ(ptr[2],3);
+}
+
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	RUN_ALL_TESTS();
