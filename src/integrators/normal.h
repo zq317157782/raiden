@@ -30,7 +30,7 @@ public:
 			ret[2]=nn.z;
 			return ret;
 		}
-		return 1.0f;
+		return 0.0f;
 	}
 };
 

@@ -5,8 +5,7 @@
  *      Author: zhuqian
  */
 #include "film.h"
-#include <fstream>
-
+#include "lodepng.h"
 Film::Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染窗口比例*/,
 		std::unique_ptr<Filter> filt, const std::string& fileName/*输出文件名*/,
 		Float maxSampleLuminance) :
@@ -35,26 +34,32 @@ Film::Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染
 }
 
 void Film::WriteImage() {
-	std::ofstream out(fileName);
-	Vector2i res = croppedPixelBound[1] - croppedPixelBound[0];
-	out << "P3\n" << (res.x) << " " << res.y << "\n255\n";
+	std::vector<uint8_t> image;
 	for (int j = croppedPixelBound[1].y - 1; j >= croppedPixelBound[0].y; --j) {
-		for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
-			Pixel p = GetPixel(Point2i(i, j));
-			Float rgb[3];
-			XYZToRGB(p.xyz, rgb);
-			Float invWeight = 1.0 / p.filterWeightSum;
-			rgb[0] *= invWeight;
-			rgb[1] *= invWeight;
-			rgb[2] *= invWeight;
-			out << (int) (rgb[0] * 255) << " " << (int) (rgb[1] * 255) << " "
-					<< (int) (rgb[2] * 255) << " ";
+			for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
+				Pixel p = GetPixel(Point2i(i, j));
+				Float rgb[3];
+				XYZToRGB(p.xyz, rgb);
+				Float invWeight = 1.0 / p.filterWeightSum;
+				rgb[0] *= invWeight;
+				rgb[1] *= invWeight;
+				rgb[2] *= invWeight;
+				image.push_back(rgb[0]*255);//R
+				image.push_back(rgb[1]*255);//G
+				image.push_back(rgb[2]*255);//B
+				image.push_back(255);		//A
+			}
 		}
-	}
-	out.close();
+	Vector2i resolution=croppedPixelBound.Diagonal();
+	unsigned error = lodepng::encode(fileName, image, resolution.x,
+			resolution.y);
+	if (error)
+			std::cerr << "encoder error " << error << ": "
+					<< lodepng_error_text(error) << std::endl;
 }
 
 void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight) {
+	Assert(weight>0.0f);
 	//Assert(InsideExclusive(pFilm,_pixelBound));
 	//贡献值大于最大值，需要scale
 	if (L.y() > _maxSampleLuminance) {
