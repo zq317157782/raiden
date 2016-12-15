@@ -687,7 +687,7 @@ TEST(memoryManage,all){
 	MemoryArena arena;
 	Point2i* ptr2=arena.Alloc<Point2i>(1024);
 	ASSERT_EQ(ptr2[0],Point2i(0,0));
-	ASSERT_EQ(arena.TotalAllocated(),100);
+	ASSERT_EQ(arena.TotalAllocated(),262144);
 }
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

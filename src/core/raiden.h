@@ -71,6 +71,7 @@ class Integrator;//积分器
 class Sampler;
 class Light;
 class MemoryArena;
+struct ParamSetItem;
 
 typedef  RGBSpectrum Spectrum;
 //float类型相应的IEEE标准的BIT格式
