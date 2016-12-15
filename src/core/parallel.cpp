@@ -52,7 +52,10 @@ public:
 
 //返回系统中包含的核心数
 int NumSystemCores() {
-	return std::max(1u, std::thread::hardware_concurrency());
+	if(RaidenOptions.numThread==0){
+		return std::max(1u, std::thread::hardware_concurrency());
+	}
+	return RaidenOptions.numThread;
 }
 
 void WorkerThreadFunc(int tIndex/*线程索引*/) {

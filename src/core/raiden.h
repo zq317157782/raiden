@@ -71,7 +71,14 @@ class Integrator;//积分器
 class Sampler;
 class Light;
 class MemoryArena;
+class RNG;
+class ParamSet;
 
+struct Options{
+	int numThread=0;//线程个数
+	std::string imageFile;//储存的图片名字
+};
+extern Options RaidenOptions;
 
 typedef  RGBSpectrum Spectrum;
 //float类型相应的IEEE标准的BIT格式
