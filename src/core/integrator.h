@@ -27,6 +27,10 @@ public:
 
 	}
 	virtual void RenderScene(const Scene&) override;
+	//返回ray射线上的radiance
+	virtual Spectrum Li(const RayDifferential &ray, const Scene &scene,
+	                        Sampler &sampler, MemoryArena &arena,
+	                        int depth = 0) const = 0;
 };
 
 

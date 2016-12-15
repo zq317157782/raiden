@@ -6,13 +6,13 @@
  */
 #include "integrator.h"
 #include "camera.h"
-#include "geometry.h"
 #include "film.h"
 #include "scene.h"
 #include "sampler.h"
 #include "interaction.h"
 #include "light.h"
 #include "parallel.h"
+#include "memory.h"
 void SamplerIntegrator::RenderScene(const Scene& scene) {
 	//首先计算需要的tile数
 	Bound2i filmBound = _camera->film->GetSampleBounds();
@@ -24,6 +24,7 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 	//开始并行处理每个tile
 	ParallelFor2D([&](Point2i tile) {
 //<<并行循环体开始>>
+			MemoryArena arena;
 			int seed=tile.y*numTile.x+tile.x;//计算种子数据
 			std::unique_ptr<Sampler> localSampler=_sampler->Clone(seed);
 			//计算这个tile覆盖的像素范围
@@ -54,21 +55,12 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 					Float rWeight=_camera->GenerateRayDifferential(cs, &ray);
 					//根据每个像素中包含的样本数，缩放射线微分值
 					ray.ScaleRayDifferential(1.0f/std::sqrt((Float)localSampler->samplesPerPixel));
-
-					SurfaceInteraction ref;//和表面的交互点
-
-					if (scene.Intersect(ray, &ref)) {
-						for (int i = 0; i < scene.lights.size(); ++i) {
-							std::shared_ptr<Light> light = scene.lights[i];
-							Vector3f wi;//光线入射方向
-							Float pdf;
-							Spectrum I = light->Sample_Li(ref, &wi, &pdf);
-							Float cosln = Clamp(Dot(wi, ref.n), 0, 1);
-							filmTile->AddSample(pixel, I * cosln / Pi, rWeight);
-						}
-					} else {
-						filmTile->AddSample(pixel, Spectrum(0), 1);
+					Spectrum L(0.0f);//总共的radiance之和
+					if(rWeight>0.0f){
+						L=Li(ray,scene,*localSampler,arena);
 					}
+					filmTile->AddSample(pixel, L, rWeight);
+					arena.Reset();
 				}while (_sampler->StartNextSample());
 			}
 			//合并tile

@@ -605,6 +605,8 @@ TEST(RandomSampler,all) {
 #include "scene.h"
 #include "integrator.h"
 #include "lights/point.h"
+#include "integrators/depth.h"
+#include "integrators/normal.h"
 TEST(TestSceneOne,all) {
 	Transform move_z_one = Translate(Vector3f(0, 0, 3));
 	Transform move_z_none = Inverse(move_z_one);
@@ -625,10 +627,10 @@ TEST(TestSceneOne,all) {
 			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
 					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
 					"result/TestSceneOne_randomSampler.png"),50));
-	SamplerIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
+	NormalIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
 
 
-	//integrator.RenderScene(scene);
+	integrator.RenderScene(scene);
 //	for (int j = 0; j < 256; ++j)
 //		for (int i = 0; i < 256; ++i) {
 //			sampler.StartPixel(Point2i(i, j));
