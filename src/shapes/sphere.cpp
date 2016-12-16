@@ -6,6 +6,7 @@
  */
 #include "sphere.h"
 #include "errfloat.h"
+#include "paramset.h"
 Bound3f Sphere::ObjectBound() const {
 	return Bound3f(Point3f(-_radius, -_radius, _zMin),
 			Point3f(_radius, _radius, _zMax));
@@ -204,3 +205,14 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 }
 
 
+std::shared_ptr<Shape> CreateSphereShape(const Transform *o2w,
+                                         const Transform *w2o,
+                                         bool reverseOrientation,
+                                         const ParamSet &params) {
+    Float radius = params.FindOneFloat("radius", 1.0f);
+    Float zmin = params.FindOneFloat("zmin", -radius);
+    Float zmax = params.FindOneFloat("zmax", radius);
+    Float phimax = params.FindOneFloat("phimax", 360.f);
+    return std::make_shared<Sphere>(o2w, w2o, reverseOrientation, radius, zmin,
+                                    zmax, phimax);
+}

@@ -116,4 +116,6 @@ public:
 	}
 };
 
+Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter);
+
 #endif /* SRC_CORE_FILM_H_ */

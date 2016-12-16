@@ -8,6 +8,8 @@
 #ifndef SRC_CORE_SAMPLER_H_
 #define SRC_CORE_SAMPLER_H_
 #include "raiden.h"
+#include "geometry.h"
+#include "camera.h"
 //采样器
 // sample[x,y,t,u,v,[array],[array],[array],...]
 class Sampler{

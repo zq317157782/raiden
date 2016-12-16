@@ -9,7 +9,7 @@
 #define SRC_CAMERAS_PINHOLE_H_
 #include "raiden.h"
 #include "camera.h"
-
+#include "film.h"
 class PinholeCamera: public Camera {
 public:
 	const Float distanceToView;
@@ -31,5 +31,8 @@ public:
 		return 1.0f;
 	}
 };
+
+PinholeCamera *CreatePinholeCamera(const ParamSet &params,
+		const Transform &cam2world, Film *film);
 
 #endif /* SRC_CAMERAS_PINHOLE_H_ */

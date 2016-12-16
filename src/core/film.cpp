@@ -6,6 +6,7 @@
  */
 #include "film.h"
 #include "lodepng.h"
+#include "paramset.h"
 Film::Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染窗口比例*/,
 		std::unique_ptr<Filter> filt, const std::string& fileName/*输出文件名*/,
 		Float maxSampleLuminance) :
@@ -126,4 +127,37 @@ void Film::MergeFilmTile(std::unique_ptr<FilmTile> tile){
 		}
 		pixel.filterWeightSum+=tilePixel.filterWeightSum;
 	}
+}
+
+
+Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
+    std::string filename = params.FindOneString("filename", "");
+    if (RaidenOptions.imageFile != "") {
+        if (filename != "") {
+            printf(
+                "忽略命令行输出文件名:%s,采用描述文件中的文件名:%s",
+            		RaidenOptions.imageFile.c_str(), filename.c_str());
+        } else{
+            filename = RaidenOptions.imageFile;
+        }
+    }
+    if (filename == "") filename = "raiden.png";
+
+    int xres = params.FindOneInt("xresolution", 1280);
+    int yres = params.FindOneInt("yresolution", 720);
+    Bound2f crop(Point2f(0, 0), Point2f(1, 1));
+    int cwi;
+    const Float *cr = params.FindFloat("cropwindow", &cwi);
+    if (cr && cwi == 4) {
+        crop.minPoint.x = Clamp(std::min(cr[0], cr[1]), 0.0f, 1.0f);
+        crop.maxPoint.x = Clamp(std::max(cr[0], cr[1]), 0.0f, 1.0f);
+        crop.minPoint.y = Clamp(std::min(cr[2], cr[3]), 0.0f, 1.0f);
+        crop.maxPoint.y = Clamp(std::max(cr[2], cr[3]), 0.0f, 1.0f);
+    } else if (cr){
+        printf("%d个值不满足cropwindow需要4个值的要求", cwi);
+    }
+    Float maxSampleLuminance = params.FindOneFloat("maxsampleluminance",
+                                                   Infinity);
+    return new Film(Point2i(xres, yres), crop, std::move(filter),
+                    filename,maxSampleLuminance);
 }

@@ -8,6 +8,7 @@
 #ifndef SRC_CORE_FILTER_H_
 #define SRC_CORE_FILTER_H_
 #include "raiden.h"
+#include "geometry.h"
 //过滤器
 class Filter {
 public:

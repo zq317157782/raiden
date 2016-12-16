@@ -30,5 +30,5 @@ public:
 
 	}
 };
-
+Sampler *CreateRandomSampler(const ParamSet &params);
 #endif /* SRC_SAMPLERS_RANDOM_H_ */

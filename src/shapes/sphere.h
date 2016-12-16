@@ -34,7 +34,10 @@ bool IntersectP(const Ray& ray,bool testAlpha=true) const override;
 //Interaction Sample(const Point2f& uv,Float *pdf) const override;
 };
 
-
+std::shared_ptr<Shape> CreateSphereShape(const Transform *o2w,
+                                         const Transform *w2o,
+                                         bool reverseOrientation,
+                                         const ParamSet &params);
 
 
 #endif /* SRC_SHAPES_SPHERE_H_ */

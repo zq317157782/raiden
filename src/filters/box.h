@@ -20,6 +20,6 @@ public:
 	}
 };
 
-
+BoxFilter *CreateBoxFilter(const ParamSet &ps);
 
 #endif /* SRC_FILTERS_BOX_H_ */
