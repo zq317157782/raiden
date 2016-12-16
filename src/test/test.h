@@ -623,7 +623,6 @@ TEST(TestSceneOne,all) {
 			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
 					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
 					"result/TestSceneOne_randomSampler.png"),50));
-	RaidenOptions.numThread=1;
 	NormalIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
 
 

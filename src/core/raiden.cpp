@@ -6,5 +6,8 @@
  */
 #include "raiden.h"
 
+void RaidenMain(int argc, char* argv[]){
+	std::cout << "hello raiden!!" << std::endl;
+}
 
 

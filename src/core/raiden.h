@@ -222,5 +222,5 @@ int FindInterval(int size, const PredicateFunc &pred) {
 	}
 	return Clamp(first - 1, 0, size - 2);
 }
-
+void RaidenMain(int argc, char* argv[]);
 #endif /* SRC_CORE_RAIDEN_H_ */
