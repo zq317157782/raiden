@@ -617,7 +617,7 @@ TEST(TestSceneOne,all) {
 
 	Scene scene(primitive);
 	scene.lights.push_back(pl);
-	std::shared_ptr<RandomSampler> sampler(new RandomSampler(100));
+	std::shared_ptr<RandomSampler> sampler(new RandomSampler(4));
 	Transform trans = Translate(Vector3f(0, 0, 0));
 	std::shared_ptr<const Camera> camera(new PinholeCamera(trans, 0, 1,
 			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
