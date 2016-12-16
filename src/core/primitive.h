@@ -33,4 +33,9 @@ public:
 	GeomPrimitive(const std::shared_ptr<Shape>&);
 };
 
+//空间图元集合
+class Aggregate : public Primitive {
+
+};
+
 #endif /* SRC_CORE_PRIMITIVE_H_ */

@@ -11,7 +11,6 @@
 int main(int argc, char* argv[]) {
 #ifdef UNIT_TEST
 	UnitTest(argc, argv);
-	raidenIdentity();
 #endif
 	RaidenMain(argc,argv);
 }

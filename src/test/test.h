@@ -607,6 +607,7 @@ TEST(RandomSampler,all) {
 #include "lights/point.h"
 #include "integrators/depth.h"
 #include "integrators/normal.h"
+#include "accelerators/iteration.h"
 TEST(TestSceneOne,all) {
 	Transform move_z_one = Translate(Vector3f(0, 0, 3));
 	Transform move_z_none = Inverse(move_z_one);
@@ -614,8 +615,10 @@ TEST(TestSceneOne,all) {
 	std::shared_ptr<Primitive> primitive(new GeomPrimitive(sphere));
 	Transform lightTrans=Translate(Vector3f(3,0,0));
 	std::shared_ptr<PointLight> pl(new PointLight(lightTrans,Spectrum(10)));
-
-	Scene scene(primitive);
+	auto primitives=std::vector<std::shared_ptr<Primitive>>();
+	primitives.push_back(primitive);
+	auto iteration=std::make_shared<Iteration>(primitives);
+	Scene scene(iteration);
 	scene.lights.push_back(pl);
 	std::shared_ptr<RandomSampler> sampler(new RandomSampler(4));
 	Transform trans = Translate(Vector3f(0, 0, 0));

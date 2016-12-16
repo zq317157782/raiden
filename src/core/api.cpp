@@ -14,6 +14,7 @@
 #include "cameras/pinhole.h"
 #include "samplers/random.h"
 #include "filters/box.h"
+#include "accelerators/iteration.h"
 #include "film.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
@@ -65,7 +66,7 @@ struct RenderOptions {
 	std::string SamplerName = "random";
 	ParamSet SamplerParams;
 	//加速结构的名字
-	std::string AcceleratorName = "normal";
+	std::string AcceleratorName = "iteration";
 	ParamSet AcceleratorParams;
 	//积分器的名字
 	std::string IntegratorName = "normal";
@@ -115,68 +116,63 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 }
 
 //创建加速结构
-std::shared_ptr<Primitive> MakeAccelerator(
-    const std::string &name,
-    const std::vector<std::shared_ptr<Primitive>> &prims,
-    const ParamSet &paramSet) {
-    std::shared_ptr<Primitive> accel;
-    if(name=="normal"){
-    	 accel = nullptr;
-    }
-    return accel;
+std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
+		const std::vector<std::shared_ptr<Primitive>> &prims,
+		const ParamSet &paramSet) {
+	std::shared_ptr<Primitive> accel;
+	if (name == "normal") {
+		accel = CreateIterationAccelerator(prims,paramSet);
+	} else {
+		printf("未知加速结构 \"%s\".", name.c_str());
+	}
+	return accel;
 }
 
 //创建相机
 Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
-                   const TransformSet &cam2worldSet,Film *film) {
-    Camera *camera = nullptr;
-    if(name=="pinhole"){
-    	 camera = CreatePinholeCamera(paramSet,cam2worldSet[0],film);
-    }
-    else{
-    	printf("未知相机 \"%s\".", name.c_str());
-    }
-    return camera;
+		const TransformSet &cam2worldSet, Film *film) {
+	Camera *camera = nullptr;
+	if (name == "pinhole") {
+		camera = CreatePinholeCamera(paramSet, cam2worldSet[0], film);
+	} else {
+		printf("未知相机 \"%s\".", name.c_str());
+	}
+	return camera;
 }
 //创建film
 Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
-               std::unique_ptr<Filter> filter) {
-    Film *film = nullptr;
-    if (name == "image"){
-        film = CreateFilm(paramSet, std::move(filter));
-    }
-    else{
-        printf("Film \"%s\" unknown.", name.c_str());
-    }
-    return film;
+		std::unique_ptr<Filter> filter) {
+	Film *film = nullptr;
+	if (name == "image") {
+		film = CreateFilm(paramSet, std::move(filter));
+	} else {
+		printf("Film \"%s\" unknown.", name.c_str());
+	}
+	return film;
 }
 
 std::shared_ptr<Sampler> MakeSampler(const std::string &name,
-                                     const ParamSet &paramSet,
-                                     const Film *film) {
-    Sampler *sampler = nullptr;
-     if (name == "random"){
-        sampler = CreateRandomSampler(paramSet);
-     }
-    else{
-        printf("未知采样器 \"%s\".", name.c_str());
-    }
-    return std::shared_ptr<Sampler>(sampler);
+		const ParamSet &paramSet, const Film *film) {
+	Sampler *sampler = nullptr;
+	if (name == "random") {
+		sampler = CreateRandomSampler(paramSet);
+	} else {
+		printf("未知采样器 \"%s\".", name.c_str());
+	}
+	return std::shared_ptr<Sampler>(sampler);
 }
 
 std::unique_ptr<Filter> MakeFilter(const std::string &name,
-                                   const ParamSet &paramSet) {
-    Filter *filter = nullptr;
-    if (name == "box"){
-        filter = CreateBoxFilter(paramSet);
-    }
-    else {
-        printf("未知过滤器 \"%s\".", name.c_str());
-        exit(1);
-    }
-    return std::unique_ptr<Filter>(filter);
+		const ParamSet &paramSet) {
+	Filter *filter = nullptr;
+	if (name == "box") {
+		filter = CreateBoxFilter(paramSet);
+	} else {
+		printf("未知过滤器 \"%s\".", name.c_str());
+		exit(1);
+	}
+	return std::unique_ptr<Filter>(filter);
 }
-
 
 //确认现在的系统是否已经初始完毕
 #define VERIFY_INITIALIZED(func)                           \
