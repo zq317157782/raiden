@@ -5,6 +5,7 @@
  *      Author: zhuqian
  */
 #include "paramset.h"
+#include "spectrum.h"
 //定义一个宏定义用来添加参数
 //这里要求name,values,nValues这三个形参的名字要固定
 #define ADD_PARAM_TYPE(T,_list) \
@@ -81,6 +82,7 @@ bool ParamSet::EraseInt(const std::string& name) {
 
 
 
+
 const bool* ParamSet::FindBool(const std::string& name, int *nValues) const {
 	LOOKUP_PTR(_bools)
 }
@@ -106,6 +108,182 @@ const Float ParamSet::FindOneFloat(const std::string& name, int defaultValue) co
 
 const int ParamSet::FindOneInt(const std::string& name, int defaultValue) const{
 	LOOKUP_ONE(_ints)
+}
+
+void ParamSet::AddPoint2f(const std::string &name,
+                          std::unique_ptr<Point2f[]> values, int nValues) {
+    ErasePoint2f(name);
+    ADD_PARAM_TYPE(Point2f, _point2fs);
+}
+
+void ParamSet::AddVector2f(const std::string &name,
+                           std::unique_ptr<Vector2f[]> values, int nValues) {
+    EraseVector2f(name);
+    ADD_PARAM_TYPE(Vector2f, _vector2fs);
+}
+
+void ParamSet::AddPoint3f(const std::string &name,
+                          std::unique_ptr<Point3f[]> values, int nValues) {
+    ErasePoint3f(name);
+    ADD_PARAM_TYPE(Point3f, _point3fs);
+}
+
+void ParamSet::AddVector3f(const std::string &name,
+                           std::unique_ptr<Vector3f[]> values, int nValues) {
+    EraseVector3f(name);
+    ADD_PARAM_TYPE(Vector3f, _vector3fs);
+}
+
+void ParamSet::AddNormal3f(const std::string &name,
+                           std::unique_ptr<Normal3f[]> values, int nValues) {
+    EraseNormal3f(name);
+    ADD_PARAM_TYPE(Normal3f, _normals);
+}
+
+void ParamSet::AddRGBSpectrum(const std::string &name,
+                              std::unique_ptr<Float[]> values, int nValues) {
+    EraseSpectrum(name);
+    Assert(nValues % 3==0);
+    nValues /= 3;
+    std::unique_ptr<Spectrum[]> s(new Spectrum[nValues]);
+    for (int i = 0; i < nValues; ++i) s[i] = Spectrum::FromRGB(&values[3 * i]);
+    std::shared_ptr<ParamSetItem<Spectrum>> psi(
+        new ParamSetItem<Spectrum>(name, std::move(s), nValues));
+    _spectra.push_back(psi);
+}
+
+
+bool ParamSet::ErasePoint2f(const std::string &n) {
+    for (size_t i = 0; i < _point2fs.size(); ++i)
+        if (_point2fs[i]->name == n) {
+            _point2fs.erase(_point2fs.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+bool ParamSet::EraseVector2f(const std::string &n) {
+    for (size_t i = 0; i < _vector2fs.size(); ++i)
+        if (_vector2fs[i]->name == n) {
+            _vector2fs.erase(_vector2fs.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+bool ParamSet::ErasePoint3f(const std::string &n) {
+    for (size_t i = 0; i < _point3fs.size(); ++i)
+        if (_point3fs[i]->name == n) {
+            _point3fs.erase(_point3fs.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+bool ParamSet::EraseVector3f(const std::string &n) {
+    for (size_t i = 0; i < _vector3fs.size(); ++i)
+        if (_vector3fs[i]->name == n) {
+            _vector3fs.erase(_vector3fs.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+bool ParamSet::EraseNormal3f(const std::string &n) {
+    for (size_t i = 0; i < _normals.size(); ++i)
+        if (_normals[i]->name == n) {
+            _normals.erase(_normals.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+bool ParamSet::EraseSpectrum(const std::string &n) {
+    for (size_t i = 0; i < _spectra.size(); ++i)
+        if (_spectra[i]->name == n) {
+            _spectra.erase(_spectra.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+bool ParamSet::EraseString(const std::string &n) {
+    for (size_t i = 0; i < _strings.size(); ++i)
+        if (_strings[i]->name == n) {
+            _strings.erase(_strings.begin() + i);
+            return true;
+        }
+    return false;
+}
+
+const Point2f *ParamSet::FindPoint2f(const std::string &name,
+                                     int *nValues) const {
+    LOOKUP_PTR(_point2fs);
+}
+
+Point2f ParamSet::FindOnePoint2f(const std::string &name,
+                                 const Point2f &defaultValue) const {
+    LOOKUP_ONE(_point2fs);
+}
+
+const Vector2f *ParamSet::FindVector2f(const std::string &name,
+                                       int *nValues) const {
+    LOOKUP_PTR(_vector2fs);
+}
+
+Vector2f ParamSet::FindOneVector2f(const std::string &name,
+                                   const Vector2f &defaultValue) const {
+    LOOKUP_ONE(_vector2fs);
+}
+
+const Point3f *ParamSet::FindPoint3f(const std::string &name,
+                                     int *nValues) const {
+    LOOKUP_PTR(_point3fs);
+}
+
+Point3f ParamSet::FindOnePoint3f(const std::string &name,
+                                 const Point3f &defaultValue) const {
+    LOOKUP_ONE(_point3fs);
+}
+
+const Vector3f *ParamSet::FindVector3f(const std::string &name,
+                                       int *nValues) const {
+    LOOKUP_PTR(_vector3fs);
+}
+
+Vector3f ParamSet::FindOneVector3f(const std::string &name,
+                                   const Vector3f &defaultValue) const {
+    LOOKUP_ONE(_vector3fs);
+}
+
+const Normal3f *ParamSet::FindNormal3f(const std::string &name,
+                                       int *nValues) const {
+    LOOKUP_PTR(_normals);
+}
+
+Normal3f ParamSet::FindOneNormal3f(const std::string &name,
+                                   const Normal3f &defaultValue) const {
+    LOOKUP_ONE(_normals);
+}
+
+const Spectrum *ParamSet::FindSpectrum(const std::string &name,
+                                       int *nValues) const {
+    LOOKUP_PTR(_spectra);
+}
+
+Spectrum ParamSet::FindOneSpectrum(const std::string &name,
+                                   const Spectrum &defaultValue) const {
+    LOOKUP_ONE(_spectra);
+}
+
+const std::string *ParamSet::FindString(const std::string &name,
+                                        int *nValues) const {
+    LOOKUP_PTR(_strings);
+}
+
+std::string ParamSet::FindOneString(const std::string &name,
+                                    const std::string &defaultValue) const {
+    LOOKUP_ONE(_strings);
 }
 
 

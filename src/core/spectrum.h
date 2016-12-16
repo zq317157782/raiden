@@ -308,6 +308,15 @@ public:
 		XYZToRGB(xyz, ret._c);
 		return ret;
 	}
+
+	static RGBSpectrum FromRGB(const Float rgb[3]) {
+	        RGBSpectrum s;
+	        s._c[0] = rgb[0];
+	        s._c[1] = rgb[1];
+	        s._c[2] = rgb[2];
+	        Assert(!s.HasNaNs());
+	        return s;
+	    }
 };
 
 #endif /* SRC_CORE_SPECTRUM_H_ */
