@@ -6,6 +6,7 @@
  */
 #include "parallel.h"
 #include "geometry.h"
+#include "stats.h"
 static std::vector<std::thread> threads; //线程池,存放工作线程
 static bool shutdownThreads = false;
 class ParallelForLoop;
@@ -96,7 +97,9 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 			}
 		}
 	}
+	ReportThreadStats();
 	std::cout<<"工作线程" <<ThreadIndex<<"结束工作"<<std::endl;
+
 }
 
 void ParallelFor(std::function<void(int64_t)> func, int64_t count, int chunkSize) {

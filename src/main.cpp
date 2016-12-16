@@ -9,7 +9,7 @@
 #include "test/test.h"
 int main(int argc, char* argv[]) {
 #ifdef DEBUG_BUILD
-	UnitTest(argc, argv);
+	//UnitTest(argc, argv);
 #endif
 	RaidenMain(argc,argv);
 }
