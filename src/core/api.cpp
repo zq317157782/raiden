@@ -70,3 +70,21 @@ struct RenderOptions {
 	//图元
 	std::vector<std::shared_ptr<Primitive>> primitives;
 };
+
+struct GraphicsState{
+
+};
+
+//系统的三个状态
+enum class APIState {
+	Uninitialized, OptionsBlock, WorldBlock
+};
+static APIState currentApiState = APIState::Uninitialized;	//当前状态
+static TransformSet curTransform;//当前的TransformSet
+static uint32_t activeTransformBits = AllTransformsBits; //当前的TransformSet Bit
+static std::map<std::string, TransformSet> namedCoordinateSystems; //保存坐标系的map
+static std::unique_ptr<RenderOptions> renderOptions; //当前渲染参数
+static GraphicsState graphicsState;//当前图形状态
+static std::vector<GraphicsState> pushedGraphicsStates;
+static std::vector<TransformSet> pushedTransforms;
+static std::vector<uint32_t> pushedActiveTransformBits;
