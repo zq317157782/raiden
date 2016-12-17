@@ -618,8 +618,9 @@ TEST(TestSceneOne,all) {
 	auto primitives=std::vector<std::shared_ptr<Primitive>>();
 	primitives.push_back(primitive);
 	auto iteration=std::make_shared<Iteration>(primitives);
-	Scene scene(iteration);
-	scene.lights.push_back(pl);
+	std::vector<std::shared_ptr<Light>> lights;
+	lights.push_back(pl);
+	Scene scene(iteration,lights);
 	std::shared_ptr<RandomSampler> sampler(new RandomSampler(4));
 	Transform trans = Translate(Vector3f(0, 0, 0));
 	std::shared_ptr<const Camera> camera(new PinholeCamera(trans, 0, 1,

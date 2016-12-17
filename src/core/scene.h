@@ -9,13 +9,14 @@
 #define SRC_CORE_SCENE_H_
 #include "raiden.h"
 #include "primitive.h"
+#include "light.h"
 class Scene{
 private:
 	std::shared_ptr<Primitive> _aggregate;//图元集合
 public:
-	std::vector<std::shared_ptr<Light>> lights;
+	const std::vector<std::shared_ptr<Light>> lights;
 public:
-	Scene(const std::shared_ptr<Primitive>&aggregate):_aggregate(aggregate){
+	Scene(const std::shared_ptr<Primitive>&aggregate,const std::vector<std::shared_ptr<Light>>&lights):_aggregate(aggregate),lights(lights){
 		Assert(_aggregate!=nullptr);
 	}
 	bool Intersect(const Ray& ray,SurfaceInteraction* interaction) const;

@@ -17,6 +17,7 @@
 #include "accelerators/iteration.h"
 #include "lights/point.h"
 #include "film.h"
+#include "scene.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -80,6 +81,9 @@ struct RenderOptions {
 	std::vector<std::shared_ptr<Light>> lights;
 	//图元
 	std::vector<std::shared_ptr<Primitive>> primitives;
+
+	//创建一个scene
+	Scene *MakeScene();
 };
 
 struct GraphicsState {
@@ -122,7 +126,7 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 		const ParamSet &paramSet) {
 	std::shared_ptr<Primitive> accel;
 	if (name == "normal") {
-		accel = CreateIterationAccelerator(prims,paramSet);
+		accel = CreateIterationAccelerator(prims, paramSet);
 	} else {
 		printf("未知加速结构 \"%s\".", name.c_str());
 	}
@@ -176,16 +180,14 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 }
 
 std::shared_ptr<Light> MakeLight(const std::string &name,
-                                 const ParamSet &paramSet,
-                                 const Transform &light2world) {
-    std::shared_ptr<Light> light;
-    if (name == "point"){
-        light = CreatePointLight(light2world, paramSet);
-    }
-    else{
-        printf("未知光源 \"%s\" unknown.", name.c_str());
-    }
-    return light;
+		const ParamSet &paramSet, const Transform &light2world) {
+	std::shared_ptr<Light> light;
+	if (name == "point") {
+		light = CreatePointLight(light2world, paramSet);
+	} else {
+		printf("未知光源 \"%s\" unknown.", name.c_str());
+	}
+	return light;
 }
 
 //确认现在的系统是否已经初始完毕
@@ -412,5 +414,19 @@ curTransform = pushedTransforms.back();
 pushedTransforms.pop_back();
 activeTransformBits = pushedActiveTransformBits.back();
 pushedActiveTransformBits.pop_back();
+}
+
+Scene *RenderOptions::MakeScene() {
+std::shared_ptr<Primitive> accelerator = MakeAccelerator(AcceleratorName,
+primitives, AcceleratorParams);
+if (!accelerator) {
+	//默认使用的加速结构
+accelerator = std::make_shared<Iteration>(primitives);
+}
+Scene *scene = new Scene(accelerator, lights);
+//从randeroptions中删除primitives和lights
+primitives.erase(primitives.begin(), primitives.end());
+lights.erase(lights.begin(), lights.end());
+return scene;
 }
 
