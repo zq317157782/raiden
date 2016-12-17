@@ -84,6 +84,7 @@ struct RenderOptions {
 
 	//创建一个scene
 	Scene *MakeScene();
+	Camera *MakeCamera() const;
 };
 
 struct GraphicsState {
@@ -420,7 +421,7 @@ Scene *RenderOptions::MakeScene() {
 std::shared_ptr<Primitive> accelerator = MakeAccelerator(AcceleratorName,
 primitives, AcceleratorParams);
 if (!accelerator) {
-	//默认使用的加速结构
+ //默认使用的加速结构
 accelerator = std::make_shared<Iteration>(primitives);
 }
 Scene *scene = new Scene(accelerator, lights);
@@ -428,5 +429,16 @@ Scene *scene = new Scene(accelerator, lights);
 primitives.erase(primitives.begin(), primitives.end());
 lights.erase(lights.begin(), lights.end());
 return scene;
+}
+
+Camera *RenderOptions::MakeCamera() const {
+std::unique_ptr<Filter> filter = MakeFilter(FilterName, FilterParams);
+Film *film = MakeFilm(FilmName, FilmParams, std::move(filter));
+if (!film) {
+Error("Unable to create film.");
+return nullptr;
+}
+Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld,film);
+return camera;
 }
 
