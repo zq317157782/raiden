@@ -15,6 +15,7 @@
 #include "samplers/random.h"
 #include "filters/box.h"
 #include "accelerators/iteration.h"
+#include "lights/point.h"
 #include "film.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
@@ -174,6 +175,19 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 	return std::unique_ptr<Filter>(filter);
 }
 
+std::shared_ptr<Light> MakeLight(const std::string &name,
+                                 const ParamSet &paramSet,
+                                 const Transform &light2world) {
+    std::shared_ptr<Light> light;
+    if (name == "point"){
+        light = CreatePointLight(light2world, paramSet);
+    }
+    else{
+        printf("未知光源 \"%s\" unknown.", name.c_str());
+    }
+    return light;
+}
+
 //确认现在的系统是否已经初始完毕
 #define VERIFY_INITIALIZED(func)                           \
     if (currentApiState == APIState::Uninitialized) {      \
@@ -291,7 +305,7 @@ VERIFY_INITIALIZED("CoordSysTransform");
 if (namedCoordinateSystems.find(name) != namedCoordinateSystems.end()) {
 curTransform = namedCoordinateSystems[name];
 } else {
-printf("Couldn't find named coordinate system \"%s\"", name.c_str());
+printf("不能找到坐标系: \"%s\"", name.c_str());
 }
 }
 

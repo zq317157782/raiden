@@ -70,6 +70,14 @@ public:
 		return result;
 	}
 
+	CoefficientSpectrum operator*(CoefficientSpectrum cs) const {
+			CoefficientSpectrum result;
+			for (int i = 0; i < numSpectrumSample; ++i) {
+				result[i] = _c[i] * cs._c[i];
+			}
+			return result;
+		}
+
 	CoefficientSpectrum operator/(Float f) const {
 			Assert(!std::isnan(f));
 			Assert(f!=0);

@@ -22,7 +22,7 @@ public:
 	virtual Spectrum Sample_Li(Interaction& interaction,Vector3f* wi,Float* pdf) const override;
 };
 
-
+std::shared_ptr<PointLight> CreatePointLight(const Transform &light2world,const ParamSet &paramSet);
 
 
 #endif /* SRC_LIGHTS_POINT_H_ */
