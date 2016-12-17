@@ -437,34 +437,64 @@ Camera *RenderOptions::MakeCamera() const {
 std::unique_ptr<Filter> filter = MakeFilter(FilterName, FilterParams);
 Film *film = MakeFilm(FilmName, FilmParams, std::move(filter));
 if (!film) {
-	printf("无法创建film.");
+printf("无法创建film.");
 return nullptr;
 }
-Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld,film);
+Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld, film);
 return camera;
 }
 
 Integrator *RenderOptions::MakeIntegrator() const {
-    std::shared_ptr<const Camera> camera(MakeCamera());
-    if (!camera) {
-    	printf("无法创建相机");
-        return nullptr;
-    }
-    std::shared_ptr<Sampler> sampler =
-        MakeSampler(SamplerName, SamplerParams, camera->film);
-    if (!sampler) {
-    	printf("无法创建采样器");
-        return nullptr;
-    }
+std::shared_ptr<const Camera> camera(MakeCamera());
+if (!camera) {
+printf("无法创建相机");
+return nullptr;
+}
+std::shared_ptr<Sampler> sampler = MakeSampler(SamplerName, SamplerParams,
+camera->film);
+if (!sampler) {
+printf("无法创建采样器");
+return nullptr;
+}
 
-    Integrator *integrator = nullptr;
-    if (IntegratorName == "normal"){
-        integrator = CreateNormalIntegrator(IntegratorParams, sampler, camera);
-    }
-    else {
-        printf("未知积分器 \"%s\".", IntegratorName.c_str());
-        return nullptr;
-    }
-    return integrator;
+Integrator *integrator = nullptr;
+if (IntegratorName == "normal") {
+integrator = CreateNormalIntegrator(IntegratorParams, sampler, camera);
+} else {
+printf("未知积分器 \"%s\".", IntegratorName.c_str());
+return nullptr;
+}
+return integrator;
+}
+
+void raidenWorldEnd() {
+VERIFY_WORLD("WorldEnd");
+
+while (pushedGraphicsStates.size()) {
+printf("raidenAttributeBegin()与raidenAttributeEnd()并没有匹配");
+pushedGraphicsStates.pop_back();
+pushedTransforms.pop_back();
+}
+while (pushedTransforms.size()) {
+printf("raidenTransformBegin()和raidenTransformEnd()并没有匹配");
+pushedTransforms.pop_back();
+}
+
+std::unique_ptr<Integrator> integrator(renderOptions->MakeIntegrator());
+std::unique_ptr<Scene> scene(renderOptions->MakeScene());
+
+if (scene && integrator) {
+integrator->RenderScene(*scene);
+}
+
+graphicsState = GraphicsState();
+currentApiState = APIState::OptionsBlock;
+
+for (int i = 0; i < MaxTransforms; ++i) {
+curTransform[i] = Transform();
+}
+activeTransformBits = AllTransformsBits;
+namedCoordinateSystems.erase(namedCoordinateSystems.begin(),
+namedCoordinateSystems.end());
 }
 
