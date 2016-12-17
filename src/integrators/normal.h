@@ -9,6 +9,9 @@
 #define SRC_INTEGRATORS_NORMAL_H_
 #include "raiden.h"
 #include "integrator.h"
+#include "spectrum.h"
+#include "interaction.h"
+#include "scene.h"
 //深度积分器，用来渲染深度贴图(depth texture)
 class NormalIntegrator:public SamplerIntegrator{
 private:
@@ -35,7 +38,9 @@ public:
 };
 
 
-
+NormalIntegrator *CreateNormalIntegrator(
+    const ParamSet &params, std::shared_ptr<Sampler> sampler,
+    std::shared_ptr<const Camera> camera);
 
 
 #endif /* SRC_INTEGRATORS_NORMAL_H_ */

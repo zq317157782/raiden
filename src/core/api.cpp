@@ -16,6 +16,7 @@
 #include "filters/box.h"
 #include "accelerators/iteration.h"
 #include "lights/point.h"
+#include "integrators/normal.h"
 #include "film.h"
 #include "scene.h"
 //transform相关参数
@@ -85,6 +86,7 @@ struct RenderOptions {
 	//创建一个scene
 	Scene *MakeScene();
 	Camera *MakeCamera() const;
+	Integrator *MakeIntegrator() const;
 };
 
 struct GraphicsState {
@@ -219,7 +221,7 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 void raidenInit(const Options &opt) {
 	RaidenOptions = opt; //初始化系统参数
 	if (currentApiState != APIState::Uninitialized) {
-		Error("raidenInit()已经被调用过了");
+		printf("raidenInit()已经被调用过了");
 	}
 	currentApiState = APIState::OptionsBlock;
 	renderOptions.reset(new RenderOptions);
@@ -231,9 +233,9 @@ void raidenInit(const Options &opt) {
 
 void raidenCleanup() {
 	if (currentApiState == APIState::Uninitialized) {
-		Error("raidenInit()还没有被调用就调用raidenCleanup()了.");
+		printf("raidenInit()还没有被调用就调用raidenCleanup()了.");
 	} else if (currentApiState == APIState::WorldBlock) {
-		Error("raidenCleanup()在WorldBlock中被调用.");
+		printf("raidenCleanup()在WorldBlock中被调用.");
 	}
 	currentApiState = APIState::Uninitialized;
 	ParallelCleanup();
@@ -435,10 +437,34 @@ Camera *RenderOptions::MakeCamera() const {
 std::unique_ptr<Filter> filter = MakeFilter(FilterName, FilterParams);
 Film *film = MakeFilm(FilmName, FilmParams, std::move(filter));
 if (!film) {
-Error("Unable to create film.");
+	printf("无法创建film.");
 return nullptr;
 }
 Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld,film);
 return camera;
+}
+
+Integrator *RenderOptions::MakeIntegrator() const {
+    std::shared_ptr<const Camera> camera(MakeCamera());
+    if (!camera) {
+    	printf("无法创建相机");
+        return nullptr;
+    }
+    std::shared_ptr<Sampler> sampler =
+        MakeSampler(SamplerName, SamplerParams, camera->film);
+    if (!sampler) {
+    	printf("无法创建采样器");
+        return nullptr;
+    }
+
+    Integrator *integrator = nullptr;
+    if (IntegratorName == "normal"){
+        integrator = CreateNormalIntegrator(IntegratorParams, sampler, camera);
+    }
+    else {
+        printf("未知积分器 \"%s\".", IntegratorName.c_str());
+        return nullptr;
+    }
+    return integrator;
 }
 
