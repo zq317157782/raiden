@@ -8,6 +8,7 @@
 #include "raiden.h"
 #include "test/test.h"
 #include "api.h"
+
 int main(int argc, char* argv[]) {
 #ifdef UNIT_TEST
 	UnitTest(argc, argv);

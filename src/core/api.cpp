@@ -85,7 +85,9 @@ struct RenderOptions {
 
 	//创建一个scene
 	Scene *MakeScene();
+	//创建一个Camera
 	Camera *MakeCamera() const;
+	//创建一个积分器
 	Integrator *MakeIntegrator() const;
 };
 
@@ -116,6 +118,8 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 	if (name == "sphere") {
 		s = CreateSphereShape(object2world, world2object, reverseOrientation,
 				paramSet);
+	} else {
+		Error("shape \""<<name.c_str()<<"\" unknown.");
 	}
 	if (s != nullptr) {
 		shapes.push_back(s);
@@ -131,7 +135,7 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 	if (name == "normal") {
 		accel = CreateIterationAccelerator(prims, paramSet);
 	} else {
-		printf("未知加速结构 \"%s\".", name.c_str());
+		Error("accelerator \""<<name.c_str()<<"\" unknown.");
 	}
 	return accel;
 }
@@ -143,7 +147,7 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	if (name == "pinhole") {
 		camera = CreatePinholeCamera(paramSet, cam2worldSet[0], film);
 	} else {
-		printf("未知相机 \"%s\".", name.c_str());
+		Error("camera \""<<name.c_str()<<"\" unknown.");
 	}
 	return camera;
 }
@@ -154,7 +158,7 @@ Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
 	if (name == "image") {
 		film = CreateFilm(paramSet, std::move(filter));
 	} else {
-		printf("Film \"%s\" unknown.", name.c_str());
+		Error("film \""<<name.c_str()<<"\" unknown.");
 	}
 	return film;
 }
@@ -165,7 +169,7 @@ std::shared_ptr<Sampler> MakeSampler(const std::string &name,
 	if (name == "random") {
 		sampler = CreateRandomSampler(paramSet);
 	} else {
-		printf("未知采样器 \"%s\".", name.c_str());
+		Error("sampler \""<<name.c_str()<<"\" unknown.");
 	}
 	return std::shared_ptr<Sampler>(sampler);
 }
@@ -176,7 +180,7 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 	if (name == "box") {
 		filter = CreateBoxFilter(paramSet);
 	} else {
-		printf("未知过滤器 \"%s\".", name.c_str());
+		Error("filter \""<<name.c_str()<<"\" unknown.");
 		exit(1);
 	}
 	return std::unique_ptr<Filter>(filter);
@@ -188,7 +192,7 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 	if (name == "point") {
 		light = CreatePointLight(light2world, paramSet);
 	} else {
-		printf("未知光源 \"%s\" unknown.", name.c_str());
+		Error("light \""<<name.c_str()<<"\" unknown.");
 	}
 	return light;
 }
@@ -196,22 +200,23 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 //确认现在的系统是否已经初始完毕
 #define VERIFY_INITIALIZED(func)                           \
     if (currentApiState == APIState::Uninitialized) {      \
-		printf("调用%s()之前,raidenInit()还没有被调用\n",func);	\
+    	Error("need call raidenInit() before call "<<func<<"()");	\
         return;                                            \
     } else
 
 #define VERIFY_OPTIONS(func)                           \
     if (currentApiState == APIState::WorldBlock) {      \
-    	printf("%s()不能在WorlBlock内被调用\n",func);		\
+    	Error("can't call "<<func<<"() inside WorlBlock.");	\
         return;                                          \
     } else
 
 #define VERIFY_WORLD(func)                           \
     if (currentApiState == APIState::OptionsBlock) {      \
-    	printf("%s()只能在WorlBlock内被调用\n",func);		\
+    	Error("must call "<<func<<"() inside WorlBlock.");	\
         return;                                          \
     } else
 
+//为每个transform 执行 expr表达式
 #define FOR_ACTIVE_TRANSFORMS(expr)           \
     for (int i = 0; i < MaxTransforms; ++i)   \
         if (activeTransformBits & (1 << i)) { \
@@ -221,7 +226,7 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 void raidenInit(const Options &opt) {
 	RaidenOptions = opt; //初始化系统参数
 	if (currentApiState != APIState::Uninitialized) {
-		printf("raidenInit()已经被调用过了");
+		Error("raidenInit() has been called.");
 	}
 	currentApiState = APIState::OptionsBlock;
 	renderOptions.reset(new RenderOptions);
@@ -233,9 +238,9 @@ void raidenInit(const Options &opt) {
 
 void raidenCleanup() {
 	if (currentApiState == APIState::Uninitialized) {
-		printf("raidenInit()还没有被调用就调用raidenCleanup()了.");
+		Error("raidenInit() must be called befor call raidenCleanup().");
 	} else if (currentApiState == APIState::WorldBlock) {
-		printf("raidenCleanup()在WorldBlock中被调用.");
+		printf("raidenCleanup() can't be called inside WorldBlock.");
 	}
 	currentApiState = APIState::Uninitialized;
 	ParallelCleanup();
@@ -310,7 +315,7 @@ VERIFY_INITIALIZED("CoordSysTransform");
 if (namedCoordinateSystems.find(name) != namedCoordinateSystems.end()) {
 curTransform = namedCoordinateSystems[name];
 } else {
-printf("不能找到坐标系: \"%s\"", name.c_str());
+Error("cant find CoordinateSystem: \""<< name.c_str()<<"\"");
 }
 }
 
@@ -410,7 +415,7 @@ pushedActiveTransformBits.push_back(activeTransformBits);
 void raidenTransformEnd() {
 VERIFY_WORLD("TransformEnd");
 if (!pushedTransforms.size()) {
-printf("raidenTransformEnd()不匹配");
+Error("raidenTransformEnd() miss match");
 return;
 }
 curTransform = pushedTransforms.back();
@@ -437,7 +442,7 @@ Camera *RenderOptions::MakeCamera() const {
 std::unique_ptr<Filter> filter = MakeFilter(FilterName, FilterParams);
 Film *film = MakeFilm(FilmName, FilmParams, std::move(filter));
 if (!film) {
-printf("无法创建film.");
+Error("film cant be made.");
 return nullptr;
 }
 Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld, film);
@@ -447,13 +452,13 @@ return camera;
 Integrator *RenderOptions::MakeIntegrator() const {
 std::shared_ptr<const Camera> camera(MakeCamera());
 if (!camera) {
-printf("无法创建相机");
+Error("camera cant be made.");
 return nullptr;
 }
 std::shared_ptr<Sampler> sampler = MakeSampler(SamplerName, SamplerParams,
 camera->film);
 if (!sampler) {
-printf("无法创建采样器");
+Error("sampler cant be made.");
 return nullptr;
 }
 
@@ -461,7 +466,7 @@ Integrator *integrator = nullptr;
 if (IntegratorName == "normal") {
 integrator = CreateNormalIntegrator(IntegratorParams, sampler, camera);
 } else {
-printf("未知积分器 \"%s\".", IntegratorName.c_str());
+Error("integrator \""<<IntegratorName.c_str()<<"\" unkonwn.");
 return nullptr;
 }
 return integrator;
@@ -471,12 +476,12 @@ void raidenWorldEnd() {
 VERIFY_WORLD("WorldEnd");
 
 while (pushedGraphicsStates.size()) {
-printf("raidenAttributeBegin()与raidenAttributeEnd()并没有匹配");
+Warning("raidenAttributeEnd() mis match. try to fix it auto");
 pushedGraphicsStates.pop_back();
 pushedTransforms.pop_back();
 }
 while (pushedTransforms.size()) {
-printf("raidenTransformBegin()和raidenTransformEnd()并没有匹配");
+Warning("和raidenTransformEnd() mis match. try to fix it auto");
 pushedTransforms.pop_back();
 }
 
