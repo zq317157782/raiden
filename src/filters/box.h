@@ -20,6 +20,7 @@ public:
 	}
 };
 
+//参数 {xwidth:Float,ywidth:Float}
 BoxFilter *CreateBoxFilter(const ParamSet &ps);
 
 #endif /* SRC_FILTERS_BOX_H_ */

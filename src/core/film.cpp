@@ -129,19 +129,17 @@ void Film::MergeFilmTile(std::unique_ptr<FilmTile> tile){
 	}
 }
 
-
+//{filename:string,xresolution:int,yresolution:int,cropwindow:Float[4],maxsampleluminance:Float}
 Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
     std::string filename = params.FindOneString("filename", "");
     if (RaidenOptions.imageFile != "") {
         if (filename != "") {
-            printf(
-                "忽略命令行输出文件名:%s,采用描述文件中的文件名:%s",
-            		RaidenOptions.imageFile.c_str(), filename.c_str());
+        	Warning("ingore commandline filename:"<<RaidenOptions.imageFile.c_str()<<",use descriptionfile filename:"<<filename.c_str())
         } else{
             filename = RaidenOptions.imageFile;
         }
     }
-    if (filename == "") filename = "raiden.png";
+    if (filename == "") {filename = "raiden.png";}
 
     int xres = params.FindOneInt("xresolution", 1280);
     int yres = params.FindOneInt("yresolution", 720);
@@ -154,7 +152,7 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
         crop.minPoint.y = Clamp(std::min(cr[2], cr[3]), 0.0f, 1.0f);
         crop.maxPoint.y = Clamp(std::max(cr[2], cr[3]), 0.0f, 1.0f);
     } else if (cr){
-        printf("%d个值不满足cropwindow需要4个值的要求", cwi);
+    	Error("cropwindow need four values, and "<<cwi<<" for now.");
     }
     Float maxSampleLuminance = params.FindOneFloat("maxsampleluminance",
                                                    Infinity);

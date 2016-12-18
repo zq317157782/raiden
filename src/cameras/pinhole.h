@@ -31,7 +31,7 @@ public:
 		return 1.0f;
 	}
 };
-
+// {shutteropen:Float,shutterclose:Float,distance:Float}
 PinholeCamera *CreatePinholeCamera(const ParamSet &params,
 		const Transform &cam2world, Film *film);
 

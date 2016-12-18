@@ -9,10 +9,10 @@
 #include "paramset.h"
 PinholeCamera *CreatePinholeCamera(const ParamSet &params,
 		const Transform &cam2world, Film *film) {
-	Float shutteropen = params.FindOneFloat("shutteropen", 0.f);
-	Float shutterclose = params.FindOneFloat("shutterclose", 1.f);
+	Float shutteropen = params.FindOneFloat("shutteropen", 0.0f);
+	Float shutterclose = params.FindOneFloat("shutterclose", 1.0f);
 	if (shutterclose < shutteropen) {
-		printf("曝光结束时间[%f] <曝光开始时间[%f]. 交换它们.", shutterclose, shutteropen);
+		Warning("shutterclose["<<shutterclose<<"] <shutteropen["<<shutteropen<<"]. switch.");
 		std::swap(shutterclose, shutteropen);
 	}
 	Float distance = params.FindOneFloat("distance", 10.0f);

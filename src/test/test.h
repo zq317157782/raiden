@@ -608,48 +608,75 @@ TEST(RandomSampler,all) {
 #include "integrators/depth.h"
 #include "integrators/normal.h"
 #include "accelerators/iteration.h"
-TEST(TestSceneOne,all) {
-	Transform move_z_one = Translate(Vector3f(0, 0, 3));
-	Transform move_z_none = Inverse(move_z_one);
-	std::shared_ptr<Shape> sphere(new Sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360));
-	std::shared_ptr<Primitive> primitive(new GeomPrimitive(sphere));
-	Transform lightTrans=Translate(Vector3f(3,0,0));
-	std::shared_ptr<PointLight> pl(new PointLight(lightTrans,Spectrum(10)));
-	auto primitives=std::vector<std::shared_ptr<Primitive>>();
-	primitives.push_back(primitive);
-	auto iteration=std::make_shared<Iteration>(primitives);
-	std::vector<std::shared_ptr<Light>> lights;
-	lights.push_back(pl);
-	Scene scene(iteration,lights);
-	std::shared_ptr<RandomSampler> sampler(new RandomSampler(4));
-	Transform trans = Translate(Vector3f(0, 0, 0));
-	std::shared_ptr<const Camera> camera(new PinholeCamera(trans, 0, 1,
-			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
-					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
-					"result/TestSceneOne_randomSampler.png"),50));
-	NormalIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
-
-
-	integrator.RenderScene(scene);
-//	for (int j = 0; j < 256; ++j)
-//		for (int i = 0; i < 256; ++i) {
-//			sampler.StartPixel(Point2i(i, j));
-//			do {
-//				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
-//				Ray r;
-//				camera.GenerateRay(cs, &r);
-//				if (scene.IntersectP(r)) {
-//					Float rgb[3]={1,1,1};
-//					Float xyz[3];
-//					RGBToXYZ(rgb,xyz);
-//					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
-//					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
-//					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
-//					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
-//				}
-//			}while (sampler.StartNextSample()) ;
-//		}
-//camera.film->WriteImage();
+//TEST(TestSceneOne,all) {
+//	Transform move_z_one = Translate(Vector3f(0, 0, 3));
+//	Transform move_z_none = Inverse(move_z_one);
+//	std::shared_ptr<Shape> sphere(new Sphere(&move_z_one, &move_z_none, false, 2, -2, 2, 360));
+//	std::shared_ptr<Primitive> primitive(new GeomPrimitive(sphere));
+//	Transform lightTrans=Translate(Vector3f(3,0,0));
+//	std::shared_ptr<PointLight> pl(new PointLight(lightTrans,Spectrum(10)));
+//	auto primitives=std::vector<std::shared_ptr<Primitive>>();
+//	primitives.push_back(primitive);
+//	auto iteration=std::make_shared<Iteration>(primitives);
+//	std::vector<std::shared_ptr<Light>> lights;
+//	lights.push_back(pl);
+//	Scene scene(iteration,lights);
+//	std::shared_ptr<RandomSampler> sampler(new RandomSampler(4));
+//	Transform trans = Translate(Vector3f(0, 0, 0));
+//	std::shared_ptr<const Camera> camera(new PinholeCamera(trans, 0, 1,
+//			new Film(Point2i(600, 600), Bound2f(Point2f(0, 0), Point2f(1, 1)),
+//					std::unique_ptr<Filter>(new BoxFilter(Vector2f(1, 1))),
+//					"result/TestSceneOne_randomSampler.png"),50));
+//	NormalIntegrator integrator(camera,sampler,Bound2i(Point2i(100,100),Point2i(500,500)));
+//
+//
+//	integrator.RenderScene(scene);
+////	for (int j = 0; j < 256; ++j)
+////		for (int i = 0; i < 256; ++i) {
+////			sampler.StartPixel(Point2i(i, j));
+////			do {
+////				CameraSample cs = sampler.GetCameraSample(Point2i(i, j));
+////				Ray r;
+////				camera.GenerateRay(cs, &r);
+////				if (scene.IntersectP(r)) {
+////					Float rgb[3]={1,1,1};
+////					Float xyz[3];
+////					RGBToXYZ(rgb,xyz);
+////					camera.film->GetPixel(Point2i(i, j)).xyz[0]+=xyz[0];
+////					camera.film->GetPixel(Point2i(i, j)).xyz[1]+=xyz[1];
+////					camera.film->GetPixel(Point2i(i, j)).xyz[2]+=xyz[2];
+////					camera.film->GetPixel(Point2i(i, j)).filterWeightSum+=1;
+////				}
+////			}while (sampler.StartNextSample()) ;
+////		}
+////camera.film->WriteImage();
+//}
+#include "api.h"
+#include "paramset.h"
+TEST(TestSceneOne,use_api){
+	Options option;
+	option.imageFile="TestSceneOne.png";
+	option.numThread=4;
+	raidenInit(option);
+	{
+		ParamSet filterParam;
+		filterParam.AddFloat("xwidth",std::unique_ptr<Float[]>(new Float[1]{1.0f}),1);
+		filterParam.AddFloat("ywidth",std::unique_ptr<Float[]>(new Float[1]{1.0f}),1);
+		raidenPixelFilter("box",filterParam);
+		ParamSet filmParam;
+		filmParam.AddInt("xresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
+		filmParam.AddInt("yresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
+		filmParam.AddFloat("cropwindow",std::unique_ptr<Float[]>(new Float[4]{0.0f,0.0f,1.0f,1.0f}),4);
+		raidenFilm("image",filmParam);
+		ParamSet cameraParam;
+		cameraParam.AddFloat("distance",std::unique_ptr<Float[]>(new Float[1]{10.0f}),1);
+		raidenCamera("pinhole",cameraParam);
+		raidenWorldBegin();
+		{
+		}
+		raidenWorldEnd();
+	}
+	raidenCleanup();
 }
 #include "light.h"
 TEST(Light,all){

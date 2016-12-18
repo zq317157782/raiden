@@ -132,7 +132,7 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 		const std::vector<std::shared_ptr<Primitive>> &prims,
 		const ParamSet &paramSet) {
 	std::shared_ptr<Primitive> accel;
-	if (name == "normal") {
+	if (name == "iteration") {
 		accel = CreateIterationAccelerator(prims, paramSet);
 	} else {
 		Error("accelerator \""<<name.c_str()<<"\" unknown.");
@@ -157,6 +157,7 @@ Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
 	Film *film = nullptr;
 	if (name == "image") {
 		film = CreateFilm(paramSet, std::move(filter));
+		Debug("[make film: "<<name<<" ,res:"<< film->fullResolution<<" ,croppedPixelBound:"<< film->croppedPixelBound<<".]");
 	} else {
 		Error("film \""<<name.c_str()<<"\" unknown.");
 	}
@@ -246,7 +247,7 @@ void raidenCleanup() {
 	ParallelCleanup();
 	renderOptions.reset(nullptr);
 }
-//初始化每个矩阵变换
+//单位化每个矩阵变换
 void raidenIdentity() {
 	VERIFY_INITIALIZED("Identity");
 	FOR_ACTIVE_TRANSFORMS(curTransform[i] = Transform()
@@ -254,6 +255,7 @@ void raidenIdentity() {
 )
 }
 
+//translate
 void raidenTranslate(Float dx, Float dy, Float dz) {
 VERIFY_INITIALIZED("Translate");
 FOR_ACTIVE_TRANSFORMS(
@@ -261,6 +263,7 @@ FOR_ACTIVE_TRANSFORMS(
 		;
 )
 }
+
 void raidenTransform(Float tr[16]) {
 VERIFY_INITIALIZED("Transform");
 FOR_ACTIVE_TRANSFORMS(
@@ -445,6 +448,7 @@ if (!film) {
 Error("film cant be made.");
 return nullptr;
 }
+Debug("[make camera: "<<CameraName<<" .]");
 Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld, film);
 return camera;
 }
@@ -476,19 +480,19 @@ void raidenWorldEnd() {
 VERIFY_WORLD("WorldEnd");
 
 while (pushedGraphicsStates.size()) {
-Warning("raidenAttributeEnd() mis match. try to fix it auto");
+Warning("raidenAttributeEnd() miss match. try to fix it auto");
 pushedGraphicsStates.pop_back();
 pushedTransforms.pop_back();
 }
 while (pushedTransforms.size()) {
-Warning("和raidenTransformEnd() mis match. try to fix it auto");
+Warning("raidenTransformEnd() miss match. try to fix it auto");
 pushedTransforms.pop_back();
 }
 
 std::unique_ptr<Integrator> integrator(renderOptions->MakeIntegrator());
 std::unique_ptr<Scene> scene(renderOptions->MakeScene());
-
 if (scene && integrator) {
+	Debug("[start render scene.]");
 integrator->RenderScene(*scene);
 }
 

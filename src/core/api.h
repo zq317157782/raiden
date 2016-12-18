@@ -32,8 +32,10 @@ void raidenAccelerator(const std::string &name, const ParamSet &params);
 void raidenIntegrator(const std::string &name, const ParamSet &params);
 void raidenCamera(const std::string &name, const ParamSet &params);
 void raidenWorldBegin();
+void raidenWorldEnd();
 void raidenAttributeBegin();
 void raidenAttributeEnd();
 void raidenTransformBegin();
 void raidenTransformEnd();
+
 #endif /* SRC_CORE_API_H_ */

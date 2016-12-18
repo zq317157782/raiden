@@ -115,7 +115,7 @@ public:
 		return _pixelBound;
 	}
 };
-
+//{filename:string,xresolution:int,yresolution:int,cropwindow:Float[4],maxsampleluminance:Float}
 Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter);
 
 #endif /* SRC_CORE_FILM_H_ */

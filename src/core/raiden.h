@@ -31,13 +31,20 @@ static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 #define Assert(x) ((void)0)
 #endif
 
-//一如既往的全局Alloc函数
+//一如既往的全局Alloc函数,分配栈空间
 #define ALLOCA(TYPE, COUNT) (TYPE *) alloca((COUNT) * sizeof(TYPE))
 
 //打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
 #define Error(x) std::cerr<<"[ERROR]"<<x<<std::endl;
 #define Warning(x) std::cout<<"[WARNING]"<<x<<std::endl;
 #define Info(x) std::cout<<"[Info]"<<x<<std::endl;
+
+#ifdef DEBUG_BUILD
+#define Debug(x) std::cout<<"[DEBUG]"<<x<<std::endl;
+#else
+#define Debug(x) ((void)0)
+#endif
+
 static constexpr Float Pi = 3.14159265358979323846;
 
 
