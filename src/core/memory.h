@@ -74,7 +74,7 @@ public:
 	}
 
 	template<typename T>
-	T* Alloc(size_t nBytes,
+	T* Alloc(size_t nBytes=1,
 			bool runConstructor = true/*这个参数决定是否调用T类型的默认构造函数*/) {
 		T* ptr = (T*) Alloc(nBytes * sizeof(T));
 		if (runConstructor) {

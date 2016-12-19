@@ -666,13 +666,14 @@ TEST(TestSceneOne,use_api){
 		ParamSet filmParam;
 		filmParam.AddInt("xresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
 		filmParam.AddInt("yresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
-		filmParam.AddFloat("cropwindow",std::unique_ptr<Float[]>(new Float[4]{0.0f,0.0f,1.0f,1.0f}),4);
+		filmParam.AddFloat("cropwindow",std::unique_ptr<Float[]>(new Float[4]{0.0f,1.0f,0.0f,1.0f}),4);
 		raidenFilm("image",filmParam);
 		ParamSet cameraParam;
 		cameraParam.AddFloat("distance",std::unique_ptr<Float[]>(new Float[1]{10.0f}),1);
 		raidenCamera("pinhole",cameraParam);
 		raidenWorldBegin();
 		{
+
 		}
 		raidenWorldEnd();
 	}

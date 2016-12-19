@@ -19,6 +19,7 @@
 #include "integrators/normal.h"
 #include "film.h"
 #include "scene.h"
+#include "memory.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -53,6 +54,41 @@ public:
 			invSet._t[i] = Inverse(ts._t[i]);
 		}
 		return invSet;
+	}
+};
+
+//Transform缓存
+class TransformCache {
+private:
+	std::map<Transform, std::pair<Transform*/*common*/, Transform*/*inv*/>> _cache;
+	MemoryArena _arena;
+public:
+	//寻找缓存，没找到就创建缓存
+	void Lookup(const Transform&t, Transform **tCached,
+			Transform **tCachedInv) {
+		//先尝试寻找是否已经存在缓存
+		auto iter = _cache.find(t);
+		//没找到，缓存新的
+		if (iter == _cache.end()) {
+			Transform *tt = _arena.Alloc<Transform>(1);
+			*tt = t;
+			Transform *tInv = _arena.Alloc<Transform>(1);
+			*tInv = Inverse(t);
+			_cache[t] = std::make_pair(tt, tInv);
+			auto iter = _cache.find(t);
+		}
+		//这里改变的是指针的值
+		if (tCached) {
+			*tCached = iter->second.first;
+		}
+		if (tCachedInv) {
+			*tCachedInv = iter->second.second;
+		}
+	}
+
+	void Clear() {
+		_arena.Reset();
+		_cache.erase(_cache.begin(),_cache.end());
 	}
 };
 //渲染参数
@@ -108,7 +144,7 @@ static GraphicsState graphicsState; //当前图形状态
 static std::vector<GraphicsState> pushedGraphicsStates;
 static std::vector<TransformSet> pushedTransforms;
 static std::vector<uint32_t> pushedActiveTransformBits;
-
+static TransformCache transformCache;
 //创建一个shape
 std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 		const Transform *object2world, const Transform *world2object,
@@ -157,7 +193,8 @@ Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
 	Film *film = nullptr;
 	if (name == "image") {
 		film = CreateFilm(paramSet, std::move(filter));
-		Debug("[make film: "<<name<<" ,res:"<< film->fullResolution<<" ,croppedPixelBound:"<< film->croppedPixelBound<<".]");
+		Debug(
+				"[make film: "<<name<<" ,res:"<< film->fullResolution<<" ,croppedPixelBound:"<< film->croppedPixelBound<<".]");
 	} else {
 		Error("film \""<<name.c_str()<<"\" unknown.");
 	}
@@ -492,7 +529,7 @@ pushedTransforms.pop_back();
 std::unique_ptr<Integrator> integrator(renderOptions->MakeIntegrator());
 std::unique_ptr<Scene> scene(renderOptions->MakeScene());
 if (scene && integrator) {
-	Debug("[start render scene.]");
+Debug("[start render scene.]");
 integrator->RenderScene(*scene);
 }
 
