@@ -9,6 +9,7 @@
 #define SRC_CORE_API_H_
 #include "raiden.h"
 
+
 //初始化raiden渲染系统
 void raidenInit(const Options &opt);
 void raidenCleanup();
@@ -38,5 +39,7 @@ void raidenAttributeBegin();
 void raidenAttributeEnd();
 void raidenTransformBegin();
 void raidenTransformEnd();
+
+
 
 #endif /* SRC_CORE_API_H_ */

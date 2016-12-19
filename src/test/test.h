@@ -655,7 +655,7 @@ TEST(RandomSampler,all) {
 #include "paramset.h"
 TEST(TestSceneOne,use_api){
 	Options option;
-	option.imageFile="TestSceneOne.png";
+	option.imageFile="result/TestSceneOne.png";
 	option.numThread=4;
 	raidenInit(option);
 	{
