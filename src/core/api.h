@@ -31,6 +31,7 @@ void raidenSampler(const std::string &name, const ParamSet &params);
 void raidenAccelerator(const std::string &name, const ParamSet &params);
 void raidenIntegrator(const std::string &name, const ParamSet &params);
 void raidenCamera(const std::string &name, const ParamSet &params);
+void raidenShape(const std::string &name, const ParamSet &params);
 void raidenWorldBegin();
 void raidenWorldEnd();
 void raidenAttributeBegin();

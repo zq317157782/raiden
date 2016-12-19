@@ -75,7 +75,7 @@ public:
 			Transform *tInv = _arena.Alloc<Transform>(1);
 			*tInv = Inverse(t);
 			_cache[t] = std::make_pair(tt, tInv);
-			auto iter = _cache.find(t);
+			iter = _cache.find(t);
 		}
 		//这里改变的是指针的值
 		if (tCached) {
@@ -88,7 +88,7 @@ public:
 
 	void Clear() {
 		_arena.Reset();
-		_cache.erase(_cache.begin(),_cache.end());
+		_cache.erase(_cache.begin(), _cache.end());
 	}
 };
 //渲染参数
@@ -128,7 +128,7 @@ struct RenderOptions {
 };
 
 struct GraphicsState {
-
+	bool reverseOrientation = false;	//是否要翻转法线
 };
 
 //系统的三个状态
@@ -180,8 +180,10 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 		const TransformSet &cam2worldSet, Film *film) {
 	Camera *camera = nullptr;
+	Transform *cam2world[1];
+	transformCache.Lookup(cam2worldSet[0], &cam2world[0], nullptr);
 	if (name == "pinhole") {
-		camera = CreatePinholeCamera(paramSet, cam2worldSet[0], film);
+		camera = CreatePinholeCamera(paramSet, *cam2world[0], film);
 	} else {
 		Error("camera \""<<name.c_str()<<"\" unknown.");
 	}
@@ -413,6 +415,26 @@ renderOptions->CameraName = name;
 renderOptions->CameraParams = params;
 renderOptions->CameraToWorld = Inverse(curTransform);
 namedCoordinateSystems["camera"] = renderOptions->CameraToWorld;
+}
+
+void raidenShape(const std::string &name, const ParamSet &params) {
+VERIFY_WORLD("Shape");
+std::vector<std::shared_ptr<Primitive>> prims;
+if (!curTransform.IsAnimated()) {
+Transform *ObjToWorld, *WorldToObj;
+transformCache.Lookup(curTransform[0], &ObjToWorld, &WorldToObj);
+std::vector<std::shared_ptr<Shape>> shapes = MakeShapes(name, ObjToWorld,
+WorldToObj, graphicsState.reverseOrientation, params);
+if (shapes.size() == 0) {
+return;
+}
+for (auto s : shapes) {
+prims.push_back(std::make_shared<GeomPrimitive>(s));
+}
+}
+//把创建的shape 插入到renderOption中的容器中
+renderOptions->primitives.insert(renderOptions->primitives.end(), prims.begin(),
+prims.end());
 }
 
 void raidenWorldBegin() {

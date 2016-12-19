@@ -669,11 +669,14 @@ TEST(TestSceneOne,use_api){
 		filmParam.AddFloat("cropwindow",std::unique_ptr<Float[]>(new Float[4]{0.0f,1.0f,0.0f,1.0f}),4);
 		raidenFilm("image",filmParam);
 		ParamSet cameraParam;
-		cameraParam.AddFloat("distance",std::unique_ptr<Float[]>(new Float[1]{10.0f}),1);
+		cameraParam.AddFloat("distance",std::unique_ptr<Float[]>(new Float[1]{50.0f}),1);
 		raidenCamera("pinhole",cameraParam);
 		raidenWorldBegin();
 		{
-
+			raidenTranslate(0,0,3);
+			ParamSet shapdeParam;
+			shapdeParam.AddFloat("radius",std::unique_ptr<Float[]>(new Float[1]{2.0f}),1);
+			raidenShape("sphere",shapdeParam);
 		}
 		raidenWorldEnd();
 	}
