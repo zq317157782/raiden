@@ -41,12 +41,12 @@ public:
 	void AddBool(const std::string& name,std::unique_ptr<bool[]> values,int nValues);
 	bool EraseBool(const std::string& name);
 	const bool* FindBool(const std::string& name,int *nValues) const;
-	const bool FindOneBool(const std::string& name,int defaultValue) const;
+	const bool FindOneBool(const std::string& name,bool defaultValue) const;
 	//Float类型相关操作
 	void AddFloat(const std::string& name,std::unique_ptr<Float[]> values,int nValues);
 	bool EraseFloat(const std::string& name);
 	const Float* FindFloat(const std::string& name,int *nValues) const;
-	const Float FindOneFloat(const std::string& name,int defaultValue) const;
+	const Float FindOneFloat(const std::string& name,Float defaultValue) const;
 	//int类型相关操作
 	void AddInt(const std::string& name,std::unique_ptr<int[]> values,int nValues);
 	bool EraseInt(const std::string& name);

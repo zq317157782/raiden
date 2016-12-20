@@ -98,11 +98,11 @@ const int* ParamSet::FindInt(const std::string& name, int *nValues) const{
 
 
 const bool ParamSet::FindOneBool(const std::string& name,
-		int defaultValue) const {
+		bool defaultValue) const {
 	LOOKUP_ONE(_bools)
 }
 
-const Float ParamSet::FindOneFloat(const std::string& name, int defaultValue) const{
+const Float ParamSet::FindOneFloat(const std::string& name, Float defaultValue) const{
 	LOOKUP_ONE(_floats)
 }
 
@@ -138,6 +138,12 @@ void ParamSet::AddNormal3f(const std::string &name,
                            std::unique_ptr<Normal3f[]> values, int nValues) {
     EraseNormal3f(name);
     ADD_PARAM_TYPE(Normal3f, _normals);
+}
+
+void ParamSet::AddString(const std::string &name,
+                           std::unique_ptr<std::string[]> values, int nValues) {
+    EraseString(name);
+    ADD_PARAM_TYPE(std::string, _strings);
 }
 
 void ParamSet::AddRGBSpectrum(const std::string &name,

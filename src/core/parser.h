@@ -7,64 +7,398 @@
 
 #ifndef SRC_CORE_APILUA_H_
 #define SRC_CORE_APILUA_H_
-
+#include "paramset.h"
+#include "raiden.h"
+#include "api.h"
 #include "lua/lua.hpp"
 extern "C" {
 #include "lua/lualib.h"
 #include "lua/lauxlib.h"
 }
 
-#include "raiden.h"
-#include "api.h"
+
 static lua_State *L;
 
-#define PARAM_TYPR_WRONG(x) lua_getglobal(L, "debug");  \
+#define PARAM_TYPR_WRONG(x) lua_getglobal(L, "debug");\
 							lua_getfield(L, -1, "traceback");\
 int iError = lua_pcall( L,0,1,0);\
-Error("[wrong param]");\
+Error("[wrong param]"<<x);\
 Error(lua_tostring(L, -1));\
 exit(1);
 
-static void Init() {
+static void Init(lua_State *L) {
 	Options options;
 	if (lua_isinteger(L, 1)) {
 		int nThreads = lua_tointeger(L, 1);
 		Assert(nThreads >= 0);
 		options.numThread = nThreads;
 	} else {
-		PARAM_TYPR_WRONG()
+		PARAM_TYPR_WRONG("")
 	}
 	if (lua_isstring(L, 2)) {
 		options.imageFile = lua_tostring(L, 2);
 	} else {
-		PARAM_TYPR_WRONG()
+		PARAM_TYPR_WRONG("")
 	}
 	raidenInit(options);
 }
 
-static void CleanUp() {
+static void CleanUp(lua_State *L) {
 	raidenCleanup();
 }
 
-
-static void WorldBegin(){
+static void WorldBegin(lua_State *L) {
 	raidenWorldBegin();
 }
 
-static void WorldEnd(){
+static void WorldEnd(lua_State *L) {
 	raidenWorldEnd();
 }
 
+static void Translate(lua_State *L) {
+	Float dx, dy, dz;
+	if (lua_isnumber(L, 1) && lua_isnumber(L, 2) && lua_isnumber(L, 3)) {
+		dx = lua_tonumber(L, 1);
+		dy = lua_tonumber(L, 2);
+		dz = lua_tonumber(L, 3);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenTranslate(dx, dy, dz);
+}
 
+static void Rotate(lua_State *L) {
+	Float angle, dx, dy, dz;
+	if (lua_isnumber(L, 1) && lua_isnumber(L, 2) && lua_isnumber(L, 3)
+			&& lua_isnumber(L, 4)) {
+		angle = lua_tonumber(L, 1);
+		dx = lua_tonumber(L, 2);
+		dy = lua_tonumber(L, 3);
+		dz = lua_tonumber(L, 4);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenRotate(angle, dx, dy, dz);
+}
+
+static void Scale(lua_State *L) {
+	Float sx, sy, sz;
+	if (lua_isnumber(L, 1) && lua_isnumber(L, 2) && lua_isnumber(L, 3)) {
+		sx = lua_tonumber(L, 1);
+		sy = lua_tonumber(L, 2);
+		sz = lua_tonumber(L, 3);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenScale(sx, sy, sz);
+}
+
+static int CoordinateSystem(lua_State *L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenCoordinateSystem(name);
+}
+
+static int CoordSysTransform(lua_State *L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenCoordSysTransform(name);
+}
+static int ActiveTransformAll(lua_State *L) {
+	raidenActiveTransformAll();
+}
+
+static int ActiveTransformEndTime(lua_State *L) {
+	raidenActiveTransformEndTime();
+}
+
+static int ActiveTransformStartTime(lua_State *L) {
+	raidenActiveTransformStartTime();
+}
+
+static int TransformTimes(lua_State *L) {
+	Float start, end;
+	if (lua_isnumber(L, 1) && lua_isnumber(L, 2)) {
+		start = lua_tonumber(L, 1);
+		end = lua_tonumber(L, 2);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenTransformTimes(start, end);
+}
+
+static void ParsePoint2f(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	if (size % 2 != 0) {
+		PARAM_TYPR_WRONG("point2f[]'s size need align 2");
+	}
+	size = size / 2;
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Point2f[]> points(new Point2f[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, 2 * i + 1);
+		points[i].x = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 2 * i + 2);
+		points[i].y = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		Debug("[point2f:"<<points[i]<<"]");
+	}
+	set.AddPoint2f(name, std::move(points), size);
+}
+
+static void ParseVector2f(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	if (size % 2 != 0) {
+		PARAM_TYPR_WRONG("Vector2f[]'s size need align 2");
+	}
+	size = size / 2;
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Vector2f[]> vectors(new Vector2f[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, 2 * i + 1);
+		vectors[i].x = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 2 * i + 2);
+		vectors[i].y = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		Debug("[Vector2f:"<<vectors[i]<<"]");
+	}
+	set.AddVector2f(name, std::move(vectors), size);
+}
+
+static void ParsePoint3f(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	if (size % 3 != 0) {
+		PARAM_TYPR_WRONG("point3f[]'s size need align 3");
+	}
+	size = size / 3;
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Point3f[]> points(new Point3f[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, 3 * i + 1);
+		points[i].x = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 3 * i + 2);
+		points[i].y = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 3 * i + 3);
+		points[i].z = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		Debug("[point3f:"<<points[i]<<"]");
+	}
+	set.AddPoint3f(name, std::move(points), size);
+}
+
+static void ParseVector3f(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	if (size % 3 != 0) {
+		PARAM_TYPR_WRONG("Vector3f[]'s size need align 3");
+	}
+	size = size / 3;
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Vector3f[]> vectors(new Vector3f[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, 3 * i + 1);
+		vectors[i].x = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 3 * i + 2);
+		vectors[i].y = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 3 * i + 3);
+		vectors[i].z = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		Debug("[Vector3f:"<<vectors[i]<<"]");
+	}
+	set.AddVector3f(name, std::move(vectors), size);
+}
+
+static void ParseNormal3f(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	if (size % 3 != 0) {
+		PARAM_TYPR_WRONG("Normal3f[]'s size need align 3");
+	}
+	size = size / 3;
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Normal3f[]> normals(new Normal3f[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, 3 * i + 1);
+		normals[i].x = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 3 * i + 2);
+		normals[i].y = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		lua_geti(L, -1, 3 * i + 3);
+		normals[i].z = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		Debug("[Normal3f:"<<normals[i]<<"]");
+	}
+	set.AddNormal3f(name, std::move(normals), size);
+}
+
+
+static void ParseRGB(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	if (size % 3 != 0) {
+		PARAM_TYPR_WRONG("RGB[]'s size need align 3");
+	}
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Float[]> rgbs(new Float[size]);
+	for (int i = 0; i < size; i=i+3) {
+		lua_geti(L, -1, i + 1);
+		rgbs[i]=lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		lua_geti(L, -1, i + 2);
+		rgbs[i+1]= lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		lua_geti(L, -1, i + 3);
+		rgbs[i+2]= lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		Debug("[rgb: r:"<<rgbs[i]<<" g:"<<rgbs[i+1]<<" b:"<<rgbs[i+2]<<"]");
+	}
+	set.AddRGBSpectrum(name, std::move(rgbs), size);
+}
+
+static void ParseString(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<std::string[]> strings(new std::string[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, i + 1);
+		strings[i]=lua_tostring(L,-1);
+		lua_pop(L, 1);
+		Debug("[string:"<<strings[i]<<"]");
+	}
+	set.AddString(name, std::move(strings), size);
+}
+
+//获取paramset
+static ParamSet GetParamSet(lua_State* L, int index) {
+	Debug("[start parse paramset]")
+	ParamSet set;
+	int t = index;
+	if (!lua_istable(L, t)) {
+		PARAM_TYPR_WRONG("paramset must be a table");
+	}
+	lua_pushnil(L); //push 第一个key
+	//遍历表
+	while (lua_next(L, t) != 0) {
+		std::string key = lua_tostring(L, -2);	//获取参数名字
+		Debug("[create a param\""<<key<<"\"]")
+		switch (lua_type(L, -1)) {
+		case LUA_TNUMBER: {
+			//int 类型
+			if (lua_isinteger(L, -1)) {
+				int v = lua_tointeger(L, -1);
+				set.AddInt(key, std::unique_ptr<int[]>(new int[1] { v }), 1);
+				Debug("[int:"<<v<<"]");
+			} else {
+				Float v = lua_tonumber(L, -1);
+				set.AddFloat(key, std::unique_ptr<Float[]>(new Float[1] { v }),
+						1);
+				Debug("[Float:"<<v<<"]");
+			}
+		}
+			break;
+			//bool
+		case LUA_TBOOLEAN: {
+			bool v = lua_toboolean(L, -1);
+			set.AddBool(key, std::unique_ptr<bool[]>(new bool[1] { v }), 1);
+			Debug("[bool:"<<v<<"]");
+		}
+			break;
+
+			//处理类型为表的情况，比较复杂
+		case LUA_TTABLE: {
+			lua_getfield(L, t, key.c_str());	//把子table压入栈顶!
+			lua_getfield(L, -1, "type");	//type入栈
+			std::string type = lua_tostring(L, -1);
+			lua_pop(L, 1);	//type出栈
+			lua_getfield(L, -1, "value"); //value入栈
+			if (type == "point2f") {
+				ParsePoint2f(set, key);
+			} else if (type == "point3f") {
+				ParsePoint3f(set, key);
+			} else if(type == "vector2f"){
+				ParseVector2f(set,key);
+			} else if(type=="vector3f"){
+				ParseVector3f(set,key);
+			} else if(type=="normal3f"){
+				ParseNormal3f(set,key);
+			} else if(type=="string"){
+				ParseString(set,key);
+			} else if(type=="rgb"){
+				ParseRGB(set,key);
+			}
+			else{
+				PARAM_TYPR_WRONG("unknow type");
+			}
+			lua_pop(L, 1); //value 出站
+			lua_pop(L, 1); //把子table出栈!
+		}
+			break;
+		}
+		lua_pop(L, 1);
+	}
+	Debug("[end parse paramset]")
+	return set;
+}
+
+static int Test(lua_State *L) {
+	int t = lua_gettop(L);
+	ParamSet set = GetParamSet(L, t);
+//	lua_pushnil(L);
+//	while (lua_next(L, t) != 0) {
+//		/* uses 'key' (at index -2) and 'value' (at index -1) */
+//		printf("%s - %s\n", lua_typename(L, lua_type(L, -2)),
+//				lua_typename(L, lua_type(L, -1)));
+//		/* removes 'value'; keeps 'key' for next iteration */
+//		lua_pop(L, 1);
+//	}
+}
 
 void parse(char* filename) {
 	int status, result;
 	L = luaL_newstate(); /* create state */
 	luaL_openlibs(L);
 	lua_register(L, "Init", (lua_CFunction )Init);
+	lua_register(L, "CleanUp", (lua_CFunction )CleanUp);
 	lua_register(L, "WorldBegin", (lua_CFunction )WorldBegin);
 	lua_register(L, "WorldEnd", (lua_CFunction )WorldEnd);
-	luaL_dofile(L, filename);
+	lua_register(L, "Translate", (lua_CFunction )Translate);
+	lua_register(L, "Rotate", (lua_CFunction )Rotate);
+	lua_register(L, "Scale", (lua_CFunction )Scale);
+	lua_register(L, "CoordinateSystem", (lua_CFunction )CoordinateSystem);
+	lua_register(L, "CoordSysTransform", (lua_CFunction )CoordSysTransform);
+	lua_register(L, "ActiveTransformAll", (lua_CFunction )ActiveTransformAll);
+	lua_register(L, "ActiveTransformEndTime",
+			(lua_CFunction )ActiveTransformEndTime);
+	lua_register(L, "ActiveTransformStartTime",
+			(lua_CFunction )ActiveTransformStartTime);
+	lua_register(L, "TransformTimes", (lua_CFunction )TransformTimes);
+	lua_register(L, "Test", (lua_CFunction )Test);
+	int ret = luaL_dofile(L, filename);
+	if (ret != LUA_OK) {
+		lua_error(L);
+	}
 }
 
 #endif /* SRC_CORE_APILUA_H_ */
