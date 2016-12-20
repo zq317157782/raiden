@@ -288,6 +288,20 @@ static void ParseString(ParamSet& set, const std::string& name) {
 	set.AddString(name, std::move(strings), size);
 }
 
+static void ParseFloatArray(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<Float[]> floats(new Float[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, i + 1);
+		floats[i] = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		Debug("[float:"<<floats[i]<<"]");
+	}
+	set.AddFloat(name, std::move(floats), size);
+}
+
 //获取paramset
 static ParamSet GetParamSet(lua_State* L, int index) {
 	Debug("[start parse paramset]")
@@ -345,6 +359,8 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 				ParseString(set, key);
 			} else if (type == "rgb") {
 				ParseRGB(set, key);
+			}else if (type == "float[]") {
+				ParseFloatArray(set, key);
 			} else {
 				PARAM_TYPR_WRONG("unknow type");
 			}
