@@ -16,7 +16,6 @@ extern "C" {
 #include "lua/lauxlib.h"
 }
 
-
 static lua_State *L;
 
 #define PARAM_TYPR_WRONG(x) lua_getglobal(L, "debug");\
@@ -249,7 +248,6 @@ static void ParseNormal3f(ParamSet& set, const std::string& name) {
 	set.AddNormal3f(name, std::move(normals), size);
 }
 
-
 static void ParseRGB(ParamSet& set, const std::string& name) {
 	lua_len(L, -1); //长度入栈
 	int size = lua_tointeger(L, -1);
@@ -258,17 +256,17 @@ static void ParseRGB(ParamSet& set, const std::string& name) {
 	}
 	lua_pop(L, 1); //长度出栈
 	std::unique_ptr<Float[]> rgbs(new Float[size]);
-	for (int i = 0; i < size; i=i+3) {
+	for (int i = 0; i < size; i = i + 3) {
 		lua_geti(L, -1, i + 1);
-		rgbs[i]=lua_tonumber(L, -1);
+		rgbs[i] = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 
 		lua_geti(L, -1, i + 2);
-		rgbs[i+1]= lua_tonumber(L, -1);
+		rgbs[i + 1] = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 
 		lua_geti(L, -1, i + 3);
-		rgbs[i+2]= lua_tonumber(L, -1);
+		rgbs[i + 2] = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 
 		Debug("[rgb: r:"<<rgbs[i]<<" g:"<<rgbs[i+1]<<" b:"<<rgbs[i+2]<<"]");
@@ -283,7 +281,7 @@ static void ParseString(ParamSet& set, const std::string& name) {
 	std::unique_ptr<std::string[]> strings(new std::string[size]);
 	for (int i = 0; i < size; ++i) {
 		lua_geti(L, -1, i + 1);
-		strings[i]=lua_tostring(L,-1);
+		strings[i] = lua_tostring(L, -1);
 		lua_pop(L, 1);
 		Debug("[string:"<<strings[i]<<"]");
 	}
@@ -337,18 +335,17 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 				ParsePoint2f(set, key);
 			} else if (type == "point3f") {
 				ParsePoint3f(set, key);
-			} else if(type == "vector2f"){
-				ParseVector2f(set,key);
-			} else if(type=="vector3f"){
-				ParseVector3f(set,key);
-			} else if(type=="normal3f"){
-				ParseNormal3f(set,key);
-			} else if(type=="string"){
-				ParseString(set,key);
-			} else if(type=="rgb"){
-				ParseRGB(set,key);
-			}
-			else{
+			} else if (type == "vector2f") {
+				ParseVector2f(set, key);
+			} else if (type == "vector3f") {
+				ParseVector3f(set, key);
+			} else if (type == "normal3f") {
+				ParseNormal3f(set, key);
+			} else if (type == "string") {
+				ParseString(set, key);
+			} else if (type == "rgb") {
+				ParseRGB(set, key);
+			} else {
 				PARAM_TYPR_WRONG("unknow type");
 			}
 			lua_pop(L, 1); //value 出站
@@ -362,43 +359,130 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 	return set;
 }
 
-static int Test(lua_State *L) {
-	int t = lua_gettop(L);
-	ParamSet set = GetParamSet(L, t);
-//	lua_pushnil(L);
-//	while (lua_next(L, t) != 0) {
-//		/* uses 'key' (at index -2) and 'value' (at index -1) */
-//		printf("%s - %s\n", lua_typename(L, lua_type(L, -2)),
-//				lua_typename(L, lua_type(L, -1)));
-//		/* removes 'value'; keeps 'key' for next iteration */
-//		lua_pop(L, 1);
-//	}
+static int PixelFilter(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenPixelFilter(name, params);
+}
+static int Film(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenFilm(name,params);
 }
 
-void parse(char* filename) {
-	int status, result;
-	L = luaL_newstate(); /* create state */
-	luaL_openlibs(L);
-	lua_register(L, "Init", (lua_CFunction )Init);
-	lua_register(L, "CleanUp", (lua_CFunction )CleanUp);
-	lua_register(L, "WorldBegin", (lua_CFunction )WorldBegin);
-	lua_register(L, "WorldEnd", (lua_CFunction )WorldEnd);
-	lua_register(L, "Translate", (lua_CFunction )Translate);
-	lua_register(L, "Rotate", (lua_CFunction )Rotate);
-	lua_register(L, "Scale", (lua_CFunction )Scale);
-	lua_register(L, "CoordinateSystem", (lua_CFunction )CoordinateSystem);
-	lua_register(L, "CoordSysTransform", (lua_CFunction )CoordSysTransform);
-	lua_register(L, "ActiveTransformAll", (lua_CFunction )ActiveTransformAll);
-	lua_register(L, "ActiveTransformEndTime",
-			(lua_CFunction )ActiveTransformEndTime);
-	lua_register(L, "ActiveTransformStartTime",
-			(lua_CFunction )ActiveTransformStartTime);
-	lua_register(L, "TransformTimes", (lua_CFunction )TransformTimes);
-	lua_register(L, "Test", (lua_CFunction )Test);
-	int ret = luaL_dofile(L, filename);
-	if (ret != LUA_OK) {
-		lua_error(L);
+static int Sampler(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
 	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenSampler(name,params);
+}
+static int Accelerator(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenAccelerator(name,params);
+}
+static int Integrator(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenIntegrator(name,params);
+}
+static int Camera(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenCamera(name,params);
+}
+static int Shape(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenShape(name,params);
+}
+
+static int AttributeBegin(){
+	raidenAttributeBegin();
+}
+
+static int AttributeEnd(){
+	raidenAttributeEnd();
+}
+
+static int TransformBegin(){
+	raidenTransformBegin();
+}
+
+static int TransformEnd(){
+	raidenTransformEnd();
+}
+
+
+
+void parse(char* filename) {
+int status, result;
+L = luaL_newstate(); /* create state */
+luaL_openlibs(L);
+lua_register(L, "Init", (lua_CFunction )Init);
+lua_register(L, "CleanUp", (lua_CFunction )CleanUp);
+lua_register(L, "WorldBegin", (lua_CFunction )WorldBegin);
+lua_register(L, "WorldEnd", (lua_CFunction )WorldEnd);
+lua_register(L, "Translate", (lua_CFunction )Translate);
+lua_register(L, "Rotate", (lua_CFunction )Rotate);
+lua_register(L, "Scale", (lua_CFunction )Scale);
+lua_register(L, "CoordinateSystem", (lua_CFunction )CoordinateSystem);
+lua_register(L, "CoordSysTransform", (lua_CFunction )CoordSysTransform);
+lua_register(L, "ActiveTransformAll", (lua_CFunction )ActiveTransformAll);
+lua_register(L, "ActiveTransformEndTime",
+		(lua_CFunction )ActiveTransformEndTime);
+lua_register(L, "ActiveTransformStartTime",
+		(lua_CFunction )ActiveTransformStartTime);
+lua_register(L, "TransformTimes", (lua_CFunction )TransformTimes);
+lua_register(L, "PixelFilter", (lua_CFunction )PixelFilter);
+lua_register(L, "Film", (lua_CFunction )Film);
+lua_register(L, "Sampler", (lua_CFunction )Sampler);
+lua_register(L, "Accelerator", (lua_CFunction )Accelerator);
+lua_register(L, "Integrator", (lua_CFunction )Integrator);
+lua_register(L, "Camera", (lua_CFunction )Camera);
+lua_register(L, "Shape", (lua_CFunction )Shape);
+lua_register(L, "AttributeBegin", (lua_CFunction )AttributeBegin);
+lua_register(L, "AttributeEnd", (lua_CFunction )AttributeEnd);
+lua_register(L, "TransformBegin", (lua_CFunction )TransformBegin);
+lua_register(L, "TransformEnd", (lua_CFunction )TransformEnd);
+int ret = luaL_dofile(L, filename);
+if (ret != LUA_OK) {
+	lua_error(L);
+}
 }
 
 #endif /* SRC_CORE_APILUA_H_ */
