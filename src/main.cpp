@@ -10,9 +10,8 @@
 
 int main(int argc, char* argv[]) {
 #ifdef UNIT_TEST
-	//UnitTest(argc, argv);
+	UnitTest(argc, argv);
 #endif
-	//lua_exec(argc,argv);
 	RaidenMain(argc,argv);
 }
 

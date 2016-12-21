@@ -739,6 +739,17 @@ TEST(paramset,all){
 	ASSERT_EQ(count,3);
 	ASSERT_EQ(ptr[2],3);
 }
+#include "sampling.h"
+TEST(sampling,all){
+	RNG rng;
+	Float samples[4];
+	StratifiedSample1D(samples,4,rng,false);
+	ASSERT_EQ(samples[0],0.125f);
+
+	Point2f ss[4];
+	StratifiedSample2D(ss,2,2,rng,false);
+	ASSERT_EQ(ss[0],Point2f(0.25f,0.25f));
+}
 
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

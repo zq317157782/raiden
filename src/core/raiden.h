@@ -54,6 +54,7 @@ template<typename T> class Point3;
 template<typename T> class Point2;
 template<typename T> class Normal3;
 template<typename T> class Bound3;
+
 class Ray;
 class RayDifferential;
 struct Matrix4x4;

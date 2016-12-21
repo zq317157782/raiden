@@ -25,6 +25,10 @@ void RaidenMain(int argc, char* argv[]) {
 //			options.numThread = atoi(argv[++i]);
 //		}
 //	}
-	parse(argv[1]);
+	if (argv[1]) {
+		parse(argv[1]);
+	} else {
+		Error("no input!");
+	}
 }
 
