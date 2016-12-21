@@ -50,9 +50,9 @@ inline Float CosPhi(const Vector3f& w) {
 	return Clamp(w.x / sint, -1.f, 1.f);
 }
 
-inline Float CosPhi2(const Vector3f& w){
-	Float cosphi=CosPhi(w);
-	return cosphi*cosphi;
+inline Float CosPhi2(const Vector3f& w) {
+	Float cosphi = CosPhi(w);
+	return cosphi * cosphi;
 }
 
 inline Float SinPhi(const Vector3f& w) {
@@ -66,32 +66,33 @@ inline Float SinPhi(const Vector3f& w) {
 	return Clamp(w.y / sint, -1.f, 1.f);
 }
 
-inline Float SinPhi2(const Vector3f& w){
-	Float sinphi=SinPhi(w);
-	return sinphi*sinphi;
+inline Float SinPhi2(const Vector3f& w) {
+	Float sinphi = SinPhi(w);
+	return sinphi * sinphi;
 }
 
 //计算反射方向
 //默认wo和n在同一半球
-Vector3f Reflect(const Vector3f& wo,const Normal3f& n){
-	return Vector3f(2*Dot(wo,n)*n)-wo;
+Vector3f Reflect(const Vector3f& wo, const Normal3f& n) {
+	return Vector3f(2 * Dot(wo, n) * n) - wo;
 }
 //计算折射方向
 //默认wt和n在同一半球
 //eta是材质的折射率
-bool Refract(const Vector3f& wi,const Normal3f& n,Float oeta/*这里是两个折射率之比(i/t)*/,Vector3f* wt){
+bool Refract(const Vector3f& wi, const Normal3f& n,
+		Float oeta/*这里是两个折射率之比(i/t)*/, Vector3f* wt) {
 	//1.先求cosThetaT
 	//2.然后使用推导的折射方向公式
-	Float cosThetaI=Dot(wi,n);
-	Float sinThetaI2=std::max(0.0f,1.0f-cosThetaI*cosThetaI);
+	Float cosThetaI = Dot(wi, n);
+	Float sinThetaI2 = std::max(0.0f, 1.0f - cosThetaI * cosThetaI);
 	//这里运用snell law
-	Float sinThetaT2=oeta*sinThetaI2;
-	if(sinThetaT2>=1){
-		return false;//完全反射情况
+	Float sinThetaT2 = oeta * sinThetaI2;
+	if (sinThetaT2 >= 1) {
+		return false;	//完全反射情况
 	}
-	Float cosThetaT=std::sqrt(1.0f-sinThetaT2);
+	Float cosThetaT = std::sqrt(1.0f - sinThetaT2);
 	//代入公式
-	*wt=oeta*(-wi)+(oeta*Dot(wi,n)-cosThetaT)*Vector3f(n);
+	*wt = oeta * (-wi) + (oeta * Dot(wi, n) - cosThetaT) * Vector3f(n);
 	return true;
 }
 
@@ -114,5 +115,34 @@ enum BxDFType {
 inline bool SameHemisphere(const Vector3f &w, const Vector3f &wp) {
 	return w.z * wp.z > 0.f;
 }
+
+class BxDF {
+public:
+	const BxDFType type;
+public:
+	virtual ~BxDF() {
+	}
+	BxDF(BxDFType type) :
+			type(type) {
+	}
+	bool MatchesFlags(BxDFType t) const {
+		return (type & t) == type;
+	}
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const = 0;//根据入射光线和出射光线，返回brdf
+	//根据样本点和出射光线，采样入射光线以及PDF，出射和入射可以互惠
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+			const Point2f &sample, Float *pdf,
+			BxDFType *sampledType = nullptr) const;
+	//返回direction-hemisphere反射率
+	virtual Spectrum rho(const Vector3f &wo, int nSamples,
+			const Point2f *samples) const;
+	//返回hemisphere-hemisphere反射率
+	virtual Spectrum rho(int nSamples, const Point2f *samples1,
+			const Point2f *samples2) const;
+	//返回pdf
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const;
+
+	virtual std::string ToString() const = 0;
+};
 
 #endif /* SRC_CORE_REFLECTION_H_ */
