@@ -66,3 +66,12 @@ Vector3f UniformSampleSphere(const Point2f &u) {
 Float UniformSpherePdf(){
 	return Inv4Pi;
 }
+
+Point2f UniformSampleDisk(const Point2f &u){
+	Assert(u.x>=0);
+	Float r=std::sqrt(u.x);
+	Float theta=2*Pi*u.y;
+	Float x = std::cos(theta) * r;
+	Float y = std::sin(theta) * r;
+	return Point2f(x,y);
+}
