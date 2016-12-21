@@ -29,4 +29,6 @@ Vector3f UniformSampleSphere(const Point2f &u);
 Float UniformSpherePdf();
 //均匀采样disk
 Point2f UniformSampleDisk(const Point2f &u);
+//同心轴SQUARE到同心轴DISK
+Point2f ConcentricSampleDisk(const Point2f &u);
 #endif /* SRC_CORE_SAMPLING_H_ */

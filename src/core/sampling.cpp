@@ -63,15 +63,33 @@ Vector3f UniformSampleSphere(const Point2f &u) {
 	return Vector3f(x, y, z);
 }
 
-Float UniformSpherePdf(){
+Float UniformSpherePdf() {
 	return Inv4Pi;
 }
 
-Point2f UniformSampleDisk(const Point2f &u){
-	Assert(u.x>=0);
-	Float r=std::sqrt(u.x);
-	Float theta=2*Pi*u.y;
+Point2f UniformSampleDisk(const Point2f &u) {
+	Assert(u.x >= 0);
+	Float r = std::sqrt(u.x);
+	Float theta = 2 * Pi * u.y;
 	Float x = std::cos(theta) * r;
 	Float y = std::sin(theta) * r;
-	return Point2f(x,y);
+	return Point2f(x, y);
+}
+
+Point2f ConcentricSampleDisk(const Point2f &u) {
+	Point2f uOffset = 2.0f * u - Vector2f(1, 1);
+	//返回退化的情况
+	if (uOffset.x == 0 && uOffset.y == 0) {
+		return Point2f(0, 0);
+	}
+
+	Float theta, r;
+	if (std::abs(uOffset.x) > std::abs(uOffset.y)) {
+		r = uOffset.x;
+		theta = PiOver4 * (uOffset.y / uOffset.x);
+	} else {
+		r = uOffset.y;
+		theta = PiOver2 - PiOver4 * (uOffset.x / uOffset.y);
+	}
+	return Point2f(r * std::cos(theta), r * std::sin(theta));
 }
