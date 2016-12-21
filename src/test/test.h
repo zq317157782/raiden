@@ -752,6 +752,9 @@ TEST(sampling,all){
 
 	Point2f ss2=RejectionSampleDisk(rng);
 	ASSERT_LE(ss2.x*ss2.x+ss2.y*ss2.y,1);
+
+	Vector3f dir=UniformSampleHemisphere(Point2f(1,0));
+	ASSERT_EQ(dir,Vector3f(0,0,1));
 }
 
 void UnitTest(int argc, char* argv[]) {

@@ -19,4 +19,9 @@ void StratifiedSample2D(Point2f *samples, int nx,int ny, RNG &rand,
 //使用拒绝采样方法来采样圆盘
 Point2f RejectionSampleDisk(RNG& rand);
 
+//均匀采样半球方向 返回半球坐标系下的向量
+Vector3f UniformSampleHemisphere(const Point2f &u);
+//返回均匀采样半球的pdf
+Float UniformHemispherePdf();
+
 #endif /* SRC_CORE_SAMPLING_H_ */
