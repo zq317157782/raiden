@@ -749,6 +749,9 @@ TEST(sampling,all){
 	Point2f ss[4];
 	StratifiedSample2D(ss,2,2,rng,false);
 	ASSERT_EQ(ss[0],Point2f(0.25f,0.25f));
+
+	Point2f ss2=RejectionSampleDisk(rng);
+	ASSERT_LE(ss2.x*ss2.x+ss2.y*ss2.y,1);
 }
 
 void UnitTest(int argc, char* argv[]) {

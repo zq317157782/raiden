@@ -15,4 +15,8 @@ void StratifiedSample1D(Float *samples, int nsamples, RNG &rand,
 //二维分层采样
 void StratifiedSample2D(Point2f *samples, int nx,int ny, RNG &rand,
                         bool jitter = true);
+
+//使用拒绝采样方法来采样圆盘
+Point2f RejectionSampleDisk(RNG& rand);
+
 #endif /* SRC_CORE_SAMPLING_H_ */
