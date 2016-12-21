@@ -39,17 +39,30 @@ Point2f RejectionSampleDisk(RNG& rng) {
 	return Point2f(x, y);
 }
 
-
-Vector3f UniformSampleHemisphere(const Point2f &u){
-	Float z=u.x;//半球范围内 z的定义域是[0-1]
-	Float r=std::sqrt(std::max(1.0f-z*z,0.0f));
-	Float phi=2*Pi*u.y;//计算得到phi
+Vector3f UniformSampleHemisphere(const Point2f &u) {
+	Float z = u.x; //半球范围内 z的定义域是[0-1]
+	Float r = std::sqrt(std::max(1.0f - z * z, 0.0f));
+	Float phi = 2 * Pi * u.y; //计算得到phi
 	//然后在xy平面上求x和y
-	Float x=std::cos(phi)*r;
-	Float y=std::sin(phi)*r;
-	return Vector3f(x,y,z);
+	Float x = std::cos(phi) * r;
+	Float y = std::sin(phi) * r;
+	return Vector3f(x, y, z);
 }
 
-Float UniformHemispherePdf(){
+Float UniformHemispherePdf() {
 	return Inv2Pi;
+}
+
+Vector3f UniformSampleSphere(const Point2f &u) {
+	Float z = -(u.x * 2 - 1);
+	Float r = std::sqrt(std::max(1.0f - z * z, 0.0f));
+	Float phi = 2 * Pi * u.y;	//计算得到phi
+	//然后在xy平面上求x和y
+	Float x = std::cos(phi) * r;
+	Float y = std::sin(phi) * r;
+	return Vector3f(x, y, z);
+}
+
+Float UniformSpherePdf(){
+	return Inv4Pi;
 }

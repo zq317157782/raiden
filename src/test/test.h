@@ -755,6 +755,9 @@ TEST(sampling,all){
 
 	Vector3f dir=UniformSampleHemisphere(Point2f(1,0));
 	ASSERT_EQ(dir,Vector3f(0,0,1));
+
+	dir=UniformSampleSphere(Point2f(0,0));
+	ASSERT_EQ(dir,Vector3f(0,0,1));
 }
 
 void UnitTest(int argc, char* argv[]) {

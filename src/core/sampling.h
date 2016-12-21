@@ -23,5 +23,9 @@ Point2f RejectionSampleDisk(RNG& rand);
 Vector3f UniformSampleHemisphere(const Point2f &u);
 //返回均匀采样半球的pdf
 Float UniformHemispherePdf();
+//均匀采样整个球体
+Vector3f UniformSampleSphere(const Point2f &u);
+//均匀采样球体的pdf
+Float UniformSpherePdf();
 
 #endif /* SRC_CORE_SAMPLING_H_ */
