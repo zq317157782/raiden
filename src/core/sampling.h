@@ -33,4 +33,6 @@ Point2f UniformSampleDisk(const Point2f &u);
 Point2f ConcentricSampleDisk(const Point2f &u);
 //rooking-jiter
 void LatinHypercube(Float *samples, int nSamples, int nDim, RNG &rng);
+//cos分布的半球采样
+Vector3f CosineSampleHemisphere(const Point2f &u);
 #endif /* SRC_CORE_SAMPLING_H_ */

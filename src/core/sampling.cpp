@@ -112,3 +112,20 @@ void LatinHypercube(Float *samples, int nSamples, int nDim, RNG &rng){
 		}
 	}
 }
+
+//Malley’s method
+Vector3f CosineSampleHemisphere(const Point2f &u){
+	//获得x-y平面上的一个点
+	Point2f pp=ConcentricSampleDisk(u);
+	//计算到半球上，满足cosine分布
+	Float z=std::sqrt(std::max(0.0f,1.0f-pp.x*pp.x-pp.y*pp.y));
+	return Vector3f(pp.x,pp.y,z);
+}
+
+
+//cosTheta是和z轴的夹角的cos值
+Float CosineHemispherePdf(Float cosTheta) {
+	//这返回的是p(w),不是p(theta,phi)
+	//这里一定要注意p(w)不等于p(theta,phi)
+	return cosTheta * InvPi;
+}
