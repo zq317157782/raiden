@@ -40,11 +40,11 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 	return wt;
 }
 
-ProjectiveCamera::ProjectiveCamera(const Transform& c2w, const Transform& proj,
+ProjectiveCamera::ProjectiveCamera(const Transform& c2w, const Transform& c2s,
 		const Bound2f& screenWindow,Float shutterOpen, Float shutterEnd,
 		Float lensr, Float focald, Film * f) :
 		Camera(c2w, shutterOpen, shutterEnd, f) {
-	_cameraToScreen = proj; //投影矩阵
+	_cameraToScreen = c2s; //投影矩阵
 	_lensRadius = lensr;
 	_focalDistance = focald;
 	//从底往上看1.把screen的原点挪到00位置,然后你懂得
@@ -64,3 +64,5 @@ ProjectiveCamera::ProjectiveCamera(const Transform& c2w, const Transform& proj,
 	_rasterToCamera = Inverse(_cameraToScreen) * _rasterToScreen;
 
 }
+
+

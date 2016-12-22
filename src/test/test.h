@@ -653,35 +653,35 @@ TEST(RandomSampler,all) {
 //}
 #include "api.h"
 #include "paramset.h"
-TEST(TestSceneOne,use_api){
-	Options option;
-	option.imageFile="result/TestSceneOne.png";
-	option.numThread=4;
-	raidenInit(option);
-	{
-		ParamSet filterParam;
-		filterParam.AddFloat("xwidth",std::unique_ptr<Float[]>(new Float[1]{1.0f}),1);
-		filterParam.AddFloat("ywidth",std::unique_ptr<Float[]>(new Float[1]{1.0f}),1);
-		raidenPixelFilter("box",filterParam);
-		ParamSet filmParam;
-		filmParam.AddInt("xresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
-		filmParam.AddInt("yresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
-		filmParam.AddFloat("cropwindow",std::unique_ptr<Float[]>(new Float[4]{0.0f,1.0f,0.0f,1.0f}),4);
-		raidenFilm("image",filmParam);
-		ParamSet cameraParam;
-		cameraParam.AddFloat("distance",std::unique_ptr<Float[]>(new Float[1]{50.0f}),1);
-		raidenCamera("pinhole",cameraParam);
-		raidenWorldBegin();
-		{
-			raidenTranslate(0,0,3);
-			ParamSet shapdeParam;
-			shapdeParam.AddFloat("radius",std::unique_ptr<Float[]>(new Float[1]{2.0f}),1);
-			raidenShape("sphere",shapdeParam);
-		}
-		raidenWorldEnd();
-	}
-	raidenCleanup();
-}
+//TEST(TestSceneOne,use_api){
+//	Options option;
+//	option.imageFile="result/TestSceneOne.png";
+//	option.numThread=4;
+//	raidenInit(option);
+//	{
+//		ParamSet filterParam;
+//		filterParam.AddFloat("xwidth",std::unique_ptr<Float[]>(new Float[1]{1.0f}),1);
+//		filterParam.AddFloat("ywidth",std::unique_ptr<Float[]>(new Float[1]{1.0f}),1);
+//		raidenPixelFilter("box",filterParam);
+//		ParamSet filmParam;
+//		filmParam.AddInt("xresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
+//		filmParam.AddInt("yresolution",std::unique_ptr<int[]>(new int[1]{600}),1);
+//		filmParam.AddFloat("cropwindow",std::unique_ptr<Float[]>(new Float[4]{0.0f,1.0f,0.0f,1.0f}),4);
+//		raidenFilm("image",filmParam);
+//		ParamSet cameraParam;
+//		cameraParam.AddFloat("distance",std::unique_ptr<Float[]>(new Float[1]{50.0f}),1);
+//		raidenCamera("pinhole",cameraParam);
+//		raidenWorldBegin();
+//		{
+//			raidenTranslate(0,0,3);
+//			ParamSet shapdeParam;
+//			shapdeParam.AddFloat("radius",std::unique_ptr<Float[]>(new Float[1]{2.0f}),1);
+//			raidenShape("sphere",shapdeParam);
+//		}
+//		raidenWorldEnd();
+//	}
+//	raidenCleanup();
+//}
 #include "light.h"
 TEST(Light,all){
 	LightFlags f1=LightFlags::DeltaDirection;
