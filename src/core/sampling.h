@@ -31,4 +31,6 @@ Float UniformSpherePdf();
 Point2f UniformSampleDisk(const Point2f &u);
 //同心轴SQUARE到同心轴DISK
 Point2f ConcentricSampleDisk(const Point2f &u);
+//rooking-jiter
+void LatinHypercube(Float *samples, int nSamples, int nDim, RNG &rng);
 #endif /* SRC_CORE_SAMPLING_H_ */

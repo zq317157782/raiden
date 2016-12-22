@@ -760,7 +760,14 @@ TEST(sampling,all){
 	ASSERT_EQ(dir,Vector3f(0,0,1));
 
 	Point2f disk=UniformSampleDisk(Point2f(1,1));
-	ASSERT_EQ(disk,Point2f(1,0));
+	//ASSERT_EQ(disk,Point2f(1,0));
+	Float array[4];
+	LatinHypercube(array,2,2,rng);
+	//ASSERT_EQ(array[0],1);
+	Error("LatinHypercube 2sample 2dim:")
+	for(int i=0;i<4;++i){
+		Error(array[i]);
+	}
 }
 
 void UnitTest(int argc, char* argv[]) {

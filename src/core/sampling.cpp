@@ -77,7 +77,7 @@ Point2f UniformSampleDisk(const Point2f &u) {
 }
 
 Point2f ConcentricSampleDisk(const Point2f &u) {
-	Point2f uOffset = 2.0f * u - Vector2f(1, 1);
+	Point2f uOffset =  u*2.0f - Vector2f(1, 1);
 	//返回退化的情况
 	if (uOffset.x == 0 && uOffset.y == 0) {
 		return Point2f(0, 0);
@@ -92,4 +92,23 @@ Point2f ConcentricSampleDisk(const Point2f &u) {
 		theta = PiOver2 - PiOver4 * (uOffset.x / uOffset.y);
 	}
 	return Point2f(r * std::cos(theta), r * std::sin(theta));
+}
+
+void LatinHypercube(Float *samples, int nSamples, int nDim, RNG &rng){
+	Float invNumSamples=1.0f/nSamples;
+	//先生成对角线样本
+	for(int i=0;i<nSamples;++i){
+		for(int j=0;j<nDim;++j){
+			Float sample=(i+rng.UniformFloat())*invNumSamples;
+			samples[nDim*i+j]=std::min(sample,OneMinusEpsilon);
+		}
+	}
+	//对每个维度的样本进行乱序排列
+	//这里把x轴想象成nDim ,y轴想象成nSamples的二维数组
+	for(int i=0;i<nDim;++i){
+		for(int j=0;j<nSamples;++j){
+			int other=rng.UniformUInt32(nSamples-j)+j;
+			std::swap(samples[nDim*j+i],samples[nDim*other+i]);
+		}
+	}
 }
