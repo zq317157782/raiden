@@ -32,6 +32,17 @@ public:
 	}
 };
 
+//投影相机
+class ProjectiveCamera: public Camera {
+protected:
+	/*4个变换矩阵*/
+	Transform _cameraToScreen, _rasterToCamera;
+	Transform _screenToRaster, _rasterToScreen;
+	Float _lensRadius, _focalDistance;//镜片半径,焦距
+public:
+	ProjectiveCamera(const Transform& c2w, const Transform& proj,const Bound2f& screenWindow,Float shutterOpen,Float shutterEnd,
+			 Float lensr, Float focald, Film * f);
+};
 
 
 #endif /* SRC_CORE_CAMERA_H_ */
