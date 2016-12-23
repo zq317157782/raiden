@@ -7,7 +7,8 @@
 
 #ifndef SRC_CORE_REFLECTION_H_
 #define SRC_CORE_REFLECTION_H_
-
+#include "raiden.h"
+#include "geometry.h"
 //BxDF坐标系下
 //法线(0,0,1)与W(x,y,z)点乘等于W.z
 inline Float CosTheta(const Vector3f &w) {
@@ -73,28 +74,14 @@ inline Float SinPhi2(const Vector3f& w) {
 
 //计算反射方向
 //默认wo和n在同一半球
-Vector3f Reflect(const Vector3f& wo, const Normal3f& n) {
+inline Vector3f Reflect(const Vector3f& wo, const Normal3f& n) {
 	return Vector3f(2 * Dot(wo, n) * n) - wo;
 }
 //计算折射方向
 //默认wt和n在同一半球
 //eta是材质的折射率
 bool Refract(const Vector3f& wi, const Normal3f& n,
-		Float oeta/*这里是两个折射率之比(i/t)*/, Vector3f* wt) {
-	//1.先求cosThetaT
-	//2.然后使用推导的折射方向公式
-	Float cosThetaI = Dot(wi, n);
-	Float sinThetaI2 = std::max(0.0f, 1.0f - cosThetaI * cosThetaI);
-	//这里运用snell law
-	Float sinThetaT2 = oeta * sinThetaI2;
-	if (sinThetaT2 >= 1) {
-		return false;	//完全反射情况
-	}
-	Float cosThetaT = std::sqrt(1.0f - sinThetaT2);
-	//代入公式
-	*wt = oeta * (-wi) + (oeta * Dot(wi, n) - cosThetaT) * Vector3f(n);
-	return true;
-}
+		Float oeta/*这里是两个折射率之比(i/t)*/, Vector3f* wt);
 
 //这里把BxDF抽象成3个类型 Specular/Diffuse/Glossy
 //两个行为 Reflection/Transmission
@@ -130,6 +117,7 @@ public:
 	}
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const = 0;//根据入射光线和出射光线，返回brdf
 	//根据样本点和出射光线，采样入射光线以及PDF，出射和入射可以互惠
+	//默认满足cosine分布
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
 			const Point2f &sample, Float *pdf,
 			BxDFType *sampledType = nullptr) const;
@@ -140,6 +128,7 @@ public:
 	virtual Spectrum rho(int nSamples, const Point2f *samples1,
 			const Point2f *samples2) const;
 	//返回pdf
+	//默认返回满足cosine分布PDF
 	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const;
 
 	virtual std::string ToString() const = 0;
