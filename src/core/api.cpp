@@ -13,6 +13,7 @@
 #include "shapes/sphere.h"
 #include "cameras/pinhole.h"
 #include "cameras/orthographic.h"
+#include "cameras/perspective.h"
 #include "samplers/random.h"
 #include "filters/box.h"
 #include "accelerators/iteration.h"
@@ -185,9 +186,11 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	transformCache.Lookup(cam2worldSet[0], &cam2world[0], nullptr);
 	if (name == "pinhole") {
 		camera = CreatePinholeCamera(paramSet, *cam2world[0], film);
-	} if(name == "ortho"){
-		camera = CreateOrthoCamera(paramSet,*cam2world[0],film);
-	}else {
+	} else if (name == "ortho") {
+		camera = CreateOrthoCamera(paramSet, *cam2world[0], film);
+	} else if (name == "perspective") {
+		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film);
+	} else {
 		Error("camera \""<<name.c_str()<<"\" unknown.");
 	}
 	return camera;
