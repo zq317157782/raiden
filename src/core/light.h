@@ -42,6 +42,8 @@ public:
 	virtual Spectrum Le(const RayDifferential& ray) const {return Spectrum(0);};
 	//返回入射光线方向以及相应的radiance
 	virtual Spectrum Sample_Li(Interaction& interaction,Vector3f* wi,Float* pdf) const=0;
+	//返回光源的flux
+	virtual Spectrum Power() const = 0;
 	virtual ~Light(){}
 };
 
