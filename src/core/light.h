@@ -44,6 +44,13 @@ public:
 	virtual Spectrum Sample_Li(Interaction& interaction,Vector3f* wi,Float* pdf) const=0;
 	//返回光源的flux
 	virtual Spectrum Power() const = 0;
+	//从光源角度采样radiance
+	virtual Spectrum Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
+	                               Ray *ray, Normal3f *nLight, Float *pdfPos,
+	                               Float *pdfDir) const = 0;
+	//返回从光源采样光线的pdf相关数据
+	virtual void Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
+				Float *pdfDir) const = 0;
 	virtual ~Light(){}
 };
 

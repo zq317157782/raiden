@@ -7,6 +7,7 @@
 #include "point.h"
 #include "interaction.h"
 #include "paramset.h"
+#include "sampling.h"
 Spectrum PointLight::Sample_Li(Interaction& itr,Vector3f* wi,Float* pdf) const{
 	*wi=Normalize(Vector3f(_position-itr.p));//计算光线方向
 	*pdf=1;
@@ -16,6 +17,23 @@ Spectrum PointLight::Sample_Li(Interaction& itr,Vector3f* wi,Float* pdf) const{
 Spectrum PointLight::Power() const{
 	//点光源的话，dA不考虑，所以flux等于整个球体空间角4pi乘以光源的强度
 	return _I*4*Pi;
+}
+
+Spectrum PointLight::Sample_Le(const Point2f &u1/*position样本*/,
+			const Point2f &u2/*direction样本*/, Float time, Ray *ray,
+			Normal3f *normalLight, Float *pdfPos, Float *pdfDir) const{
+	*ray=Ray(_position,UniformSampleSphere(u1),Infinity,time);
+	*normalLight=(Normal3f)ray->d;//得到法线,因为在光源局部坐标下，所以_position就是原点
+	*pdfPos=1.0f;//采样点光源的位置永远在同一个位置，所以pdf为1
+	*pdfDir=UniformSpherePdf();//均匀采样球体的pdf
+	return _I;
+}
+
+void PointLight::Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
+					Float *pdfDir) const{
+	//永远都不可能通过采样采样到点光源的position
+	*pdfPos=0;
+	*pdfDir=UniformSpherePdf();
 }
 
 std::shared_ptr<PointLight> CreatePointLight(const Transform &light2world,const ParamSet &paramSet) {
