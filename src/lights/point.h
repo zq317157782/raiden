@@ -22,6 +22,7 @@ public:
 	}
 	virtual Spectrum Sample_Li(Interaction& interaction, Vector3f* wi,
 			Float* pdf) const override;
+	virtual Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const override;
 	virtual Spectrum Power() const override;
 	virtual Spectrum Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
 			Ray *ray, Normal3f *nLight, Float *pdfPos, Float *pdfDir) const

@@ -695,6 +695,7 @@ TEST(Light,all){
 TEST(pointlight,all){
 	Transform ts;
 	PointLight pl(ts,Spectrum(1));
+	ASSERT_EQ(pl.Power(),4*Pi);
 	Interaction ref;
 	ref.p=Point3f(0,0,3);
 	Vector3f wi;

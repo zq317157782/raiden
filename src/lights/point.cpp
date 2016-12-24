@@ -14,6 +14,10 @@ Spectrum PointLight::Sample_Li(Interaction& itr,Vector3f* wi,Float* pdf) const{
 	return _I/DistanceSquared(_position,itr.p);//随着距离的增加，空间角变小，所以能量也变小了(或者是受光面积相对光源变小,irradiance随之变小)
 }
 
+Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const{
+	return 0;
+}
+
 Spectrum PointLight::Power() const{
 	//点光源的话，dA不考虑，所以flux等于整个球体空间角4pi乘以光源的强度
 	return _I*4*Pi;
