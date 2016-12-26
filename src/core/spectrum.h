@@ -71,30 +71,38 @@ public:
 	}
 
 	CoefficientSpectrum operator*(CoefficientSpectrum cs) const {
-			CoefficientSpectrum result;
-			for (int i = 0; i < numSpectrumSample; ++i) {
-				result[i] = _c[i] * cs._c[i];
-			}
-			return result;
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = _c[i] * cs._c[i];
 		}
+		return result;
+	}
+
+	CoefficientSpectrum operator/(CoefficientSpectrum cs) const {
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = _c[i] / cs._c[i];
+		}
+		return result;
+	}
 
 	CoefficientSpectrum operator/(Float f) const {
-			Assert(!std::isnan(f));
-			Assert(f!=0);
-			CoefficientSpectrum result;
-			for (int i = 0; i < numSpectrumSample; ++i) {
-				result[i] = _c[i] / f;
-			}
-			return result;
+		Assert(!std::isnan(f));
+		Assert(f != 0);
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = _c[i] / f;
 		}
+		return result;
+	}
 
 	CoefficientSpectrum& operator+=(const CoefficientSpectrum& cc) {
 		Assert(!cc.HasNaNs());
-			for (int i = 0; i < numSpectrumSample; ++i) {
-				_c[i] = _c[i] + cc._c[i];
-			}
-			return *this;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			_c[i] = _c[i] + cc._c[i];
 		}
+		return *this;
+	}
 
 	CoefficientSpectrum& operator*=(Float f) {
 		Assert(!std::isnan(f));
@@ -104,6 +112,10 @@ public:
 		return *this;
 	}
 
+	friend CoefficientSpectrum operator*(Float f,
+			const CoefficientSpectrum& s) {
+		return s * f;
+	}
 	//用来遍历样本的函数
 	Float operator[](int index) const {
 		Assert(index >= 0 && index < numSpectrumSample);
@@ -139,6 +151,14 @@ public:
 		return true;
 	}
 
+	friend CoefficientSpectrum Sqrt(const CoefficientSpectrum &s) {
+		CoefficientSpectrum ret;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			ret._c[i] = std::sqrt(s._c[i]);
+		}
+		Assert(!ret.HasNaNs());
+		return ret;
+	}
 	//判断光谱样本总是否包含nan
 	bool HasNaNs() const {
 		for (int i = 0; i < numSpectrumSample; ++i) {
@@ -318,13 +338,13 @@ public:
 	}
 
 	static RGBSpectrum FromRGB(const Float rgb[3]) {
-	        RGBSpectrum s;
-	        s._c[0] = rgb[0];
-	        s._c[1] = rgb[1];
-	        s._c[2] = rgb[2];
-	        Assert(!s.HasNaNs());
-	        return s;
-	    }
+		RGBSpectrum s;
+		s._c[0] = rgb[0];
+		s._c[1] = rgb[1];
+		s._c[2] = rgb[2];
+		Assert(!s.HasNaNs());
+		return s;
+	}
 };
 
 #endif /* SRC_CORE_SPECTRUM_H_ */

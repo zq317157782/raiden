@@ -85,7 +85,9 @@ bool Refract(const Vector3f& wi, const Normal3f& n,
 
 //计算绝缘体的菲涅尔反射系数，绝缘体的反射系数可以看成是实数
 Float FrDielectric(Float cosThetaI, Float etaI, Float etaT);
-
+//计算导电体的菲涅尔反射系数，金属的折射率是复数，包含吸收率
+Spectrum FrConductor(Float cosThetaI, const Spectrum &etaI,
+                     const Spectrum &etaT, const Spectrum &k);
 ////计算菲涅尔系数相关的操作
 //class Fresnel{
 //public:

@@ -49,6 +49,33 @@ Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
 	return (Rparl * Rparl + Rperp * Rperp) / 2;
 }
 
+//没想到这个公式是参考塞巴斯的博客的
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+Spectrum FrConductor(Float cosThetaI, const Spectrum &etai,
+                     const Spectrum &etat, const Spectrum &k) {
+    cosThetaI = Clamp(cosThetaI, -1.0f, 1.0f);
+    Spectrum eta = etat / etai;
+    Spectrum etak = k / etai;
+
+    Float cosThetaI2 = cosThetaI * cosThetaI;
+    Float sinThetaI2 = 1.0f - cosThetaI2;
+    Spectrum eta2 = eta * eta;
+    Spectrum etak2 = etak * etak;
+
+    Spectrum t0 = eta2 - etak2 - sinThetaI2;
+    Spectrum a2plusb2 = Sqrt(t0 * t0 + 4 * eta2 * etak2);
+    Spectrum t1 = a2plusb2 + cosThetaI2;
+    Spectrum a = Sqrt(0.5f * (a2plusb2 + t0));
+    Spectrum t2 = (Float)2 * cosThetaI * a;
+    Spectrum Rs = (t1 - t2) / (t1 + t2);
+
+    Spectrum t3 = cosThetaI2 * a2plusb2 + sinThetaI2 * sinThetaI2;
+    Spectrum t4 = t2 * sinThetaI2;
+    Spectrum Rp = Rs * (t3 - t4) / (t3 + t4);
+
+    return 0.5f * (Rp + Rs);
+}
+
 Spectrum BxDF::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample,
 		Float *pdf, BxDFType *sampledType) const {
 	//1.采样入射射线
