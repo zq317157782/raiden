@@ -25,6 +25,30 @@ bool Refract(const Vector3f& wi, const Normal3f& n,
 	return true;
 }
 
+Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
+	cosThetaI = Clamp(cosThetaI, -1, 1);
+	//cosThetaI小于0说明，入射光线在内部，需要交换两个ETA
+	if (cosThetaI < 0.0f) {
+		std::swap(etaI, etaT);
+		cosThetaI = std::abs(cosThetaI);
+	}
+	//计算折射光线和法线之间的夹角
+	//运用Snell's law
+	Float sinThetaI = std::sqrt(std::max(0.0f, 1.0f - cosThetaI * cosThetaI));
+	Float sinThetaT = (etaI / etaT) * sinThetaI;
+	//判断是否发生全反射
+	if (sinThetaT >= 1.0f) {
+		return 1.0f;
+	}
+	//运用Fresnel equation计算反射系数
+	Float cosThetaT = std::sqrt(std::max(0.0f, 1.0f - sinThetaT * sinThetaT));
+	Float Rparl = ((etaT * cosThetaI) - (etaI * cosThetaT))
+			/ ((etaT * cosThetaI) + (etaI * cosThetaT));
+	Float Rperp = ((etaI * cosThetaI) - (etaT * cosThetaT))
+			/ ((etaI * cosThetaI) + (etaT * cosThetaT));
+	return (Rparl * Rparl + Rperp * Rperp) / 2;
+}
+
 Spectrum BxDF::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample,
 		Float *pdf, BxDFType *sampledType) const {
 	//1.采样入射射线
@@ -55,7 +79,7 @@ Spectrum BxDF::rho(const Vector3f &wo, int nSamples,
 		Float pdf;
 		//采样pdf
 		Spectrum f = Sample_f(wo, &wi, samples[i], &pdf);
-		if(pdf>0.0f){
+		if (pdf > 0.0f) {
 			ret += (f * AbsCosTheta(wi)) / pdf;
 		}
 	}
@@ -69,11 +93,11 @@ Spectrum BxDF::rho(int nSamples, const Point2f *samples1,
 		Vector3f wi;
 		Float wiPdf;
 		//均匀采样出射方向
-		Vector3f wo=UniformSampleHemisphere(samples1[i]);
-		Float woPdf=UniformHemispherePdf();
+		Vector3f wo = UniformSampleHemisphere(samples1[i]);
+		Float woPdf = UniformHemispherePdf();
 		//采样pdf
 		Spectrum f = Sample_f(wo, &wi, samples2[i], &wiPdf);
-		ret += (f * AbsCosTheta(wo)* AbsCosTheta(wi)) / (woPdf*wiPdf);
+		ret += (f * AbsCosTheta(wo) * AbsCosTheta(wi)) / (woPdf * wiPdf);
 	}
-	return ret/(nSamples*Pi);
+	return ret / (nSamples * Pi);
 }

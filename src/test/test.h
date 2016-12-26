@@ -561,6 +561,8 @@ TEST(reflection,all){
 	Vector3f wt;
 	ASSERT_TRUE(Refract(wo,n,1.0f,&wt));
 	ASSERT_EQ(wt,Vector3f(-0.5,0,-0.5));
+
+	//ASSERT_EQ(FrDielectric(0.5f,1,1.1),1);
 }
 #include "film.h"
 #include "filters/box.h"
@@ -770,6 +772,7 @@ TEST(sampling,all){
 		Error(array[i]);
 	}
 }
+
 
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

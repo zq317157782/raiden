@@ -83,6 +83,18 @@ inline Vector3f Reflect(const Vector3f& wo, const Normal3f& n) {
 bool Refract(const Vector3f& wi, const Normal3f& n,
 		Float oeta/*这里是两个折射率之比(i/t)*/, Vector3f* wt);
 
+//计算绝缘体的菲涅尔反射系数，绝缘体的反射系数可以看成是实数
+Float FrDielectric(Float cosThetaI, Float etaI, Float etaT);
+
+////计算菲涅尔系数相关的操作
+//class Fresnel{
+//public:
+//	virtual ~Fresnel(){}
+//	//返回反射系数，反射系数是频谱相关的，所以是Spectrum类型
+//	Spectrum Evaluate(Float cosI) const=0;
+//};
+
+
 //这里把BxDF抽象成3个类型 Specular/Diffuse/Glossy
 //两个行为 Reflection/Transmission
 enum BxDFType {
@@ -133,5 +145,13 @@ public:
 
 	virtual std::string ToString() const = 0;
 };
+
+////菲涅尔镜面反射
+//class SpecularReflection:BxDF{
+//private:
+//	Spectrum _R;//用来缩放BRDF的一个系数
+//public:
+//
+//};
 
 #endif /* SRC_CORE_REFLECTION_H_ */
