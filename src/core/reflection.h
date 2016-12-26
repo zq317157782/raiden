@@ -9,6 +9,7 @@
 #define SRC_CORE_REFLECTION_H_
 #include "raiden.h"
 #include "geometry.h"
+#include "spectrum.h"
 //BxDF坐标系下
 //法线(0,0,1)与W(x,y,z)点乘等于W.z
 inline Float CosTheta(const Vector3f &w) {
@@ -88,14 +89,38 @@ Float FrDielectric(Float cosThetaI, Float etaI, Float etaT);
 //计算导电体的菲涅尔反射系数，金属的折射率是复数，包含吸收率
 Spectrum FrConductor(Float cosThetaI, const Spectrum &etaI,
                      const Spectrum &etaT, const Spectrum &k);
-////计算菲涅尔系数相关的操作
-//class Fresnel{
-//public:
-//	virtual ~Fresnel(){}
-//	//返回反射系数，反射系数是频谱相关的，所以是Spectrum类型
-//	Spectrum Evaluate(Float cosI) const=0;
-//};
+//计算菲涅尔系数相关的操作
+class Fresnel{
+public:
+	virtual ~Fresnel(){}
+	//返回反射系数，反射系数是频谱相关的，所以是Spectrum类型
+	virtual Spectrum Evaluate(Float cosI) const=0;
+};
 
+//关于导电体相关的FRESNEL操作
+class FresnelConductor:public Fresnel{
+private:
+	Spectrum _etaI;//外部材质折射率
+	Spectrum _etaT;//内部材质折射率
+	Spectrum _K;   //吸收率，金属需要考虑的一个因素
+public:
+	FresnelConductor(const Spectrum& etaI,const Spectrum& etaT,const Spectrum& k):_etaI(etaI),_etaT(etaT),_K(k){}
+	virtual Spectrum Evaluate(Float cosI) const override{
+		return FrConductor(std::abs(cosI),_etaI,_etaT,_K);
+	}
+};
+
+//关于绝缘体相关的FRESNEL操作
+class FresnelDielectric:public Fresnel{
+private:
+	Float _etaI;
+	Float _etaT;
+public:
+	FresnelDielectric(Float etaI,Float etaT):_etaI(etaI),_etaT(etaT){}
+	virtual Spectrum Evaluate(Float cosI) const override{
+		return FrDielectric(cosI,_etaI,_etaT);
+	}
+};
 
 //这里把BxDF抽象成3个类型 Specular/Diffuse/Glossy
 //两个行为 Reflection/Transmission
