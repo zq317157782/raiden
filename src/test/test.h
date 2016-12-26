@@ -564,6 +564,16 @@ TEST(reflection,all){
 
 	//ASSERT_EQ(FrDielectric(0.5f,1,1.1),1);
 }
+
+TEST(BxDF,all){
+	SpecularReflection specularReflection(1.0f,new FresnelDielectric(1.0f,1.5f));
+	Vector3f wi;
+	Float pdf;
+	specularReflection.Sample_f(Vector3f(0.0f,0.5f,0.5f),&wi,Point2f(0,0),&pdf);
+	ASSERT_EQ(wi,Vector3f(0.0f,-0.5f,0.5f));
+	ASSERT_EQ(pdf,1.0f);
+}
+
 #include "film.h"
 #include "filters/box.h"
 TEST(Film,all) {

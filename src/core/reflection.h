@@ -88,40 +88,52 @@ bool Refract(const Vector3f& wi, const Normal3f& n,
 Float FrDielectric(Float cosThetaI, Float etaI, Float etaT);
 //计算导电体的菲涅尔反射系数，金属的折射率是复数，包含吸收率
 Spectrum FrConductor(Float cosThetaI, const Spectrum &etaI,
-                     const Spectrum &etaT, const Spectrum &k);
+		const Spectrum &etaT, const Spectrum &k);
 //计算菲涅尔系数相关的操作
-class Fresnel{
+class Fresnel {
 public:
-	virtual ~Fresnel(){}
+	virtual ~Fresnel() {
+	}
 	//返回反射系数，反射系数是频谱相关的，所以是Spectrum类型
 	virtual Spectrum Evaluate(Float cosI) const=0;
 };
 
 //关于导电体相关的FRESNEL操作
-class FresnelConductor:public Fresnel{
+class FresnelConductor: public Fresnel {
 private:
-	Spectrum _etaI;//外部材质折射率
-	Spectrum _etaT;//内部材质折射率
+	Spectrum _etaI;	//外部材质折射率
+	Spectrum _etaT;	//内部材质折射率
 	Spectrum _K;   //吸收率，金属需要考虑的一个因素
 public:
-	FresnelConductor(const Spectrum& etaI,const Spectrum& etaT,const Spectrum& k):_etaI(etaI),_etaT(etaT),_K(k){}
-	virtual Spectrum Evaluate(Float cosI) const override{
-		return FrConductor(std::abs(cosI),_etaI,_etaT,_K);
+	FresnelConductor(const Spectrum& etaI, const Spectrum& etaT,
+			const Spectrum& k) :
+			_etaI(etaI), _etaT(etaT), _K(k) {
+	}
+	virtual Spectrum Evaluate(Float cosI) const override {
+		return FrConductor(std::abs(cosI), _etaI, _etaT, _K);
 	}
 };
 
 //关于绝缘体相关的FRESNEL操作
-class FresnelDielectric:public Fresnel{
+class FresnelDielectric: public Fresnel {
 private:
 	Float _etaI;
 	Float _etaT;
 public:
-	FresnelDielectric(Float etaI,Float etaT):_etaI(etaI),_etaT(etaT){}
-	virtual Spectrum Evaluate(Float cosI) const override{
-		return FrDielectric(cosI,_etaI,_etaT);
+	FresnelDielectric(Float etaI, Float etaT) :
+			_etaI(etaI), _etaT(etaT) {
+	}
+	virtual Spectrum Evaluate(Float cosI) const override {
+		return FrDielectric(cosI, _etaI, _etaT);
 	}
 };
 
+class FresnelNop: public Fresnel {
+public:
+	virtual Spectrum Evaluate(Float cosI) const override {
+		return Spectrum(1.0f);
+	}
+};
 //这里把BxDF抽象成3个类型 Specular/Diffuse/Glossy
 //两个行为 Reflection/Transmission
 enum BxDFType {
@@ -154,7 +166,7 @@ public:
 	bool MatchesFlags(BxDFType t) const {
 		return (type & t) == type;
 	}
-	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const = 0;//根据入射光线和出射光线，返回brdf
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const = 0; //根据入射光线和出射光线，返回brdf
 	//根据样本点和出射光线，采样入射光线以及PDF，出射和入射可以互惠
 	//默认满足cosine分布
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
@@ -169,16 +181,33 @@ public:
 	//返回pdf
 	//默认返回满足cosine分布PDF
 	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const;
-
-	virtual std::string ToString() const = 0;
 };
 
-////菲涅尔镜面反射
-//class SpecularReflection:BxDF{
-//private:
-//	Spectrum _R;//用来缩放BRDF的一个系数
-//public:
-//
-//};
+//菲涅尔镜面反射
+class SpecularReflection: public BxDF {
+private:
+	Spectrum _R;	//用来缩放BRDF的一个系数
+	Fresnel* _fresnel;	//用来计算菲涅尔反射系数的参数
+public:
+	SpecularReflection(const Spectrum& R,Fresnel* fresnel):BxDF(BxDFType(BSDF_SPECULAR|BSDF_REFLECTION)),_R(R),_fresnel(fresnel){
+	}
+	//镜面反射不可能被普通的采样方式采样到
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override{
+		return 0.0f;
+	}
+	//镜面反射不可能被普通的采样方式采样到
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override{
+		return 0.0f;
+	}
+
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+				const Point2f &sample, Float *pdf,
+				BxDFType *sampledType = nullptr) const override{
+		//反射坐标系下
+		*wi=Vector3f(-wo.x,-wo.y,wo.z);
+		*pdf=1.0f;
+		return _fresnel->Evaluate(CosTheta(*wi))*_R/AbsCosTheta(*wi);//除以AbsCosTheta是为了标准化brdf
+	}
+};
 
 #endif /* SRC_CORE_REFLECTION_H_ */
