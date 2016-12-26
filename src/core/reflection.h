@@ -218,10 +218,12 @@ class SpecularTransmission: public BxDF {
 private:
 	const Spectrum _T;
 	const FresnelDielectric _fresnel;
-	const Float _etaA,_etaB;
+	const Float _etaA, _etaB;
 	const TransportMode _mode;
-	SpecularTransmission(const Spectrum& T,Float etaA/*wo所在的eta*/,Float etaB/*wi所在的eta*/,TransportMode mode) :
-			BxDF(BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION)),_T(T),_fresnel(etaA,etaB),_etaA(etaA),_etaB(etaB),_mode(mode){
+	SpecularTransmission(const Spectrum& T, Float etaA/*wo所在的eta*/,
+			Float etaB/*wi所在的eta*/, TransportMode mode) :
+			BxDF(BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION)), _T(T), _fresnel(
+					etaA, etaB), _etaA(etaA), _etaB(etaB), _mode(mode) {
 	}
 	//镜面散射不可能被普通的采样方式采样到
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
@@ -234,23 +236,88 @@ private:
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
 			const Point2f &sample, Float *pdf,
 			BxDFType *sampledType = nullptr) const override {
-		bool isEntering=(CosTheta(wo)>0.0f);
-		Float etaI=isEntering?_etaA:_etaB;
-		Float etaT=isEntering?_etaB:_etaA;
+		bool isEntering = (CosTheta(wo) > 0.0f);
+		Float etaI = isEntering ? _etaA : _etaB;
+		Float etaT = isEntering ? _etaB : _etaA;
 		//反射坐标系下,通过wo计算wi
-		if(!Refract(wo,Faceforward(Normal3f(0,0,1),wo),etaI/etaT,wi)){
+		if (!Refract(wo, Faceforward(Normal3f(0, 0, 1), wo), etaI / etaT, wi)) {
 			//全反射的情况
 			return 0.0f;
 		}
 		*pdf = 1.0f;
 		//计算wi所在的空间为正面的情况下,wi方向的反射系数，就可以得到折射到wo方向的系数了
-		Spectrum ret=(Spectrum(1.0f)-_fresnel.Evaluate(CosTheta(*wi)))*_T;
+		Spectrum ret = (Spectrum(1.0f) - _fresnel.Evaluate(CosTheta(*wi))) * _T;
 		//如果wi方向的能量为来自光源
-		if(_mode==TransportMode::Radiance){
-			ret*=(etaI*etaI)/(etaT*etaT);//这个系数和折射后的radiacne压缩比有关
+		if (_mode == TransportMode::Radiance) {
+			ret *= (etaI * etaI) / (etaT * etaT);	//这个系数和折射后的radiacne压缩比有关
 		}
-		return ret/AbsCosTheta(*wi);//除以AbsCosTheta是为了标准化brdf
+		return ret / AbsCosTheta(*wi);	//除以AbsCosTheta是为了标准化brdf
 	}
 };
 
+class FresnelSpecular: public BxDF {
+private:
+	const Spectrum _R;
+	const Spectrum _T;
+	const Float _etaA, _etaB;
+	const FresnelDielectric _fresnel;
+	const TransportMode _mode;
+public:
+	FresnelSpecular(const Spectrum& R, const Spectrum& T,
+			Float etaA/*wo所在的eta*/, Float etaB/*wi所在的eta*/, TransportMode mode) :
+			BxDF(BxDFType(BSDF_SPECULAR | BSDF_REFLECTION | BSDF_TRANSMISSION)), _R(
+					R), _T(T), _etaA(etaA), _etaB(etaB), _fresnel(etaA, etaB), _mode(
+					mode) {
+	}
+	//镜面不可能被普通的采样方式采样到
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
+		return 0.0f;
+	}
+	//镜面不可能被普通的采样方式采样到
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override {
+		return 0.0f;
+	}
+
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+			const Point2f &sample, Float *pdf,
+			BxDFType *sampledType = nullptr) const override {
+		//计算wo方向的菲涅尔反射系数
+		Float fr = FrDielectric(CosTheta(wo), _etaA, _etaB);
+		//Spectrum fr = _fresnel.Evaluate(CosTheta(wo));
+		//根据样本值，来判断计算的是反射，还是折射
+		if (sample.x < fr) {
+			//反射
+			*wi = Vector3f(-wo.x, -wo.y, wo.z);
+			*pdf = fr;
+			if (sampledType) {
+				*sampledType = BxDFType(BSDF_SPECULAR | BSDF_REFLECTION);
+			}
+			return fr * _R / AbsCosTheta(*wi);	//除以AbsCosTheta是为了标准化brdf
+		} else {
+			//折射
+			bool isEntering = (CosTheta(wo) > 0.0f);
+			Float etaI = isEntering ? _etaA : _etaB;
+			Float etaT = isEntering ? _etaB : _etaA;
+			//反射坐标系下,通过wo计算wi
+			if (!Refract(wo, Faceforward(Normal3f(0, 0, 1), wo), etaI / etaT,
+					wi)) {
+				//全反射的情况
+				return 0.0f;
+			}
+
+			//计算wi所在的空间为正面的情况下,wi方向的反射系数，就可以得到折射到wo方向的系数了
+			Spectrum ret = (1.0f - fr) * _T;
+			//如果wi方向的能量为来自光源
+			if (_mode == TransportMode::Radiance) {
+				ret *= (etaI * etaI) / (etaT * etaT);	//这个系数和折射后的radiacne压缩比有关
+			}
+			if (sampledType) {
+				*sampledType = BxDFType(BSDF_SPECULAR |BSDF_TRANSMISSION);
+			}
+			*pdf = 1.0f - fr;
+			return ret / AbsCosTheta(*wi);	//除以AbsCosTheta是为了标准化brdf
+		}
+
+	}
+};
 #endif /* SRC_CORE_REFLECTION_H_ */
