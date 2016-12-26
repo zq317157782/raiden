@@ -10,6 +10,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "spectrum.h"
+#include "material.h"
 //BxDF坐标系下
 //法线(0,0,1)与W(x,y,z)点乘等于W.z
 inline Float CosTheta(const Vector3f &w) {
@@ -186,27 +187,69 @@ public:
 //菲涅尔镜面反射
 class SpecularReflection: public BxDF {
 private:
-	Spectrum _R;	//用来缩放BRDF的一个系数
-	Fresnel* _fresnel;	//用来计算菲涅尔反射系数的参数
+	const Spectrum _R;	//用来缩放BRDF的一个系数
+	const Fresnel* _fresnel;	//用来计算菲涅尔反射系数的参数
 public:
-	SpecularReflection(const Spectrum& R,Fresnel* fresnel):BxDF(BxDFType(BSDF_SPECULAR|BSDF_REFLECTION)),_R(R),_fresnel(fresnel){
+	SpecularReflection(const Spectrum& R, Fresnel* fresnel) :
+			BxDF(BxDFType(BSDF_SPECULAR | BSDF_REFLECTION)), _R(R), _fresnel(
+					fresnel) {
 	}
 	//镜面反射不可能被普通的采样方式采样到
-	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override{
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
 		return 0.0f;
 	}
 	//镜面反射不可能被普通的采样方式采样到
-	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override{
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override {
 		return 0.0f;
 	}
 
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
-				const Point2f &sample, Float *pdf,
-				BxDFType *sampledType = nullptr) const override{
+			const Point2f &sample, Float *pdf,
+			BxDFType *sampledType = nullptr) const override {
 		//反射坐标系下
-		*wi=Vector3f(-wo.x,-wo.y,wo.z);
-		*pdf=1.0f;
-		return _fresnel->Evaluate(CosTheta(*wi))*_R/AbsCosTheta(*wi);//除以AbsCosTheta是为了标准化brdf
+		*wi = Vector3f(-wo.x, -wo.y, wo.z);
+		*pdf = 1.0f;
+		return _fresnel->Evaluate(CosTheta(*wi)) * _R / AbsCosTheta(*wi);//除以AbsCosTheta是为了标准化brdf
+	}
+};
+
+//菲涅尔散射，不考虑导电体
+class SpecularTransmission: public BxDF {
+private:
+	const Spectrum _T;
+	const FresnelDielectric _fresnel;
+	const Float _etaA,_etaB;
+	const TransportMode _mode;
+	SpecularTransmission(const Spectrum& T,Float etaA/*wo所在的eta*/,Float etaB/*wi所在的eta*/,TransportMode mode) :
+			BxDF(BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION)),_T(T),_fresnel(etaA,etaB),_etaA(etaA),_etaB(etaB),_mode(mode){
+	}
+	//镜面散射不可能被普通的采样方式采样到
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
+		return 0.0f;
+	}
+	//镜面散射不可能被普通的采样方式采样到
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override {
+		return 0.0f;
+	}
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+			const Point2f &sample, Float *pdf,
+			BxDFType *sampledType = nullptr) const override {
+		bool isEntering=(CosTheta(wo)>0.0f);
+		Float etaI=isEntering?_etaA:_etaB;
+		Float etaT=isEntering?_etaB:_etaA;
+		//反射坐标系下,通过wo计算wi
+		if(!Refract(wo,Faceforward(Normal3f(0,0,1),wo),etaI/etaT,wi)){
+			//全反射的情况
+			return 0.0f;
+		}
+		*pdf = 1.0f;
+		//计算wi所在的空间为正面的情况下,wi方向的反射系数，就可以得到折射到wo方向的系数了
+		Spectrum ret=(Spectrum(1.0f)-_fresnel.Evaluate(CosTheta(*wi)))*_T;
+		//如果wi方向的能量为来自光源
+		if(_mode==TransportMode::Radiance){
+			ret*=(etaI*etaI)/(etaT*etaT);//这个系数和折射后的radiacne压缩比有关
+		}
+		return ret/AbsCosTheta(*wi);//除以AbsCosTheta是为了标准化brdf
 	}
 };
 
