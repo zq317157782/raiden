@@ -19,6 +19,7 @@
 #include "accelerators/iteration.h"
 #include "lights/point.h"
 #include "integrators/normal.h"
+#include "integrators/depth.h"
 #include "film.h"
 #include "scene.h"
 #include "memory.h"
@@ -534,6 +535,8 @@ return nullptr;
 Integrator *integrator = nullptr;
 if (IntegratorName == "normal") {
 integrator = CreateNormalIntegrator(IntegratorParams, sampler, camera);
+} else if (IntegratorName == "depth") {
+integrator = CreateDepthIntegrator(IntegratorParams, sampler, camera);
 } else {
 Error("integrator \""<<IntegratorName.c_str()<<"\" unkonwn.");
 return nullptr;
