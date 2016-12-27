@@ -312,12 +312,38 @@ public:
 				ret *= (etaI * etaI) / (etaT * etaT);	//这个系数和折射后的radiacne压缩比有关
 			}
 			if (sampledType) {
-				*sampledType = BxDFType(BSDF_SPECULAR |BSDF_TRANSMISSION);
+				*sampledType = BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION);
 			}
 			*pdf = 1.0f - fr;
 			return ret / AbsCosTheta(*wi);	//除以AbsCosTheta是为了标准化brdf
 		}
 
+	}
+};
+
+//Lambertian完美漫反射
+class LambertianReflection: public BxDF {
+private:
+	Spectrum _R;
+public:
+	LambertianReflection(const Spectrum& R) :
+			BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)), _R(R) {
+	}
+
+	//Lambertian向各个方向反射的能量相同
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
+		return _R * InvPi;
+	}
+
+	//返回direction-hemisphere反射率
+	virtual Spectrum rho(const Vector3f &wo, int nSamples,
+			const Point2f *samples) const override{
+		return _R;
+	}
+	//返回hemisphere-hemisphere反射率
+	virtual Spectrum rho(int nSamples, const Point2f *samples1,
+			const Point2f *samples2) const override{
+		return _R;
 	}
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
