@@ -324,7 +324,7 @@ public:
 //Lambertian完美漫反射
 class LambertianReflection: public BxDF {
 private:
-	Spectrum _R;
+	const Spectrum _R;
 public:
 	LambertianReflection(const Spectrum& R) :
 			BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)), _R(R) {
@@ -337,13 +337,52 @@ public:
 
 	//返回direction-hemisphere反射率
 	virtual Spectrum rho(const Vector3f &wo, int nSamples,
-			const Point2f *samples) const override{
+			const Point2f *samples) const override {
 		return _R;
 	}
 	//返回hemisphere-hemisphere反射率
 	virtual Spectrum rho(int nSamples, const Point2f *samples1,
-			const Point2f *samples2) const override{
+			const Point2f *samples2) const override {
 		return _R;
 	}
+};
+
+class LambertianTransmission: public BxDF {
+private:
+	const Spectrum _T;
+public:
+	LambertianTransmission(const Spectrum& T) :
+			BxDF(BxDFType(BSDF_TRANSMISSION | BSDF_DIFFUSE)), _T(T) {
+	}
+
+	//Lambertian向各个方向反射的能量相同
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
+		return _T * InvPi;
+	}
+
+	//返回direction-hemisphere反射率
+	virtual Spectrum rho(const Vector3f &wo, int nSamples,
+			const Point2f *samples) const override {
+		return _T;
+	}
+	//返回hemisphere-hemisphere反射率
+	virtual Spectrum rho(int nSamples, const Point2f *samples1,
+			const Point2f *samples2) const override {
+		return _T;
+	}
+
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override {
+		//不同半球
+		if (!SameHemisphere(wo, wi)) {
+			return AbsCosTheta(wi) * InvPi;
+		} else {
+			return 0.0f;
+		}
+	}
+
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+			const Point2f &sample, Float *pdf,
+			BxDFType *sampledType = nullptr) const override;
+
 };
 #endif /* SRC_CORE_REFLECTION_H_ */

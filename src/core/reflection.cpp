@@ -128,3 +128,17 @@ Spectrum BxDF::rho(int nSamples, const Point2f *samples1,
 	}
 	return ret / (nSamples * Pi);
 }
+
+Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
+			const Point2f &sample, Float *pdf,
+			BxDFType *sampledType ) const {
+		//1.采样入射射线
+		//2.调整wi到wo不同半球
+		//3.返回brdf
+		*wi = CosineSampleHemisphere(sample);
+		if(wo.z>0.0f){
+			wi->z*=-1.0f;
+		}
+		*pdf = Pdf(wo, *wi);
+		return f(wo, *wi);
+	}
