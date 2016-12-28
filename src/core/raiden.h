@@ -10,6 +10,7 @@
 //raiden.h包含所有全局设置
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -42,7 +43,7 @@ static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 #ifdef DEBUG_BUILD
 #define Debug(x) std::cout<<"[DEBUG]"<<x<<std::endl;
 #else
-#define Debug(x) ((void)0)
+#define Debug(x) ((void)0);
 #endif
 
 static constexpr Float Pi = 3.14159265358979323846;

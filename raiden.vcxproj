@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{748A32E0-4502-4473-8AA5-4A881EE84C89}</ProjectGuid>
+    <RootNamespace>raiden</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>src/;src/core</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>src/;src/core</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>src/;src/core</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>src/;src/core</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\accelerators\iteration.cpp" />
+    <ClCompile Include="src\cameras\orthographic.cpp" />
+    <ClCompile Include="src\cameras\perspective.cpp" />
+    <ClCompile Include="src\cameras\pinhole.cpp" />
+    <ClCompile Include="src\core\api.cpp" />
+    <ClCompile Include="src\core\camera.cpp" />
+    <ClCompile Include="src\core\errfloat.cpp" />
+    <ClCompile Include="src\core\film.cpp" />
+    <ClCompile Include="src\core\filter.cpp" />
+    <ClCompile Include="src\core\geometry.cpp" />
+    <ClCompile Include="src\core\integrator.cpp" />
+    <ClCompile Include="src\core\interaction.cpp" />
+    <ClCompile Include="src\core\light.cpp" />
+    <ClCompile Include="src\core\lodepng.cpp" />
+    <ClCompile Include="src\core\lua\lapi.c" />
+    <ClCompile Include="src\core\lua\lauxlib.c" />
+    <ClCompile Include="src\core\lua\lbaselib.c" />
+    <ClCompile Include="src\core\lua\lbitlib.c" />
+    <ClCompile Include="src\core\lua\lcode.c" />
+    <ClCompile Include="src\core\lua\lcorolib.c" />
+    <ClCompile Include="src\core\lua\lctype.c" />
+    <ClCompile Include="src\core\lua\ldblib.c" />
+    <ClCompile Include="src\core\lua\ldebug.c" />
+    <ClCompile Include="src\core\lua\ldo.c" />
+    <ClCompile Include="src\core\lua\ldump.c" />
+    <ClCompile Include="src\core\lua\lfunc.c" />
+    <ClCompile Include="src\core\lua\lgc.c" />
+    <ClCompile Include="src\core\lua\linit.c" />
+    <ClCompile Include="src\core\lua\liolib.c" />
+    <ClCompile Include="src\core\lua\llex.c" />
+    <ClCompile Include="src\core\lua\lmathlib.c" />
+    <ClCompile Include="src\core\lua\lmem.c" />
+    <ClCompile Include="src\core\lua\loadlib.c" />
+    <ClCompile Include="src\core\lua\lobject.c" />
+    <ClCompile Include="src\core\lua\lopcodes.c" />
+    <ClCompile Include="src\core\lua\loslib.c" />
+    <ClCompile Include="src\core\lua\lparser.c" />
+    <ClCompile Include="src\core\lua\lstate.c" />
+    <ClCompile Include="src\core\lua\lstring.c" />
+    <ClCompile Include="src\core\lua\lstrlib.c" />
+    <ClCompile Include="src\core\lua\ltable.c" />
+    <ClCompile Include="src\core\lua\ltablib.c" />
+    <ClCompile Include="src\core\lua\ltm.c" />
+    <ClCompile Include="src\core\lua\lua.c" />
+    <ClCompile Include="src\core\lua\luac.c" />
+    <ClCompile Include="src\core\lua\lundump.c" />
+    <ClCompile Include="src\core\lua\lutf8lib.c" />
+    <ClCompile Include="src\core\lua\lvm.c" />
+    <ClCompile Include="src\core\lua\lzio.c" />
+    <ClCompile Include="src\core\memory.cpp" />
+    <ClCompile Include="src\core\parallel.cpp" />
+    <ClCompile Include="src\core\paramset.cpp" />
+    <ClCompile Include="src\core\primitive.cpp" />
+    <ClCompile Include="src\core\raiden.cpp" />
+    <ClCompile Include="src\core\reflection.cpp" />
+    <ClCompile Include="src\core\sampler.cpp" />
+    <ClCompile Include="src\core\sampling.cpp" />
+    <ClCompile Include="src\core\scene.cpp" />
+    <ClCompile Include="src\core\shape.cpp" />
+    <ClCompile Include="src\core\spectrum.cpp" />
+    <ClCompile Include="src\core\stats.cpp" />
+    <ClCompile Include="src\core\transform.cpp" />
+    <ClCompile Include="src\filters\box.cpp" />
+    <ClCompile Include="src\integrators\depth.cpp" />
+    <ClCompile Include="src\integrators\normal.cpp" />
+    <ClCompile Include="src\lights\point.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\samplers\random.cpp" />
+    <ClCompile Include="src\shapes\sphere.cpp" />
+    <ClCompile Include="src\test\statsTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\accelerators\iteration.h" />
+    <ClInclude Include="src\cameras\orthographic.h" />
+    <ClInclude Include="src\cameras\perspective.h" />
+    <ClInclude Include="src\cameras\pinhole.h" />
+    <ClInclude Include="src\core\api.h" />
+    <ClInclude Include="src\core\camera.h" />
+    <ClInclude Include="src\core\errfloat.h" />
+    <ClInclude Include="src\core\film.h" />
+    <ClInclude Include="src\core\filter.h" />
+    <ClInclude Include="src\core\geometry.h" />
+    <ClInclude Include="src\core\integrator.h" />
+    <ClInclude Include="src\core\interaction.h" />
+    <ClInclude Include="src\core\light.h" />
+    <ClInclude Include="src\core\lodepng.h" />
+    <ClInclude Include="src\core\lua\lapi.h" />
+    <ClInclude Include="src\core\lua\lauxlib.h" />
+    <ClInclude Include="src\core\lua\lcode.h" />
+    <ClInclude Include="src\core\lua\lctype.h" />
+    <ClInclude Include="src\core\lua\ldebug.h" />
+    <ClInclude Include="src\core\lua\ldo.h" />
+    <ClInclude Include="src\core\lua\lfunc.h" />
+    <ClInclude Include="src\core\lua\lgc.h" />
+    <ClInclude Include="src\core\lua\llex.h" />
+    <ClInclude Include="src\core\lua\llimits.h" />
+    <ClInclude Include="src\core\lua\lmem.h" />
+    <ClInclude Include="src\core\lua\lobject.h" />
+    <ClInclude Include="src\core\lua\lopcodes.h" />
+    <ClInclude Include="src\core\lua\lparser.h" />
+    <ClInclude Include="src\core\lua\lprefix.h" />
+    <ClInclude Include="src\core\lua\lstate.h" />
+    <ClInclude Include="src\core\lua\lstring.h" />
+    <ClInclude Include="src\core\lua\ltable.h" />
+    <ClInclude Include="src\core\lua\ltm.h" />
+    <ClInclude Include="src\core\lua\lua.h" />
+    <ClInclude Include="src\core\lua\lua.hpp" />
+    <ClInclude Include="src\core\lua\luaconf.h" />
+    <ClInclude Include="src\core\lua\lualib.h" />
+    <ClInclude Include="src\core\lua\lundump.h" />
+    <ClInclude Include="src\core\lua\lvm.h" />
+    <ClInclude Include="src\core\lua\lzio.h" />
+    <ClInclude Include="src\core\material.h" />
+    <ClInclude Include="src\core\memory.h" />
+    <ClInclude Include="src\core\parallel.h" />
+    <ClInclude Include="src\core\paramset.h" />
+    <ClInclude Include="src\core\parser.h" />
+    <ClInclude Include="src\core\port.h" />
+    <ClInclude Include="src\core\primitive.h" />
+    <ClInclude Include="src\core\raiden.h" />
+    <ClInclude Include="src\core\reflection.h" />
+    <ClInclude Include="src\core\rng.h" />
+    <ClInclude Include="src\core\sampler.h" />
+    <ClInclude Include="src\core\sampling.h" />
+    <ClInclude Include="src\core\scene.h" />
+    <ClInclude Include="src\core\shape.h" />
+    <ClInclude Include="src\core\spectrum.h" />
+    <ClInclude Include="src\core\stats.h" />
+    <ClInclude Include="src\core\transform.h" />
+    <ClInclude Include="src\filters\box.h" />
+    <ClInclude Include="src\integrators\depth.h" />
+    <ClInclude Include="src\integrators\normal.h" />
+    <ClInclude Include="src\lights\point.h" />
+    <ClInclude Include="src\samplers\random.h" />
+    <ClInclude Include="src\shapes\sphere.h" />
+    <ClInclude Include="src\test\statsTest.h" />
+    <ClInclude Include="src\test\test.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

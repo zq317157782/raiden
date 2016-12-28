@@ -1,4 +1,4 @@
-/*
+﻿/*
  * spectrum.cpp
  *
  *  Created on: 2016年11月25日
@@ -89,8 +89,8 @@ void SortSpectrumSamples(Float *lambda, Float *vals, int n) {
 }
 
 
-Float InterpolateSpectrumSamples(const Float *lambda/*样本波长*/, const Float *vals/*样本值*/,
-                                        int n/*样本大小*/, Float wl/*提供的波长*/){
+Float InterpolateSpectrumSamples(const Float *lambda, const Float *vals,
+                                        int n, Float wl){
 #ifdef DEBUG_BUILD
 	//数据检查
 	for (int i = 0; i < n - 1; ++i) {

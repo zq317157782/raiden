@@ -113,14 +113,17 @@ static int CoordSysTransform(lua_State *L) {
 }
 static int ActiveTransformAll(lua_State *L) {
 	raidenActiveTransformAll();
+	return LUA_OK;
 }
 
 static int ActiveTransformEndTime(lua_State *L) {
 	raidenActiveTransformEndTime();
+	return LUA_OK;
 }
 
 static int ActiveTransformStartTime(lua_State *L) {
 	raidenActiveTransformStartTime();
+	return LUA_OK;
 }
 
 static int TransformTimes(lua_State *L) {
@@ -304,7 +307,7 @@ static void ParseFloatArray(ParamSet& set, const std::string& name) {
 
 //获取paramset
 static ParamSet GetParamSet(lua_State* L, int index) {
-	Debug("[start parse paramset]")
+	Debug("[start parse paramset]");
 	ParamSet set;
 	int t = index;
 	if (!lua_istable(L, t)) {
@@ -314,7 +317,7 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 	//遍历表
 	while (lua_next(L, t) != 0) {
 		std::string key = lua_tostring(L, -2);	//获取参数名字
-		Debug("[create a param\""<<key<<"\"]")
+		Debug("[create a param\"" << key << "\"]");
 		switch (lua_type(L, -1)) {
 		case LUA_TNUMBER: {
 			//int 类型
@@ -371,7 +374,7 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 		}
 		lua_pop(L, 1);
 	}
-	Debug("[end parse paramset]")
+	Debug("[end parse paramset]");
 	return set;
 }
 
@@ -384,6 +387,7 @@ static int PixelFilter(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenPixelFilter(name, params);
+	return LUA_OK;
 }
 static int Film(lua_State* L) {
 	std::string name;
@@ -394,6 +398,7 @@ static int Film(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenFilm(name,params);
+	return LUA_OK;
 }
 
 static int Sampler(lua_State* L) {
@@ -405,6 +410,7 @@ static int Sampler(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenSampler(name,params);
+	return LUA_OK;
 }
 static int Accelerator(lua_State* L) {
 	std::string name;
@@ -415,6 +421,7 @@ static int Accelerator(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenAccelerator(name,params);
+	return LUA_OK;
 }
 static int Integrator(lua_State* L) {
 	std::string name;
@@ -425,6 +432,7 @@ static int Integrator(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenIntegrator(name,params);
+	return LUA_OK;
 }
 static int Camera(lua_State* L) {
 	std::string name;
@@ -435,6 +443,7 @@ static int Camera(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenCamera(name,params);
+	return LUA_OK;
 }
 static int Shape(lua_State* L) {
 	std::string name;
@@ -445,22 +454,27 @@ static int Shape(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenShape(name,params);
+	return LUA_OK;
 }
 
 static int AttributeBegin(){
 	raidenAttributeBegin();
+	return LUA_OK;
 }
 
 static int AttributeEnd(){
 	raidenAttributeEnd();
+	return LUA_OK;
 }
 
 static int TransformBegin(){
 	raidenTransformBegin();
+	return LUA_OK;
 }
 
 static int TransformEnd(){
 	raidenTransformEnd();
+	return LUA_OK;
 }
 
 

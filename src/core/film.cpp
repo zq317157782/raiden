@@ -1,4 +1,4 @@
-/*
+﻿/*
  * film.cpp
  *
  *  Created on: 2016年12月2日
@@ -159,3 +159,4 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
     return new Film(Point2i(xres, yres), crop, std::move(filter),
                     filename,maxSampleLuminance);
 }
+

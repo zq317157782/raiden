@@ -9,7 +9,9 @@
 #define SRC_CORE_PARALLEL_H_
 #include "raiden.h"
 #include <atomic>
+#include <mutex>
 #include "geometry.h"
+
 //原子操作的Float类型
 //c++不支持原子的Float操作
 class AtomicFloat{

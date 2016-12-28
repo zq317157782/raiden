@@ -214,7 +214,7 @@ std::shared_ptr<Shape> CreateSphereShape(const Transform *o2w,
     Float zmax = params.FindOneFloat("zmax", radius);
     Float phimax = params.FindOneFloat("phimax", 360.0f);
     Debug("[make sphere ,radius:"<<radius<<" ,zmin:"<<zmin<<" ,zmax:" <<zmax<<" ,phimax:"<<phimax<<"]=>");
-    Debug("=>[ o2w:"<<*o2w<<"]")
+	Debug("=>[ o2w:" << *o2w << "]");
     return std::make_shared<Sphere>(o2w, w2o, reverseOrientation, radius, zmin,
                                     zmax, phimax);
 }

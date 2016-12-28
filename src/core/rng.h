@@ -8,9 +8,11 @@
 #ifndef SRC_CORE_RNG_H_
 #define SRC_CORE_RNG_H_
 #include "raiden.h"
-
-static const double DoubleOneMinusEpsilon = 0x1.fffffffffffffp-1;
-static const float FloatOneMinusEpsilon = 0x1.fffffep-1;
+//
+//static const double DoubleOneMinusEpsilon = 0x1.fffffffffffffp-1;
+//static const float FloatOneMinusEpsilon = 0x1.fffffep-1;
+static const double DoubleOneMinusEpsilon =0.99999999999999989;
+static const float FloatOneMinusEpsilon = 0.99999994;
 
 
 #ifdef FLOAT_IS_DOUBLE
@@ -37,7 +39,8 @@ class RNG {
         }
     }
     Float UniformFloat() {
-        return std::min(OneMinusEpsilon, Float(UniformUInt32() * 0x1p-32f));
+        //return std::min(OneMinusEpsilon, Float(UniformUInt32() * 0x1p-32f));
+		return std::min(OneMinusEpsilon, Float(UniformUInt32() * 2.3283064365386963e-10f));
     }
     template <typename Iterator>
     void Shuffle(Iterator begin, Iterator end) {

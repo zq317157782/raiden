@@ -16,7 +16,8 @@ void *AllocAligned(size_t size){
 	return ptr;
 #elif defined(IS_WIN)
 	//Windows操作系统下
-	Assert(false);
+	//Assert(false);
+	return _aligned_malloc(size, L1_CACHE_LINE_SIZE);
 #endif
 }
 
@@ -28,6 +29,7 @@ void FreeAligned(void * ptr){
 #ifdef IS_OSX
 	free(ptr);
 #elif defined(IS_WIN)
-	Assert(false);
+	//Assert(false);
+	_aligned_free(ptr);
 #endif
 }

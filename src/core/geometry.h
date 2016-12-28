@@ -15,6 +15,11 @@ inline bool IsNaN(T n) {
 	//return !(n==n);//使用自己和自己比较的方式 如果一个数是NaN的话，它和任意数比较都为false,但是编译器可能会进行优化，导致失效
 	return std::isnan(n); //这是使用标准库的判断方法
 }
+template<>
+inline bool IsNaN(int n) {
+	//return !(n==n);//使用自己和自己比较的方式 如果一个数是NaN的话，它和任意数比较都为false,但是编译器可能会进行优化，导致失效
+	return false; //这是使用标准库的判断方法
+}
 
 //三维向量
 template<typename T>

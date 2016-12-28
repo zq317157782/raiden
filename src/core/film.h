@@ -1,4 +1,4 @@
-/*
+﻿/*
  * film.h
  *
  *  Created on: 2016年12月2日
@@ -11,7 +11,7 @@
 #include "geometry.h"
 #include "filter.h"
 #include "spectrum.h"
-
+#include <mutex>
 class Film {
 public:
 
@@ -30,6 +30,15 @@ private:
 		Float pad; //用来补充(float)4个字节/(double)8个字节
 		//到这里是(float)32字节/(double)64字节
 		//in cache line
+		Pixel(){
+			xyz[0] = 0.0;
+			xyz[1] = 0.0;
+			xyz[2] = 0.0;
+			filterWeightSum = 0.0;
+			splatXYZ[0] = 0.0;
+			splatXYZ[1] = 0.0;
+			splatXYZ[2] = 0.0;
+		}
 	};
 	std::unique_ptr<Pixel[]> _pixels;		//像素值数组，最终要写入image
 	const Float _maxSampleLuminance;		//最大的样本能量值

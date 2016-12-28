@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_TEST_CPP_
 #define SRC_TEST_TEST_CPP_
 
-#ifdef DEBUG_BUILD
+#ifdef UNIT_TEST
 #include "gtest/gtest.h"
 
 #include "geometry.h"

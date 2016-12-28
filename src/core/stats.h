@@ -11,6 +11,7 @@
 #include "raiden.h"
 #include <map>
 #include <functional>
+#include <mutex>
 //统计数据累积器
 class StatsAccumulator{
 private:

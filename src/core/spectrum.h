@@ -1,4 +1,4 @@
-/*
+﻿/*
  * spectrum.h
  *
  *  Created on: 2016年11月25日
@@ -191,8 +191,8 @@ Float AverageSpectrumSamples(const Float *lambda, const Float *vals, int n,
 bool SpectrumSamplesSorted(const Float *lambda, const Float *vals/*这参数压根没有用到*/,
 		int n);
 //根据提供的波长wl，来插值计算wl波长下的SPD的值
-Float InterpolateSpectrumSamples(const Float *lambda/*样本波长*/,
-		const Float *vals/*样本值*/, int n/*样本大小*/, Float wl/*提供的波长*/);
+Float InterpolateSpectrumSamples(const Float *lambda,
+		const Float *vals, int n, Float wl);
 
 //xyz到RGB的转换
 inline void XYZToRGB(const Float xyz[3], Float rgb[3]) {

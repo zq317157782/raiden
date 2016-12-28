@@ -1,4 +1,4 @@
-/*
+﻿/*
  * transform.h
  *
  *  Created on: 2016年11月16日
@@ -416,7 +416,7 @@ inline RayDifferential Transform::operator()(const RayDifferential& ray) const {
 
 //对AABB包围盒进行变换
 inline Bound3f Transform::operator()(const Bound3f& b) const {
-	const Transform& T = (*this);
+	const Transform& T = (*this); 
 	//对包围盒的8个顶点都进行变换，然后求合并
 	Bound3f ret(T(Point3f(b.minPoint.x, b.minPoint.y, b.minPoint.z)));
 	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.minPoint.z)));
