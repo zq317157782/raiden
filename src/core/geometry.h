@@ -487,8 +487,8 @@ public:
 	template<typename U>
 	Point2(const Point2<U>& p) {
 		Assert(!p.HasNaNs());
-		x = p.x;
-		y = p.y;
+		x = (T)p.x;
+		y = (T)p.y;
 	}
 	Point2<T>& operator=(const Point2<T>& p) {
 		Assert(!p.HasNaNs());

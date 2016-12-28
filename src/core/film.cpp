@@ -69,11 +69,10 @@ void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight) {
 
 	//计算过滤范围
 	Point2f pFilmDiscrete = pFilm - Vector2f(0.5f, 0.5f);
-	Point2i pMin = (Point2i) Ceil(pFilmDiscrete - _filterRadius);
-	Point2i pMax = (Point2i) Floor(pFilmDiscrete + _filterRadius);
+	Point2i pMin = Point2i(Ceil(pFilmDiscrete - _filterRadius));
+	Point2i pMax = Point2i(Floor(pFilmDiscrete + _filterRadius))+Point2i(1,1);
 	pMin = Max(_pixelBound.minPoint, pMin);
 	pMax = Min(_pixelBound.maxPoint, pMax);
-
 	//预计算row和col上的偏移
 	int *ifx = ALLOCA(int, pMax.x - pMin.x);
 	for (int x = pMin.x; x < pMax.x; ++x) {
@@ -159,4 +158,3 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
     return new Film(Point2i(xres, yres), crop, std::move(filter),
                     filename,maxSampleLuminance);
 }
-
