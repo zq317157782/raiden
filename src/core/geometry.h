@@ -51,14 +51,15 @@ public:
 	}
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
-	Vector3(const Vector3<T>& v) {
+	template<typename U>
+	Vector3(const Vector3<U>& v) {
 		Assert(!v.HasNaNs());
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
-
-	Vector3<T>& operator=(const Vector3<T>& v) {
+	template<typename U>
+	Vector3<T>& operator=(const Vector3<U>& v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
@@ -205,13 +206,15 @@ public:
 	}
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
-	Vector2(const Vector2<T>& v) {
+	template<typename U>
+	Vector2(const Vector2<U>& v) {
 		Assert(!v.HasNaNs());
 		x = v.x;
 		y = v.y;
 	}
-	Vector2<T>& operator=(const Vector2<T>& v) {
-		Assert(v.HasNaNs());
+	template<typename U>
+	Vector2<T>& operator=(const Vector2<U>& v) {
+		Assert(!v.HasNaNs());
 		x = v.x;
 		y = v.y;
 		return *this;

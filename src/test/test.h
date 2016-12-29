@@ -783,6 +783,20 @@ TEST(sampling,all){
 	}
 }
 
+#include "texture.h"
+TEST(TextureMapping,all){
+	UVMapping2D mapping(0.1f,0.1f);
+	SurfaceInteraction is;
+	is.dudx=0;
+	is.dvdx=0;
+	is.dudy=0;
+	is.dvdy=0;
+	is.uv[0]=0.5f;
+	is.uv[1]=0.5f;
+	Vector2f dstdx,dstdy;
+	Point2f st=mapping.Map(is,&dstdx,&dstdy);
+	ASSERT_EQ(st,Point2f(0.05f,0.05f));
+}
 
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
