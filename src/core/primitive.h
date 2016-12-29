@@ -18,19 +18,32 @@ public:
 	virtual bool IntersectP(const Ray&) const =0;
 	virtual ~Primitive(){};
 	virtual Bound3f WorldBound() const=0;
+	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
+				MemoryArena &arena, TransportMode mode,
+				bool allowMultipleLobes) const=0;
 	//todo 返回区域光结构
-	//todo 计算散射
 	//todo 获取材质
 };
 
 class GeomPrimitive:public Primitive{
 private:
 	std::shared_ptr<Shape> _shape;
+	std::shared_ptr<Material> _material;
 	bool Intersect(const Ray&,SurfaceInteraction*) const override;
 	Bound3f WorldBound() const override;
 	bool IntersectP(const Ray&) const override;
 public:
 	GeomPrimitive(const std::shared_ptr<Shape>&);
+
+	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
+				MemoryArena &arena, TransportMode mode,
+				bool allowMultipleLobes) const override{
+		if(_material){
+			_material->ComputeScatteringFunctions(isect,arena,mode,allowMultipleLobes);
+		}
+		//确定几何法线和着色法线在同一个半球中
+		Assert(Dot(isect->n,isect->shading.n));
+	}
 };
 
 //空间图元集合

@@ -35,7 +35,7 @@ public:
 	Normal3f dndu, dndv; //参数坐标和法线之间的一阶导数/梯度
 	const Shape* shape;
 	const Primitive* primitive;
-	//todo BSDF指针
+	BSDF* bsdf;
 	//todo BSSRDF指针
 	struct {
 		Normal3f n;
