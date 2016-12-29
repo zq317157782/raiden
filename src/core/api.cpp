@@ -10,6 +10,10 @@
 #include "paramset.h"
 #include "spectrum.h"
 #include "parallel.h"
+#include "film.h"
+#include "scene.h"
+#include "memory.h"
+#include "texture.h"
 #include "shapes/sphere.h"
 #include "cameras/pinhole.h"
 #include "cameras/orthographic.h"
@@ -20,9 +24,7 @@
 #include "lights/point.h"
 #include "integrators/normal.h"
 #include "integrators/depth.h"
-#include "film.h"
-#include "scene.h"
-#include "memory.h"
+#include "textures/constant.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -131,7 +133,9 @@ struct RenderOptions {
 };
 
 struct GraphicsState {
-	bool reverseOrientation = false;	//是否要翻转法线
+	std::map<std::string, std::shared_ptr<Texture<Float>>>floatTextures;	//Float类型的纹理集
+	std::map<std::string,std::shared_ptr<Texture<Spectrum>>> spectrumTextures;//Spectrum类型的纹理集
+	bool reverseOrientation = false;//是否要翻转法线
 };
 
 //系统的三个状态
@@ -242,6 +246,18 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 		Error("light \""<<name.c_str()<<"\" unknown.");
 	}
 	return light;
+}
+
+////生成纹理
+std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
+		const Transform &tex2world, const TextureParams &tp) {
+	Texture<Float> *tex = nullptr;
+	if (name == "constant")
+		tex = CreateConstantFloatTexture(tex2world, tp);
+	else {
+		Warning("Float texture \""<< name.c_str()<<"\" unknown");
+	}
+	return std::shared_ptr<Texture<Float>>(tex);
 }
 
 //确认现在的系统是否已经初始完毕
@@ -573,5 +589,28 @@ curTransform[i] = Transform();
 activeTransformBits = AllTransformsBits;
 namedCoordinateSystems.erase(namedCoordinateSystems.begin(),
 namedCoordinateSystems.end());
+}
+
+//生成纹理,
+//name:纹理的名字 type:纹理的数据类型[float,color,spectrum],texname:纹理的类别
+void raidenTexture(const std::string &name, const std::string &type,
+const std::string &texname, const ParamSet &params) {
+VERIFY_WORLD("Texture");
+TextureParams tp(params, params, graphicsState.floatTextures,
+graphicsState.spectrumTextures);
+if (type == "float") {
+if (graphicsState.floatTextures.find(name)
+!= graphicsState.floatTextures.end()) {
+Warning("texture \'"<<name<<"\' being redifined.");
+}
+std::shared_ptr<Texture<Float>>
+floatTex=MakeFloatTexture(texname,curTransform[0],tp);
+if(floatTex){
+	graphicsState.floatTextures[name]=floatTex;
+}
+} else {
+Error("texture type\""<<type<<"\" unknown.");
+exit(1);
+}
 }
 

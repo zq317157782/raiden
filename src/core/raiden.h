@@ -89,6 +89,8 @@ class Light;
 class MemoryArena;
 class RNG;
 class ParamSet;
+class TextureParams;
+template<typename T> class Texture;
 
 struct Options {
 	int numThread = 0; //线程个数

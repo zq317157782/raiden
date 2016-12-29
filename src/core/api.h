@@ -33,6 +33,7 @@ void raidenAccelerator(const std::string &name, const ParamSet &params);
 void raidenIntegrator(const std::string &name, const ParamSet &params);
 void raidenCamera(const std::string &name, const ParamSet &params);
 void raidenShape(const std::string &name, const ParamSet &params);
+void raidenTexture(const std::string &name, const std::string &type,const std::string &texname, const ParamSet &params);
 void raidenWorldBegin();
 void raidenWorldEnd();
 void raidenAttributeBegin();

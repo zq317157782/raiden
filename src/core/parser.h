@@ -362,7 +362,7 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 				ParseString(set, key);
 			} else if (type == "rgb") {
 				ParseRGB(set, key);
-			}else if (type == "float[]") {
+			} else if (type == "float[]") {
 				ParseFloatArray(set, key);
 			} else {
 				PARAM_TYPR_WRONG("unknow type");
@@ -397,7 +397,7 @@ static int Film(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
-	raidenFilm(name,params);
+	raidenFilm(name, params);
 	return LUA_OK;
 }
 
@@ -409,7 +409,7 @@ static int Sampler(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
-	raidenSampler(name,params);
+	raidenSampler(name, params);
 	return LUA_OK;
 }
 static int Accelerator(lua_State* L) {
@@ -420,7 +420,7 @@ static int Accelerator(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
-	raidenAccelerator(name,params);
+	raidenAccelerator(name, params);
 	return LUA_OK;
 }
 static int Integrator(lua_State* L) {
@@ -431,7 +431,7 @@ static int Integrator(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
-	raidenIntegrator(name,params);
+	raidenIntegrator(name, params);
 	return LUA_OK;
 }
 static int Camera(lua_State* L) {
@@ -442,7 +442,7 @@ static int Camera(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
-	raidenCamera(name,params);
+	raidenCamera(name, params);
 	return LUA_OK;
 }
 static int Shape(lua_State* L) {
@@ -453,66 +453,80 @@ static int Shape(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
-	raidenShape(name,params);
+	raidenShape(name, params);
 	return LUA_OK;
 }
 
-static int AttributeBegin(){
+static int CreateTexture(lua_State* L) {
+	std::string name;
+	std::string type;
+	std::string texName;
+	if (lua_isstring(L, 1) && lua_isstring(L, 2) && lua_isstring(L, 3)) {
+		name = lua_tostring(L, 1);
+		type = lua_tostring(L, 2);
+		texName = lua_tostring(L, 3);
+	} else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 4);
+	raidenTexture(name, type, texName, params);
+}
+
+static int AttributeBegin() {
 	raidenAttributeBegin();
 	return LUA_OK;
 }
 
-static int AttributeEnd(){
+static int AttributeEnd() {
 	raidenAttributeEnd();
 	return LUA_OK;
 }
 
-static int TransformBegin(){
+static int TransformBegin() {
 	raidenTransformBegin();
 	return LUA_OK;
 }
 
-static int TransformEnd(){
+static int TransformEnd() {
 	raidenTransformEnd();
 	return LUA_OK;
 }
 
-
-
 void parse(char* filename) {
-int status, result;
-L = luaL_newstate(); /* create state */
-luaL_openlibs(L);
-lua_register(L, "Init", (lua_CFunction )Init);
-lua_register(L, "CleanUp", (lua_CFunction )CleanUp);
-lua_register(L, "WorldBegin", (lua_CFunction )WorldBegin);
-lua_register(L, "WorldEnd", (lua_CFunction )WorldEnd);
-lua_register(L, "Translate", (lua_CFunction )Translate);
-lua_register(L, "Rotate", (lua_CFunction )Rotate);
-lua_register(L, "Scale", (lua_CFunction )Scale);
-lua_register(L, "CoordinateSystem", (lua_CFunction )CoordinateSystem);
-lua_register(L, "CoordSysTransform", (lua_CFunction )CoordSysTransform);
-lua_register(L, "ActiveTransformAll", (lua_CFunction )ActiveTransformAll);
-lua_register(L, "ActiveTransformEndTime",
-		(lua_CFunction )ActiveTransformEndTime);
-lua_register(L, "ActiveTransformStartTime",
-		(lua_CFunction )ActiveTransformStartTime);
-lua_register(L, "TransformTimes", (lua_CFunction )TransformTimes);
-lua_register(L, "PixelFilter", (lua_CFunction )PixelFilter);
-lua_register(L, "Film", (lua_CFunction )Film);
-lua_register(L, "Sampler", (lua_CFunction )Sampler);
-lua_register(L, "Accelerator", (lua_CFunction )Accelerator);
-lua_register(L, "Integrator", (lua_CFunction )Integrator);
-lua_register(L, "Camera", (lua_CFunction )Camera);
-lua_register(L, "Shape", (lua_CFunction )Shape);
-lua_register(L, "AttributeBegin", (lua_CFunction )AttributeBegin);
-lua_register(L, "AttributeEnd", (lua_CFunction )AttributeEnd);
-lua_register(L, "TransformBegin", (lua_CFunction )TransformBegin);
-lua_register(L, "TransformEnd", (lua_CFunction )TransformEnd);
-int ret = luaL_dofile(L, filename);
-if (ret != LUA_OK) {
-	lua_error(L);
-}
+	int status, result;
+	L = luaL_newstate(); /* create state */
+	luaL_openlibs(L);
+	lua_register(L, "Init", (lua_CFunction )Init);
+	lua_register(L, "CleanUp", (lua_CFunction )CleanUp);
+	lua_register(L, "WorldBegin", (lua_CFunction )WorldBegin);
+	lua_register(L, "WorldEnd", (lua_CFunction )WorldEnd);
+	lua_register(L, "Translate", (lua_CFunction )Translate);
+	lua_register(L, "Rotate", (lua_CFunction )Rotate);
+	lua_register(L, "Scale", (lua_CFunction )Scale);
+	lua_register(L, "CoordinateSystem", (lua_CFunction )CoordinateSystem);
+	lua_register(L, "CoordSysTransform", (lua_CFunction )CoordSysTransform);
+	lua_register(L, "ActiveTransformAll", (lua_CFunction )ActiveTransformAll);
+	lua_register(L, "ActiveTransformEndTime",
+			(lua_CFunction )ActiveTransformEndTime);
+	lua_register(L, "ActiveTransformStartTime",
+			(lua_CFunction )ActiveTransformStartTime);
+	lua_register(L, "TransformTimes", (lua_CFunction )TransformTimes);
+	lua_register(L, "PixelFilter", (lua_CFunction )PixelFilter);
+	lua_register(L, "Film", (lua_CFunction )Film);
+	lua_register(L, "Sampler", (lua_CFunction )Sampler);
+	lua_register(L, "Accelerator", (lua_CFunction )Accelerator);
+	lua_register(L, "Integrator", (lua_CFunction )Integrator);
+	lua_register(L, "Camera", (lua_CFunction )Camera);
+	lua_register(L, "Shape", (lua_CFunction )Shape);
+	lua_register(L, "Texture", (lua_CFunction )CreateTexture);
+	lua_register(L, "AttributeBegin", (lua_CFunction )AttributeBegin);
+	lua_register(L, "AttributeEnd", (lua_CFunction )AttributeEnd);
+	lua_register(L, "TransformBegin", (lua_CFunction )TransformBegin);
+	lua_register(L, "TransformEnd", (lua_CFunction )TransformEnd);
+	int ret = luaL_dofile(L, filename);
+	if (ret != LUA_OK) {
+		lua_error(L);
+	}
 }
 
 #endif /* SRC_CORE_APILUA_H_ */

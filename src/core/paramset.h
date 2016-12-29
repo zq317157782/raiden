@@ -9,6 +9,7 @@
 #define SRC_CORE_PARAMSET_H_
 #include "raiden.h"
 #include "geometry.h"
+#include <map>
 //代表一个参数以及它的值
 template<typename T>
 struct ParamSetItem {
@@ -95,4 +96,25 @@ public:
 	const std::string *FindString(const std::string &, int *nValues) const;
 };
 
+
+//纹理参数
+//包含纹理相关的参数集
+class TextureParams{
+private:
+	const ParamSet& _geomParams;//几何相关的参数集
+	const ParamSet& _materialParams;//材质相关的参数集
+	std::map<std::string,std::shared_ptr<Texture<Float>>>& _floatTextures;
+	std::map<std::string,std::shared_ptr<Texture<Spectrum>>>& _spectrumTextures;
+public:
+	TextureParams(const ParamSet& geomParams,const ParamSet& materialParams,
+			std::map<std::string,std::shared_ptr<Texture<Float>>>& floatTextures,
+			std::map<std::string,std::shared_ptr<Texture<Spectrum>>>& spectrumTextures):_geomParams(geomParams),_materialParams(materialParams),
+			_floatTextures(floatTextures),_spectrumTextures(spectrumTextures){
+
+	}
+	//寻找一个Float变量
+	Float FindFloat(const std::string& name,Float defaultValue) const{
+		return _geomParams.FindOneFloat(name,_materialParams.FindOneFloat(name,defaultValue));
+	}
+};
 #endif /* SRC_CORE_PARAMSET_H_ */

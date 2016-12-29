@@ -40,4 +40,13 @@ public:
 	}
 };
 
+//纹理接口
+template<typename T>
+class Texture {
+public:
+	virtual T Evaluate(const SurfaceInteraction & is) const = 0;
+	virtual ~Texture() {
+	}
+};
+
 #endif /* SRC_CORE_TEXTURE_H_ */
