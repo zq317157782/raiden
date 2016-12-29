@@ -11,6 +11,7 @@
 #include "geometry.h"
 #include "spectrum.h"
 #include "material.h"
+#include "interaction.h"
 //BxDF坐标系下
 //法线(0,0,1)与W(x,y,z)点乘等于W.z
 inline Float CosTheta(const Vector3f &w) {
@@ -384,5 +385,97 @@ public:
 			const Point2f &sample, Float *pdf,
 			BxDFType *sampledType = nullptr) const override;
 
+};
+
+//双向散射分布函数
+class BSDF {
+private:
+	static constexpr int MaxBxDFs = 8;	//默认包含8个BxDF组件
+	BxDF* _bxdfs[MaxBxDFs];
+	int _nBxDF = 0;		//当前BxDF个数
+	const Normal3f _ns;	//shading normal;
+	const Normal3f _ng;	//geometry normal
+	const Vector3f _ss;	//切线
+	const Vector3f _ts;	//次切线
+	~BSDF() {
+	}	//把析构函数设置成私有防止被不慎析构掉
+public:
+	const Float eta;	//折射率之比
+	BSDF(const SurfaceInteraction&si, Float eta) :
+			eta(eta), _ns(si.shading.n), _ng(si.n), _ss(si.dpdu), _ts(
+					Cross(_ns, _ss)) {
+	}
+	//增加一个BxDF组件
+	void Add(BxDF* bxdf) {
+		Assert(_nBxDF < MaxBxDFs);
+		_bxdfs[_nBxDF++] = bxdf;
+	}
+	//返回BSDF包含特定的BxDF个数
+	int NumComponents(BxDFType flags = BSDF_ALL) const {
+		int num = 0;
+		for (int i = 0; i < _nBxDF; ++i) {
+			_bxdfs[i]->MatchesFlags(flags);
+			++num;
+		}
+		return num;
+	}
+	//世界到BSDF的局部坐标
+	//因为是正交矩阵，所以逆转置就是自己，所以不需要对法线做特殊处理
+	Vector3f WorldToLocal(const Vector3f &v) const {
+		return Vector3f(Dot(v, _ss), Dot(v, _ts), Dot(v, _ns));
+	}
+	//BSDF的局部坐标到世界坐标
+	//正交矩阵，转置既是逆
+	Vector3f LocalToWorld(const Vector3f &v) const {
+		return Vector3f(_ss.x * v.x + _ts.x * v.y + _ns.x * v.z,
+				_ss.y * v.x + _ts.y * v.y + _ns.y * v.z,
+				_ss.z * v.x + _ts.z * v.y + _ns.z * v.z);
+	}
+
+	//采样brdf系数
+	Spectrum f(const Vector3f &woW, const Vector3f &wiW, BxDFType flags =
+			BSDF_ALL) const {
+		//获得局部坐标下的射线
+		Vector3f wo = WorldToLocal(woW);
+		Vector3f wi = WorldToLocal(wiW);
+		//防止后续操作出现nan
+		if (wo.z == 0) {
+			return 0.0f;
+		}
+		bool reflect = Dot(wi, _ng) * Dot(wo, _ng) > 0.0f;	//判断是反射还是折射
+		Spectrum result(0.0f);
+		for (int i = 0; i < _nBxDF; ++i) {
+			if (_bxdfs[i]->MatchesFlags(flags)) {
+				if ((reflect && (_bxdfs[i]->type & BSDF_REFLECTION))
+						|| (!reflect && (_bxdfs[i]->type & BSDF_TRANSMISSION))) {
+					result += _bxdfs[i]->f(wo, wi);
+				}
+			}
+		}
+		return result;
+	}
+	//H-H
+	Spectrum rho(int nSamples, const Point2f *samples1, const Point2f *samples2,
+			BxDFType flags = BSDF_ALL) const {
+		Spectrum result(0.0f);
+		for (int i = 0; i < _nBxDF; ++i) {
+			if (_bxdfs[i]->MatchesFlags(flags)) {
+				result += _bxdfs[i]->rho(nSamples, samples1, samples2);
+			}
+		}
+		return result;
+	}
+
+	//D-H wo是local?
+	Spectrum rho(const Vector3f &wo, int nSamples, const Point2f *samples,
+			BxDFType flags = BSDF_ALL) const {
+		Spectrum result(0.0f);
+		for (int i = 0; i < _nBxDF; ++i) {
+			if (_bxdfs[i]->MatchesFlags(flags)) {
+				result += _bxdfs[i]->rho(wo,nSamples,samples);
+			}
+		}
+		return result;
+	}
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
