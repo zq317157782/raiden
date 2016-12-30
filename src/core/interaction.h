@@ -10,6 +10,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "shape.h"
+#include "material.h"
 class Interaction {
 public:
 	Point3f p; //交点
@@ -53,6 +54,10 @@ public:
 	                       const Shape *sh);
 	//计算差分信息
 	void ComputeDifferentials(const RayDifferential &r) const;
+	void ComputeScatteringFunctions(
+	        const RayDifferential &ray, MemoryArena &arena,
+	        bool allowMultipleLobes = false,
+	        TransportMode mode = TransportMode::Radiance);
 };
 
 #endif /* SRC_CORE_INTERACTION_H_ */

@@ -5,6 +5,7 @@
  *      Author: zhuqian
  */
 #include "interaction.h"
+#include "primitive.h"
 SurfaceInteraction::SurfaceInteraction(const Point3f &p, const Vector3f &pError,
 		const Point2f &uv, const Vector3f &wo, const Vector3f &dpdu,
 		const Vector3f &dpdv, const Normal3f &dndu, const Normal3f &dndv,
@@ -79,4 +80,14 @@ void SurfaceInteraction::ComputeDifferentials(const RayDifferential &r) const {
 		dudy = dvdy = 0;
 		dpdx = dpdy = Vector3f(0, 0, 0);
 	}
+}
+
+void SurfaceInteraction::ComputeScatteringFunctions(
+       const RayDifferential &ray, MemoryArena &arena,
+       bool allowMultipleLobes,
+       TransportMode mode){
+	//1.首先计算差分信息
+	ComputeDifferentials(ray);
+	//2.计算图元的ComputeScatteringFunctions
+	primitive->ComputeScatteringFunctions(this,arena,mode,allowMultipleLobes);
 }
