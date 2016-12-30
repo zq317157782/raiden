@@ -225,6 +225,15 @@
     <ClCompile Include="src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\texture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\materials\lambertian.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textures\constant.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">
@@ -420,6 +429,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\test\test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\microfacet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\lambertian.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textures\constant.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -179,15 +179,18 @@
     <ClCompile Include="src\core\shape.cpp" />
     <ClCompile Include="src\core\spectrum.cpp" />
     <ClCompile Include="src\core\stats.cpp" />
+    <ClCompile Include="src\core\texture.cpp" />
     <ClCompile Include="src\core\transform.cpp" />
     <ClCompile Include="src\filters\box.cpp" />
     <ClCompile Include="src\integrators\depth.cpp" />
     <ClCompile Include="src\integrators\normal.cpp" />
     <ClCompile Include="src\lights\point.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\materials\lambertian.cpp" />
     <ClCompile Include="src\samplers\random.cpp" />
     <ClCompile Include="src\shapes\sphere.cpp" />
     <ClCompile Include="src\test\statsTest.cpp" />
+    <ClCompile Include="src\textures\constant.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h" />
@@ -232,6 +235,7 @@
     <ClInclude Include="src\core\lua\lzio.h" />
     <ClInclude Include="src\core\material.h" />
     <ClInclude Include="src\core\memory.h" />
+    <ClInclude Include="src\core\microfacet.h" />
     <ClInclude Include="src\core\parallel.h" />
     <ClInclude Include="src\core\paramset.h" />
     <ClInclude Include="src\core\parser.h" />
@@ -246,15 +250,18 @@
     <ClInclude Include="src\core\shape.h" />
     <ClInclude Include="src\core\spectrum.h" />
     <ClInclude Include="src\core\stats.h" />
+    <ClInclude Include="src\core\texture.h" />
     <ClInclude Include="src\core\transform.h" />
     <ClInclude Include="src\filters\box.h" />
     <ClInclude Include="src\integrators\depth.h" />
     <ClInclude Include="src\integrators\normal.h" />
     <ClInclude Include="src\lights\point.h" />
+    <ClInclude Include="src\materials\lambertian.h" />
     <ClInclude Include="src\samplers\random.h" />
     <ClInclude Include="src\shapes\sphere.h" />
     <ClInclude Include="src\test\statsTest.h" />
     <ClInclude Include="src\test\test.h" />
+    <ClInclude Include="src\textures\constant.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
