@@ -7,6 +7,22 @@
 
 #include "transform.h"
 #include "interaction.h"
+
+//求解2X2线性系统
+bool SolveLinearSystem2x2(const Float A[2][2], const Float B[2], Float *x0,
+		Float *x1) {
+	Float det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+	if (std::abs(det) < 1e-10f){
+		return false;
+	}
+	*x0 = (A[1][1] * B[0] - A[0][1] * B[1]) / det;
+	*x1 = (A[0][0] * B[1] - A[1][0] * B[0]) / det;
+	if (std::isnan(*x0) || std::isnan(*x1)){
+		return false;
+	}
+	return true;
+}
+
 Matrix4x4::Matrix4x4(Float mm[4][4]) {
 	memcpy(m, mm, 16 * sizeof(Float));
 	Assert(!HasNaNs());
@@ -184,40 +200,40 @@ Transform Transform::operator*(const Transform& tran) const {
 }
 
 //对SurfaceInteraction进行变换
-SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const{
+SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
 	SurfaceInteraction ret;
-	const Transform& t=(*this);
-	ret.p=t(si.p,si.pErr,&ret.pErr);
-	ret.n=Normalize(t(si.n));//变换法线
-	ret.wo=Normalize(t(si.wo));
-	ret.uv=si.uv;
-	ret.time=si.time;
-	ret.shape=si.shape;
+	const Transform& t = (*this);
+	ret.p = t(si.p, si.pErr, &ret.pErr);
+	ret.n = Normalize(t(si.n)); //变换法线
+	ret.wo = Normalize(t(si.wo));
+	ret.uv = si.uv;
+	ret.time = si.time;
+	ret.shape = si.shape;
 	//todo赋值BRDF相关
 	//todo赋值Primitive相关
 
 	//空间点与参数之间的梯度
-	ret.dpdu=t(si.dpdu);
-	ret.dpdv=t(si.dpdv);
+	ret.dpdu = t(si.dpdu);
+	ret.dpdv = t(si.dpdv);
 	//法线与参数之间的梯度
-	ret.dndu=t(si.dndu);
-	ret.dndv=t(si.dndv);
+	ret.dndu = t(si.dndu);
+	ret.dndv = t(si.dndv);
 	//空间点与屏幕空间之间的梯度
-	ret.dpdx=t(si.dpdx);
-	ret.dpdy=t(si.dpdy);
+	ret.dpdx = t(si.dpdx);
+	ret.dpdy = t(si.dpdy);
 	//参数与屏幕空间之间的梯度
-	ret.dudx=si.dudx;
-	ret.dvdx=si.dvdx;
-	ret.dudy=si.dudy;
-	ret.dvdy=si.dvdy;
+	ret.dudx = si.dudx;
+	ret.dvdx = si.dvdx;
+	ret.dudy = si.dudy;
+	ret.dvdy = si.dvdy;
 	//变换着色相关变量
-	ret.shading.n=Normalize(t(si.shading.n));
-	ret.shading.dpdu=t(si.shading.dpdu);
-	ret.shading.dpdv=t(si.shading.dpdv);
-	ret.shading.dndu=t(si.shading.dndu);
-	ret.shading.dndv=t(si.shading.dndv);
+	ret.shading.n = Normalize(t(si.shading.n));
+	ret.shading.dpdu = t(si.shading.dpdu);
+	ret.shading.dpdv = t(si.shading.dpdv);
+	ret.shading.dndu = t(si.shading.dndu);
+	ret.shading.dndv = t(si.shading.dndv);
 
 	//使着色法线和结构法线在同一个半球中
-	ret.shading.n=Faceforward(ret.shading.n,ret.n);
+	ret.shading.n = Faceforward(ret.shading.n, ret.n);
 	return ret;
 }

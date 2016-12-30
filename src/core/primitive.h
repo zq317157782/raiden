@@ -10,6 +10,8 @@
 
 #include "raiden.h"
 #include "geometry.h"
+#include "interaction.h"
+#include "material.h"
 //图元类
 class Primitive{
 public:
@@ -48,7 +50,12 @@ public:
 
 //空间图元集合
 class Aggregate : public Primitive {
-
+	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
+					MemoryArena &arena, TransportMode mode,
+					bool allowMultipleLobes) const override{
+		Warning("Aggregate::ComputeScatteringFunctions () method "
+				"called; should have gone to GeometricPrimitive");
+	}
 };
 
 #endif /* SRC_CORE_PRIMITIVE_H_ */

@@ -10,6 +10,10 @@
 
 #include "raiden.h"
 #include "geometry.h"
+
+bool SolveLinearSystem2x2(const Float A[2][2], const Float B[2], Float *x0,
+		Float *x1);
+
 struct Matrix4x4 {
 	Float m[4][4];
 

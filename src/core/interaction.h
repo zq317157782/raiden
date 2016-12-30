@@ -51,6 +51,8 @@ public:
 	                       const Vector3f &dpdu, const Vector3f &dpdv,
 	                       const Normal3f &dndu, const Normal3f &dndv, Float time,
 	                       const Shape *sh);
+	//计算差分信息
+	void ComputeDifferentials(const RayDifferential &r) const;
 };
 
 #endif /* SRC_CORE_INTERACTION_H_ */
