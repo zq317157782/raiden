@@ -113,8 +113,8 @@ public:
 
 	}
 	//寻找一个Float变量
-	Float FindFloat(const std::string& name,Float defaultValue) const{
-		return _geomParams.FindOneFloat(name,_materialParams.FindOneFloat(name,defaultValue));
-	}
+	Float FindFloat(const std::string& name,Float defaultValue) const;
+	//寻找一个Spectrum变量
+	Spectrum FindSpectrum(const std::string& name,const Spectrum& defaultValue) const;
 };
 #endif /* SRC_CORE_PARAMSET_H_ */

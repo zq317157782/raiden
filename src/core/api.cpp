@@ -260,6 +260,17 @@ std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
 	return std::shared_ptr<Texture<Float>>(tex);
 }
 
+std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
+		const Transform &tex2world, const TextureParams &tp) {
+	Texture<Spectrum> *tex = nullptr;
+	if (name == "constant")
+		tex = CreateConstantSpectrumTexture(tex2world, tp);
+	else {
+		Warning("Spectrum texture \""<< name.c_str()<<"\" unknown");
+	}
+	return std::shared_ptr<Texture<Spectrum>>(tex);
+}
+
 //确认现在的系统是否已经初始完毕
 #define VERIFY_INITIALIZED(func)                           \
     if (currentApiState == APIState::Uninitialized) {      \
@@ -603,10 +614,20 @@ if (graphicsState.floatTextures.find(name)
 != graphicsState.floatTextures.end()) {
 Warning("texture \'"<<name<<"\' being redifined.");
 }
-std::shared_ptr<Texture<Float>>
-floatTex=MakeFloatTexture(texname,curTransform[0],tp);
-if(floatTex){
-	graphicsState.floatTextures[name]=floatTex;
+std::shared_ptr<Texture<Float>> floatTex = MakeFloatTexture(texname,
+curTransform[0], tp);
+if (floatTex) {
+graphicsState.floatTextures[name] = floatTex;
+}
+} else if (type == "spectrum" || type == "color") {
+if (graphicsState.spectrumTextures.find(name)
+!= graphicsState.spectrumTextures.end()) {
+Warning("texture \'"<<name<<"\' being redifined.");
+}
+std::shared_ptr<Texture<Spectrum>> spectrumTex = MakeSpectrumTexture(texname,
+curTransform[0], tp);
+if (spectrumTex) {
+graphicsState.spectrumTextures[name] = spectrumTex;
 }
 } else {
 Error("texture type\""<<type<<"\" unknown.");

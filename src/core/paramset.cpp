@@ -292,5 +292,12 @@ std::string ParamSet::FindOneString(const std::string &name,
     LOOKUP_ONE(_strings);
 }
 
+Spectrum TextureParams::FindSpectrum(const std::string& name,const Spectrum& defaultValue) const {
+		return _geomParams.FindOneSpectrum(name,_materialParams.FindOneSpectrum(name,defaultValue));
+}
+
+Float TextureParams::FindFloat(const std::string& name,Float defaultValue) const{
+		return _geomParams.FindOneFloat(name,_materialParams.FindOneFloat(name,defaultValue));
+	}
 
 
