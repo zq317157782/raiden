@@ -11,12 +11,14 @@
 #include "material.h"
 #include "memory.h"
 #include "interaction.h"
-class Lambertian: public Material {
+#include "reflection.h"
+#include "texture.h"
+class LambertianMaterial: public Material {
 private:
 	std::shared_ptr<Texture<Spectrum>> _kd;//完美漫反射的反射率
 public:
 
-	Lambertian(const std::shared_ptr<Texture<Spectrum>>& kd):_kd(kd){
+	LambertianMaterial(const std::shared_ptr<Texture<Spectrum>>& kd):_kd(kd){
 	}
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *si,
 			MemoryArena &arena, TransportMode mode,
@@ -27,7 +29,9 @@ public:
 		Spectrum r=_kd->Evaluate(*si);
 		si->bsdf->Add(ARENA_ALLOC(arena,LambertianReflection(r)));
 	}
-	virtual ~Lambertian(){};
+	virtual ~LambertianMaterial(){};
 };
+
+LambertianMaterial* CreateLambertianMaterial(const TextureParams&mp);
 
 #endif /* SRC_MATERIALS_LAMBERTIAN_H_ */

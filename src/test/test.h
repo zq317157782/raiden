@@ -797,10 +797,10 @@ TEST(TextureMapping,all){
 	Point2f st=mapping.Map(is,&dstdx,&dstdy);
 	ASSERT_EQ(st,Point2f(0.05f,0.05f));
 }
-#include "materials/lambertian.h"
+#include <materials/lambertian.h>
 #include "textures/constant.h"
 TEST(Material,all){
-	Lambertian l(std::make_shared<ConstantTexture<Spectrum>>(Spectrum(1.0f)));
+	LambertianMaterial l(std::make_shared<ConstantTexture<Spectrum>>(Spectrum(1.0f)));
 }
 void UnitTest(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);

@@ -36,6 +36,7 @@ private:
 	std::vector<std::shared_ptr<ParamSetItem<Normal3f>>> _normals;
 	std::vector<std::shared_ptr<ParamSetItem<Spectrum>>> _spectra;
 	std::vector<std::shared_ptr<ParamSetItem<std::string>>> _strings;
+	std::vector<std::shared_ptr<ParamSetItem<std::string>>> _textures;
 public:
 	ParamSet() {}
 	//bool类型相关操作
@@ -78,6 +79,7 @@ public:
 	bool EraseNormal3f(const std::string &);
 	bool EraseSpectrum(const std::string &);
 	bool EraseString(const std::string &);
+	bool EraseTexture(const std::string &);
 
 	Point2f FindOnePoint2f(const std::string &, const Point2f &d) const;
 	Vector2f FindOneVector2f(const std::string &, const Vector2f &d) const;
@@ -94,27 +96,30 @@ public:
 	const Normal3f *FindNormal3f(const std::string &, int *nValues) const;
 	const Spectrum *FindSpectrum(const std::string &, int *nValues) const;
 	const std::string *FindString(const std::string &, int *nValues) const;
+	std::string FindTexture(const std::string &) const;
 };
-
 
 //纹理参数
 //包含纹理相关的参数集
-class TextureParams{
+class TextureParams {
 private:
-	const ParamSet& _geomParams;//几何相关的参数集
-	const ParamSet& _materialParams;//材质相关的参数集
-	std::map<std::string,std::shared_ptr<Texture<Float>>>& _floatTextures;
+	const ParamSet& _geomParams; //几何相关的参数集
+	const ParamSet& _materialParams; //材质相关的参数集
+	std::map<std::string, std::shared_ptr<Texture<Float>>>& _floatTextures;
 	std::map<std::string,std::shared_ptr<Texture<Spectrum>>>& _spectrumTextures;
 public:
 	TextureParams(const ParamSet& geomParams,const ParamSet& materialParams,
 			std::map<std::string,std::shared_ptr<Texture<Float>>>& floatTextures,
 			std::map<std::string,std::shared_ptr<Texture<Spectrum>>>& spectrumTextures):_geomParams(geomParams),_materialParams(materialParams),
-			_floatTextures(floatTextures),_spectrumTextures(spectrumTextures){
+	_floatTextures(floatTextures),_spectrumTextures(spectrumTextures) {
 
 	}
 	//寻找一个Float变量
 	Float FindFloat(const std::string& name,Float defaultValue) const;
 	//寻找一个Spectrum变量
 	Spectrum FindSpectrum(const std::string& name,const Spectrum& defaultValue) const;
+
+	//获取一个Spectrum类型的纹理
+	std::shared_ptr<Texture<Spectrum>> GetSpectrumTexture( const std::string &n, const Spectrum &def) const;
 };
 #endif /* SRC_CORE_PARAMSET_H_ */

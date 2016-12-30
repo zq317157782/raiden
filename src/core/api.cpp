@@ -25,6 +25,7 @@
 #include "integrators/normal.h"
 #include "integrators/depth.h"
 #include "textures/constant.h"
+#include "materials/lambertian.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -135,6 +136,10 @@ struct RenderOptions {
 struct GraphicsState {
 	std::map<std::string, std::shared_ptr<Texture<Float>>>floatTextures;	//Float类型的纹理集
 	std::map<std::string,std::shared_ptr<Texture<Spectrum>>> spectrumTextures;//Spectrum类型的纹理集
+	ParamSet materialParams;//材质参数
+	std::string material = "lambertian";
+	std::map<std::string, std::shared_ptr<Material>> namedMaterials;
+	std::string currentNamedMaterial;
 	bool reverseOrientation = false;//是否要翻转法线
 };
 
@@ -246,6 +251,22 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 		Error("light \""<<name.c_str()<<"\" unknown.");
 	}
 	return light;
+}
+
+std::shared_ptr<Material> MakeMaterial(const std::string &name,
+		const TextureParams &mp) {
+	Material *material = nullptr;
+	if (name == "" || name == "none") {
+		return nullptr;
+	} else if (name == "lambertian") {
+		material = CreateLambertianMaterial(mp);
+	} else {
+		Warning("Material \'"<<name<<"\'unknown. Using \'lambertian\'");
+		material = CreateLambertianMaterial(mp);
+	}
+	if (!material) {
+		Error("Unable to create material "<<name);
+	}
 }
 
 ////生成纹理
