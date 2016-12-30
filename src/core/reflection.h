@@ -401,7 +401,7 @@ private:
 	}	//把析构函数设置成私有防止被不慎析构掉
 public:
 	const Float eta;	//折射率之比
-	BSDF(const SurfaceInteraction&si, Float eta) :
+	BSDF(const SurfaceInteraction&si, Float eta=1.0f) :
 			eta(eta), _ns(si.shading.n), _ng(si.n), _ss(si.dpdu), _ts(
 					Cross(_ns, _ss)) {
 	}

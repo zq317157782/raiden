@@ -16,7 +16,7 @@ class Material {
                                             MemoryArena &arena,
                                             TransportMode mode,
                                             bool allowMultipleLobes) const = 0;
-    virtual ~Material();
+    virtual ~Material(){};
 };
 
 
