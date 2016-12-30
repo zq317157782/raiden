@@ -699,3 +699,31 @@ void raidenTexture(const std::string &name, const std::string &type,
 	}
 }
 
+
+void raidenMaterial(const std::string &name, const ParamSet &params) {
+	VERIFY_WORLD("Material");
+	graphicsState.material = name;
+	graphicsState.materialParams = params;
+	graphicsState.currentNamedMaterial = "";
+}
+
+void raidenNamedMaterial(const std::string &name) {
+	VERIFY_WORLD("NamedMaterial");
+	graphicsState.currentNamedMaterial = name;
+}
+
+void raidenMakeNamedMaterial(const std::string& name, const ParamSet& params) {
+	VERIFY_WORLD("MakeNamedMaterial");
+	ParamSet empty;
+	TextureParams mp(params, empty, graphicsState.floatTextures, graphicsState.spectrumTextures);
+	std::string matName = mp.FindString("type");//寻找NamedMaterial的类型
+	if (matName == "") {
+		Error("No parameter string \"type\" found in MakeNamedMaterial");
+	}
+
+	std::shared_ptr<Material> mtl = MakeMaterial(matName, mp);
+	if (graphicsState.namedMaterials.find(name) != graphicsState.namedMaterials.end()) {
+		Warning("Named material \""<< name <<"\" redefined");
+	}
+	graphicsState.namedMaterials[name] = mtl;
+}

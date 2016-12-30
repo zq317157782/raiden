@@ -31,12 +31,14 @@ static void Init(lua_State *L) {
 		int nThreads = lua_tointeger(L, 1);
 		Assert(nThreads >= 0);
 		options.numThread = nThreads;
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	if (lua_isstring(L, 2)) {
 		options.imageFile = lua_tostring(L, 2);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenInit(options);
@@ -60,7 +62,8 @@ static void Translate(lua_State *L) {
 		dx = lua_tonumber(L, 1);
 		dy = lua_tonumber(L, 2);
 		dz = lua_tonumber(L, 3);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenTranslate(dx, dy, dz);
@@ -69,12 +72,13 @@ static void Translate(lua_State *L) {
 static void Rotate(lua_State *L) {
 	Float angle, dx, dy, dz;
 	if (lua_isnumber(L, 1) && lua_isnumber(L, 2) && lua_isnumber(L, 3)
-			&& lua_isnumber(L, 4)) {
+		&& lua_isnumber(L, 4)) {
 		angle = lua_tonumber(L, 1);
 		dx = lua_tonumber(L, 2);
 		dy = lua_tonumber(L, 3);
 		dz = lua_tonumber(L, 4);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenRotate(angle, dx, dy, dz);
@@ -86,7 +90,8 @@ static void Scale(lua_State *L) {
 		sx = lua_tonumber(L, 1);
 		sy = lua_tonumber(L, 2);
 		sz = lua_tonumber(L, 3);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenScale(sx, sy, sz);
@@ -96,7 +101,8 @@ static int CoordinateSystem(lua_State *L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenCoordinateSystem(name);
@@ -106,7 +112,8 @@ static int CoordSysTransform(lua_State *L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenCoordSysTransform(name);
@@ -131,7 +138,8 @@ static int TransformTimes(lua_State *L) {
 	if (lua_isnumber(L, 1) && lua_isnumber(L, 2)) {
 		start = lua_tonumber(L, 1);
 		end = lua_tonumber(L, 2);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenTransformTimes(start, end);
@@ -312,22 +320,30 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 			//int 类型
 			if (lua_isinteger(L, -1)) {
 				int v = lua_tointeger(L, -1);
-				set.AddInt(key, std::unique_ptr<int[]>(new int[1] { v }), 1);
-			} else {
+				set.AddInt(key, std::unique_ptr<int[]>(new int[1]{ v }), 1);
+			}
+			else {
 				Float v = lua_tonumber(L, -1);
-				set.AddFloat(key, std::unique_ptr<Float[]>(new Float[1] { v }),
-						1);
+				set.AddFloat(key, std::unique_ptr<Float[]>(new Float[1]{ v }),
+					1);
 			}
 		}
-			break;
-			//bool
+						  break;
+						  //bool
 		case LUA_TBOOLEAN: {
 			bool v = lua_toboolean(L, -1);
-			set.AddBool(key, std::unique_ptr<bool[]>(new bool[1] { v }), 1);
+			set.AddBool(key, std::unique_ptr<bool[]>(new bool[1]{ v }), 1);
 		}
-			break;
+						   break;
 
-			//处理类型为表的情况，比较复杂
+						   //string 类型
+		case LUA_TSTRING: {
+			std::string v = lua_tostring(L, -1);
+			set.AddString(key, std::unique_ptr<std::string[]>(new std::string[1]{ v }), 1);
+		}
+						  break;
+
+						  //处理类型为表的情况，比较复杂
 		case LUA_TTABLE: {
 			lua_getfield(L, t, key.c_str());	//把子table压入栈顶!
 			lua_getfield(L, -1, "type");	//type入栈
@@ -336,27 +352,35 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 			lua_getfield(L, -1, "value"); //value入栈
 			if (type == "point2f") {
 				ParsePoint2f(set, key);
-			} else if (type == "point3f") {
+			}
+			else if (type == "point3f") {
 				ParsePoint3f(set, key);
-			} else if (type == "vector2f") {
+			}
+			else if (type == "vector2f") {
 				ParseVector2f(set, key);
-			} else if (type == "vector3f") {
+			}
+			else if (type == "vector3f") {
 				ParseVector3f(set, key);
-			} else if (type == "normal3f") {
+			}
+			else if (type == "normal3f") {
 				ParseNormal3f(set, key);
-			} else if (type == "string") {
+			}
+			else if (type == "string") {
 				ParseString(set, key);
-			} else if (type == "rgb") {
+			}
+			else if (type == "rgb") {
 				ParseRGB(set, key);
-			} else if (type == "float[]") {
+			}
+			else if (type == "float[]") {
 				ParseFloatArray(set, key);
-			} else {
+			}
+			else {
 				PARAM_TYPR_WRONG("unknow type");
 			}
 			lua_pop(L, 1); //value 出站
 			lua_pop(L, 1); //把子table出栈!
 		}
-			break;
+						 break;
 		}
 		lua_pop(L, 1);
 	}
@@ -367,7 +391,8 @@ static int PixelFilter(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -378,7 +403,8 @@ static int Film(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -390,7 +416,8 @@ static int Sampler(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -401,7 +428,8 @@ static int Accelerator(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -412,7 +440,8 @@ static int Integrator(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -423,7 +452,8 @@ static int Camera(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -434,7 +464,8 @@ static int Shape(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
 		name = lua_tostring(L, 1);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 2);
@@ -450,13 +481,51 @@ static int CreateTexture(lua_State* L) {
 		name = lua_tostring(L, 1);
 		type = lua_tostring(L, 2);
 		texName = lua_tostring(L, 3);
-	} else {
+	}
+	else {
 		PARAM_TYPR_WRONG("")
 	}
 	ParamSet params = GetParamSet(L, 4);
 	raidenTexture(name, type, texName, params);
 }
 
+static int Material(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	}
+	else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenMaterial(name, params);
+	return LUA_OK;
+}
+
+static int MakeNamedMaterial(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	}
+	else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenMakeNamedMaterial(name, params);
+	return LUA_OK;
+}
+
+
+static int NamedMaterial(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	}
+	else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenNamedMaterial(name);
+}
 static int AttributeBegin() {
 	raidenAttributeBegin();
 	return LUA_OK;
@@ -481,33 +550,36 @@ void parse(char* filename) {
 	int status, result;
 	L = luaL_newstate(); /* create state */
 	luaL_openlibs(L);
-	lua_register(L, "Init", (lua_CFunction )Init);
-	lua_register(L, "CleanUp", (lua_CFunction )CleanUp);
-	lua_register(L, "WorldBegin", (lua_CFunction )WorldBegin);
-	lua_register(L, "WorldEnd", (lua_CFunction )WorldEnd);
-	lua_register(L, "Translate", (lua_CFunction )Translate);
-	lua_register(L, "Rotate", (lua_CFunction )Rotate);
-	lua_register(L, "Scale", (lua_CFunction )Scale);
-	lua_register(L, "CoordinateSystem", (lua_CFunction )CoordinateSystem);
-	lua_register(L, "CoordSysTransform", (lua_CFunction )CoordSysTransform);
-	lua_register(L, "ActiveTransformAll", (lua_CFunction )ActiveTransformAll);
+	lua_register(L, "Init", (lua_CFunction)Init);
+	lua_register(L, "CleanUp", (lua_CFunction)CleanUp);
+	lua_register(L, "WorldBegin", (lua_CFunction)WorldBegin);
+	lua_register(L, "WorldEnd", (lua_CFunction)WorldEnd);
+	lua_register(L, "Translate", (lua_CFunction)Translate);
+	lua_register(L, "Rotate", (lua_CFunction)Rotate);
+	lua_register(L, "Scale", (lua_CFunction)Scale);
+	lua_register(L, "CoordinateSystem", (lua_CFunction)CoordinateSystem);
+	lua_register(L, "CoordSysTransform", (lua_CFunction)CoordSysTransform);
+	lua_register(L, "ActiveTransformAll", (lua_CFunction)ActiveTransformAll);
 	lua_register(L, "ActiveTransformEndTime",
-			(lua_CFunction )ActiveTransformEndTime);
+		(lua_CFunction)ActiveTransformEndTime);
 	lua_register(L, "ActiveTransformStartTime",
-			(lua_CFunction )ActiveTransformStartTime);
-	lua_register(L, "TransformTimes", (lua_CFunction )TransformTimes);
-	lua_register(L, "PixelFilter", (lua_CFunction )PixelFilter);
-	lua_register(L, "Film", (lua_CFunction )Film);
-	lua_register(L, "Sampler", (lua_CFunction )Sampler);
-	lua_register(L, "Accelerator", (lua_CFunction )Accelerator);
-	lua_register(L, "Integrator", (lua_CFunction )Integrator);
-	lua_register(L, "Camera", (lua_CFunction )Camera);
-	lua_register(L, "Shape", (lua_CFunction )Shape);
-	lua_register(L, "Texture", (lua_CFunction )CreateTexture);
-	lua_register(L, "AttributeBegin", (lua_CFunction )AttributeBegin);
-	lua_register(L, "AttributeEnd", (lua_CFunction )AttributeEnd);
-	lua_register(L, "TransformBegin", (lua_CFunction )TransformBegin);
-	lua_register(L, "TransformEnd", (lua_CFunction )TransformEnd);
+		(lua_CFunction)ActiveTransformStartTime);
+	lua_register(L, "TransformTimes", (lua_CFunction)TransformTimes);
+	lua_register(L, "PixelFilter", (lua_CFunction)PixelFilter);
+	lua_register(L, "Film", (lua_CFunction)Film);
+	lua_register(L, "Sampler", (lua_CFunction)Sampler);
+	lua_register(L, "Accelerator", (lua_CFunction)Accelerator);
+	lua_register(L, "Integrator", (lua_CFunction)Integrator);
+	lua_register(L, "Camera", (lua_CFunction)Camera);
+	lua_register(L, "Shape", (lua_CFunction)Shape);
+	lua_register(L, "Texture", (lua_CFunction)CreateTexture);
+	lua_register(L, "Material", (lua_CFunction)Material);
+	lua_register(L, "NamedMaterial", (lua_CFunction)NamedMaterial);
+	lua_register(L, "MakeNamedMaterial", (lua_CFunction)MakeNamedMaterial);
+	lua_register(L, "AttributeBegin", (lua_CFunction)AttributeBegin);
+	lua_register(L, "AttributeEnd", (lua_CFunction)AttributeEnd);
+	lua_register(L, "TransformBegin", (lua_CFunction)TransformBegin);
+	lua_register(L, "TransformEnd", (lua_CFunction)TransformEnd);
 	int ret = luaL_dofile(L, filename);
 	if (ret != LUA_OK) {
 		lua_error(L);

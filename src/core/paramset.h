@@ -118,6 +118,8 @@ public:
 	Float FindFloat(const std::string& name,Float defaultValue) const;
 	//寻找一个Spectrum变量
 	Spectrum FindSpectrum(const std::string& name,const Spectrum& defaultValue) const;
+	//寻找一个string
+	std::string FindString(const std::string& name, const std::string& defaultValue="") const;
 
 	//获取一个Spectrum类型的纹理
 	std::shared_ptr<Texture<Spectrum>> GetSpectrumTexture( const std::string &n, const Spectrum &def) const;

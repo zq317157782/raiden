@@ -325,6 +325,13 @@ Float TextureParams::FindFloat(const std::string& name,
 			_materialParams.FindOneFloat(name, defaultValue));
 }
 
+
+std::string TextureParams::FindString(const std::string& name, const std::string& defaultValue) const {
+	return _geomParams.FindOneString(name,
+		_materialParams.FindOneString(name, defaultValue));
+}
+
+
 std::shared_ptr<Texture<Spectrum>> TextureParams::GetSpectrumTexture(
 		const std::string &n, const Spectrum &def) const {
 	std::string name=_geomParams.FindTexture(n);
