@@ -141,6 +141,8 @@ struct GraphicsState {
 	std::map<std::string, std::shared_ptr<Material>> namedMaterials;
 	std::string currentNamedMaterial;
 	bool reverseOrientation = false;//是否要翻转法线
+	//根据当前渲染状态，创建一个新的材质
+	std::shared_ptr<Material> CreateMaterial(const ParamSet &params);
 };
 
 //系统的三个状态
@@ -216,8 +218,6 @@ Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
 	Film *film = nullptr;
 	if (name == "image") {
 		film = CreateFilm(paramSet, std::move(filter));
-		Debug(
-			"[make film: " << name << " ,res:" << film->fullResolution << " ,croppedPixelBound:" << film->croppedPixelBound << ".]");
 	}
 	else {
 		Error("film \"" << name.c_str() << "\" unknown.");
@@ -279,6 +279,32 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 		Error("Unable to create material " << name);
 	}
 	return std::shared_ptr<Material>(material);
+}
+
+std::shared_ptr<Material> GraphicsState::CreateMaterial(const ParamSet &params) {
+	//生成相应的材质参数
+	TextureParams mp(params, materialParams, floatTextures, spectrumTextures);
+	std::shared_ptr<Material> mtl;
+	if (currentNamedMaterial != "") {
+		//当前设置了named material
+		//从named material列表中去寻找已经生成好的材质
+		if (namedMaterials.find(currentNamedMaterial) != namedMaterials.end()) {
+			mtl = namedMaterials[currentNamedMaterial];
+		}
+		else {
+			//并没有找到相应的已经命名了的材质,用lambertian代替
+			Error("Named material \"" << currentNamedMaterial << "\" not defined. Using \"lambertian\".");
+			mtl = MakeMaterial("lambertian", mp);
+		}
+	}
+	else {
+		//没有设置named material
+		mtl = MakeMaterial(material, mp);
+		if (!mtl&&material != ""&&material != "none") {
+			mtl = MakeMaterial("lambertian", mp);
+		}
+	}
+	return mtl;
 }
 
 ////生成纹理
@@ -497,8 +523,9 @@ void raidenShape(const std::string &name, const ParamSet &params) {
 		if (shapes.size() == 0) {
 			return;
 		}
+		std::shared_ptr<Material> mtl = graphicsState.CreateMaterial(params);
 		for (auto s : shapes) {
-			prims.push_back(std::make_shared<GeomPrimitive>(s));
+			prims.push_back(std::make_shared<GeomPrimitive>(s, mtl));
 		}
 	}
 	//把创建的shape 插入到renderOption中的容器中
@@ -576,7 +603,6 @@ Camera *RenderOptions::MakeCamera() const {
 		Error("film cant be made.");
 		return nullptr;
 	}
-	Debug("[make camera: " << CameraName << " .]");
 	Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld, film);
 	return camera;
 }
@@ -624,7 +650,6 @@ void raidenWorldEnd() {
 	std::unique_ptr<Integrator> integrator(renderOptions->MakeIntegrator());
 	std::unique_ptr<Scene> scene(renderOptions->MakeScene());
 	if (scene && integrator) {
-		Debug("[start render scene.]");
 		integrator->RenderScene(*scene);
 	}
 

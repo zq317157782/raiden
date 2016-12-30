@@ -153,7 +153,6 @@ static void ParsePoint2f(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, 2 * i + 2);
 		points[i].y = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-		Debug("[point2f:"<<points[i]<<"]");
 	}
 	set.AddPoint2f(name, std::move(points), size);
 }
@@ -174,7 +173,6 @@ static void ParseVector2f(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, 2 * i + 2);
 		vectors[i].y = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-		Debug("[Vector2f:"<<vectors[i]<<"]");
 	}
 	set.AddVector2f(name, std::move(vectors), size);
 }
@@ -198,7 +196,6 @@ static void ParsePoint3f(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, 3 * i + 3);
 		points[i].z = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-		Debug("[point3f:"<<points[i]<<"]");
 	}
 	set.AddPoint3f(name, std::move(points), size);
 }
@@ -222,7 +219,6 @@ static void ParseVector3f(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, 3 * i + 3);
 		vectors[i].z = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-		Debug("[Vector3f:"<<vectors[i]<<"]");
 	}
 	set.AddVector3f(name, std::move(vectors), size);
 }
@@ -246,7 +242,6 @@ static void ParseNormal3f(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, 3 * i + 3);
 		normals[i].z = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-		Debug("[Normal3f:"<<normals[i]<<"]");
 	}
 	set.AddNormal3f(name, std::move(normals), size);
 }
@@ -271,8 +266,6 @@ static void ParseRGB(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, i + 3);
 		rgbs[i + 2] = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-
-		Debug("[rgb: r:"<<rgbs[i]<<" g:"<<rgbs[i+1]<<" b:"<<rgbs[i+2]<<"]");
 	}
 	set.AddRGBSpectrum(name, std::move(rgbs), size);
 }
@@ -286,7 +279,6 @@ static void ParseString(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, i + 1);
 		strings[i] = lua_tostring(L, -1);
 		lua_pop(L, 1);
-		Debug("[string:"<<strings[i]<<"]");
 	}
 	set.AddString(name, std::move(strings), size);
 }
@@ -300,14 +292,12 @@ static void ParseFloatArray(ParamSet& set, const std::string& name) {
 		lua_geti(L, -1, i + 1);
 		floats[i] = lua_tonumber(L, -1);
 		lua_pop(L, 1);
-		Debug("[float:"<<floats[i]<<"]");
 	}
 	set.AddFloat(name, std::move(floats), size);
 }
 
 //获取paramset
 static ParamSet GetParamSet(lua_State* L, int index) {
-	Debug("[start parse paramset]");
 	ParamSet set;
 	int t = index;
 	if (!lua_istable(L, t)) {
@@ -317,19 +307,16 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 	//遍历表
 	while (lua_next(L, t) != 0) {
 		std::string key = lua_tostring(L, -2);	//获取参数名字
-		Debug("[create a param\"" << key << "\"]");
 		switch (lua_type(L, -1)) {
 		case LUA_TNUMBER: {
 			//int 类型
 			if (lua_isinteger(L, -1)) {
 				int v = lua_tointeger(L, -1);
 				set.AddInt(key, std::unique_ptr<int[]>(new int[1] { v }), 1);
-				Debug("[int:"<<v<<"]");
 			} else {
 				Float v = lua_tonumber(L, -1);
 				set.AddFloat(key, std::unique_ptr<Float[]>(new Float[1] { v }),
 						1);
-				Debug("[Float:"<<v<<"]");
 			}
 		}
 			break;
@@ -337,7 +324,6 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 		case LUA_TBOOLEAN: {
 			bool v = lua_toboolean(L, -1);
 			set.AddBool(key, std::unique_ptr<bool[]>(new bool[1] { v }), 1);
-			Debug("[bool:"<<v<<"]");
 		}
 			break;
 
@@ -374,7 +360,6 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 		}
 		lua_pop(L, 1);
 	}
-	Debug("[end parse paramset]");
 	return set;
 }
 

@@ -25,7 +25,7 @@ NormalIntegrator *CreateNormalIntegrator(
             }
         }
     }
-    Debug("[make NormalIntegrator.]");
+    Debug("[CreateNormalIntegrator]");
     return new NormalIntegrator(camera,sampler, pixelBounds);
 }
 

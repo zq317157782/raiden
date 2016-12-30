@@ -26,7 +26,7 @@ DepthIntegrator *CreateDepthIntegrator(const ParamSet &params,
 			}
 		}
 	}
-	Debug("[make NormalIntegrator.]");
+	Debug("[CreateDepthIntegrator]");
 	return new DepthIntegrator(camera, sampler, pixelBounds,farPanel);
 }
 

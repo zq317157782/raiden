@@ -98,7 +98,7 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 		}
 	}
 	ReportThreadStats();
-	std::cout<<"work thread" <<ThreadIndex<<" over "<<std::endl;
+	Info("work thread" <<ThreadIndex<<" over ");
 
 }
 

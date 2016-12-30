@@ -155,6 +155,8 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
     }
     Float maxSampleLuminance = params.FindOneFloat("maxsampleluminance",
                                                    Infinity);
+	Debug("[CreateFilm][ res:" << Point2i(xres, yres) << ",croppedPixelBound:" << crop << ".]");
+
     return new Film(Point2i(xres, yres), crop, std::move(filter),
                     filename,maxSampleLuminance);
 }

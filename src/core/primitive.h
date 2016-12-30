@@ -35,7 +35,7 @@ private:
 	Bound3f WorldBound() const override;
 	bool IntersectP(const Ray&) const override;
 public:
-	GeomPrimitive(const std::shared_ptr<Shape>&);
+	GeomPrimitive(const std::shared_ptr<Shape>&, const std::shared_ptr<Material>&);
 
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
 				MemoryArena &arena, TransportMode mode,
