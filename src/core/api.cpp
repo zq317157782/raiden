@@ -267,6 +267,7 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	if (!material) {
 		Error("Unable to create material "<<name);
 	}
+	return std::shared_ptr<Material>(material);
 }
 
 ////生成纹理
