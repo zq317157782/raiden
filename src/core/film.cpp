@@ -45,6 +45,10 @@ void Film::WriteImage() {
 				rgb[0] *= invWeight;
 				rgb[1] *= invWeight;
 				rgb[2] *= invWeight;
+				//进行sRGB空间下的gamma校验
+				rgb[0]=GammaCorrect(rgb[0]);
+				rgb[1]=GammaCorrect(rgb[1]);
+				rgb[2]=GammaCorrect(rgb[2]);
 				image.push_back(rgb[0]*255);//R
 				image.push_back(rgb[1]*255);//G
 				image.push_back(rgb[2]*255);//B
