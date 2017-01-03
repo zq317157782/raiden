@@ -1,4 +1,4 @@
-/*
+﻿/*
  * reflection.h
  *
  *  Created on: 2016年12月6日
@@ -12,6 +12,7 @@
 #include "spectrum.h"
 #include "material.h"
 #include "interaction.h"
+#include "rng.h"
 //BxDF坐标系下
 //法线(0,0,1)与W(x,y,z)点乘等于W.z
 inline Float CosTheta(const Vector3f &w) {
@@ -476,6 +477,85 @@ public:
 			}
 		}
 		return result;
+	}
+
+	Spectrum Sample_f(const Vector3f& woWorld/*世界坐标系下面的出射射线*/,Vector3f* wiWorld/*世界坐标系下面的入射射线*/, const Point2f& u/*样本*/, Float *pdf, BxDFType type/*希望匹配的BXDF类型*/, BxDFType* sampledType/*实际匹配的BXDF类型*/) const {
+		//1.先采样一个BxDF，确定BxDF的类型，以及采样入射方向
+		//2.根据入射和出射方向，采样pdf
+		//3.计算BSDF系数	
+		int matchingCompNum = NumComponents(type);
+		//没有匹配的BxDF就直接返回0
+		if (matchingCompNum == 0) {
+			*pdf = 0;
+			if (sampledType) {
+				*sampledType = BxDFType(0);//未知类型
+			}
+			return 0;
+		}
+
+		//根据0~1之间的样本值，采样出1个组件
+		int comp = std::min((int)std::floor(matchingCompNum*u[0]), matchingCompNum-1);
+
+		//开始采样1个bxdf
+		BxDF* bxdf = nullptr;
+		int count = comp;
+		for (int i = 0; i < _nBxDF; ++i) {
+			if (_bxdfs[i]->MatchesFlags(type) && count-- == 0/*这里先比较，再--,不能加括号*/) {
+				bxdf = _bxdfs[i];
+				break;
+			}
+		}
+
+		Assert(bxdf != nullptr);
+		//重新映射样本
+		Point2f uNew = Point2f(std::min(matchingCompNum*u[0]- comp, OneMinusEpsilon),u[1]);
+		//反射坐标下下的wo,wi
+		Vector3f wo=WorldToLocal(woWorld);
+		//光线压根没和表面相交
+		if (wo.z == 0) {
+			return 0;
+		}
+		Vector3f wi;
+		//初始化部分数据
+		*pdf = 0;
+		*sampledType = bxdf->type;
+		//计算bxdf系数以及采样出射方向
+		Spectrum f = bxdf->Sample_f(wo, &wi, uNew, pdf, sampledType);
+		
+		
+		if (*pdf == 0) {
+			if (sampledType) {
+				*sampledType = BxDFType(0);//未知类型
+			}
+			return 0;
+		}
+
+		//计算世界坐标系下的出射方向
+		*wiWorld = LocalToWorld(wi);
+		
+		
+		if (!(bxdf->type&BSDF_SPECULAR) && matchingCompNum > 1) {
+			//计算每个符合的bxdf的pdf之和，然后计算平均pdf
+			for (int i = 0; i < _nBxDF; ++i) {
+				if (_bxdfs[i]->MatchesFlags(type)&&_bxdfs[i] != bxdf) {
+					*pdf += _bxdfs[i]->Pdf(wo, wi);
+				}
+			}
+			*pdf = (*pdf)/matchingCompNum;
+
+			//计算bxdf系数和
+			bool reflect = (wi.z*wo.z) > 0;
+			//PBRT中其实是这样写的
+			//bool reflect = Dot(*wiWorld, ng) * Dot(woWorld, ng) > 0;
+			f = Spectrum(0);//重置
+			for (int i = 0; i < _nBxDF; ++i) {
+				if (_bxdfs[i]->MatchesFlags(type)&&((reflect&&_bxdfs[i]->type&BSDF_SPECULAR)|| (!reflect&&_bxdfs[i]->type&BSDF_TRANSMISSION))) {
+					f += _bxdfs[i]->f(wo, wi);
+				}
+			}
+		}
+
+		return f;
 	}
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
