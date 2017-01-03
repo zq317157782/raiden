@@ -526,6 +526,18 @@ static int NamedMaterial(lua_State* L) {
 	}
 	raidenNamedMaterial(name);
 }
+
+static int LightSource(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	}
+	else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenLightSource(name, params);
+}
 static int AttributeBegin() {
 	raidenAttributeBegin();
 	return LUA_OK;
@@ -576,6 +588,7 @@ void parse(char* filename) {
 	lua_register(L, "Material", (lua_CFunction)Material);
 	lua_register(L, "NamedMaterial", (lua_CFunction)NamedMaterial);
 	lua_register(L, "MakeNamedMaterial", (lua_CFunction)MakeNamedMaterial);
+	lua_register(L, "LightSource", (lua_CFunction)LightSource);
 	lua_register(L, "AttributeBegin", (lua_CFunction)AttributeBegin);
 	lua_register(L, "AttributeEnd", (lua_CFunction)AttributeEnd);
 	lua_register(L, "TransformBegin", (lua_CFunction)TransformBegin);

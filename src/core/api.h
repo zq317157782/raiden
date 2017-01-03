@@ -37,6 +37,7 @@ void raidenTexture(const std::string &name, const std::string &type,const std::s
 void raidenMaterial(const std::string &name, const ParamSet &params);
 void raidenNamedMaterial(const std::string &name);
 void raidenMakeNamedMaterial(const std::string& name, const ParamSet& params);
+void raidenLightSource(const std::string& name, const ParamSet &params);
 void raidenWorldBegin();
 void raidenWorldEnd();
 void raidenAttributeBegin();

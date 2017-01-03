@@ -45,6 +45,7 @@ std::shared_ptr<PointLight> CreatePointLight(const Transform &light2world,const 
     Spectrum sc = paramSet.FindOneSpectrum("scale", Spectrum(1.0));
     Point3f P = paramSet.FindOnePoint3f("from", Point3f(0, 0, 0));
     Transform l2w = Translate(Vector3f(P.x, P.y, P.z)) * light2world;
+	Debug("[CreatePointLight]");
     return std::make_shared<PointLight>(l2w,I * sc);
 }
 

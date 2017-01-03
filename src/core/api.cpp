@@ -281,6 +281,7 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	return std::shared_ptr<Material>(material);
 }
 
+
 std::shared_ptr<Material> GraphicsState::CreateMaterial(const ParamSet &params) {
 	//生成相应的材质参数
 	TextureParams mp(params, materialParams, floatTextures, spectrumTextures);
@@ -512,6 +513,17 @@ void raidenCamera(const std::string &name, const ParamSet &params) {
 	namedCoordinateSystems["camera"] = renderOptions->CameraToWorld;
 }
 
+void raidenLightSource(const std::string& name, const ParamSet &params) {
+	VERIFY_WORLD("LightSource");
+	std::shared_ptr<Light> light = MakeLight(name, params, curTransform[0]);
+	if (light) {
+		renderOptions->lights.push_back(light);//插入光源
+	}
+	else {
+		Error("Light Source Type \'" << name << "\' unknown");
+	}
+}
+
 void raidenShape(const std::string &name, const ParamSet &params) {
 	VERIFY_WORLD("Shape");
 	std::vector<std::shared_ptr<Primitive>> prims;
@@ -695,7 +707,7 @@ void raidenTexture(const std::string &name, const std::string &type,
 	}
 	else {
 		Error("texture type\"" << type << "\" unknown.");
-		exit(1);
+		//exit(1);
 	}
 }
 
