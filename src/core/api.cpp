@@ -24,6 +24,7 @@
 #include "lights/point.h"
 #include "integrators/normal.h"
 #include "integrators/depth.h"
+#include "integrators/whitted.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
  //transform相关参数
@@ -638,6 +639,9 @@ Integrator *RenderOptions::MakeIntegrator() const {
 	}
 	else if (IntegratorName == "depth") {
 		integrator = CreateDepthIntegrator(IntegratorParams, sampler, camera);
+	}
+	else if(IntegratorName == "whitted"){
+		integrator=CreateWhittedIntegrator(IntegratorParams,sampler,camera);
 	}
 	else {
 		Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");

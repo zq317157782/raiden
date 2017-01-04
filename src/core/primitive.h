@@ -24,7 +24,6 @@ public:
 				MemoryArena &arena, TransportMode mode,
 				bool allowMultipleLobes) const=0;
 	//todo 返回区域光结构
-	//todo 获取材质
 };
 
 class GeomPrimitive:public Primitive{

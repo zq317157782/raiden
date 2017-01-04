@@ -11,6 +11,7 @@
 #include "geometry.h"
 #include "shape.h"
 #include "material.h"
+#include "spectrum.h"
 class Interaction {
 public:
 	Point3f p; //交点
@@ -83,6 +84,8 @@ public:
 	        const RayDifferential &ray, MemoryArena &arena,
 	        bool allowMultipleLobes = false,
 	        TransportMode mode = TransportMode::Radiance);
+
+	Spectrum Le(const Vector3f& w) const{return Spectrum(0);}
 };
 
 #endif /* SRC_CORE_INTERACTION_H_ */
