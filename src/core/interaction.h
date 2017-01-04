@@ -26,6 +26,18 @@ public:
 			const Vector3f& wo, Float t) :
 			p(pp), n(nn), pErr(perr), wo(wo), time(t){
 	}
+	bool IsSurfaceInteraction() const { return n != Normal3f(); }
+	//给予方向,生成新的射线
+	Ray SpawnRay(const Vector3f& d) const {
+		Point3f o = OffsetRayOrigin(p,pErr,n,d);
+		return Ray(o, d, Infinity, time);
+	}
+	//给予空间点，生成射向目标点的射线
+	Ray SpawnRay(const Point3f& p2) const {
+		Vector3f d = p2 - p;
+		Point3f o = OffsetRayOrigin(p, pErr, n, d);
+		return Ray(o, d, 1 - ShadowEpsilon, time);
+	}
 };
 
 //表面交点，射线与几何体表面之间的交点

@@ -53,6 +53,7 @@ static constexpr Float Inv4Pi = 0.07957747154594766788;
 static constexpr Float PiOver2 = 1.57079632679489661923;
 static constexpr Float PiOver4 = 0.78539816339744830961;
 static constexpr Float Sqrt2 = 1.41421356237309504880;
+static constexpr Float ShadowEpsilon = 0.0001f;
 
 template<typename T> class Vector3;
 template<typename T> class Vector2;
