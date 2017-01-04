@@ -24,7 +24,7 @@ WhittedIntegrator *CreateWhittedIntegrator(
             }
         }
     }
-    Debug("[CreateNormalIntegrator]");
+    Debug("[CreateWhittedIntegrator]");
     return new WhittedIntegrator(camera,sampler, pixelBounds);
 }
 
