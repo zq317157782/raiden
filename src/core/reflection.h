@@ -557,5 +557,30 @@ public:
 
 		return f;
 	}
+
+	Float Pdf(const Vector3f& woWorld, const Vector3f& wiWorld, BxDFType type) const {
+		if (_nBxDF == 0) {
+			return 0.0f;
+		}
+		//计算局部wo,wi
+		Vector3f wo = WorldToLocal(woWorld);
+		Vector3f wi = WorldToLocal(wiWorld);
+		//和表面没有相交点
+		if (wo.z == 0) {
+			return 0.0f;
+		}
+		Float pdf = 0;
+		int matchingCompNum = 0;
+		for (int i = 0; i < _nBxDF; ++i) {
+			if (_bxdfs[i]->MatchesFlags(type)) {
+				++matchingCompNum;
+				pdf += _bxdfs[i]->Pdf(wo, wi);
+			}
+		}
+		if (matchingCompNum > 0) {
+			return pdf / matchingCompNum;
+		}
+		return 0.0f;
+	}
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
