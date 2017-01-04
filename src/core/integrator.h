@@ -34,4 +34,9 @@ public:
 };
 
 
+//使用双重重要性采样来计算直接光贡献
+Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
+	const Light &light, const Point2f &uLight,
+	const Scene &scene, Sampler &sampler,
+	MemoryArena &arena, bool handleMedia, bool specular);
 #endif /* SRC_CORE_INTEGRATOR_H_ */

@@ -13,6 +13,8 @@
 #include "light.h"
 #include "parallel.h"
 #include "memory.h"
+#include "reflection.h"
+#include "sampling.h"
 void SamplerIntegrator::RenderScene(const Scene& scene) {
 	//首先计算需要的tile数
 	Bound2i filmBound = _camera->film->GetSampleBounds();
@@ -71,3 +73,104 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 		_camera->film->WriteImage();
 }
 
+Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
+	const Light &light, const Point2f &uLight,
+	const Scene &scene, Sampler &sampler,
+	MemoryArena &arena, bool handleMedia=false, bool specular=false) {
+	//1.先采样光源,delta光源不需要参与MIS
+	//2.然后采样BSDF，如果光源是delta,不需要采样BSDF，因为肯定采样不到光源
+
+	//首先判断需不需要考虑采样 specular lobe
+	BxDFType bsdfFlags = specular ? (BSDF_ALL) : BxDFType(BSDF_ALL&~BSDF_SPECULAR);
+	Spectrum Ld(0);
+	Vector3f wi;
+	Float lightPdf = 0;
+	Float scatteringPdf = 0;
+	VisibilityTester vis;
+	//采样光源MIS
+	Spectrum Li=light.Sample_Li(it,&wi,&lightPdf,&vis);
+	if (!Li.IsBlack()&&lightPdf > 0) {
+		Spectrum f;
+		if (it.IsSurfaceInteraction()) {
+			const SurfaceInteraction& si = (const SurfaceInteraction&)(it);
+			f=si.bsdf->f(si.wo, wi, bsdfFlags)*AbsDot(wi,si.shading.n);//隐式包含了cos成分
+			scatteringPdf = si.bsdf->Pdf(si.wo,wi, bsdfFlags);
+		}
+		if (!f.IsBlack()) {
+			if (handleMedia) {
+
+			}
+			else {
+				//判断光源和射线是否倍遮挡
+				if (!vis.Unoccluded(scene)) {
+					Li = 0.0f;//设置光源能量为0
+				}
+			}
+
+			if (!Li.IsBlack()) {
+				Float weight = 1.0f;
+				//计算MIS，如果是delta光源忽略MIS
+				if (!IsDeltaLight(light.flags)) {
+					weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
+				}
+				Ld += f*Li*weight / lightPdf;
+
+				//PBRT的实现:
+				////光源如果是delta光源的话，就不需要考虑MIS了
+				//if (IsDeltaLight(light.flags)) {
+				//	Ld += f*Li / lightPdf;
+				//}
+				////否则计算MIS
+				//else {
+				//	Float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
+				//	Ld += f*Li*weight/lightPdf;
+				//}
+				//PBRT的实现 END
+			}
+		}
+	}
+
+	//采样BSDF MIS
+	if (!IsDeltaLight(light.flags)) {
+		Spectrum f;
+		bool sampledSpecular=false;
+		BxDFType sampledType;
+		if (it.IsSurfaceInteraction()) {
+			const SurfaceInteraction& si = (const SurfaceInteraction&)(it);
+			f=si.bsdf->Sample_f(si.wo, &wi, uScattering, &scatteringPdf, bsdfFlags, &sampledType);
+			f *= AbsDot(wi, si.shading.n);//隐式cos
+			sampledSpecular = (BSDF_SPECULAR&sampledType) != 0;
+		}
+
+		if (!f.IsBlack() && scatteringPdf > 0) {
+			Float weight = 1.0f;
+			//如果bsdf不是specular的情况
+			if (!sampledSpecular) {
+				lightPdf = light.Pdf_Li(it, wi);//计算采样到light的概率
+				//如果lightPdf==0,那当前光源不可能产生能量给当前方向
+				if (lightPdf == 0) {
+					return Ld;
+				}
+				//计算权重
+				weight = PowerHeuristic(1, scatteringPdf, 1, lightPdf);
+			}
+
+			//在计算好权重以及确定光源不是delta光源后，计算光源产生的Li
+			SurfaceInteraction lightIsect;
+			Ray ray = it.SpawnRay(wi);
+			bool found = scene.Intersect(ray, &lightIsect);
+			//能相交就是arealight
+			if (found) {
+				Assert(false);
+			}
+			else {//infi light
+				Li = light.Le(ray);
+			}
+			if (!Li.IsBlack()) {
+				Ld += f*Li*weight / scatteringPdf;
+			}
+		}
+	}
+	//返回经过MIS加权计算的direct radiacne
+	return Ld;
+}

@@ -8,7 +8,7 @@
 #include "interaction.h"
 #include "paramset.h"
 #include "sampling.h"
-Spectrum PointLight::Sample_Li(Interaction& itr,Vector3f* wi,Float* pdf, VisibilityTester* vis) const{
+Spectrum PointLight::Sample_Li(const Interaction& itr,Vector3f* wi,Float* pdf, VisibilityTester* vis) const{
 	*wi=Normalize(Vector3f(_position-itr.p));//计算光线方向
 	*pdf=1;
 	*vis = VisibilityTester(itr, Interaction(_position, itr.time));

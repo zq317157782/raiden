@@ -558,6 +558,7 @@ public:
 		return f;
 	}
 
+	//计算PDF
 	Float Pdf(const Vector3f& woWorld, const Vector3f& wiWorld, BxDFType type) const {
 		if (_nBxDF == 0) {
 			return 0.0f;

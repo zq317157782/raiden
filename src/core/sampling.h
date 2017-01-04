@@ -35,4 +35,14 @@ Point2f ConcentricSampleDisk(const Point2f &u);
 void LatinHypercube(Float *samples, int nSamples, int nDim, RNG &rng);
 //cos分布的半球采样
 Vector3f CosineSampleHemisphere(const Point2f &u);
+
+//MIS中使用的权重计算方法
+inline Float BalanceHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
+	return (nf * fPdf) / (nf * fPdf + ng * gPdf);
+}
+inline Float PowerHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
+	Float f = nf * fPdf, g = ng * gPdf;
+	return (f * f) / (f * f + g * g);
+}
+
 #endif /* SRC_CORE_SAMPLING_H_ */

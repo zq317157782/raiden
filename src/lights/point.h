@@ -20,7 +20,7 @@ public:
 		_position = _lightToWorld(Point3f(0, 0, 0)); //计算光源在世界坐标下的位置
 		_I = I;
 	}
-	virtual Spectrum Sample_Li(Interaction& interaction, Vector3f* wi,
+	virtual Spectrum Sample_Li(const Interaction& interaction, Vector3f* wi,
 			Float* pdf, VisibilityTester* vis) const override;
 	virtual Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const override;
 	virtual Spectrum Power() const override;
