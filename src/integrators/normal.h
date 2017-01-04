@@ -12,7 +12,6 @@
 #include "spectrum.h"
 #include "interaction.h"
 #include "scene.h"
-//深度积分器，用来渲染深度贴图(depth texture)
 class NormalIntegrator:public SamplerIntegrator{
 private:
 

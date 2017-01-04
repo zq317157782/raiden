@@ -119,7 +119,7 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	Float scatteringPdf = 0;
 	VisibilityTester vis;
 	//采样光源MIS
-	Spectrum Li=light.Sample_Li(it,&wi,&lightPdf,&vis);
+	Spectrum Li=light.Sample_Li(it,uLight,&wi,&lightPdf,&vis);
 	if (!Li.IsBlack()&&lightPdf > 0) {
 		Spectrum f;
 		if (it.IsSurfaceInteraction()) {

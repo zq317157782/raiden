@@ -712,7 +712,8 @@ TEST(pointlight,all){
 	ref.p=Point3f(0,0,3);
 	Vector3f wi;
 	Float pdf;
-	Spectrum le=pl.Sample_Li(ref,&wi,&pdf);
+	VisibilityTester tester;
+	Spectrum le=pl.Sample_Li(ref,Point2f(0,0),&wi,&pdf,&tester);
 	ASSERT_EQ(wi,Vector3f(0,0,-1));
 	//ASSERT_EQ(le,Spectrum(1));
 }
