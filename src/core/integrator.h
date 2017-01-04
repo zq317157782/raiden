@@ -38,5 +38,10 @@ public:
 Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	const Light &light, const Point2f &uLight,
 	const Scene &scene, Sampler &sampler,
-	MemoryArena &arena, bool handleMedia, bool specular);
+	MemoryArena &arena, bool handleMedia=false, bool specular=false);
+
+//均匀采样多个光源的radiance
+Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
+	const std::vector<int> &nLightSamples,
+	bool handleMedia=false);
 #endif /* SRC_CORE_INTEGRATOR_H_ */

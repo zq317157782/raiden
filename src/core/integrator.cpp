@@ -73,10 +73,41 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 		_camera->film->WriteImage();
 }
 
+
+Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
+	const std::vector<int> &nLightSamples,
+	bool handleMedia) {
+	Spectrum L(0);
+	for (int i = 0; i < scene.lights.size(); ++i) {
+		const std::shared_ptr<Light>& light = scene.lights[i];
+		int numSamples = nLightSamples[i];//获得当前光源的样本个数
+		//获取样本数组
+		Point2f* lightArray = sampler.Get2DArray(numSamples);
+		Point2f* scatteringArray=sampler.Get2DArray(numSamples);
+		//没有样本数组的情况
+		if (!lightArray || !scatteringArray) {
+			Point2f lightSample = sampler.Get2DSample();
+			Point2f scatteringSample = sampler.Get2DSample();
+			L += EstimateDirect(it, scatteringSample,*light,lightSample,scene,sampler,arena,handleMedia);
+		}
+		else {
+			Spectrum Ld(0.0f);
+			for (int j = 0; j < numSamples; ++j) {
+				Point2f lightSample = lightArray[j];
+				Point2f scatteringSample = scatteringArray[j];
+				Ld += EstimateDirect(it, scatteringSample, *light, lightSample, scene, sampler, arena, handleMedia);
+			}
+			L = Ld / numSamples;
+		}
+	}
+	return L;
+}
+
+
 Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	const Light &light, const Point2f &uLight,
 	const Scene &scene, Sampler &sampler,
-	MemoryArena &arena, bool handleMedia=false, bool specular=false) {
+	MemoryArena &arena, bool handleMedia, bool specular) {
 	//1.先采样光源,delta光源不需要参与MIS
 	//2.然后采样BSDF，如果光源是delta,不需要采样BSDF，因为肯定采样不到光源
 
@@ -174,3 +205,5 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	//返回经过MIS加权计算的direct radiacne
 	return Ld;
 }
+
+
