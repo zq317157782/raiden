@@ -94,6 +94,7 @@ class TextureParams;
 template<typename T> class Texture;
 class BSDF;
 class Material;
+class VisibilityTester;
 
 struct Options {
 	int numThread = 0; //线程个数

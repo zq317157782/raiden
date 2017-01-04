@@ -11,6 +11,7 @@
 #include "geometry.h"
 #include "transform.h"
 #include "spectrum.h"
+#include "interaction.h"
 //第一次使用c++11中的enum class
 //但是这里为啥要用这个新特性，完全无法理解
 //这里定义了4个光源特征
@@ -41,7 +42,7 @@ public:
 
 	virtual Spectrum Le(const RayDifferential& ray) const {return Spectrum(0);};
 	//返回入射光线方向以及相应的radiance
-	virtual Spectrum Sample_Li(Interaction& interaction,Vector3f* wi,Float* pdf) const=0;
+	virtual Spectrum Sample_Li(Interaction& interaction,Vector3f* wi,Float* pdf, VisibilityTester* vis) const=0;
 	//返回采样入射光线的pdf
 	virtual Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const = 0;
 	//返回光源的flux
@@ -56,4 +57,21 @@ public:
 	virtual ~Light(){}
 };
 
+
+//判断两个交点是否可见的结构
+class VisibilityTester {
+private:
+	Interaction _p0;
+	Interaction _p1;
+public:
+	VisibilityTester() {}
+	VisibilityTester(const Interaction& p0, const Interaction& p1):_p0(p0),_p1(p1){
+
+	}
+
+	const Interaction& P0() { return _p0; }
+	const Interaction& P1() { return _p1; }
+	//判断两个点之间是否被遮挡
+	bool Unoccluded(const Scene& scene) const;
+};
 #endif /* SRC_CORE_LIGHT_H_ */
