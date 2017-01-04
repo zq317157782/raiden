@@ -1,4 +1,4 @@
-/*
+﻿/*
  * geometry.h
  *
  *  Created on: 2016年11月9日
@@ -1355,6 +1355,13 @@ inline Vector3<T> Abs(const Vector3<T>& v) {
 	return Vector3<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
 }
 
+//返回Vector3<T>的绝对值
+template<typename T>
+inline Normal3<T> Abs(const Normal3<T>& v) {
+	return Normal3<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
+}
+
+
 //取大于原始值最小的整数
 template<typename T>
 inline Vector2<T> Ceil(const Vector2<T>& p) {
@@ -1438,6 +1445,29 @@ template<typename T>
 inline Normal3<T> Min(const Normal3<T>& p1, const Normal3<T>& p2) {
 	return Normal3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
 			std::min(p1.z, p2.z));
+}
+
+inline Point3f OffsetRayOrigin(const Point3f& p/*需要被偏移的原点*/,const Vector3f& pErr/*误差*/,const Normal3f& n/*原点所在表面法线*/,const Vector3f& w/*射线的方向*/) {
+	//1.首先计算原点所在切平面需要偏移的量
+	Float d = Dot(Abs(n), pErr);
+	
+	//先判断射线是向外还是向内
+	if (Dot(w, n) < 0) {
+		d = -d;
+	}
+	Vector3f offset = d*Vector3f(n);
+
+	Point3f po = p + offset;
+	//再做保险的误差边界设置
+	for (int i = 0; i < 3; ++i) {
+		if (offset[i] > 0) {
+			po[i] = NextFloatUp(po[i]);
+		}
+		else if (offset[i]<0) {
+			po[i] = NextFloatDown(po[i]);
+		}
+	}
+	return po;
 }
 //todo geomtry相关函数的扩充(补充说明:还有一小部分)
 #endif /* SRC_CORE_GEOMETRY_H_ */
