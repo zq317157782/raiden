@@ -1450,7 +1450,13 @@ inline Normal3<T> Min(const Normal3<T>& p1, const Normal3<T>& p2) {
 inline Point3f OffsetRayOrigin(const Point3f& p/*需要被偏移的原点*/,const Vector3f& pErr/*误差*/,const Normal3f& n/*原点所在表面法线*/,const Vector3f& w/*射线的方向*/) {
 	//1.首先计算原点所在切平面需要偏移的量
 	Float d = Dot(Abs(n), pErr);
-	
+#ifdef FLOAT_AS_DOUBLE
+	//PBRT的解释如下:
+	// We have tons of precision; for now bump up the offset a bunch just
+	// to be extra sure that we start on the right side of the surface
+	// (In case of any bugs in the epsilons code...)
+	d *= 1024;
+#endif
 	//先判断射线是向外还是向内
 	if (Dot(w, n) < 0) {
 		d = -d;
