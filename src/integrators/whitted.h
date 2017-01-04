@@ -62,7 +62,7 @@ public:
 				L+=f*AbsDot(n,wi)*Li/pdf;
 			}
 		}
-		return L;
+
 	}
 };
 

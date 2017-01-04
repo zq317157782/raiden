@@ -443,7 +443,7 @@ public:
 		if (wo.z == 0) {
 			return 0.0f;
 		}
-		bool reflect = Dot(wi, _ng) * Dot(wo, _ng) > 0.0f;	//判断是反射还是折射
+		bool reflect = Dot(wiW, _ng) * Dot(woW, _ng) > 0.0f;	//判断是反射还是折射
 		Spectrum result(0.0f);
 		for (int i = 0; i < _nBxDF; ++i) {
 			if (_bxdfs[i]->MatchesFlags(flags)) {

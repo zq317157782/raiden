@@ -36,7 +36,7 @@ Film::Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染
 
 void Film::WriteImage() {
 	std::vector<uint8_t> image;
-	for (int j = croppedPixelBound[1].y - 1; j >= croppedPixelBound[0].y; --j) {
+	for (int j = croppedPixelBound[0].y; j < croppedPixelBound[1].y; ++j) {
 			for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
 				Pixel p = GetPixel(Point2i(i, j));
 				Float rgb[3];
