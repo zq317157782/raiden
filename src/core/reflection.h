@@ -479,7 +479,7 @@ public:
 		return result;
 	}
 
-	Spectrum Sample_f(const Vector3f& woWorld/*世界坐标系下面的出射射线*/,Vector3f* wiWorld/*世界坐标系下面的入射射线*/, const Point2f& u/*样本*/, Float *pdf, BxDFType type/*希望匹配的BXDF类型*/, BxDFType* sampledType/*实际匹配的BXDF类型*/) const {
+	Spectrum Sample_f(const Vector3f& woWorld/*世界坐标系下面的出射射线*/,Vector3f* wiWorld/*世界坐标系下面的入射射线*/, const Point2f& u/*样本*/, Float *pdf, BxDFType type/*希望匹配的BXDF类型*/, BxDFType* sampledType=nullptr/*实际匹配的BXDF类型*/) const {
 		//1.先采样一个BxDF，确定BxDF的类型，以及采样入射方向
 		//2.根据入射和出射方向，采样pdf
 		//3.计算BSDF系数	

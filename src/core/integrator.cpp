@@ -15,6 +15,50 @@
 #include "memory.h"
 #include "reflection.h"
 #include "sampling.h"
+
+//这个函数主要是为了解决RayDifferential的生成
+Spectrum SamplerIntegrator::SpecularReflect(const RayDifferential& ray, const SurfaceInteraction& isect, const Scene&scene, Sampler& sampler, MemoryArena& arena, int depth) const {
+	BxDFType type = BxDFType(BSDF_REFLECTION | BSDF_SPECULAR);//镜面反射
+	Normal3f ns = isect.shading.n;
+	BSDF* bsdf = isect.bsdf;
+	Vector3f wo = isect.wo;
+	Vector3f wi;
+	Float pdf;
+	//采样反射射线
+	Spectrum f=bsdf->Sample_f(wo,&wi,sampler.Get2DSample(),&pdf,type);
+	Float costheta = AbsDot(wi, ns);
+	//条件满足才说明反射有贡献
+	if (pdf > 0 && !f.IsBlack() && costheta != 0) {
+		RayDifferential rayReflect = isect.SpawnRay(wi);//生成反射射线
+		if (ray.hasDifferential) {
+			rayReflect.hasDifferential = true;
+			//计算offset射线的原点
+			rayReflect.ox = isect.p + isect.dpdx;
+			rayReflect.oy = isect.p + isect.dpdy;
+
+			//计算offset射线的方向
+			//1.先计算dndx/dndy 和 dwodx/dwody
+			//2.用反射公式计算 dwidx/dwidy
+			Normal3f dndx = isect.dndu*isect.dudx + isect.dndv*isect.dvdx;
+			Normal3f dndy = isect.dndu*isect.dudy + isect.dndv*isect.dvdy;
+
+			Vector3f dwodx = -ray.dx - wo;
+			Vector3f dwody = -ray.dy - wo;
+
+			Float dwondx = Dot(dwodx, ns) + Dot(wo, dndx);
+			Float dwondy = Dot(dwody, ns) + Dot(wo, dndy);
+			//反射公式的偏导公式
+			rayReflect.dx = wi - dwodx + Vector3f(2.0f*(Dot(wo, ns)*dndx + dwondx*ns));
+			rayReflect.dy = wi - dwody + Vector3f(2.0f*(Dot(wo, ns)*dndy + dwondy*ns));
+		}
+		//计算蒙特卡洛估计式的一个item
+		return f*Li(rayReflect, scene, sampler, arena, depth+1)*costheta/pdf;
+	}
+	else {
+		return Spectrum(0);
+	}
+}
+
 void SamplerIntegrator::RenderScene(const Scene& scene) {
 	//首先计算需要的tile数
 	Bound2i filmBound = _camera->film->GetSampleBounds();
