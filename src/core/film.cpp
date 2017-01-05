@@ -56,11 +56,13 @@ void Film::WriteImage() {
 			}
 		}
 	Vector2i resolution=croppedPixelBound.Diagonal();
+	Debug("[Film::WriteImage][name:" << fileName << "]");
 	unsigned error = lodepng::encode(fileName, image, resolution.x,
 			resolution.y);
-	if (error)
-			std::cerr << "encoder error " << error << ": "
-					<< lodepng_error_text(error) << std::endl;
+	if (error) {
+		Error("encoder error " << error << ": "
+			<< lodepng_error_text(error))
+	}
 }
 
 void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight) {
