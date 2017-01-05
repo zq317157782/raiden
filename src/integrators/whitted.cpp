@@ -24,8 +24,10 @@ WhittedIntegrator *CreateWhittedIntegrator(
             }
         }
     }
+
+	int depth = params.FindOneInt("depth", 5);
     Debug("[CreateWhittedIntegrator]");
-    return new WhittedIntegrator(camera,sampler, pixelBounds);
+    return new WhittedIntegrator(camera,sampler, pixelBounds, depth);
 }
 
 
