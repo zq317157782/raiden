@@ -17,12 +17,12 @@
 #include "reflection.h"
 class WhittedIntegrator: public SamplerIntegrator {
 private:
-	int _depth; //反射和折射的最大次数
+	int _maxDepth; //反射和折射的最大次数
 public:
 	WhittedIntegrator(const std::shared_ptr<const Camera>& camera,
 			const std::shared_ptr<Sampler>& sampler, const Bound2i&pixelBound,
-			int depth = 5) :
-			SamplerIntegrator(camera, sampler, pixelBound), _depth(depth) {
+			int maxdepth = 5) :
+			SamplerIntegrator(camera, sampler, pixelBound), _maxDepth(maxdepth) {
 	}
 
 	virtual Spectrum Li(const RayDifferential &ray, const Scene &scene,
@@ -62,7 +62,10 @@ public:
 				L+=f*AbsDot(n,wi)*Li/pdf;
 			}
 		}
-
+		//处理满没镜面反射和完美镜面折射
+		if(depth+1<_maxDepth){
+			L+=SpecularReflect(ray,ref,scene,sampler,arena,depth);
+		}
 		return L;
 	}
 };

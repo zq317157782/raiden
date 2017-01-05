@@ -415,8 +415,9 @@ public:
 	int NumComponents(BxDFType flags = BSDF_ALL) const {
 		int num = 0;
 		for (int i = 0; i < _nBxDF; ++i) {
-			_bxdfs[i]->MatchesFlags(flags);
-			++num;
+			if(_bxdfs[i]->MatchesFlags(flags)){
+				++num;
+			}
 		}
 		return num;
 	}
@@ -492,7 +493,6 @@ public:
 			}
 			return 0;
 		}
-
 		//根据0~1之间的样本值，采样出1个组件
 		int comp = std::min((int)std::floor(matchingCompNum*u[0]), matchingCompNum-1);
 
@@ -500,12 +500,11 @@ public:
 		BxDF* bxdf = nullptr;
 		int count = comp;
 		for (int i = 0; i < _nBxDF; ++i) {
-			if (_bxdfs[i]->MatchesFlags(type) && count-- == 0/*这里先比较，再--,不能加括号*/) {
+			if (_bxdfs[i]->MatchesFlags(type) && (count-- == 0)/*这里先比较，再--,不能加括号*/) {
 				bxdf = _bxdfs[i];
 				break;
 			}
 		}
-
 		Assert(bxdf != nullptr);
 		//重新映射样本
 		Point2f uNew = Point2f(std::min(matchingCompNum*u[0]- comp, OneMinusEpsilon),u[1]);
