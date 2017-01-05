@@ -18,8 +18,10 @@ public:
 	Iteration(const std::vector<std::shared_ptr<Primitive>>& primitives) :
 			_primitives(primitives) {
 		for (auto& p : _primitives) {
-			Union(_worldBound, p->WorldBound());
+			_worldBound=Union(_worldBound, p->WorldBound());
 		}
+		
+		
 	}
 	bool Intersect(const Ray& r, SurfaceInteraction* ref) const override {
 		bool flag = false;

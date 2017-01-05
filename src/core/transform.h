@@ -423,13 +423,13 @@ inline Bound3f Transform::operator()(const Bound3f& b) const {
 	const Transform& T = (*this); 
 	//对包围盒的8个顶点都进行变换，然后求合并
 	Bound3f ret(T(Point3f(b.minPoint.x, b.minPoint.y, b.minPoint.z)));
-	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.minPoint.z)));
-	Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.minPoint.z)));
-	Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.maxPoint.z)));
-	Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.maxPoint.z)));
-	Union(ret, T(Point3f(b.minPoint.x, b.minPoint.y, b.maxPoint.z)));
-	Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.minPoint.z)));
-	Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
+	ret=Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.minPoint.z)));
+	ret = Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.minPoint.z)));
+	ret = Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.maxPoint.z)));
+	ret = Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.maxPoint.z)));
+	ret = Union(ret, T(Point3f(b.minPoint.x, b.minPoint.y, b.maxPoint.z)));
+	ret = Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.minPoint.z)));
+	ret = Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
 	return ret;
 }
 
