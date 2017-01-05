@@ -390,6 +390,10 @@ TEST(Bound3,all) {
 	ASSERT_EQ(b4[1], Point3<Float>(3, 3, 3));
 	ASSERT_EQ(b4.MaximumExtent(), 2);
 
+	Point3f c;
+	float r;
+	b4.BoundingSphere(&c,&r);
+	//ASSERT_EQ(r,1.73205f);
 }
 
 TEST(Ray,all) {
