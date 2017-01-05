@@ -237,6 +237,9 @@
     <ClCompile Include="src\integrators\whitted.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\lights\distant.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">
@@ -447,6 +450,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\integrators\whitted.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lights\distant.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

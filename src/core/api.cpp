@@ -22,6 +22,7 @@
 #include "filters/box.h"
 #include "accelerators/iteration.h"
 #include "lights/point.h"
+#include "lights/distant.h"
 #include "integrators/normal.h"
 #include "integrators/depth.h"
 #include "integrators/whitted.h"
@@ -256,6 +257,9 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 	std::shared_ptr<Light> light;
 	if (name == "point") {
 		light = CreatePointLight(light2world, paramSet);
+	}
+	else if (name == "distant") {
+		light = CreateDistantLight(light2world, paramSet);
 	}
 	else {
 		Error("light \"" << name.c_str() << "\" unknown.");

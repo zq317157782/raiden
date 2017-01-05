@@ -39,6 +39,9 @@ public:
 
 	}
 
+	//在scene被创建后，会被调用的函数
+	//预处理
+	virtual void Preprocess(Scene& scene) {}
 
 	virtual Spectrum Le(const RayDifferential& ray) const {return Spectrum(0);};
 	//返回入射光线方向以及相应的radiance
