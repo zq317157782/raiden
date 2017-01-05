@@ -517,10 +517,11 @@ public:
 		Vector3f wi;
 		//初始化部分数据
 		*pdf = 0;
-		*sampledType = bxdf->type;
+		if(sampledType){
+			*sampledType = bxdf->type;
+		}
 		//计算bxdf系数以及采样出射方向
 		Spectrum f = bxdf->Sample_f(wo, &wi, uNew, pdf, sampledType);
-		
 		
 		if (*pdf == 0) {
 			if (sampledType) {

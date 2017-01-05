@@ -28,6 +28,7 @@
 #include "integrators/whitted.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
+#include "materials/mirror.h"
  //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -275,6 +276,9 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	}
 	else if (name == "lambertian") {
 		material = CreateLambertianMaterial(mp);
+	}
+	else if(name == "mirror"){
+		material = CreateMirrorMaterial(mp);
 	}
 	else {
 		Warning("Material \'" << name << "\'unknown. Using \'lambertian\'");
