@@ -59,6 +59,58 @@ Spectrum SamplerIntegrator::SpecularReflect(const RayDifferential& ray, const Su
 	}
 }
 
+Spectrum SamplerIntegrator::SpecularTransmit(const RayDifferential& ray, const SurfaceInteraction& isect, const Scene&scene, Sampler& sampler, MemoryArena& arena, int depth) const {
+	BxDFType type = BxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR);//镜面折射
+	Normal3f ns = isect.shading.n;
+	BSDF* bsdf = isect.bsdf;
+	Vector3f wo = isect.wo;
+	Vector3f wi;
+	Float pdf;
+	//采样反射射线
+	Spectrum f = bsdf->Sample_f(wo, &wi, sampler.Get2DSample(), &pdf, type);
+	Float costheta = AbsDot(wi, ns);
+	if (pdf > 0 && !f.IsBlack() && costheta != 0) {
+		RayDifferential rayRefract = isect.SpawnRay(wi);//生成折射射线
+		if (ray.hasDifferential) {
+			rayRefract.hasDifferential = true;
+			//计算offset射线的原点
+			rayRefract.ox = isect.p + isect.dpdx;
+			rayRefract.oy = isect.p + isect.dpdy;
+			Float eta = bsdf->eta;
+			//说明入射射线在表面下面，需要反转折射系数比例
+			if (Dot(wo, ns) < 0) {
+				eta = 1.0 / eta;
+			}
+
+			//和镜面反射一样，求折射公式的一阶导数
+			Normal3f dndx = isect.dndu*isect.dudx + isect.dndv*isect.dvdx;
+			Normal3f dndy = isect.dndu*isect.dudy + isect.dndv*isect.dvdy;
+
+			Vector3f dwodx = -ray.dx - wo;
+			Vector3f dwody = -ray.dy - wo;
+
+			Float dwondx = Dot(dwodx, ns) + Dot(wo, dndx);
+			Float dwondy = Dot(dwody, ns) + Dot(wo, dndy);
+
+
+			Vector3f w = -wo;
+			Float mu = eta * Dot(w, ns) - Dot(wi, ns);
+			Float dmudx =
+				(eta - (eta * eta * Dot(w, ns)) / Dot(wi, ns)) * dwondx;
+			Float dmudy =
+				(eta - (eta * eta * Dot(w, ns)) / Dot(wi, ns)) * dwondy;
+
+			rayRefract.dx= wi + eta * dwodx - Vector3f(mu * dndx + dmudx * ns);
+			rayRefract.dy= wi + eta * dwody - Vector3f(mu * dndy + dmudy * ns);
+		}
+		//计算蒙特卡洛估计式的一个item
+		return f*Li(rayRefract, scene, sampler, arena, depth + 1)*costheta / pdf;
+	}
+	else {
+		return Spectrum(0.0f);
+	}
+}
+
 void SamplerIntegrator::RenderScene(const Scene& scene) {
 	//首先计算需要的tile数
 	Bound2i filmBound = _camera->film->GetSampleBounds();
