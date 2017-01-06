@@ -332,6 +332,8 @@ std::string TextureParams::FindString(const std::string& name, const std::string
 }
 
 
+
+
 std::shared_ptr<Texture<Spectrum>> TextureParams::GetSpectrumTexture(
 		const std::string &n, const Spectrum &def) const {
 	std::string name=_geomParams.FindTexture(n);
@@ -352,3 +354,23 @@ std::shared_ptr<Texture<Spectrum>> TextureParams::GetSpectrumTexture(
 	return std::shared_ptr<Texture<Spectrum>>(new ConstantTexture<Spectrum>(value));
 }
 
+
+std::shared_ptr<Texture<Float>> TextureParams::GetFloatTexture(
+	const std::string &n, Float def) const {
+	std::string name = _geomParams.FindTexture(n);
+	if (name == "") {
+		name = _materialParams.FindTexture(n);
+	}
+	if (name != "") {
+		if (_floatTextures.find(name) != _floatTextures.end()) {
+			return _floatTextures[name];
+		}
+		else {
+			Error("Couldn't find float texture named \"" << name << "\""
+				"for parameter \"" << n << "\"");
+		}
+	}
+	Float value = _materialParams.FindOneFloat(n, def);
+	value = _geomParams.FindOneFloat(n, value);
+	return std::shared_ptr<Texture<Float>>(new ConstantTexture<Float>(value));
+}

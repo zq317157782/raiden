@@ -29,6 +29,7 @@
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
+#include "materials/grass.h"
  //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -279,6 +280,9 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	}
 	else if(name == "mirror"){
 		material = CreateMirrorMaterial(mp);
+	}
+	else if (name == "grass") {
+		material = CreateGrassMaterial(mp);
 	}
 	else {
 		Warning("Material \'" << name << "\'unknown. Using \'lambertian\'");

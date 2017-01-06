@@ -222,6 +222,7 @@ private:
 	const FresnelDielectric _fresnel;
 	const Float _etaA, _etaB;
 	const TransportMode _mode;
+public:
 	SpecularTransmission(const Spectrum& T, Float etaA/*wo所在的eta*/,
 			Float etaB/*wi所在的eta*/, TransportMode mode) :
 			BxDF(BxDFType(BSDF_SPECULAR | BSDF_TRANSMISSION)), _T(T), _fresnel(

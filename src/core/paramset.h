@@ -123,5 +123,7 @@ public:
 
 	//获取一个Spectrum类型的纹理
 	std::shared_ptr<Texture<Spectrum>> GetSpectrumTexture( const std::string &n, const Spectrum &def) const;
+	//获取一个Float类型的纹理
+	std::shared_ptr<Texture<Float>> GetFloatTexture(const std::string &n, Float def) const;
 };
 #endif /* SRC_CORE_PARAMSET_H_ */

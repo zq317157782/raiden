@@ -188,6 +188,7 @@
     <ClCompile Include="src\lights\distant.cpp" />
     <ClCompile Include="src\lights\point.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\materials\grass.cpp" />
     <ClCompile Include="src\materials\lambertian.cpp" />
     <ClCompile Include="src\materials\mirror.cpp" />
     <ClCompile Include="src\samplers\random.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="src\integrators\whitted.h" />
     <ClInclude Include="src\lights\distant.h" />
     <ClInclude Include="src\lights\point.h" />
+    <ClInclude Include="src\materials\grass.h" />
     <ClInclude Include="src\materials\lambertian.h" />
     <ClInclude Include="src\materials\mirror.h" />
     <ClInclude Include="src\samplers\random.h" />
