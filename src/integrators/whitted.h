@@ -65,6 +65,7 @@ public:
 		//处理满没镜面反射和完美镜面折射
 		if(depth+1<_maxDepth){
 			L+=SpecularReflect(ray,ref,scene,sampler,arena,depth);
+			L+= SpecularTransmit(ray, ref, scene, sampler, arena, depth);
 		}
 		return L;
 	}
