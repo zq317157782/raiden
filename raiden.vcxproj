@@ -189,6 +189,7 @@
     <ClCompile Include="src\lights\point.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\materials\lambertian.cpp" />
+    <ClCompile Include="src\materials\mirror.cpp" />
     <ClCompile Include="src\samplers\random.cpp" />
     <ClCompile Include="src\shapes\sphere.cpp" />
     <ClCompile Include="src\test\statsTest.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="src\lights\distant.h" />
     <ClInclude Include="src\lights\point.h" />
     <ClInclude Include="src\materials\lambertian.h" />
+    <ClInclude Include="src\materials\mirror.h" />
     <ClInclude Include="src\samplers\random.h" />
     <ClInclude Include="src\shapes\sphere.h" />
     <ClInclude Include="src\test\statsTest.h" />

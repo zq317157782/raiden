@@ -106,6 +106,7 @@ static int CoordinateSystem(lua_State *L) {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenCoordinateSystem(name);
+	return LUA_OK;
 }
 
 static int CoordSysTransform(lua_State *L) {
@@ -117,6 +118,7 @@ static int CoordSysTransform(lua_State *L) {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenCoordSysTransform(name);
+	return LUA_OK;
 }
 static int ActiveTransformAll(lua_State *L) {
 	raidenActiveTransformAll();
@@ -143,6 +145,7 @@ static int TransformTimes(lua_State *L) {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenTransformTimes(start, end);
+	return LUA_OK;
 }
 
 static void ParsePoint2f(ParamSet& set, const std::string& name) {
@@ -487,6 +490,7 @@ static int CreateTexture(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 4);
 	raidenTexture(name, type, texName, params);
+	return LUA_OK;
 }
 
 static int Material(lua_State* L) {
@@ -525,6 +529,7 @@ static int NamedMaterial(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenNamedMaterial(name);
+	return LUA_OK;
 }
 
 static int LightSource(lua_State* L) {
@@ -537,6 +542,7 @@ static int LightSource(lua_State* L) {
 	}
 	ParamSet params = GetParamSet(L, 2);
 	raidenLightSource(name, params);
+	return LUA_OK;
 }
 static int AttributeBegin() {
 	raidenAttributeBegin();
