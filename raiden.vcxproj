@@ -193,6 +193,7 @@
     <ClCompile Include="src\materials\mirror.cpp" />
     <ClCompile Include="src\samplers\random.cpp" />
     <ClCompile Include="src\shapes\sphere.cpp" />
+    <ClCompile Include="src\shapes\trianglemesh.cpp" />
     <ClCompile Include="src\test\statsTest.cpp" />
     <ClCompile Include="src\textures\constant.cpp" />
   </ItemGroup>
@@ -267,6 +268,7 @@
     <ClInclude Include="src\materials\mirror.h" />
     <ClInclude Include="src\samplers\random.h" />
     <ClInclude Include="src\shapes\sphere.h" />
+    <ClInclude Include="src\shapes\trianglemesh.h" />
     <ClInclude Include="src\test\statsTest.h" />
     <ClInclude Include="src\test\test.h" />
     <ClInclude Include="src\textures\constant.h" />

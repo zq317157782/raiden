@@ -355,10 +355,10 @@ inline Vector3<T> Transform::operator()(const Vector3<T>& v,
 template<typename T>
 inline Normal3<T> Transform::operator()(const Normal3<T>& n) const {
 	T x = n.x, y = n.y, z = n.z;
-	T xx = _m.m[0][0] * x + _m.m[0][1] * y + _m.m[0][2] * z;	//+_m.m[0][3]*0
-	T yy = _m.m[1][0] * x + _m.m[1][1] * y + _m.m[1][2] * z;	//+_m.m[1][3]*0
-	T zz = _m.m[2][0] * x + _m.m[2][1] * y + _m.m[2][2] * z;	//+_m.m[2][3]*0
-	//T ww=_m.m[3][0]*x+_m.m[3][1]*y+_m.m[3][2]*z;//+_m.m[3][3]*0
+	//变换法线比较特殊，需要使用逆转置矩阵来操作
+	T xx = _invM.m[0][0] * x + _invM.m[1][0] * y + _invM.m[2][0] * z;	
+	T yy = _invM.m[0][1] * x + _invM.m[1][1] * y + _invM.m[2][1] * z;	
+	T zz = _invM.m[0][2] * x + _invM.m[1][2] * y + _invM.m[2][2] * z;	
 	return Normal3<T>(xx, yy, zz);
 }
 
