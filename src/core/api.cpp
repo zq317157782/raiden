@@ -179,6 +179,7 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 	if (s != nullptr) {
 		shapes.push_back(s);
 	}
+	paramSet.ReportUnused();
 	return shapes;
 }
 
@@ -193,6 +194,7 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 	else {
 		Error("accelerator \"" << name.c_str() << "\" unknown.");
 	}
+	paramSet.ReportUnused();
 	return accel;
 }
 
@@ -214,6 +216,7 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	else {
 		Error("camera \"" << name.c_str() << "\" unknown.");
 	}
+	paramSet.ReportUnused();
 	return camera;
 }
 //创建film
@@ -226,6 +229,7 @@ Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
 	else {
 		Error("film \"" << name.c_str() << "\" unknown.");
 	}
+	paramSet.ReportUnused();
 	return film;
 }
 
@@ -251,6 +255,7 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 		Error("filter \"" << name.c_str() << "\" unknown.");
 		exit(1);
 	}
+	paramSet.ReportUnused();
 	return std::unique_ptr<Filter>(filter);
 }
 
@@ -266,6 +271,7 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 	else {
 		Error("light \"" << name.c_str() << "\" unknown.");
 	}
+	paramSet.ReportUnused();
 	return light;
 }
 
@@ -291,6 +297,7 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	if (!material) {
 		Error("Unable to create material " << name);
 	}
+	mp.ReportUnused();
 	return std::shared_ptr<Material>(material);
 }
 
@@ -330,6 +337,7 @@ std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
 	else {
 		Warning("Float texture \"" << name.c_str() << "\" unknown");
 	}
+	tp.ReportUnused();
 	return std::shared_ptr<Texture<Float>>(tex);
 }
 
@@ -341,6 +349,7 @@ std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
 	else {
 		Warning("Spectrum texture \"" << name.c_str() << "\" unknown");
 	}
+	tp.ReportUnused();
 	return std::shared_ptr<Texture<Spectrum>>(tex);
 }
 

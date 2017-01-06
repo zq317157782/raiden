@@ -97,6 +97,23 @@ public:
 	const Spectrum *FindSpectrum(const std::string &, int *nValues) const;
 	const std::string *FindString(const std::string &, int *nValues) const;
 	std::string FindTexture(const std::string &) const;
+
+	//报告为使用的参数
+	void ReportUnused() const{
+#define CHECK_UNUSED(v) for(i=0;i<(v).size();++i){if(!(v)[i]->lookUp){ Warning("Parameter:\'"<<(v)[i]->name<<"\' not used"); }}
+		size_t i = 0;
+		CHECK_UNUSED(_bools);
+		CHECK_UNUSED(_ints);
+		CHECK_UNUSED(_floats);
+		CHECK_UNUSED(_point2fs);
+		CHECK_UNUSED(_vector2fs);
+		CHECK_UNUSED(_point3fs);
+		CHECK_UNUSED(_vector3fs);
+		CHECK_UNUSED(_normals);
+		CHECK_UNUSED(_spectra);
+		CHECK_UNUSED(_strings);
+		CHECK_UNUSED(_textures);
+	}
 };
 
 //纹理参数
@@ -125,5 +142,10 @@ public:
 	std::shared_ptr<Texture<Spectrum>> GetSpectrumTexture( const std::string &n, const Spectrum &def) const;
 	//获取一个Float类型的纹理
 	std::shared_ptr<Texture<Float>> GetFloatTexture(const std::string &n, Float def) const;
+
+	void ReportUnused() const {
+		_geomParams.ReportUnused();
+		_materialParams.ReportUnused();
+	}
 };
 #endif /* SRC_CORE_PARAMSET_H_ */
