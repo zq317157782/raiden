@@ -423,11 +423,17 @@ public:
 		return Point3<T>(-x, -y, -z);
 	}
 
+
 	//和Vector相关的操作
 	Point3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Point3<T>(x + v.x, y + v.y, z + v.z);
 	}
+	Point3<T> operator-(const Vector3<T>& v) const{
+		Assert(!v.HasNaNs());
+		return Point3<T>(x - v.x, y - v.y, z - v.z);
+	}
+
 	Point3<T>& operator+=(const Vector3<T>& v) {
 		Assert(!v.HasNaNs());
 		x += v.x;
@@ -1465,6 +1471,27 @@ template<typename T>
 inline Normal3<T> Min(const Normal3<T>& p1, const Normal3<T>& p2) {
 	return Normal3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
 			std::min(p1.z, p2.z));
+}
+
+//获取最大的维度
+template<typename T>
+int MaxDimension(const Vector3<T>& v){
+	if(v.x>v.y){
+		if(v.x>v.z){
+			return 0;
+		}
+		else {
+			return 2;
+		}
+	}
+	else{
+		if(v.y>v.z){
+			return 1;
+		}
+		else {
+			return 2;
+		}
+	}
 }
 
 //重新排列
