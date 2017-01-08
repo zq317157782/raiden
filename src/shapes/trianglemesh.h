@@ -56,6 +56,8 @@ public:
 		Vector3f l2=_mesh->vertices[_vertexIndices[2]]-_mesh->vertices[_vertexIndices[0]];
 		return Cross(l1,l2).Length()*0.5f;
 	}
+
+	bool Intersect(const Ray& ray,Float* tHit,SurfaceInteraction* surfaceIsect,bool testAlpha=true) const override;
 };
 
 #endif /* SRC_SHAPES_TRIANGLEMESH_H_ */

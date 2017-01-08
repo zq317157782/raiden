@@ -1500,6 +1500,11 @@ Vector3<T> Permute(const Vector3<T>& v,int xi,int yi,int zi){
 	return Vector3<T>(v[xi],v[yi],v[zi]);
 }
 
+template<typename T>
+Point3<T> Permute(const Point3<T>& v,int xi,int yi,int zi){
+	return Point3<T>(v[xi],v[yi],v[zi]);
+}
+
 inline Point3f OffsetRayOrigin(const Point3f& p/*需要被偏移的原点*/,
 		const Vector3f& pErr/*误差*/, const Normal3f& n/*原点所在表面法线*/,
 		const Vector3f& w/*射线的方向*/) {
