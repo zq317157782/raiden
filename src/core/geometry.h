@@ -423,13 +423,12 @@ public:
 		return Point3<T>(-x, -y, -z);
 	}
 
-
 	//和Vector相关的操作
 	Point3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Point3<T>(x + v.x, y + v.y, z + v.z);
 	}
-	Point3<T> operator-(const Vector3<T>& v) const{
+	Point3<T> operator-(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Point3<T>(x - v.x, y - v.y, z - v.z);
 	}
@@ -1475,20 +1474,17 @@ inline Normal3<T> Min(const Normal3<T>& p1, const Normal3<T>& p2) {
 
 //获取最大的维度
 template<typename T>
-int MaxDimension(const Vector3<T>& v){
-	if(v.x>v.y){
-		if(v.x>v.z){
+int MaxDimension(const Vector3<T>& v) {
+	if (v.x > v.y) {
+		if (v.x > v.z) {
 			return 0;
-		}
-		else {
+		} else {
 			return 2;
 		}
-	}
-	else{
-		if(v.y>v.z){
+	} else {
+		if (v.y > v.z) {
 			return 1;
-		}
-		else {
+		} else {
 			return 2;
 		}
 	}
@@ -1496,13 +1492,19 @@ int MaxDimension(const Vector3<T>& v){
 
 //重新排列
 template<typename T>
-Vector3<T> Permute(const Vector3<T>& v,int xi,int yi,int zi){
-	return Vector3<T>(v[xi],v[yi],v[zi]);
+Vector3<T> Permute(const Vector3<T>& v, int xi, int yi, int zi) {
+	return Vector3<T>(v[xi], v[yi], v[zi]);
 }
 
 template<typename T>
-Point3<T> Permute(const Point3<T>& v,int xi,int yi,int zi){
-	return Point3<T>(v[xi],v[yi],v[zi]);
+Point3<T> Permute(const Point3<T>& v, int xi, int yi, int zi) {
+	return Point3<T>(v[xi], v[yi], v[zi]);
+}
+
+//获取最大组件
+template<typename T>
+T MaxComponent(const Vector3<T> &v) {
+	return std::max(v.x, std::max(v.y, v.z));
 }
 
 inline Point3f OffsetRayOrigin(const Point3f& p/*需要被偏移的原点*/,

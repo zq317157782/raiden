@@ -25,16 +25,19 @@ public:
 	}
 	Interaction(const Point3f& pp, const Normal3f& nn, const Vector3f& perr,
 			const Vector3f& wo, Float t) :
-			p(pp), n(nn), pErr(perr), wo(wo), time(t){
+			p(pp), n(nn), pErr(perr), wo(wo), time(t) {
 	}
 
-	Interaction(const Point3f &p, Float time)
-		: p(p), time(time){}
+	Interaction(const Point3f &p, Float time) :
+			p(p), time(time) {
+	}
 
-	bool IsSurfaceInteraction() const { return n != Normal3f(); }
+	bool IsSurfaceInteraction() const {
+		return n != Normal3f();
+	}
 	//给予方向,生成新的射线
 	Ray SpawnRay(const Vector3f& d) const {
-		Point3f o = OffsetRayOrigin(p,pErr,n,d);
+		Point3f o = OffsetRayOrigin(p, pErr, n, d);
 		return Ray(o, d, Infinity, time);
 	}
 	//给予空间点，生成射向目标点的射线
@@ -50,7 +53,6 @@ public:
 		Vector3f d = target - origin;
 		return Ray(origin, d, 1 - ShadowEpsilon, time);
 	}
-
 
 };
 
@@ -68,24 +70,29 @@ public:
 		Normal3f n;
 		Vector3f dpdu, dpdv;
 		Normal3f dndu, dndv;
-	} shading;//非几何着色信息
-	mutable Vector3f dpdx,dpdy;//空间点和屏幕坐标之间的导数/梯度
-	mutable Float dudx,dudy,dvdx,dvdy;
+	} shading; //非几何着色信息
+	mutable Vector3f dpdx, dpdy; //空间点和屏幕坐标之间的导数/梯度
+	mutable Float dudx, dudy, dvdx, dvdy;
 public:
-	SurfaceInteraction() {}
+	SurfaceInteraction() {
+	}
 	SurfaceInteraction(const Point3f &p, const Vector3f &pError,
-	                       const Point2f &uv, const Vector3f &wo,
-	                       const Vector3f &dpdu, const Vector3f &dpdv,
-	                       const Normal3f &dndu, const Normal3f &dndv, Float time,
-	                       const Shape *sh);
+			const Point2f &uv, const Vector3f &wo, const Vector3f &dpdu,
+			const Vector3f &dpdv, const Normal3f &dndu, const Normal3f &dndv,
+			Float time, const Shape *sh);
 	//计算差分信息
 	void ComputeDifferentials(const RayDifferential &r) const;
-	void ComputeScatteringFunctions(
-	        const RayDifferential &ray, MemoryArena &arena,
-	        bool allowMultipleLobes = false,
-	        TransportMode mode = TransportMode::Radiance);
+	void ComputeScatteringFunctions(const RayDifferential &ray,
+			MemoryArena &arena, bool allowMultipleLobes = false,
+			TransportMode mode = TransportMode::Radiance);
 
-	Spectrum Le(const Vector3f& w) const{return Spectrum(0);}
+	Spectrum Le(const Vector3f& w) const {
+		return Spectrum(0);
+	}
+
+	void SetShadingGeometry(const Vector3f &dpdus,
+			const Vector3f &dpdvs, const Normal3f &dndus, const Normal3f &dndvs,
+			bool orientationIsAuthoritative);
 };
 
 #endif /* SRC_CORE_INTERACTION_H_ */

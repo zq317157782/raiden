@@ -91,3 +91,24 @@ void SurfaceInteraction::ComputeScatteringFunctions(
 	//2.计算图元的ComputeScatteringFunctions
 	primitive->ComputeScatteringFunctions(this,arena,mode,allowMultipleLobes);
 }
+
+void SurfaceInteraction::SetShadingGeometry(const Vector3f &dpdus,
+			const Vector3f &dpdvs, const Normal3f &dndus, const Normal3f &dndvs,
+			bool orientationIsAuthoritative) {
+		//根据微分信息计算法线
+		shading.n = Normalize((Normal3f) Cross(dpdus, dpdvs));
+		if (shape&& (shape->reverseOrientation ^ shape->transformSwapsHandedness)) {
+			shading.n = -shading.n;
+		}
+
+		if (orientationIsAuthoritative) {
+			n = Faceforward(n, shading.n);
+		} else {
+			shading.n = Faceforward(shading.n, n);
+		}
+
+		shading.dpdu = dpdus;
+		shading.dpdv = dpdvs;
+		shading.dndu = dndus;
+		shading.dndv = dndvs;
+	}

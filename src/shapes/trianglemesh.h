@@ -39,9 +39,12 @@ public:
 		_vertexIndices = &(_mesh->vertexIndices[triangleNumber * 3]);
 	}
 	Bound3f ObjectBound() const override {
-		const Point3f& p0 = (*worldToObject)(_mesh->vertices[_vertexIndices[0]]);
-		const Point3f& p1 = (*worldToObject)(_mesh->vertices[_vertexIndices[1]]);
-		const Point3f& p2 = (*worldToObject)(_mesh->vertices[_vertexIndices[2]]);
+		const Point3f& p0 = (*worldToObject)(
+				_mesh->vertices[_vertexIndices[0]]);
+		const Point3f& p1 = (*worldToObject)(
+				_mesh->vertices[_vertexIndices[1]]);
+		const Point3f& p2 = (*worldToObject)(
+				_mesh->vertices[_vertexIndices[2]]);
 		return Union(Bound3f(p0, p1), p2);
 	}
 	Bound3f WorldBound() const override {
@@ -51,14 +54,29 @@ public:
 		return Union(Bound3f(p0, p1), p2);
 	}
 	//三角形的面积
-	Float Area() const override{
-		Vector3f l1=_mesh->vertices[_vertexIndices[1]]-_mesh->vertices[_vertexIndices[0]];
-		Vector3f l2=_mesh->vertices[_vertexIndices[2]]-_mesh->vertices[_vertexIndices[0]];
-		return Cross(l1,l2).Length()*0.5f;
+	Float Area() const override {
+		Vector3f l1 = _mesh->vertices[_vertexIndices[1]]
+				- _mesh->vertices[_vertexIndices[0]];
+		Vector3f l2 = _mesh->vertices[_vertexIndices[2]]
+				- _mesh->vertices[_vertexIndices[0]];
+		return Cross(l1, l2).Length() * 0.5f;
 	}
 
-	bool Intersect(const Ray& ray,Float* tHit,SurfaceInteraction* surfaceIsect,bool testAlpha=true) const override;
-	bool IntersectP(const Ray& ray,bool testAlpha=true) const override;
+	bool Intersect(const Ray& ray, Float* tHit,
+			SurfaceInteraction* surfaceIsect, bool testAlpha = true) const
+					override;
+	bool IntersectP(const Ray& ray, bool testAlpha = true) const override;
+	void GetUVs(Point2f uv[3]) const {
+		if (_mesh->uv) {
+			uv[0] = _mesh->uv[_vertexIndices[0]];
+			uv[1] = _mesh->uv[_vertexIndices[1]];
+			uv[2] = _mesh->uv[_vertexIndices[2]];
+		} else {
+			uv[0] = Point2f(0, 0);
+			uv[1] = Point2f(1, 0);
+			uv[2] = Point2f(1, 1);
+		}
+	}
 };
 
 #endif /* SRC_SHAPES_TRIANGLEMESH_H_ */
