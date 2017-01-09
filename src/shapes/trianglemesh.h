@@ -58,6 +58,7 @@ public:
 	}
 
 	bool Intersect(const Ray& ray,Float* tHit,SurfaceInteraction* surfaceIsect,bool testAlpha=true) const override;
+	bool IntersectP(const Ray& ray,bool testAlpha=true) const override;
 };
 
 #endif /* SRC_SHAPES_TRIANGLEMESH_H_ */
