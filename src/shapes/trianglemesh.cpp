@@ -78,5 +78,46 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	v3t.x += v3t.z * sx;
 	v3t.y += v3t.z * sy;
 
-//下面要开始计算edge function了
+	//下面要开始计算edge function了
+	Float e0 = v1t.x * v2t.y - v1t.y * v2t.x;
+	Float e1 = v2t.x * v3t.y - v2t.y * v3t.x;
+	Float e2 = v3t.x * v1t.y - v3t.y * v1t.x;
+#ifdef FLOAT_IS_DOUBLE
+#else
+	if (e0 == 0 || e1 == 0 || e2 == 0) {
+		e0 = (double)v1t.x *(double) v2t.y - (double)v1t.y * (double)v2t.x;
+		e1 = (double)v2t.x *(double) v3t.y - (double)v2t.y * (double)v3t.x;
+		e2 = (double)v3t.x * (double)v1t.y - (double)v3t.y * (double)v1t.x;
+	}
+#endif
+	//判断是否相交
+	if((e0<0||e1<0||e2<0)&&(e0>0||e1>0||e2>0)){
+		return false;
+	}
+	Float det=e0+e1+e2;
+	//两条向量共边了,那就不是三角形了
+	if(det==0){
+		return false;
+	}
+	//补上z的缩放
+	v1t.z*=sz;
+	v2t.z*=sz;
+	v3t.z*=sz;
+
+	//判断是否是有效的t值
+	Float s=e0*v1t.z+e1*v2t.z+e2*v3t.z;
+	if(det<0&&(s>=0||s<det*ray.tMax)){
+		return false;
+	}
+	else if(det>0&&(s<=0||s>det*ray.tMax)){
+		return false;
+	}
+	//走到这就说明相交了
+	//求质心坐标以及参数t
+	Float invDet=1.0/det;
+	Float b0=e0*invDet;
+	Float b1=e1*invDet;
+	Float b2=e2*invDet;
+	Float t=s*invDet;
+	return true;
 }
