@@ -150,34 +150,28 @@ Transform RotateZ(float angle) {
 
 //计算 绕任意轴旋转某角度的方法
 // v`=v_c+v_p*cos(theta)+v_2*sin(theta);
-Transform Rotate(Float angle, const Vector3f &axis) {
+Transform Rotate(Float theta, const Vector3f &axis) {
 	Vector3f a = Normalize(axis);
-	float s = std::sin(Radians(angle));
-	float c = std::cos(Radians(angle));
-	float m[4][4];
+	Float sinTheta = std::sin(Radians(theta));
+	Float cosTheta = std::cos(Radians(theta));
+	Matrix4x4 m;
+	
+	m.m[0][0] = a.x * a.x + (1 - a.x * a.x) * cosTheta;
+	m.m[0][1] = a.x * a.y * (1 - cosTheta) - a.z * sinTheta;
+	m.m[0][2] = a.x * a.z * (1 - cosTheta) + a.y * sinTheta;
+	m.m[0][3] = 0;
 
-	m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
-	m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
-	m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
-	m[0][3] = 0;
+	
+	m.m[1][0] = a.x * a.y * (1 - cosTheta) + a.z * sinTheta;
+	m.m[1][1] = a.y * a.y + (1 - a.y * a.y) * cosTheta;
+	m.m[1][2] = a.y * a.z * (1 - cosTheta) - a.x * sinTheta;
+	m.m[1][3] = 0;
 
-	m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
-	m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
-	m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
-	m[1][3] = 0;
-
-	m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
-	m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
-	m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
-	m[2][3] = 0;
-
-	m[3][0] = 0;
-	m[3][1] = 0;
-	m[3][2] = 0;
-	m[3][3] = 1;
-
-	Matrix4x4 mat = Matrix4x4(m);
-	return Transform(mat, Transpose(mat));
+	m.m[2][0] = a.x * a.z * (1 - cosTheta) - a.y * sinTheta;
+	m.m[2][1] = a.y * a.z * (1 - cosTheta) + a.x * sinTheta;
+	m.m[2][2] = a.z * a.z + (1 - a.z * a.z) * cosTheta;
+	m.m[2][3] = 0;
+	return Transform(m, Transpose(m));
 }
 
 Transform Orthographic(float znear, float zfar) {

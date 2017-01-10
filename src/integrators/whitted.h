@@ -42,6 +42,10 @@ public:
 		Normal3f n = ref.shading.n;
 		ref.ComputeScatteringFunctions(ray, arena);
 		//todo PBRT这里还判断了BSDF为空的情况
+		/*if (!ref.bsdf) {
+			return Li(ref.SpawnRay(ray.d), scene, sampler, arena, depth);
+		}
+*/
 		//考虑相交的是area light
 		L+=ref.Le(wo);
 

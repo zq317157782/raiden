@@ -67,10 +67,11 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	v1t = Permute(v1t, xk, yk, zk);
 	v2t = Permute(v2t, xk, yk, zk);
 	v3t = Permute(v3t, xk, yk, zk);
+	Vector3f d = Permute(ray.d, xk, yk, zk);
 	//使ray的方向指向局部坐标的(0,0,1)
-	Float sx = -ray.d[xk] / ray.d[zk];
-	Float sy = -ray.d[yk] / ray.d[zk];
-	Float sz = 1 / ray.d[zk];
+	Float sx = -d.x / d.z;
+	Float sy = -d.y / d.z;
+	Float sz = 1 /d.z;
 	//只计算x,y的切变换,z的变换在确定和三角相交的时候再执行
 	//验证一句话，好程序要抠门>_<
 	v1t.x += v1t.z * sx;
@@ -81,15 +82,15 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	v3t.y += v3t.z * sy;
 
 	//下面要开始计算edge function了
-	Float e0 = v1t.x * v2t.y - v1t.y * v2t.x;
-	Float e1 = v2t.x * v3t.y - v2t.y * v3t.x;
-	Float e2 = v3t.x * v1t.y - v3t.y * v1t.x;
+	Float e0 = v2t.x * v3t.y - v2t.y * v3t.x;
+	Float e1 = v3t.x * v1t.y - v3t.y * v1t.x;
+	Float e2 = v1t.x * v2t.y - v1t.y * v2t.x;
 #ifdef FLOAT_IS_DOUBLE
 #else
 	if (e0 == 0 || e1 == 0 || e2 == 0) {
-		e0 = (double) v1t.x * (double) v2t.y - (double) v1t.y * (double) v2t.x;
-		e1 = (double) v2t.x * (double) v3t.y - (double) v2t.y * (double) v3t.x;
-		e2 = (double) v3t.x * (double) v1t.y - (double) v3t.y * (double) v1t.x;
+		e0 = (double) v2t.x * (double) v3t.y - (double) v2t.y * (double) v3t.x;
+		e1 = (double) v3t.x * (double) v1t.y - (double) v3t.y * (double) v1t.x;
+		e2 = (double) v1t.x * (double) v2t.y - (double) v1t.y * (double) v2t.x;
 	}
 #endif
 	//判断是否相交
@@ -282,10 +283,11 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 	v1t = Permute(v1t, xk, yk, zk);
 	v2t = Permute(v2t, xk, yk, zk);
 	v3t = Permute(v3t, xk, yk, zk);
+	Vector3f d = Permute(ray.d, xk, yk, zk);
 //使ray的方向指向局部坐标的(0,0,1)
-	Float sx = -ray.d[xk] / ray.d[zk];
-	Float sy = -ray.d[yk] / ray.d[zk];
-	Float sz = 1 / ray.d[zk];
+	Float sx = -d.x / d.z;
+	Float sy = -d.y / d.z;
+	Float sz = 1.0f / d.z;
 //只计算x,y的切变换,z的变换在确定和三角相交的时候再执行
 //验证一句话，好程序要抠门>_<
 	v1t.x += v1t.z * sx;
@@ -296,15 +298,15 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 	v3t.y += v3t.z * sy;
 
 //下面要开始计算edge function了
-	Float e0 = v1t.x * v2t.y - v1t.y * v2t.x;
-	Float e1 = v2t.x * v3t.y - v2t.y * v3t.x;
-	Float e2 = v3t.x * v1t.y - v3t.y * v1t.x;
+	Float e0 = v2t.x * v3t.y - v2t.y * v3t.x;
+	Float e1 = v3t.x * v1t.y - v3t.y * v1t.x;
+	Float e2 = v1t.x * v2t.y - v1t.y * v2t.x;
 #ifdef FLOAT_IS_DOUBLE
 #else
 	if (e0 == 0 || e1 == 0 || e2 == 0) {
-		e0 = (double) v1t.x * (double) v2t.y - (double) v1t.y * (double) v2t.x;
-		e1 = (double) v2t.x * (double) v3t.y - (double) v2t.y * (double) v3t.x;
-		e2 = (double) v3t.x * (double) v1t.y - (double) v3t.y * (double) v1t.x;
+		e0 = (double)v2t.x * (double)v3t.y - (double)v2t.y * (double)v3t.x;
+		e1 = (double)v3t.x * (double)v1t.y - (double)v3t.y * (double)v1t.x;
+		e2 = (double)v1t.x * (double)v2t.y - (double)v1t.y * (double)v2t.x;
 	}
 #endif
 //判断是否相交
@@ -334,7 +336,7 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 //		Float b2 = e2 * invDet;
 	Float t = s * invDet;
 	//计算质心坐标的时候产生的误差
-	Float maxZt = MaxComponent(Abs(Vector3f(v1t.z, v2t.z, v3t.z)));
+	/*Float maxZt = MaxComponent(Abs(Vector3f(v1t.z, v2t.z, v3t.z)));
 	Float deltaZ = gamma(3) * maxZt;
 	Float maxXt = MaxComponent(Abs(Vector3f(v1t.x, v2t.x, v3t.x)));
 	Float maxYt = MaxComponent(Abs(Vector3f(v1t.y, v2t.y, v3t.y)));
@@ -348,7 +350,7 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 			* std::abs(invDet);
 	if (t <= deltaT) {
 		return false;
-	}
+	}*/
 //走到这就说明相交了
 	return true;
 }
