@@ -9,6 +9,7 @@
 #define SRC_SHAPES_TRIANGLEMESH_H_
 #include "raiden.h"
 #include "shape.h"
+#include <map>
 
 //三角Mesh
 struct TriangleMesh {
@@ -78,5 +79,14 @@ public:
 		}
 	}
 };
+
+
+std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(
+	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
+	const Vector3f *s, const Normal3f *n, const Point2f *uv);
+std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
+	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+	const ParamSet &params);
 
 #endif /* SRC_SHAPES_TRIANGLEMESH_H_ */

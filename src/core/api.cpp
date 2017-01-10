@@ -15,6 +15,7 @@
 #include "memory.h"
 #include "texture.h"
 #include "shapes/sphere.h"
+#include "shapes/trianglemesh.h"
 #include "cameras/pinhole.h"
 #include "cameras/orthographic.h"
 #include "cameras/perspective.h"
@@ -172,6 +173,9 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 	if (name == "sphere") {
 		s = CreateSphereShape(object2world, world2object, reverseOrientation,
 			paramSet);
+	}
+	else if (name == "trianglemesh") {
+		shapes = CreateTriangleMeshShape(object2world, world2object, reverseOrientation, paramSet);
 	}
 	else {
 		Error("shape \"" << name.c_str() << "\" unknown.");

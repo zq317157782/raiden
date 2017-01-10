@@ -6,6 +6,8 @@
  */
 #include "trianglemesh.h"
 #include "interaction.h"
+#include "paramset.h"
+#include <map>
 TriangleMesh::TriangleMesh(const Transform& ObjectToWorld, int nTriangles,
 		const int* vertexIndices, int nVertices, const Point3f* P,
 		const Vector3f *S, const Normal3f *N, const Point2f *UV) :
@@ -349,4 +351,87 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 	}
 //走到这就说明相交了
 	return true;
+}
+
+
+
+std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(
+	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
+	const Vector3f *s, const Normal3f *n, const Point2f *uv) {
+	//创建trianglemesh
+	std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(
+		*o2w, nTriangles, vertexIndices, nVertices, p, s, n, uv);
+	std::vector<std::shared_ptr<Shape>> tris;
+	tris.reserve(nTriangles);
+	for (int i = 0; i < nTriangles; ++i) {
+		tris.push_back(std::make_shared<Triangle>(o2w, w2o,
+			reverseOrientation, mesh, i));
+	}
+	return tris;
+}
+
+std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
+	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+	const ParamSet &params) {
+	int nvi, npi, nuvi, nsi, nni;
+	const int *vi = params.FindInt("indices", &nvi);
+	const Point3f *P = params.FindPoint3f("P", &npi);
+	const Point2f *uvs = params.FindPoint2f("uv", &nuvi);
+	if (!uvs) uvs = params.FindPoint2f("st", &nuvi);
+	std::vector<Point2f> tempUVs;
+	if (!uvs) {
+		const Float *fuv = params.FindFloat("uv", &nuvi);
+		if (!fuv) fuv = params.FindFloat("st", &nuvi);
+		if (fuv) {
+			nuvi /= 2;
+			tempUVs.reserve(nuvi);
+			for (int i = 0; i < nuvi; ++i)
+				tempUVs.push_back(Point2f(fuv[2 * i], fuv[2 * i + 1]));
+			uvs = &tempUVs[0];
+		}
+	}
+	if (uvs) {
+		if (nuvi < npi) {
+			Error(
+				"Not enough of \"uv\"s for triangle mesh.  Expected "<< npi <<", "
+				"found "<< nuvi <<".  Discarding.");
+			uvs = nullptr;
+		}
+		else if (nuvi > npi) {
+			Warning(
+				"More \"uv\"s provided than will be used for triangle "
+				"mesh.  (" << npi << " expcted, " << nuvi << " found)");
+		}
+	}
+	if (!vi) {
+		Error(
+			"Vertex indices \"indices\" not provided with triangle mesh shape");
+		return std::vector<std::shared_ptr<Shape>>();
+	}
+	if (!P) {
+		Error("Vertex positions \"P\" not provided with triangle mesh shape");
+		return std::vector<std::shared_ptr<Shape>>();
+	}
+	const Vector3f *S = params.FindVector3f("S", &nsi);
+	if (S && nsi != npi) {
+		Error("Number of \"S\"s for triangle mesh must match \"P\"s");
+		S = nullptr;
+	}
+	const Normal3f *N = params.FindNormal3f("N", &nni);
+	if (N && nni != npi) {
+		Error("Number of \"N\"s for triangle mesh must match \"P\"s");
+		N = nullptr;
+	}
+	for (int i = 0; i < nvi; ++i) {
+		if (vi[i] >= npi) {
+			Error(
+				"trianglemesh has out of-bounds vertex index " << vi[i] << " (" << npi << " \"P\" "
+				"values were given");
+			return std::vector<std::shared_ptr<Shape>>();
+		}
+	}
+
+	return CreateTriangleMesh(o2w, w2o, reverseOrientation, nvi / 3, vi, npi, P,
+		S, N, uvs);
 }

@@ -307,6 +307,19 @@ static void ParseFloatArray(ParamSet& set, const std::string& name) {
 	set.AddFloat(name, std::move(floats), size);
 }
 
+static void ParseIntArray(ParamSet& set, const std::string& name) {
+	lua_len(L, -1); //长度入栈
+	int size = lua_tointeger(L, -1);
+	lua_pop(L, 1); //长度出栈
+	std::unique_ptr<int[]> ints(new int[size]);
+	for (int i = 0; i < size; ++i) {
+		lua_geti(L, -1, i + 1);
+		ints[i] = lua_tointeger(L, -1);
+		lua_pop(L, 1);
+	}
+	set.AddInt(name, std::move(ints), size);
+}
+
 //获取paramset
 static ParamSet GetParamSet(lua_State* L, int index) {
 	ParamSet set;
@@ -376,6 +389,9 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 			}
 			else if (type == "float[]") {
 				ParseFloatArray(set, key);
+			}
+			else if (type == "int[]") {
+				ParseIntArray(set, key);
 			}
 			else {
 				PARAM_TYPR_WRONG("unknow type");
