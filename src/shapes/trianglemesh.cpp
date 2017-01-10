@@ -336,7 +336,7 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 //		Float b2 = e2 * invDet;
 	Float t = s * invDet;
 	//计算质心坐标的时候产生的误差
-	/*Float maxZt = MaxComponent(Abs(Vector3f(v1t.z, v2t.z, v3t.z)));
+	Float maxZt = MaxComponent(Abs(Vector3f(v1t.z, v2t.z, v3t.z)));
 	Float deltaZ = gamma(3) * maxZt;
 	Float maxXt = MaxComponent(Abs(Vector3f(v1t.x, v2t.x, v3t.x)));
 	Float maxYt = MaxComponent(Abs(Vector3f(v1t.y, v2t.y, v3t.y)));
@@ -350,7 +350,7 @@ bool Triangle::IntersectP(const Ray& ray, bool testAlpha) const {
 			* std::abs(invDet);
 	if (t <= deltaT) {
 		return false;
-	}*/
+	}
 //走到这就说明相交了
 	return true;
 }
