@@ -394,6 +394,13 @@ TEST(Bound3,all) {
 	float r;
 	b4.BoundingSphere(&c,&r);
 	//ASSERT_EQ(r,1.73205f);
+
+	Bound3f b5(Point3<Float>(0, 0, 0),Point3<Float>(2, 2, 2));
+	Ray ray(Point3<Float>(0, 0, -1),Vector3<Float>(0, 0, 1));
+	Float t1,t2;
+	b5.IntersectP(ray,&t1,&t2);
+	ASSERT_EQ(t1,1);
+	ASSERT_EQ(t2,3);
 }
 
 TEST(Ray,all) {

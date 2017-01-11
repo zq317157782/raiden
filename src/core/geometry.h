@@ -867,6 +867,9 @@ public:
 		}
 		return o;
 	}
+
+	//射线求角
+	bool IntersectP(const Ray& ray,Float* tHit1=nullptr,Float *tHit2=nullptr) const;
 	//重构ostream方法
 	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
 		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
@@ -874,6 +877,8 @@ public:
 	}
 
 };
+
+
 
 typedef Bound3<Float> Bound3f;
 typedef Bound3<int> Bound3i;
@@ -1549,5 +1554,40 @@ inline Point3f OffsetRayOrigin(const Point3f& p/*需要被偏移的原点*/,
 	}
 	return po;
 }
+
+template<typename T>
+inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) const{
+	//通过和3个夹板进行求交,求参数
+	Float t0=0;
+	Float t1=INFINITY;
+	for(int i=0;i<3;++i){
+		//通过简化求交方程式，可以得到t=(x-ox)/dx
+		Float invD=1.0/ray.d[i];
+		Float tNear=(minPoint[i]-ray.o[i])*invD;
+		Float tFar=(maxPoint[i]-ray.o[i])*invD;
+		if(tNear>tFar){
+			std::swap(tNear,tFar);
+		}
+		if(t0<tNear){
+			t0=tNear;
+		}
+		if(t1>tFar){
+			t1=tFar;
+		}
+		//判断参数是否还合理，不合理说明相交失败
+		if(t0>t1){
+			return false;
+		}
+	}
+
+	if(tHit1){
+		*tHit1=t0;
+	}
+	if(tHit2){
+		*tHit2=t1;
+	}
+	return true;
+}
+
 //todo geomtry相关函数的扩充(补充说明:还有一小部分)
 #endif /* SRC_CORE_GEOMETRY_H_ */
