@@ -853,7 +853,20 @@ public:
 			*r = 0;
 		}
 	}
-
+	//计算点在碰撞盒中的偏移量
+	Vector3<T> Offset(const Point3<T> &p) const {
+		Vector3<T> o = p - minPoint;
+		if (maxPoint.x > minPoint.x){
+			o.x /= (maxPoint.x - minPoint.x);
+		}
+		if (maxPoint.y > minPoint.y){
+			o.y /= (maxPoint.y - minPoint.y);
+		}
+		if (maxPoint.z > minPoint.z){
+			o.z /= (maxPoint.z - minPoint.z);
+		}
+		return o;
+	}
 	//重构ostream方法
 	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
 		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
