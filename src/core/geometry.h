@@ -1568,6 +1568,11 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) cons
 		if(tNear>tFar){
 			std::swap(tNear,tFar);
 		}
+
+		//进行浮点数误差处理
+		//保证tFar在浮点数误差范围内呈现最大值
+		tFar = tFar*(1 + 2 * gamma(3));
+
 		if(t0<tNear){
 			t0=tNear;
 		}
