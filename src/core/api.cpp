@@ -22,6 +22,7 @@
 #include "samplers/random.h"
 #include "filters/box.h"
 #include "accelerators/iteration.h"
+#include "accelerators/grid.h"
 #include "lights/point.h"
 #include "lights/distant.h"
 #include "integrators/normal.h"
@@ -116,7 +117,7 @@ struct RenderOptions {
 	std::string SamplerName = "random";
 	ParamSet SamplerParams;
 	//加速结构的名字
-	std::string AcceleratorName = "iteration";
+	std::string AcceleratorName = "grid";
 	ParamSet AcceleratorParams;
 	//积分器的名字
 	std::string IntegratorName = "normal";
@@ -194,6 +195,8 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 	std::shared_ptr<Primitive> accel;
 	if (name == "iteration") {
 		accel = CreateIterationAccelerator(prims, paramSet);
+	} else if (name == "grid") {
+		accel = CreateGridAccelerator(prims, paramSet);
 	}
 	else {
 		Error("accelerator \"" << name.c_str() << "\" unknown.");
@@ -625,7 +628,7 @@ Scene *RenderOptions::MakeScene() {
 		primitives, AcceleratorParams);
 	if (!accelerator) {
 		//默认使用的加速结构
-		accelerator = std::make_shared<Iteration>(primitives);
+		accelerator = std::make_shared<Grid>(primitives);
 	}
 	Scene *scene = new Scene(accelerator, lights);
 	//从randeroptions中删除primitives和lights
