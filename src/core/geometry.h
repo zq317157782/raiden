@@ -870,6 +870,8 @@ public:
 
 	//射线求角
 	bool IntersectP(const Ray& ray,Float* tHit1=nullptr,Float *tHit2=nullptr) const;
+
+	inline bool IntersectP(const Ray& ray, const Vector3f& invDir, const int isNeg[3]) const;
 	//重构ostream方法
 	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
 		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
@@ -1592,6 +1594,53 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) cons
 		*tHit2=t1;
 	}
 	return true;
+}
+
+
+template<typename T>
+inline bool Bound3<T>::IntersectP(const Ray& ray,const Vector3f& invDir,const int isNeg[3]) const {
+	const Bound3<T>& b = *this;
+	//求与yz平面的交点参数
+	Float tMinX= (b[isNeg[0]].x - ray.o.x)*invDir.x;
+	Float tMaxX= (b[1-isNeg[0]].x - ray.o.x)*invDir.x;
+	//求与xz平面的交点参数
+	Float tMinY = (b[isNeg[1]].y - ray.o.y)*invDir.y;
+	Float tMaxY = (b[1 - isNeg[1]].y - ray.o.y)*invDir.y;
+
+	//误差
+	tMaxX = tMaxX*(1 + 2 * gamma(3));
+	tMaxY = tMaxY*(1 + 2 * gamma(3));
+
+	if (tMinX > tMaxY || tMinY > tMaxX) {
+		return false;
+	}
+
+	if (tMinY > tMinX) {
+		tMinX = tMinY;
+	}
+	if (tMaxY < tMaxX) {
+		tMaxX = tMaxY;
+	}
+
+	//求与xy平面的交点参数
+	Float tMinZ = (b[isNeg[2]].z - ray.o.z)*invDir.z;
+	Float tMaxZ = (b[1 - isNeg[2]].z - ray.o.z)*invDir.z;
+
+	//误差
+	tMaxZ = tMaxZ*(1 + 2 * gamma(3));
+	if (tMinX > tMaxZ || tMinZ > tMaxX) {
+		return false;
+	}
+
+	if (tMinZ > tMinX) {
+		tMinX = tMinZ;
+	}
+	if (tMaxZ < tMaxX) {
+		tMaxX = tMaxZ;
+	}
+
+	//因为没有返回两个t,所以需要判断是否在射线的有效范围内
+	return (tMinX < ray.tMax) && (tMaxX > 0);
 }
 
 //todo geomtry相关函数的扩充(补充说明:还有一小部分)
