@@ -9,7 +9,7 @@
 
 std::shared_ptr<Grid> CreateGridAccelerator(
     const std::vector<std::shared_ptr<Primitive>> &prims, const ParamSet &ps) {
-    int maxWidth=ps.FindOneInt("maxwidth",4);
+    int maxWidth=ps.FindOneInt("maxwidth",64);
 	return std::make_shared<Grid>(prims,maxWidth);
 }
 

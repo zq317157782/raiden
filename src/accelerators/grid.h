@@ -66,10 +66,15 @@ public:
 	Grid(const std::vector<std::shared_ptr<Primitive>>& primitives,
 			int maxWidth = 64) :
 			_primitives(primitives) {
+
+
+
 		//获取整个grid的空间AABB大小
 		for (auto& p : _primitives) {
 			_worldBound = Union(_worldBound, p->WorldBound());
 		}
+
+		maxWidth = std::min((int)std::pow(_primitives.size(), 1.0f / 3.0f),maxWidth);
 
 		Vector3f diagonal = _worldBound.Diagonal();
 		int maxAxis = MaxDimension(diagonal);
@@ -77,12 +82,13 @@ public:
 		_unitPerVoxel = 1 / _voxelPerUnit;
 		//计算每个轴下的体素个数
 		for (int axis = 0; axis < 3; ++axis) {
-			_voxelNum[axis] = (int) std::roundf(_voxelPerUnit * diagonal[axis]);
+			_voxelNum[axis] =  std::ceil(_voxelPerUnit * diagonal[axis]);
 		}
 		//总共的体素个数
 		_totalVoxelNum = _voxelNum[0] * _voxelNum[1] * _voxelNum[2];
 		//为体素分配空间
 		_voxels = AllocAligned<Voxel*>(_totalVoxelNum);
+		memset(_voxels, 0, _totalVoxelNum * sizeof(Voxel*));
 		for (int i = 0; i < _primitives.size(); ++i) {
 			const Bound3f& b = _primitives[i]->WorldBound();
 			int minV[3];
@@ -101,6 +107,7 @@ public:
 							_voxels[o] = _voxelArena.Alloc<Voxel>();
 						}
 						(*_voxels[o]).AddPrimitive(_primitives[i]);
+						
 					}
 				}
 			}
@@ -112,6 +119,7 @@ public:
 //		}
 	}
 	~Grid() {
+		_voxelArena.Reset();
 		FreeAligned(_voxels);
 	}
 	bool Intersect(const Ray& r, SurfaceInteraction* ref) const override {
@@ -135,6 +143,8 @@ public:
 			if (voxel&&voxel->Intersect(r, ref)) {
 				return true;
 			} else {
+
+				//return false;
 				Point3f minPoint = Point3f(VoxelToPos(vp[0], 0),
 						VoxelToPos(vp[1], 1), VoxelToPos(vp[2], 2));
 				Point3f maxPoint = Point3f(VoxelToPos(vp[0] + 1, 0),
@@ -156,7 +166,6 @@ public:
 				}
 			}
 		}
-		return true;
 	}
 	Bound3f WorldBound() const override {
 		return _worldBound;
