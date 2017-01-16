@@ -162,23 +162,23 @@ public:
 			if (voxel) {
 				isHit |= voxel->Intersect(r, ref);
 			}
-				int axis;
-				if (nextCrossingT[0] < nextCrossingT[1]
-						&& nextCrossingT[0] < nextCrossingT[2]) {
-					axis = 0;
-				} else if (nextCrossingT[1] < nextCrossingT[2]) {
-					axis = 1;
-				} else {
-					axis = 2;
-				}
-				if (r.tMax < nextCrossingT[axis]) {
-					break;
-				}
-				pos[axis] += step[axis]; //更新位置
-				if (pos[axis] == out[axis]) {
-					break;
-				}
-				nextCrossingT[axis] += deltaT[axis];
+			int axis;
+			if (nextCrossingT[0] < nextCrossingT[1]
+					&& nextCrossingT[0] < nextCrossingT[2]) {
+				axis = 0;
+			} else if (nextCrossingT[1] < nextCrossingT[2]) {
+				axis = 1;
+			} else {
+				axis = 2;
+			}
+			if (r.tMax < nextCrossingT[axis]) {
+				break;
+			}
+			pos[axis] += step[axis]; //更新位置
+			if (pos[axis] == out[axis]) {
+				break;
+			}
+			nextCrossingT[axis] += deltaT[axis];
 		}
 		//开始遍历
 		return isHit;
@@ -259,7 +259,7 @@ public:
 				nextCrossingT[axis] = hit
 						+ (VoxelToPos(pos[axis], axis) - hitPoint[axis])
 								/ r.d[axis];
-				step[axis] = 1; //向负方向的标记
+				step[axis] = -1; //向负方向的标记
 				out[axis] = -1;
 				deltaT[axis] = -_widths[axis] / r.d[axis];
 			}
@@ -268,30 +268,29 @@ public:
 		for (;;) {
 			//获取当前voxel
 			Voxel* voxel = _voxels[Offset(pos[0], pos[1], pos[2])];
-			if (voxel) {
-				if (voxel->IntersectP(r)) {
-					return true;
-				}
-				int axis;
-				if (nextCrossingT[0] < nextCrossingT[1]
-						&& nextCrossingT[0] < nextCrossingT[2]) {
-					axis = 0;
-				} else if (nextCrossingT[1] < nextCrossingT[2]) {
-					axis = 1;
-				} else {
-					axis = 2;
-				}
-				if (r.tMax < nextCrossingT[axis]) {
-					break;
-				}
-				pos[axis] += step[axis]; //更新位置
-				if (pos[axis] == out[axis]) {
-					break;
-				}
-				nextCrossingT[axis] += deltaT[axis];
+
+			if (voxel && voxel->IntersectP(r)) {
+				return true;
 			}
-			return false;
+			int axis;
+			if (nextCrossingT[0] < nextCrossingT[1]
+					&& nextCrossingT[0] < nextCrossingT[2]) {
+				axis = 0;
+			} else if (nextCrossingT[1] < nextCrossingT[2]) {
+				axis = 1;
+			} else {
+				axis = 2;
+			}
+			if (r.tMax < nextCrossingT[axis]) {
+				break;
+			}
+			pos[axis] += step[axis]; //更新位置
+			if (pos[axis] == out[axis]) {
+				break;
+			}
+			nextCrossingT[axis] += deltaT[axis];
 		}
+		return false;
 	}
 }
 ;
