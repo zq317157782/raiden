@@ -491,7 +491,6 @@ public:
 		Assert(!HasNaNs());
 	}
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
-#ifdef DEBUG_BUILD
 	template<typename U>
 	Point2(const Point2<U>& p) {
 		Assert(!p.HasNaNs());
@@ -504,7 +503,6 @@ public:
 		y = p.y;
 		return *this;
 	}
-#endif
 	Point2<T> operator+(const Point2<T>& p) const {
 		Assert(!p.HasNaNs());
 		return Point2<T>(x + p.x, y + p.y);
@@ -1097,7 +1095,7 @@ bool Overlap(const Bound3<T> &b1, const Bound3<T> &b2) {
 template<typename T>
 bool Inside(const Point3<T>& p, const Bound3<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x <= b.maxPoint.x;
-	bool y = p.y >= b.minPoint.y && p.x <= b.maxPoint.y;
+	bool y = p.y >= b.minPoint.y && p.y <= b.maxPoint.y;
 	bool z = p.z >= b.minPoint.z && p.z <= b.maxPoint.z;
 	return (x && y && z);
 }

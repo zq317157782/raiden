@@ -37,7 +37,6 @@ public:
 			}
 			return L;
 		}
-
 		Vector3f wo = ref.wo;
 		Normal3f n = ref.shading.n;
 		ref.ComputeScatteringFunctions(ray, arena);
@@ -63,6 +62,7 @@ public:
 			Spectrum f = ref.bsdf->f(wo, wi);
 			//先考虑f降低开销
 			if(!f.IsBlack()&&tester.Unoccluded(scene)){
+				
 				L+=f*AbsDot(n,wi)*Li/pdf;
 			}
 		}
