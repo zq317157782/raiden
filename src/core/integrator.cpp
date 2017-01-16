@@ -200,6 +200,25 @@ Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, Memory
 }
 
 
+Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
+	const std::vector<int> &nLightSamples,
+	bool handleMedia) {
+	int numLights = scene.lights.size();
+	if (numLights == 0) {
+		return Spectrum(0.0);
+	}
+	//选择一个光源
+	int lightIndex = std::min((int)sampler.Get1DSample()*numLights, numLights - 1);
+	Float lightPdf = 1.0 / numLights;
+
+	std::shared_ptr<Light> light = scene.lights[lightIndex];
+
+	Point2f lightSample = sampler.Get2DSample();
+	Point2f  scatteringSample = sampler.Get2DSample();
+
+	return EstimateDirect(it, scatteringSample, *light, lightSample, scene, sampler, arena, handleMedia);
+}
+
 Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	const Light &light, const Point2f &uLight,
 	const Scene &scene, Sampler &sampler,

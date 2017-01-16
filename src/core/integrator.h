@@ -48,4 +48,9 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
 	const std::vector<int> &nLightSamples,
 	bool handleMedia=false);
+
+//采样单个光源,这里是保证采样单个光源，并且除以它出现的PDF在样本足够多的情况下，近似采样多个光源的情况的统计学近似
+Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
+	const std::vector<int> &nLightSamples,
+	bool handleMedia = false);
 #endif /* SRC_CORE_INTEGRATOR_H_ */
