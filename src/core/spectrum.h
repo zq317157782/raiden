@@ -168,6 +168,14 @@ public:
 		return false;
 	}
 
+	Float MaxComponentValue() const {
+		Float m = _c[0];
+		for (int i = 1; i < numSpectrumSample; ++i) {
+			m = std::max(m, _c[i]);
+		}
+		return m;
+	}
+
 };
 
 //采样的波长范围以及样本个数 400nm~700nm

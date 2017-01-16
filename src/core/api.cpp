@@ -28,6 +28,7 @@
 #include "integrators/normal.h"
 #include "integrators/depth.h"
 #include "integrators/whitted.h"
+#include "integrators/pt.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
@@ -670,6 +671,9 @@ Integrator *RenderOptions::MakeIntegrator() const {
 	}
 	else if(IntegratorName == "whitted"){
 		integrator=CreateWhittedIntegrator(IntegratorParams,sampler,camera);
+	}
+	else if (IntegratorName == "path") {
+		integrator=CreatePathIntegrator(IntegratorParams, sampler, camera);
 	}
 	else {
 		Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");

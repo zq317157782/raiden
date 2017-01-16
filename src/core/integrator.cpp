@@ -201,7 +201,6 @@ Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, Memory
 
 
 Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
-	const std::vector<int> &nLightSamples,
 	bool handleMedia) {
 	int numLights = scene.lights.size();
 	if (numLights == 0) {

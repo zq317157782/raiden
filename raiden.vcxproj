@@ -185,6 +185,7 @@
     <ClCompile Include="src\filters\box.cpp" />
     <ClCompile Include="src\integrators\depth.cpp" />
     <ClCompile Include="src\integrators\normal.cpp" />
+    <ClCompile Include="src\integrators\pt.cpp" />
     <ClCompile Include="src\integrators\whitted.cpp" />
     <ClCompile Include="src\lights\distant.cpp" />
     <ClCompile Include="src\lights\point.cpp" />
@@ -262,6 +263,7 @@
     <ClInclude Include="src\filters\box.h" />
     <ClInclude Include="src\integrators\depth.h" />
     <ClInclude Include="src\integrators\normal.h" />
+    <ClInclude Include="src\integrators\pt.h" />
     <ClInclude Include="src\integrators\whitted.h" />
     <ClInclude Include="src\lights\distant.h" />
     <ClInclude Include="src\lights\point.h" />
