@@ -33,9 +33,13 @@ public:
 	//返回Shape表面面积
 	virtual Float Area() const=0;
 //
-//	//采样Shape上的一个点以及相应的PDF
-//	virtual Interaction Sample(const Point2f& uv,Float *pdf) const=0;
-//	virtual Float Pdf(const Interaction&) const{return 1.0f/Area();}//默认返回均匀分布Pdf
+//	//采样Shape上的一个点以及相应的面积PDF
+	virtual Interaction Sample(const Point2f& uv,Float *pdf) const=0;
+	virtual Float Pdf(const Interaction&) const{return 1.0f/Area();}//默认返回均匀分布Pdf
+
+	//根据一个ref点，采样一个在shape表面，并且方向指向ref的点，以及它的立体角pdf
+	virtual Interaction Sample(const Interaction& ref,const Point2f& u, Float *pdf) const = 0;
+	virtual Float Pdf(const Interaction& ref, const Vector3f& wi) const;
 
 };
 

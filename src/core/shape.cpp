@@ -20,3 +20,19 @@ Shape::~Shape(){};
 Bound3f Shape::WorldBound() const{
 	return (*objectToWorld)(ObjectBound());
 }
+
+
+Float Shape::Pdf(const Interaction& ref, const Vector3f& wi) const {
+	SurfaceInteraction lightRef;
+	Ray r = ref.SpawnRay(wi);
+	Float tHit;
+	if (!Intersect(r, &tHit, &lightRef, false)) {
+		return 0;
+	}
+
+	Float pdf = DistanceSquared(lightRef.p, ref.p) / (AbsDot(lightRef.n, -wi)*Area());
+	if (std::isinf(pdf)) {
+		return 0;
+	}
+	return pdf;
+}

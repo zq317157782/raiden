@@ -7,6 +7,7 @@
 #include "sphere.h"
 #include "errfloat.h"
 #include "paramset.h"
+#include "sampling.h"
 Bound3f Sphere::ObjectBound() const {
 	return Bound3f(Point3f(-_radius, -_radius, _zMin),
 			Point3f(_radius, _radius, _zMax));
@@ -204,6 +205,87 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 	return true;
 }
 
+
+Interaction Sphere::Sample(const Point2f& uv, Float *pdf) const {
+	Interaction ref;
+	//计算得到局部空间下交点
+	Point3f pointL = Point3f(0, 0, 0) + _radius*UniformSampleSphere(uv);
+	//计算世界坐标下的交点
+	ref.n = Normalize((*objectToWorld)(Normal3f(pointL.x, pointL.y, pointL.z)));
+	//反转法线
+	if (reverseOrientation) {
+		ref.n *= -1.0;
+	}
+
+	pointL = pointL*(_radius / (Distance(pointL, Point3f(0, 0, 0))));
+	//计算误差
+	Vector3f pointLErr = gamma(5) * Abs((Vector3f)pointL);
+	ref.p = (*objectToWorld)(pointL, pointLErr, &ref.pErr);
+	*pdf = 1.0 / Area();
+	return ref;
+}
+
+Interaction Sphere::Sample(const Interaction& ref, const Point2f& u, Float *pdf) const {
+	//获取球心的世界坐标
+	Point3f centerW = (*objectToWorld)(Point3f(0, 0, 0));
+	Point3f pOrigin = OffsetRayOrigin(ref.p, ref.pErr, ref.n, centerW - ref.p);
+	//交点在球体内部的情况
+	if (DistanceSquared(pOrigin,centerW) <= _radius*_radius) {
+		//采样得到球体相交点
+		Interaction inst = Sample(u, pdf);
+		//得到指向Light上一点的方向
+		Vector3f wi = inst.p - ref.p;
+		if (wi.LengthSquared() == 0) {
+			*pdf = 0;
+		}
+		else {
+			//转换area measure的pdf到立体角
+			wi = Normalize(wi);
+			*pdf = (*pdf)*DistanceSquared(ref.p, inst.p) / (AbsDot(inst.n, -wi));
+		}
+		if (std::isinf(*pdf)) {
+			*pdf = 0;
+		}
+		return inst;
+	}
+
+	//建立局部坐标系,Z轴指向圆心
+	Vector3f wZ = Normalize(centerW-ref.p);
+	Vector3f wX, wY;
+	CoordinateSystem(wZ,&wX,&wY);
+
+	//计算在局部空间中的球体参数坐标
+	Float sinThetaMax2 = _radius * _radius / DistanceSquared(ref.p, centerW);
+	Float cosThetaMax = std::sqrt(std::max((Float)0, 1 - sinThetaMax2));
+	Float cosTheta = (1 - u[0]) + u[0] * cosThetaMax;
+	Float sinTheta = std::sqrt(std::max((Float)0, 1 - cosTheta * cosTheta));
+	Float phi = u[1] * 2 * Pi;
+
+	//下面的代码用了非常神奇的算法计算了球体交点,详细见PBRT第三版蒙特卡洛采样章节
+	Float dc = Distance(ref.p, centerW);
+	Float ds = dc * cosTheta -
+		std::sqrt(std::max(
+		(Float)0, _radius * _radius - dc * dc * sinTheta * sinTheta));
+	Float cosAlpha = (dc * dc + _radius * _radius - ds * ds) / (2 * dc * _radius);
+	Float sinAlpha = std::sqrt(std::max((Float)0, 1 - cosAlpha * cosAlpha));
+
+	Vector3f nWorld =
+		SphericalDirection(sinAlpha, cosAlpha, phi, -wX, -wY, -wZ);
+	Point3f pWorld = centerW + Point3f(nWorld.x, nWorld.y, nWorld.z)*_radius;
+	
+	Interaction it;
+	it.p = pWorld;
+	it.pErr = gamma(5) * Abs((Vector3f)pWorld);
+	it.n = Normal3f(nWorld);
+	if (reverseOrientation) {
+		it.n *= -1; 
+	}
+	
+	//均匀采样cone
+	*pdf = 1 / (2 * Pi * (1 - cosThetaMax));
+	return it;
+
+}
 
 std::shared_ptr<Shape> CreateSphereShape(const Transform *o2w,
                                          const Transform *w2o,

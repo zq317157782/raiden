@@ -78,6 +78,18 @@ public:
 			uv[2] = Point2f(1, 1);
 		}
 	}
+
+
+	Interaction Sample(const Point2f& uv, Float *pdf) const override {
+		Warning("Triangle::Sample is unimplemented!");
+		Assert(false);
+		return Interaction();
+	}
+	Interaction Sample(const Interaction& ref, const Point2f& u, Float *pdf) const override {
+		Warning("Triangle::Sample is unimplemented!");
+		Assert(false);
+		return Interaction();
+	}
 };
 
 
