@@ -77,4 +77,12 @@ public:
 	//判断两个点之间是否被遮挡
 	bool Unoccluded(const Scene& scene) const;
 };
+
+
+class AreaLight :public Light {
+public:
+	AreaLight(const Transform& l2w, int numSamples):Light((int)LightFlags::Area,l2w,numSamples){}
+	//计算从光源上的某个点往某个方向的radiance
+	virtual Spectrum L(const Interaction& ref, const Vector3f& w) const=0;
+};
 #endif /* SRC_CORE_LIGHT_H_ */
