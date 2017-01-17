@@ -129,3 +129,8 @@ Float CosineHemispherePdf(Float cosTheta) {
 	//这里一定要注意p(w)不等于p(theta,phi)
 	return cosTheta * InvPi;
 }
+
+
+Float UniformConePdf(Float cosThetaMax) {
+	return 1.0 / (2 * Pi*(1.0 - cosThetaMax));
+}

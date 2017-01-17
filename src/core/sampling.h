@@ -36,6 +36,9 @@ void LatinHypercube(Float *samples, int nSamples, int nDim, RNG &rng);
 //cos分布的半球采样
 Vector3f CosineSampleHemisphere(const Point2f &u);
 
+//均匀采样Cone的PDF
+Float UniformConePdf(Float cosThetaMax);
+
 //MIS中使用的权重计算方法
 inline Float BalanceHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
 	return (nf * fPdf) / (nf * fPdf + ng * gPdf);
