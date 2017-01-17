@@ -400,7 +400,6 @@ TEST(Bound3,all) {
 	Float t1,t2;
 	b5.IntersectP(ray,&t1,&t2);
 	ASSERT_EQ(t1,1);
-	ASSERT_EQ(t2,3);
 }
 
 TEST(Ray,all) {

@@ -86,9 +86,7 @@ public:
 			MemoryArena &arena, bool allowMultipleLobes = false,
 			TransportMode mode = TransportMode::Radiance);
 
-	Spectrum Le(const Vector3f& w) const {
-		return Spectrum(0);
-	}
+	Spectrum Le(const Vector3f& w) const ;
 
 	void SetShadingGeometry(const Vector3f &dpdus,
 			const Vector3f &dpdvs, const Normal3f &dndus, const Normal3f &dndvs,
