@@ -1,7 +1,7 @@
-/*
+ï»¿/*
 * pt.h
 *
-*  Created on: 2017Äê1ÔÂ16ÈÕ
+*  Created on: 2017å¹´1æœˆ16æ—¥
 *      Author: zhuqian
 */
 
@@ -17,8 +17,8 @@
 #include "reflection.h"
 class PathIntegrator : public SamplerIntegrator {
 private:
-	int _maxDepth; //Â·¾¶µÄ×î´ó³¤¶È
-	Float _rrThreshold;//¿ªÊ¼¿¼ÂÇ¶íÂŞË¹ÂŞÅÌµÄãĞÖµ
+	int _maxDepth; //è·¯å¾„çš„æœ€å¤§é•¿åº¦
+	Float _rrThreshold;//å¼€å§‹è€ƒè™‘ä¿„ç½—æ–¯ç½—ç›˜çš„é˜ˆå€¼
 public:
 	PathIntegrator(int maxdepth,const std::shared_ptr<const Camera>& camera,
 		const std::shared_ptr<Sampler>& sampler, const Bound2i&pixelBound, Float rrThreshold=1) :
@@ -30,59 +30,59 @@ public:
 		override {
 		Spectrum L(0);
 		RayDifferential ray(r);
-		SurfaceInteraction ref; //ºÍ±íÃæµÄ½»»¥µã
+		SurfaceInteraction ref; //å’Œè¡¨é¢çš„äº¤äº’ç‚¹
 		Spectrum beta = 1;//path throughoutput
-		bool isSpecularBounce=false;//×îºóÒ»´Î·´ÉäÊÇ·ñÊÇ¾µÃæ·´Éä
+		bool isSpecularBounce=false;//æœ€åä¸€æ¬¡åå°„æ˜¯å¦æ˜¯é•œé¢åå°„
 		bool isHit=false;
-		int bounces;//·´ÉäµÄ´ÎÊı
+		int bounces;//åå°„çš„æ¬¡æ•°
 		for (bounces = 0;; ++bounces) {
 			isHit = scene.Intersect(ray, &ref);
 
-			//Èç¹ûÊÇµÚÒ»´Î·´Éä£¬»òÕßÊÇ¾µÃæ·´Éä£¬ĞèÒª¼ÆËã×Ô·¢¹â³É·Ö
+			//å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡åå°„ï¼Œæˆ–è€…æ˜¯é•œé¢åå°„ï¼Œéœ€è¦è®¡ç®—è‡ªå‘å…‰æˆåˆ†
 			if (bounces == 0 || isSpecularBounce) {
 				if (isHit) {
-					L+= beta*ref.Le(-ray.d);//¿¼ÂÇ×Ô·¢¹â
+					L+= beta*ref.Le(-ray.d);//è€ƒè™‘è‡ªå‘å…‰
 				}
 				else {
 					for (const auto& light : scene.lights) {
-						L += beta*light->Le(ray);//¿¼ÂÇinfÀàĞÍ¹âÔ´
+						L += beta*light->Le(ray);//è€ƒè™‘infç±»å‹å…‰æº
 					}
 				}
 			}
 
-			//ÖÕÖ¹Ìõ¼ş
+			//ç»ˆæ­¢æ¡ä»¶
 			if (!isHit || bounces >= _maxDepth) {
 				break;
 			}
 
 			ref.ComputeScatteringFunctions(ray, arena, true);
-			//ÕâÀï¿¼ÂÇµÄÆäÊµÊÇmedia±ß½çµÄÇé¿ö
-			//path ²»¿¼ÂÇmedia,ËùÒÔ¼ÌĞøÏòÏÂ×·×Ù
+			//è¿™é‡Œè€ƒè™‘çš„å…¶å®æ˜¯mediaè¾¹ç•Œçš„æƒ…å†µ
+			//path ä¸è€ƒè™‘media,æ‰€ä»¥ç»§ç»­å‘ä¸‹è¿½è¸ª
 			if (!ref.bsdf) {
 				ray = ref.SpawnRay(ray.d);
 				--bounces;
 				continue;
 			}
 
-			//ÅĞ¶ÏbsdfÖĞÊÇ·ñ°üº¬·Çspecular³É·Ö£¬ÓĞµÄ»°£¬¾ÍÒª¼ÆËã½»µã´¦µÄ¹±Ï×
+			//åˆ¤æ–­bsdfä¸­æ˜¯å¦åŒ…å«éspecularæˆåˆ†ï¼Œæœ‰çš„è¯ï¼Œå°±è¦è®¡ç®—äº¤ç‚¹å¤„çš„è´¡çŒ®
 			if (ref.bsdf->NumComponents(BxDFType(BSDF_ALL&~BSDF_SPECULAR))) {
 				Spectrum Ld= beta*UniformSampleOneLight(ref, scene, arena, sampler, false);
 				Assert(Ld.y() >=0);
 				L += Ld;
 			}
 
-			//¿ªÊ¼²ÉÑùĞÂµÄ·½Ïò
+			//å¼€å§‹é‡‡æ ·æ–°çš„æ–¹å‘
 			Vector3f wo= -ray.d;
 			Vector3f wi;
 			Float pdf;
 			BxDFType flag;
 			Spectrum f= ref.bsdf->Sample_f(wo, &wi, sampler.Get2DSample(), &pdf, BSDF_ALL, &flag);
 			
-			//Õâ¸öbsdf²ÉÑùµ½µÄ·½ÏòµÄ¹±Ï×Îª0£¬Ö±½ÓÌø³ö£¬ÒòÎª½ÓÏÂÀ´ËùÓĞµÄ¹±Ï×¶¼Ã»ÓĞÒâÒåÁË
+			//è¿™ä¸ªbsdfé‡‡æ ·åˆ°çš„æ–¹å‘çš„è´¡çŒ®ä¸º0ï¼Œç›´æ¥è·³å‡ºï¼Œå› ä¸ºæ¥ä¸‹æ¥æ‰€æœ‰çš„è´¡çŒ®éƒ½æ²¡æœ‰æ„ä¹‰äº†
 			if (f.IsBlack() || pdf == 0) {
 				break;
 			}
-			//ÅĞ¶ÏÕâ´Î·´ÉäÊÇ·ñÊÇspecular
+			//åˆ¤æ–­è¿™æ¬¡åå°„æ˜¯å¦æ˜¯specular
 			if ((flag&BSDF_SPECULAR) != 0) {
 				isSpecularBounce = true;
 			}
@@ -92,14 +92,14 @@ public:
 
 			beta = beta*(f*AbsDot(wi, ref.shading.n)/pdf);
 			Assert(beta.y() >= 0);
-			//Éú³ÉĞÂÉäÏß
+			//ç”Ÿæˆæ–°å°„çº¿
 			ray = ref.SpawnRay(wi);
 			if (beta.MaxComponentValue()<_rrThreshold&&bounces>3) {
 				Float q = std::max(0.05, 1.0 - beta.MaxComponentValue());
 				if (sampler.Get1DSample() < q) {
 					break;
 				}
-				//Ìí¼Ó¶íÂŞË¹ÂŞÅÌµÄweight
+				//æ·»åŠ ä¿„ç½—æ–¯ç½—ç›˜çš„weight
 				beta=beta/(1 - q);
 			}
 		}
