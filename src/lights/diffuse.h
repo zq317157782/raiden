@@ -39,6 +39,7 @@ public:
 			Ray *ray, Normal3f *nLight, Float *pdfPos, Float *pdfDir) const
 					override {
 		Assert(false);
+		return 0;
 	}
 	virtual void Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
 			Float *pdfDir) const override {

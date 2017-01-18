@@ -306,7 +306,9 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 			bool found = scene.Intersect(ray, &lightIsect);
 			//能相交就是arealight
 			if (found) {
-				Assert(false);
+				if (lightIsect.primitive->GetAreaLight() == &light) {
+					Li = lightIsect.Le(-wi);
+				}
 			}
 			else {//infi light
 				Li = light.Le(ray);
