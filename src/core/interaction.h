@@ -30,12 +30,18 @@ public:
 			p(pp), n(nn), pErr(perr), wo(wo), time(t), mediumInterface(mi){
 	}
 
-	Interaction(const Point3f &p, Float time) :
-			p(p), time(time) {
+	Interaction(const Point3f &p, Float time, const MediumInterface& mi) :
+			p(p), time(time), mediumInterface(mi) {
 	}
+	Interaction(const Point3f &p, const Vector3f &wo, Float time,
+		const MediumInterface &mediumInterface)
+		: p(p), time(time), wo(wo), mediumInterface(mediumInterface) {}
 
 	bool IsSurfaceInteraction() const {
 		return n != Normal3f();
+	}
+	bool IsMediumInteraction() const { 
+		return !IsSurfaceInteraction(); 
 	}
 	//给予方向,生成新的射线
 	Ray SpawnRay(const Vector3f& d) const {
@@ -54,6 +60,14 @@ public:
 		Point3f target = OffsetRayOrigin(it.p, it.pErr, it.n, origin - it.p);
 		Vector3f d = target - origin;
 		return Ray(origin, d, 1 - ShadowEpsilon, time);
+	}
+
+	const Medium *GetMedium(const Vector3f &w) const {
+		return Dot(w, n) > 0 ? mediumInterface.outside : mediumInterface.inside;
+	}
+	const Medium *GetMedium() const {
+		Assert(mediumInterface.inside==mediumInterface.outside);
+		return mediumInterface.inside;
 	}
 
 };
@@ -94,5 +108,20 @@ public:
 			const Vector3f &dpdvs, const Normal3f &dndus, const Normal3f &dndvs,
 			bool orientationIsAuthoritative);
 };
+
+//代表介质中的一个交点
+class MediumInteraction : public Interaction {
+public:
+	const PhaseFunction *phase;
+public:
+	MediumInteraction() : phase(nullptr) {}
+	MediumInteraction(const Point3f &p, const Vector3f &wo, Float time,
+		const Medium *medium, const PhaseFunction *phase)
+		: Interaction(p, wo, time, MediumInterface(medium)), phase(phase) {}
+	//判断是否是有效的MediumInteraction
+	bool IsValid() const { return phase != nullptr; }
+	
+};
+
 
 #endif /* SRC_CORE_INTERACTION_H_ */
