@@ -41,4 +41,18 @@ public:
 	virtual Spectrum Tr(const Ray &ray, Sampler &sampler) const = 0;
 };
 
+//两个介质的相交面
+struct MediumInterface {
+	//默认是真空介质
+	MediumInterface() : inside(nullptr), outside(nullptr) {}
+	//两边相同介质
+	MediumInterface(const Medium *medium) : inside(medium), outside(medium) {}
+
+	MediumInterface(const Medium *inside, const Medium *outside)
+		: inside(inside), outside(outside) {}
+	//判断是否有介质转移
+	bool IsMediumTransition() const { return inside != outside; }
+	const Medium *inside, *outside;
+};
+
 #endif /* SRC_CORE_MEDIUM_H_ */

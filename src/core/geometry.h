@@ -1141,14 +1141,15 @@ public:
 	Vector3f d;	//射线的方向
 	mutable Float tMax; //最大参数值
 	Float time; //曝光时间相关
+	const Medium* medium;//射线所在的介质
 public:
 	Ray(const Point3f& oo, const Vector3f& dd, float tmax = Infinity, Float t =
-			0.0f) :
-			o(oo), d(dd), tMax(tmax), time(t) {
+			0.0f,const Medium* medium=nullptr) :
+			o(oo), d(dd), tMax(tmax), time(t), medium(medium){
 		Assert(!HasNaNs());
 	}
 	Ray() :
-			tMax(Infinity), time(0) {
+			tMax(Infinity), time(0), medium(nullptr){
 	}
 	Point3f operator()(Float t) const {
 		return o + d * t;
@@ -1178,8 +1179,8 @@ public:
 		hasDifferential = false;	//默认没有微分信息
 	}
 	RayDifferential(const Point3f& oo, const Vector3f& dd,
-			float tmax = Infinity, Float t = 0.0f) :
-			Ray(oo, dd, tmax, t) {
+			float tmax = Infinity, Float t = 0.0f, const Medium* medium = nullptr) :
+			Ray(oo, dd, tmax, t, medium) {
 		Assert(!HasNaNs());
 		hasDifferential = false;
 	}

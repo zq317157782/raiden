@@ -95,6 +95,8 @@ template<typename T> class Texture;
 class BSDF;
 class Material;
 class VisibilityTester;
+class Medium;
+struct MediumInterface;
 
 struct Options {
 	int numThread = 0; //线程个数
