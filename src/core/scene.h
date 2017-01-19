@@ -26,6 +26,8 @@ public:
 	}
 	bool Intersect(const Ray& ray,SurfaceInteraction* interaction) const;
 	bool IntersectP(const Ray& ray) const;
+	bool IntersectTr(Ray ray, Sampler &sampler, SurfaceInteraction *isect,
+		Spectrum *Tr) const;
 
 	const Bound3f& WorldBound() const{
 		return _worldBound;

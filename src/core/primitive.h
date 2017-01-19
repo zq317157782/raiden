@@ -24,6 +24,7 @@ public:
 	;
 	virtual Bound3f WorldBound() const=0;
 	virtual const AreaLight *GetAreaLight() const=0;
+	virtual const Material *GetMaterial() const = 0;
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
 			MemoryArena &arena, TransportMode mode,
 			bool allowMultipleLobes) const=0;
@@ -58,6 +59,9 @@ public:
 	virtual const AreaLight *GetAreaLight() const override {
 		return _areaLight.get();
 	}
+	virtual const Material *GetMaterial() const override {
+		return _material.get();
+	}
 };
 
 //空间图元集合
@@ -72,6 +76,12 @@ class Aggregate: public Primitive {
 	virtual const AreaLight *GetAreaLight() const override {
 		Warning("Aggregate::GetAreaLight() method "
 				"called; should have gone to GeometricPrimitive");
+		return nullptr;
+	}
+
+	virtual const Material *GetMaterial() const override {
+		Warning("Aggregate::GetMaterial() method "
+			"called; should have gone to GeometricPrimitive");
 		return nullptr;
 	}
 };
