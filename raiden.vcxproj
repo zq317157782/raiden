@@ -243,6 +243,7 @@
     <ClInclude Include="src\core\lua\lvm.h" />
     <ClInclude Include="src\core\lua\lzio.h" />
     <ClInclude Include="src\core\material.h" />
+    <ClInclude Include="src\core\medium.h" />
     <ClInclude Include="src\core\memory.h" />
     <ClInclude Include="src\core\microfacet.h" />
     <ClInclude Include="src\core\parallel.h" />
