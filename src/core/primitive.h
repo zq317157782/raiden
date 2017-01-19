@@ -12,6 +12,7 @@
 #include "geometry.h"
 #include "interaction.h"
 #include "material.h"
+#include "medium.h"
 //图元类
 class Primitive {
 public:
@@ -34,13 +35,14 @@ private:
 	std::shared_ptr<Shape> _shape;
 	std::shared_ptr<Material> _material;
 	std::shared_ptr<AreaLight> _areaLight;
+	MediumInterface _mediumInterface;
 	bool Intersect(const Ray&, SurfaceInteraction*) const override;
 	Bound3f WorldBound() const override;
 	bool IntersectP(const Ray&) const override;
 public:
 	GeomPrimitive(const std::shared_ptr<Shape>&,
 			const std::shared_ptr<Material>&,
-			const std::shared_ptr<AreaLight>&);
+			const std::shared_ptr<AreaLight>&,const MediumInterface& mediumInterface);
 
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
 			MemoryArena &arena, TransportMode mode,

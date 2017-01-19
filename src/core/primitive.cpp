@@ -8,10 +8,13 @@
 #include "shape.h"
 bool GeomPrimitive::Intersect(const Ray& r, SurfaceInteraction* i) const {
 	Float hit;
-	if(!_shape->Intersect(r, &hit, i)) return false;
+	if (!_shape->Intersect(r, &hit, i)) { return false; }
 	r.tMax = hit;
 	i->primitive=this;//更新交点数据的图元指针
-	//todo Medium相关
+	
+	if (_mediumInterface.IsMediumTransition()) {
+		
+	}
 	return true;
 }
 
@@ -24,6 +27,6 @@ Bound3f GeomPrimitive::WorldBound() const{
 }
 
 
-GeomPrimitive::GeomPrimitive(const std::shared_ptr<Shape>& s, const std::shared_ptr<Material>& m,const std::shared_ptr<AreaLight>& area):_shape(s),_material(m),_areaLight(area){
+GeomPrimitive::GeomPrimitive(const std::shared_ptr<Shape>& s, const std::shared_ptr<Material>& m,const std::shared_ptr<AreaLight>& area, const MediumInterface& mediumInterface):_shape(s),_material(m),_areaLight(area),_mediumInterface(mediumInterface){
 
 }

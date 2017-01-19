@@ -582,7 +582,7 @@ if (area) {
 areaLights.push_back(area);
 }
 }
-prims.push_back(std::make_shared<GeomPrimitive>(s, mtl,area));
+prims.push_back(std::make_shared<GeomPrimitive>(s, mtl,area,nullptr));
 }
 }
 if (areaLights.size() > 0) {
