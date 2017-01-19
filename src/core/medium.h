@@ -33,5 +33,12 @@ inline Float PhaseHG(Float cosTheta, Float g) {
 }
 
 
+//材质介质
+class Medium {
+public:
+	//返回射线在这个Medium中传播到ray.tMax后得到的 beam transmittance.
+	//通俗点讲就是有多少沿着射线的能量还被保留着，或者说传播着
+	virtual Spectrum Tr(const Ray &ray, Sampler &sampler) const = 0;
+};
 
 #endif /* SRC_CORE_MEDIUM_H_ */
