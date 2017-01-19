@@ -17,8 +17,8 @@ private:
 	Float _area; //面积
 public:
 	DiffuseAreaLight(const Transform& l2w, int numSamples, const Spectrum& Le,
-			const std::shared_ptr<Shape>& shape) :
-			AreaLight(l2w, numSamples), _Le(Le), _shape(shape), _area(
+			const std::shared_ptr<Shape>& shape,const MediumInterface& mi) :
+			AreaLight(l2w, mi,numSamples), _Le(Le), _shape(shape), _area(
 					shape->Area()) {
 	}
 	Spectrum L(const Interaction& ref, const Vector3f& w) const override {

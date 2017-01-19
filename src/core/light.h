@@ -32,9 +32,10 @@ protected:
 public:
 	const int numSamples; //采样光源的时候需要采样的样本个数
 	const int flags; //光源的特征
+	const MediumInterface mediumInterface;
 public:
-	Light(int flags, const Transform& l2w, int numSamples = 1) :
-			_lightToWorld(l2w), _worldToLight(Inverse(l2w)), numSamples(
+	Light(int flags, const Transform& l2w,const MediumInterface& mi,int numSamples = 1) :
+			_lightToWorld(l2w), _worldToLight(Inverse(l2w)), mediumInterface(mi), numSamples(
 					numSamples), flags(flags) {
 
 	}
@@ -81,7 +82,7 @@ public:
 
 class AreaLight :public Light {
 public:
-	AreaLight(const Transform& l2w, int numSamples):Light((int)LightFlags::Area,l2w,numSamples){}
+	AreaLight(const Transform& l2w, const MediumInterface& mi, int numSamples):Light((int)LightFlags::Area,l2w, mi,numSamples){}
 	//计算从光源上的某个点往某个方向的radiance
 	virtual Spectrum L(const Interaction& ref, const Vector3f& w) const=0;
 };

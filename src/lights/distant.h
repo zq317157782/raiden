@@ -18,7 +18,7 @@ private:
 	Float  _worldRadius;
 public:
 	DistantLight(const Transform& l2w, const Spectrum& L,const Vector3f& dir) :
-		Light((int)LightFlags::DeltaDirection, l2w),_L(L), _direction(dir){}
+		Light((int)LightFlags::DeltaDirection, l2w,MediumInterface()),_L(L), _direction(dir){}
 	virtual void Preprocess(Scene& scene) override;
 	virtual Spectrum Sample_Li(const Interaction& interaction, const Point2f &u, Vector3f* wi,
 		Float* pdf, VisibilityTester* vis) const override;

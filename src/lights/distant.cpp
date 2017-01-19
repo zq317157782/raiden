@@ -22,7 +22,7 @@ Spectrum DistantLight::Sample_Li(const Interaction& interaction, const Point2f &
 	*pdf = 1;
 	*wi = _direction;
 	Point3f p = interaction.p + _direction*(_worldRadius * 2);
-	*vis = VisibilityTester(interaction,Interaction(p, interaction.time));
+	*vis = VisibilityTester(interaction,Interaction(p, interaction.time,mediumInterface));
 	return _L;
 }
 

@@ -16,7 +16,7 @@ private:
 	Spectrum _I; //光源强度，I，单位Watte/sr
 public:
 	PointLight(const Transform& l2w, const Spectrum& I) :
-			Light((int) LightFlags::DeltaPosition, l2w) {
+			Light((int) LightFlags::DeltaPosition,l2w, MediumInterface()) {
 		_position = _lightToWorld(Point3f(0, 0, 0)); //计算光源在世界坐标下的位置
 		_I = I;
 	}
