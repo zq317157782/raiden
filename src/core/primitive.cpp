@@ -12,8 +12,13 @@ bool GeomPrimitive::Intersect(const Ray& r, SurfaceInteraction* i) const {
 	r.tMax = hit;
 	i->primitive=this;//更新交点数据的图元指针
 	
+	//存在两种介质
 	if (_mediumInterface.IsMediumTransition()) {
-		
+		i->mediumInterface = _mediumInterface;
+	}
+	//不存在，以射线所在的介质为主
+	else {
+		i->mediumInterface = MediumInterface(r.medium);
 	}
 	return true;
 }

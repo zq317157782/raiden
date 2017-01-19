@@ -12,6 +12,7 @@
 #include "shape.h"
 #include "material.h"
 #include "spectrum.h"
+#include "medium.h"
 class Interaction {
 public:
 	Point3f p; //交点
@@ -19,13 +20,14 @@ public:
 	Vector3f pErr; //累积的浮点数绝对误差
 	Vector3f wo; //入射方向
 	Float time; //时间
+	MediumInterface mediumInterface;
 public:
 	Interaction() :
 			time(0) {
 	}
 	Interaction(const Point3f& pp, const Normal3f& nn, const Vector3f& perr,
-			const Vector3f& wo, Float t) :
-			p(pp), n(nn), pErr(perr), wo(wo), time(t) {
+			const Vector3f& wo, Float t,const MediumInterface& mi) :
+			p(pp), n(nn), pErr(perr), wo(wo), time(t), mediumInterface(mi){
 	}
 
 	Interaction(const Point3f &p, Float time) :
