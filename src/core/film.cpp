@@ -49,6 +49,14 @@ void Film::WriteImage() {
 				rgb[0]=GammaCorrect(rgb[0]);
 				rgb[1]=GammaCorrect(rgb[1]);
 				rgb[2]=GammaCorrect(rgb[2]);
+
+				//这里clmap了值在0~1LHR范围内
+				//这里只是暂时的代码，以后要换成HDR，做ToneMapping
+				rgb[0] = Clamp(rgb[0], 0, 1);
+				rgb[1] = Clamp(rgb[1], 0, 1);
+				rgb[2] = Clamp(rgb[2], 0, 1);
+
+				//Info("[ x:" << i << " y:" << j << "][" << rgb[0] * 255 << " " << rgb[1] * 255 << " " << rgb[2] * 255 << "]");
 				image.push_back(rgb[0]*255);//R
 				image.push_back(rgb[1]*255);//G
 				image.push_back(rgb[2]*255);//B
