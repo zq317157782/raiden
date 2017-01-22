@@ -30,6 +30,7 @@
 #include "integrators/depth.h"
 #include "integrators/whitted.h"
 #include "integrators/pt.h"
+#include "integrators/vpt.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
@@ -690,7 +691,11 @@ integrator = CreateDepthIntegrator(IntegratorParams, sampler, camera);
 integrator = CreateWhittedIntegrator(IntegratorParams, sampler, camera);
 } else if (IntegratorName == "path") {
 integrator = CreatePathIntegrator(IntegratorParams, sampler, camera);
-} else {
+}
+else if (IntegratorName == "volpath") {
+	integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
+}
+else {
 Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");
 return nullptr;
 }

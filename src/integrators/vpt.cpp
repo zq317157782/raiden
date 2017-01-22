@@ -1,8 +1,8 @@
-﻿#include "pt.h"
+﻿#include "vpt.h"
 #include "paramset.h"
 #include "film.h"
 
-PathIntegrator *CreatePathIntegrator(
+VolPathIntegrator *CreateVolPathIntegrator(
 	const ParamSet &params, std::shared_ptr<Sampler> sampler,
 	std::shared_ptr<const Camera> camera) {
 	int np;
@@ -19,9 +19,8 @@ PathIntegrator *CreatePathIntegrator(
 			}
 		}
 	}
-
 	int depth = params.FindOneInt("depth", 5);
 	Float rr = params.FindOneFloat("rrthreshold", 1.0);
-	Debug("[CreatePathIntegrator]");
-	return new PathIntegrator(depth,camera, sampler, pixelBounds,rr);
+	Debug("[CreateVolPathIntegrator]");
+	return new VolPathIntegrator(depth, camera, sampler, pixelBounds, rr);
 }

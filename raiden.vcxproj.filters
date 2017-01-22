@@ -258,6 +258,9 @@
     <ClCompile Include="src\lights\diffuse.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\integrators\vpt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">
@@ -495,6 +498,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\media\homogeneous.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\integrators\vpt.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
