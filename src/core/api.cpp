@@ -35,6 +35,7 @@
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
 #include "materials/grass.h"
+#include "media/homogeneous.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
@@ -216,11 +217,11 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	Transform *cam2world[1];
 	transformCache.Lookup(cam2worldSet[0], &cam2world[0], nullptr);
 	if (name == "pinhole") {
-		camera = CreatePinholeCamera(paramSet, *cam2world[0], film);
+		camera = CreatePinholeCamera(paramSet, *cam2world[0], film, nullptr);
 	} else if (name == "ortho") {
-		camera = CreateOrthoCamera(paramSet, *cam2world[0], film);
+		camera = CreateOrthoCamera(paramSet, *cam2world[0], film, nullptr);
 	} else if (name == "perspective") {
-		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film);
+		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film,new HomogeneousMedium(Spectrum(0.5), Spectrum(0.2),0.5));
 	} else {
 		Error("camera \"" << name.c_str() << "\" unknown.");
 	}

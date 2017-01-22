@@ -17,7 +17,7 @@ private:
 	Vector3f _dyCamera;
 public:
 	PerspectiveCamera(const Transform& c2w, const Bound2f& screenWindow,Float shutterOpen,Float shutterEnd,Float lensr,
-			Float focald,Float fov,Film * f);
+			Float focald,Float fov,Film * f, const Medium* medium);
 
 	virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const override;
 	virtual Float GenerateRayDifferential(const CameraSample &sample,
@@ -25,6 +25,6 @@ public:
 };
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,
-                                           Film *film);
+                                           Film *film, const Medium *medium);
 
 #endif /* SRC_CAMERAS_PERSPECTIVE_H_ */

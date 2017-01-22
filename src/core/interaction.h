@@ -46,20 +46,20 @@ public:
 	//给予方向,生成新的射线
 	Ray SpawnRay(const Vector3f& d) const {
 		Point3f o = OffsetRayOrigin(p, pErr, n, d);
-		return Ray(o, d, Infinity, time);
+		return Ray(o, d, Infinity, time,GetMedium(d));
 	}
 	//给予空间点，生成射向目标点的射线
 	Ray SpawnRayTo(const Point3f& p2) const {
 		Vector3f d = p2 - p;
 		Point3f o = OffsetRayOrigin(p, pErr, n, d);
-		return Ray(o, d, 1 - ShadowEpsilon, time);
+		return Ray(o, d, 1 - ShadowEpsilon, time, GetMedium(d));
 	}
 
 	Ray SpawnRayTo(const Interaction &it) const {
 		Point3f origin = OffsetRayOrigin(p, pErr, n, it.p - p);
 		Point3f target = OffsetRayOrigin(it.p, it.pErr, it.n, origin - it.p);
 		Vector3f d = target - origin;
-		return Ray(origin, d, 1 - ShadowEpsilon, time);
+		return Ray(origin, d, 1 - ShadowEpsilon, time, GetMedium(d));
 	}
 
 	const Medium *GetMedium(const Vector3f &w) const {

@@ -11,9 +11,9 @@
 #include "film.h"
 PerspectiveCamera::PerspectiveCamera(const Transform& c2w,
 		const Bound2f& screenWindow, Float shutterOpen, Float shutterEnd,
-		Float lensr, Float focald, Float fov, Film * f) :
+		Float lensr, Float focald, Float fov,Film * f, const Medium* medium) :
 		ProjectiveCamera(c2w, Perspective(fov, 1e-3f, 1000.0f)/*c2s*/,
-				screenWindow, shutterOpen, shutterEnd, lensr, focald, f) {
+				screenWindow, shutterOpen, shutterEnd, lensr, focald,f,medium) {
 	//获得光栅化空间下，相机空间对应的差分
 	_dxCamera = _rasterToCamera(Vector3f(1, 0, 0))
 			- _rasterToCamera(Vector3f(0, 0, 0));
@@ -37,6 +37,8 @@ Float PerspectiveCamera::GenerateRay(const CameraSample &sample,
 		ray->d = Normalize(pFocus - ray->o);
 	}
 	ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
+	Info(medium);
+	ray->medium = medium;
 	*ray = cameraToWorld(*ray);
 	return 1.0f;
 }
@@ -78,6 +80,7 @@ Float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
 	}
 	ray->hasDifferential = true;
 	ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
+	ray->medium = medium;
 	*ray = cameraToWorld(*ray);
 	return 1.0f;
 }
@@ -85,7 +88,7 @@ Float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
 
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,
-                                           Film *film) {
+                                           Film *film, const Medium *medium) {
     // Extract common camera parameters from _ParamSet_
     Float shutteropen = params.FindOneFloat("shutteropen", 0.f);
     Float shutterclose = params.FindOneFloat("shutterclose", 1.f);
@@ -124,5 +127,5 @@ PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
         fov = 2.0f * halffov;
     }
     return new PerspectiveCamera(cam2world, screen, shutteropen, shutterclose,
-                                 lensradius, focaldistance, fov, film);
+                                 lensradius, focaldistance, fov,film, medium);
 }

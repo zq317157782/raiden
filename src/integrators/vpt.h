@@ -35,12 +35,12 @@ public:
 		bool isSpecularBounce = false;//最后一次反射是否是镜面反射
 		bool isHit = false;
 		int bounces;//反射的次数
-
-
+		
+		
 		for (bounces = 0;; ++bounces) {
 			SurfaceInteraction ref; //和表面的交互点
 			isHit = scene.Intersect(ray, &ref);
-
+			//Info(ray.medium);
 			//采样中间介质交点
 			//添加当前的tr到throughout
 			MediumInteraction mi;
@@ -52,12 +52,10 @@ public:
 			//如果采样到中间介质交点的话，按照中间介质的处理方法来做
 			//并且生成新的射线
 			if (mi.IsValid()) {
-
 				//终止条件
 				if (bounces >= _maxDepth) {
 					break;
 				}
-
 				//计算当前光源提供的直接光能量
 				L = L + beta*UniformSampleOneLight(ref, scene, arena, sampler, true);
 				//采样新的方向

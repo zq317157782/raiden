@@ -61,7 +61,7 @@ public:
 	}
 
 	CoefficientSpectrum operator-() const {
-		Assert(!cc.HasNaNs());
+		//Assert(!cc.HasNaNs());
 		CoefficientSpectrum result;
 		for (int i = 0; i < numSpectrumSample; ++i) {
 			result[i] = -_c[i];

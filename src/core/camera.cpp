@@ -8,9 +8,9 @@
 #include "camera.h"
 #include "film.h"
 Camera::Camera(const Transform& c2w, Float shutterOpen, Float shutterEnd,
-		Film * f) :
+		Film * f, const Medium* medium) :
 		film(f), cameraToWorld(c2w), shutterOpen(shutterOpen), shutterEnd(
-				shutterEnd) {
+				shutterEnd), medium(medium){
 
 }
 
@@ -37,13 +37,14 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 	rd->dy = ry.d;
 	//设置射线为微分射线
 	rd->hasDifferential = true;
+	rd->medium = medium;
 	return wt;
 }
 
 ProjectiveCamera::ProjectiveCamera(const Transform& c2w, const Transform& c2s,
 		const Bound2f& screenWindow,Float shutterOpen, Float shutterEnd,
-		Float lensr, Float focald, Film * f) :
-		Camera(c2w, shutterOpen, shutterEnd, f) {
+		Float lensr, Float focald,  Film * f, const Medium* medium):
+		Camera(c2w, shutterOpen, shutterEnd, f, medium) {
 	_cameraToScreen = c2s; //投影矩阵
 	_lensRadius = lensr;
 	_focalDistance = focald;

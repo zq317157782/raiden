@@ -10,10 +10,10 @@
 #include "paramset.h"
 #include "film.h"
 OrthoCamera::OrthoCamera(const Transform& c2w, const Bound2f& screenWindow,
-		Float shutterOpen, Float shutterEnd, Float lensr, Float focald,
-		Film * f) :
+		Float shutterOpen, Float shutterEnd, Float lensr, Float focald, 
+		Film * f, const Medium* medium) :
 		ProjectiveCamera(c2w, Orthographic(0.0f, 1.0f)/*c2s*/, screenWindow,
-				shutterOpen, shutterEnd, lensr, focald, f) {
+				shutterOpen, shutterEnd, lensr, focald, f, medium) {
 	//获得光栅化空间下，相机空间对应的差分
 	_dxCamera = _rasterToCamera(Vector3f(1, 0, 0));
 	_dyCamera = _rasterToCamera(Vector3f(0, 1, 0));
@@ -34,6 +34,7 @@ Float OrthoCamera::GenerateRay(const CameraSample &sample, Ray *ray) const {
 		ray->d = Normalize(pFocus - ray->o);
 	}
 	ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
+	ray->medium = medium;
 	*ray = cameraToWorld(*ray);
 	return 1.0f;
 }
@@ -73,12 +74,13 @@ Float OrthoCamera::GenerateRayDifferential(const CameraSample &sample,
 	}
 	ray->hasDifferential = true;
 	ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
+	ray->medium = medium;
 	*ray = cameraToWorld(*ray);
 	return 1.0f;
 }
 
 OrthoCamera *CreateOrthoCamera(const ParamSet &params,
-		const Transform &cam2world, Film *film) {
+		const Transform &cam2world, Film *film, const Medium *medium) {
 	Float shutteropen = params.FindOneFloat("shutteropen", 0.0f);
 	Float shutterclose = params.FindOneFloat("shutterclose", 1.0f);
 	if (shutterclose < shutteropen) {
@@ -116,5 +118,5 @@ OrthoCamera *CreateOrthoCamera(const ParamSet &params,
 	}
 	Debug("[make OrthoCamera lensradius:"<<lensradius<<" focaldistance:"<<focaldistance<<"]");
 	return new OrthoCamera(cam2world, screen, shutteropen, shutterclose,
-			lensradius, focaldistance, film);
+			lensradius, focaldistance, film, medium);
 }

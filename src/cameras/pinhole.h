@@ -15,8 +15,8 @@ public:
 	const Float distanceToView;
 public:
 	PinholeCamera(const Transform& c2w, Float shutterOpen, Float shutterEnd,
-			Film * f, const float distance = 10) :
-			Camera(c2w, shutterOpen, shutterEnd, f), distanceToView(distance) {
+			Film * f, const Medium* medium, const float distance = 10) :
+			Camera(c2w, shutterOpen, shutterEnd, f, medium), distanceToView(distance) {
 	}
 
 	virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const
@@ -27,12 +27,13 @@ public:
 				Vector3f(sample.pFilm.x-res.x/2, sample.pFilm.y-res.y/2, distanceToView));
 		*ray = Ray(origin, dir);
 		ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
+		ray->medium = medium;
 		*ray=cameraToWorld(*ray);
 		return 1.0f;
 	}
 };
 // {shutteropen:Float,shutterclose:Float,distance:Float}
 PinholeCamera *CreatePinholeCamera(const ParamSet &params,
-		const Transform &cam2world, Film *film);
+		const Transform &cam2world, Film *film, const Medium* medium);
 
 #endif /* SRC_CAMERAS_PINHOLE_H_ */
