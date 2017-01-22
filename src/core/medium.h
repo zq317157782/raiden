@@ -10,6 +10,8 @@
 #define SRC_CORE_MEDIUM_H_
 #include "raiden.h"
 #include "geometry.h"
+#include "spectrum.h"
+
 
 //体渲染使用的类似于BSDF的函数
 class PhaseFunction {
@@ -72,6 +74,10 @@ public:
 		//-cosTheta理由同上
 		return PhaseHG(-cosTheta, _g);
 	}
+
+	std::string ToString() const override {
+		return "[HenyeyGreenstein]";
+	}
 };
 
 //材质介质
@@ -80,6 +86,11 @@ public:
 	//返回射线在这个Medium中传播到ray.tMax后得到的 beam transmittance.
 	//通俗点讲就是有多少沿着射线的能量还被保留着，或者说传播着
 	virtual Spectrum Tr(const Ray &ray, Sampler &sampler) const = 0;
+
+	//采樣當前射綫在當前MEDIA中的交點
+	virtual Spectrum Sample(const Ray &ray, Sampler &sampler,
+		MemoryArena &arena,
+		MediumInteraction *mi) const = 0;
 };
 
 //两个介质的相交面

@@ -273,6 +273,7 @@
     <ClInclude Include="src\materials\grass.h" />
     <ClInclude Include="src\materials\lambertian.h" />
     <ClInclude Include="src\materials\mirror.h" />
+    <ClInclude Include="src\media\homogeneous.h" />
     <ClInclude Include="src\samplers\random.h" />
     <ClInclude Include="src\shapes\sphere.h" />
     <ClInclude Include="src\shapes\trianglemesh.h" />

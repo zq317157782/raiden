@@ -24,7 +24,7 @@ typedef float Float;
 #endif
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
-
+static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 //根据编译选项设置断言宏
 #ifdef DEBUG_BUILD
 #define Assert(x) assert(x)
@@ -45,6 +45,8 @@ static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 #else
 #define Debug(x) ((void)0);
 #endif
+
+
 
 static constexpr Float Pi = 3.14159265358979323846;
 static constexpr Float InvPi = 0.31830988618379067154;
@@ -70,6 +72,7 @@ class ErrFloat;
 //计算累积误差的浮点数实现
 class Interaction;
 class SurfaceInteraction;
+class MediumInteraction;
 class Shape;
 class Primitive;
 class GeomPrimitive;

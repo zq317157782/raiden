@@ -16,9 +16,8 @@ template<int numSpectrumSample>
 class CoefficientSpectrum {
 protected:
 	Float _c[numSpectrumSample]; //用来存放光谱样本值的数组
-	static constexpr int numSample = numSpectrumSample; //返回样本个数
 public:
-
+	static constexpr int numSample = numSpectrumSample; //返回样本个数
 	CoefficientSpectrum(Float cc = 0.0f) {
 		Assert(!std::isnan(cc));
 		for (int i = 0; i < numSpectrumSample; ++i) {
@@ -57,6 +56,15 @@ public:
 		CoefficientSpectrum result;
 		for (int i = 0; i < numSpectrumSample; ++i) {
 			result[i] = _c[i] - cc._c[i];
+		}
+		return result;
+	}
+
+	CoefficientSpectrum operator-() const {
+		Assert(!cc.HasNaNs());
+		CoefficientSpectrum result;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			result[i] = -_c[i];
 		}
 		return result;
 	}
@@ -159,6 +167,16 @@ public:
 		Assert(!ret.HasNaNs());
 		return ret;
 	}
+
+	friend CoefficientSpectrum Exp(const CoefficientSpectrum &s) {
+		CoefficientSpectrum ret;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			ret._c[i] = std::exp(s._c[i]);
+		}
+		Assert(!ret.HasNaNs());
+		return ret;
+	}
+
 	//判断光谱样本总是否包含nan
 	bool HasNaNs() const {
 		for (int i = 0; i < numSpectrumSample; ++i) {

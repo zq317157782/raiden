@@ -494,5 +494,8 @@
     <ClInclude Include="src\core\medium.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\media\homogeneous.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
