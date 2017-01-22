@@ -241,9 +241,16 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 			f=si.bsdf->f(si.wo, wi, bsdfFlags)*AbsDot(wi,si.shading.n);//隐式包含了cos成分
 			scatteringPdf = si.bsdf->Pdf(si.wo,wi, bsdfFlags);
 		}
+		else {
+			const MediumInteraction& mi = (const MediumInteraction&)(it);
+			Float p = mi.phase->P(mi.wo, wi);
+			f = Spectrum(p);
+			scatteringPdf = p;
+		}
 		if (!f.IsBlack()) {
 			if (handleMedia) {
-
+				//考虑介质对光源能量的衰减
+				Li=Li*vis.Tr(scene, sampler);
 			}
 			else {
 				//判断光源和射线是否倍遮挡
@@ -286,6 +293,12 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 			f *= AbsDot(wi, si.shading.n);//隐式cos
 			sampledSpecular = (BSDF_SPECULAR&sampledType) != 0;
 		}
+		else {
+			const MediumInteraction& mi = (const MediumInteraction&)(it);
+			Float p = mi.phase->Sample_p(mi.wo,&wi, uScattering);
+			f = Spectrum(p);
+			sampledSpecular = p;
+		}
 
 		if (!f.IsBlack() && scatteringPdf > 0) {
 			Float weight = 1.0f;
@@ -303,7 +316,9 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 			//在计算好权重以及确定光源不是delta光源后，计算光源产生的Li
 			SurfaceInteraction lightIsect;
 			Ray ray = it.SpawnRay(wi);
-			bool found = scene.Intersect(ray, &lightIsect);
+			//这边活该需要考虑MP带来的影响
+			Spectrum Tr(1.0f);
+			bool found =  handleMedia?scene.IntersectTr(ray,sampler,&lightIsect,&Tr):scene.Intersect(ray, &lightIsect);
 			//能相交就是arealight
 			if (found) {
 				if (lightIsect.primitive->GetAreaLight() == &light) {
@@ -314,7 +329,8 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 				Li = light.Le(ray);
 			}
 			if (!Li.IsBlack()) {
-				Ld += f*Li*weight / scatteringPdf;
+				//Tr是MP对能量的衰减
+				Ld += f*Li*Tr*weight/ scatteringPdf;
 			}
 		}
 	}
