@@ -57,7 +57,7 @@ public:
 					break;
 				}
 				//计算当前光源提供的直接光能量
-				L = L + beta*UniformSampleOneLight(ref, scene, arena, sampler, true);
+				L = L + beta*UniformSampleOneLight(mi, scene, arena, sampler, true);
 				//采样新的方向
 				Vector3f wo = -ray.d;
 				Vector3f wi;
