@@ -23,6 +23,7 @@ public:
 	HomogeneousMedium(const Spectrum& s_a, const Spectrum& s_s, Float g):_sigma_a(s_a), _sigma_s(s_s), _sigma_t(s_a+ s_s), _g(g){
 
 	}
+	virtual ~HomogeneousMedium(){}
 
 	Spectrum Tr(const Ray &ray, Sampler &sampler) const override {
 		return Exp(-_sigma_t*std::min(ray.tMax*ray.d.Length(), MaxFloat));
@@ -42,7 +43,7 @@ public:
 		bool isMedium = t < ray.tMax;
 		//是介質的話，初始化MediumInteraction
 		if (isMedium) {
-			*mi = MediumInteraction(ray(t),-ray.d,ray.time,this,ARENA_ALLOC(arena,HenyeyGreenstein)(_g));
+			*mi = MediumInteraction(ray(t),Normalize(-ray.d),ray.time,this,ARENA_ALLOC(arena,HenyeyGreenstein)(_g));
 		}
 
 		//計算散射係數

@@ -244,6 +244,7 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 		else {
 			const MediumInteraction& mi = (const MediumInteraction&)(it);
 			Float p = mi.phase->P(mi.wo, wi);
+			Assert(!std::isnan(p));
 			f = Spectrum(p);
 			scatteringPdf = p;
 		}
@@ -296,6 +297,7 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 		else {
 			const MediumInteraction& mi = (const MediumInteraction&)(it);
 			Float p = mi.phase->Sample_p(mi.wo,&wi, uScattering);
+			Assert(!std::isnan(p));
 			f = Spectrum(p);
 			sampledSpecular = p;
 		}

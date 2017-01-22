@@ -29,9 +29,9 @@ public:
 	virtual Spectrum Li(const RayDifferential &r, const Scene &scene,
 		Sampler &sampler, MemoryArena &arena, int depth = 0) const
 		override {
-		Spectrum L(0);
+		Spectrum L(0.0);
 		RayDifferential ray(r);
-		Spectrum beta = 1;//path throughoutput
+		Spectrum beta(1.0);//path throughoutput
 		bool isSpecularBounce = false;//最后一次反射是否是镜面反射
 		bool isHit = false;
 		int bounces;//反射的次数
@@ -46,6 +46,9 @@ public:
 			MediumInteraction mi;
 			if (ray.medium) {
 				beta =beta* ray.medium->Sample(ray, sampler, arena, &mi);
+			}
+			if(beta.IsBlack()){
+				break;
 			}
 
 
@@ -106,7 +109,8 @@ public:
 				Float pdf;
 				BxDFType flag;
 				Spectrum f = ref.bsdf->Sample_f(wo, &wi, sampler.Get2DSample(), &pdf, BSDF_ALL, &flag);
-
+//				Assert(!f.HasNaNs());
+//				Assert(!std::isnan(pdf));
 				//这个bsdf采样到的方向的贡献为0，直接跳出，因为接下来所有的贡献都没有意义了
 				if (f.IsBlack() || pdf == 0) {
 					break;
@@ -118,7 +122,6 @@ public:
 				else {
 					isSpecularBounce = false;
 				}
-
 				beta = beta*(f*AbsDot(wi, ref.shading.n) / pdf);
 				Assert(beta.y() >= 0);
 				//生成新射线
@@ -126,13 +129,14 @@ public:
 			}
 
 
-			if (beta.MaxComponentValue()<_rrThreshold&&bounces>3) {
+			if (beta.y()<_rrThreshold&&bounces>3) {
 				Float q = std::max(0.05, 1.0 - beta.MaxComponentValue());
 				if (sampler.Get1DSample() < q) {
 					break;
 				}
 				//添加俄罗斯罗盘的weight
 				beta = beta / (1 - q);
+				Assert(std::isinf(beta.y()) == false);
 			}
 		}
 		return L;

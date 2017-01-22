@@ -545,9 +545,9 @@ public:
 			*pdf = (*pdf)/matchingCompNum;
 
 			//计算bxdf系数和
-			bool reflect = (wi.z*wo.z) > 0;
+			//bool reflect = (wi.z*wo.z) > 0;
 			//PBRT中其实是这样写的
-			//bool reflect = Dot(*wiWorld, ng) * Dot(woWorld, ng) > 0;
+			bool reflect = Dot(*wiWorld, _ng) * Dot(woWorld, _ng) > 0;
 			f = Spectrum(0);//重置
 			for (int i = 0; i < _nBxDF; ++i) {
 				if (_bxdfs[i]->MatchesFlags(type)&&((reflect&&_bxdfs[i]->type&BSDF_SPECULAR)|| (!reflect&&_bxdfs[i]->type&BSDF_TRANSMISSION))) {
@@ -555,7 +555,6 @@ public:
 				}
 			}
 		}
-
 		return f;
 	}
 
