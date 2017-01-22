@@ -77,6 +77,8 @@ public:
 	const Interaction& P1() { return _p1; }
 	//判断两个点之间是否被遮挡
 	bool Unoccluded(const Scene& scene) const;
+	//考虑中间介质的情况
+	Spectrum Tr(const Scene &scene, Sampler &sampler) const;
 };
 
 
