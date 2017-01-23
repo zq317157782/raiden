@@ -283,6 +283,9 @@ Interaction Sphere::Sample(const Interaction& ref, const Point2f& u, Float *pdf)
 	
 	//均匀采样cone
 	*pdf = 1 / (2 * Pi * (1 - cosThetaMax));
+	if (std::isinf(*pdf)) {
+		*pdf = 0;
+	}
 	return it;
 
 }

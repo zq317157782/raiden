@@ -221,7 +221,7 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	} else if (name == "ortho") {
 		camera = CreateOrthoCamera(paramSet, *cam2world[0], film, nullptr);
 	} else if (name == "perspective") {
-		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film,new HomogeneousMedium(Spectrum(0.001), Spectrum(0.001),0.5));
+		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film,nullptr);
 	} else {
 		Error("camera \"" << name.c_str() << "\" unknown.");
 	}
