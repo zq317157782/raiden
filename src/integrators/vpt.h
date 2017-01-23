@@ -64,7 +64,7 @@ public:
 				//计算当前光源提供的直接光能量
 				L = L + beta*UniformSampleOneLight(mi, scene, arena, sampler, true);
 				//采样新的方向
-				Vector3f wo = Normalize(-ray.d);
+				Vector3f wo =-ray.d;
 				Vector3f wi;
 				mi.phase->Sample_p(wo, &wi, sampler.Get2DSample());
 				ray = mi.SpawnRay(wi);
@@ -106,13 +106,11 @@ public:
 				}
 
 				//开始采样新的方向
-				Vector3f wo = Normalize(-ray.d);
+				Vector3f wo = -ray.d;
 				Vector3f wi;
 				Float pdf;
 				BxDFType flag;
 				Spectrum f = ref.bsdf->Sample_f(wo, &wi, sampler.Get2DSample(), &pdf, BSDF_ALL, &flag);
-//				Assert(!f.HasNaNs());
-//				Assert(!std::isnan(pdf));
 				//这个bsdf采样到的方向的贡献为0，直接跳出，因为接下来所有的贡献都没有意义了
 				if (f.IsBlack() || pdf == 0) {
 					break;

@@ -43,7 +43,7 @@ public:
 		bool isMedium = t < ray.tMax;
 		//是介質的話，初始化MediumInteraction
 		if (isMedium) {
-			*mi = MediumInteraction(ray(t),Normalize(-ray.d),ray.time,this,ARENA_ALLOC(arena,HenyeyGreenstein)(_g));
+			*mi = MediumInteraction(ray(t),-ray.d,ray.time,this,ARENA_ALLOC(arena,HenyeyGreenstein)(_g));
 		}
 
 		//計算散射係數
