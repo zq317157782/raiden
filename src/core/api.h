@@ -39,6 +39,8 @@ void raidenNamedMaterial(const std::string &name);
 void raidenMakeNamedMaterial(const std::string& name, const ParamSet& params);
 void raidenLightSource(const std::string& name, const ParamSet &params);
 void raidenAreaLightSource(const std::string& name, const ParamSet &params);
+void raidenMakeNamedMedium(const std::string &name, const ParamSet &params);
+void raidenMediumInterface(const std::string &insideName, const std::string &outsideName);
 void raidenWorldBegin();
 void raidenWorldEnd();
 void raidenAttributeBegin();

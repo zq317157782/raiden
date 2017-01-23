@@ -134,13 +134,17 @@ struct RenderOptions {
 	std::vector<std::shared_ptr<Light>> lights;
 	//图元
 	std::vector<std::shared_ptr<Primitive>> primitives;
-
+	//介质
+	std::map<std::string, std::shared_ptr<Medium>> namedMedia;
 	//创建一个scene
 	Scene *MakeScene();
 	//创建一个Camera
 	Camera *MakeCamera() const;
 	//创建一个积分器
 	Integrator *MakeIntegrator() const;
+
+	//判断当前介质是否参与散射
+	bool haveScatteringMedia = false;
 };
 
 struct GraphicsState {
@@ -156,6 +160,12 @@ struct GraphicsState {
 
 	std::string areaLight;//区域光名
 	ParamSet areaLightParams;
+
+	//当前的inside介质名和outside介质名
+	std::string currentInsideMedium;
+	std::string currentOutsideMedium;
+	//创建一个MediumInterface
+	MediumInterface CreateMediumInterface();
 };
 
 //系统的三个状态
@@ -216,12 +226,15 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	Camera *camera = nullptr;
 	Transform *cam2world[1];
 	transformCache.Lookup(cam2worldSet[0], &cam2world[0], nullptr);
+
+	MediumInterface mediumInterface = graphicsState.CreateMediumInterface();
+
 	if (name == "pinhole") {
-		camera = CreatePinholeCamera(paramSet, *cam2world[0], film, nullptr);
+		camera = CreatePinholeCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
 	} else if (name == "ortho") {
-		camera = CreateOrthoCamera(paramSet, *cam2world[0], film, nullptr);
+		camera = CreateOrthoCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
 	} else if (name == "perspective") {
-		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film,nullptr);
+		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
 	} else {
 		Error("camera \"" << name.c_str() << "\" unknown.");
 	}
@@ -315,6 +328,29 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	return std::shared_ptr<Material>(material);
 }
 
+std::shared_ptr<Medium> MakeMedium(const std::string &name,
+	const ParamSet &paramSet) {
+	//默认参数
+	Float sig_a_rgb[3] = { .0011f, .0024f, .014f },
+		sig_s_rgb[3] = { 2.55f, 3.21f, 3.77f };
+	Spectrum sig_a = Spectrum::FromRGB(sig_a_rgb),
+		sig_s = Spectrum::FromRGB(sig_s_rgb);
+
+	Float scale = paramSet.FindOneFloat("scale", 1.0f);
+	Float g = paramSet.FindOneFloat("g", 0.0f)*scale;
+	sig_a = paramSet.FindOneSpectrum("sigma_a", sig_a)*scale; //吸收率
+	sig_s = paramSet.FindOneSpectrum("sigma_s", sig_s)*scale; //散射率
+	Medium* medium = nullptr;
+	if (name == "homogeneous") {
+		medium = new HomogeneousMedium(sig_a, sig_s,g);
+	}
+	else {
+		Warning("Medium \'" << name << "\'unknown.");
+	}
+	paramSet.ReportUnused();
+	return std::shared_ptr<Medium>(medium);
+}
+
 std::shared_ptr<Material> GraphicsState::CreateMaterial(
 		const ParamSet &params) {
 	//生成相应的材质参数
@@ -339,6 +375,28 @@ std::shared_ptr<Material> GraphicsState::CreateMaterial(
 		}
 	}
 	return mtl;
+}
+
+
+MediumInterface GraphicsState::CreateMediumInterface() {
+	MediumInterface m;
+	if (currentInsideMedium != "") {
+		if (renderOptions->namedMedia.find(currentInsideMedium) !=
+			renderOptions->namedMedia.end())
+			m.inside = renderOptions->namedMedia[currentInsideMedium].get();
+		else{
+			Error("Named medium \"" << currentInsideMedium << "\" undefined.");
+		}
+	}
+	if (currentOutsideMedium != "") {
+		if (renderOptions->namedMedia.find(currentOutsideMedium) !=
+			renderOptions->namedMedia.end())
+			m.outside = renderOptions->namedMedia[currentOutsideMedium].get();
+		else {
+			Error("Named medium \"" << currentOutsideMedium << "\" undefined."); 
+		}
+	}
+	return m;
 }
 
 ////生成纹理
@@ -794,4 +852,27 @@ if (graphicsState.namedMaterials.find(name)
 Warning("Named material \""<< name <<"\" redefined");
 }
 graphicsState.namedMaterials[name] = mtl;
+}
+
+
+void raidenMakeNamedMedium(const std::string &name, const ParamSet &params) {
+	VERIFY_INITIALIZED("MakeNamedMedium");
+	std::string type = params.FindOneString("type", "");
+	if (type == "") {
+		Error("No parameter string \"type\" found in MakeNamedMedium");
+	}
+	else {
+		std::shared_ptr<Medium> medium =MakeMedium(type, params);
+		if (medium) { 
+			renderOptions->namedMedia[name] = medium; 
+		}
+	}
+}
+
+void raidenMediumInterface(const std::string &insideName,
+	const std::string &outsideName) {
+	VERIFY_INITIALIZED("MediumInterface");
+	graphicsState.currentInsideMedium = insideName;
+	graphicsState.currentOutsideMedium = outsideName;
+	renderOptions->haveScatteringMedia = true;
 }

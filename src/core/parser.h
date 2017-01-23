@@ -509,6 +509,22 @@ static int MakeNamedMaterial(lua_State* L) {
 	return LUA_OK;
 }
 
+
+static int MakeNamedMedium(lua_State* L) {
+	std::string name;
+	if (lua_isstring(L, 1)) {
+		name = lua_tostring(L, 1);
+	}
+	else {
+		PARAM_TYPR_WRONG("")
+	}
+	ParamSet params = GetParamSet(L, 2);
+	raidenMakeNamedMedium(name, params);
+	return LUA_OK;
+}
+
+
+
 static int NamedMaterial(lua_State* L) {
 	std::string name;
 	if (lua_isstring(L, 1)) {
@@ -517,6 +533,19 @@ static int NamedMaterial(lua_State* L) {
 		PARAM_TYPR_WRONG("")
 	}
 	raidenNamedMaterial(name);
+	return LUA_OK;
+}
+
+static int MediumInterface(lua_State* L) {
+	std::string inside,outside;
+	if (lua_isstring(L, 1)&& lua_isstring(L, 2)) {
+		inside = lua_tostring(L, 1);
+		outside = lua_tostring(L, 2);
+	}
+	else {
+		PARAM_TYPR_WRONG("")
+	}
+	raidenMediumInterface(inside,outside);
 	return LUA_OK;
 }
 
@@ -596,6 +625,8 @@ void parse(char* filename) {
 	lua_register(L, "MakeNamedMaterial", (lua_CFunction )MakeNamedMaterial);
 	lua_register(L, "LightSource", (lua_CFunction )LightSource);
 	lua_register(L, "AreaLightSource", (lua_CFunction )AreaLightSource);
+	lua_register(L, "MakeNamedMedium", (lua_CFunction)MakeNamedMedium);
+	lua_register(L, "MediumInterface", (lua_CFunction)MediumInterface);
 	lua_register(L, "AttributeBegin", (lua_CFunction )AttributeBegin);
 	lua_register(L, "AttributeEnd", (lua_CFunction )AttributeEnd);
 	lua_register(L, "TransformBegin", (lua_CFunction )TransformBegin);
