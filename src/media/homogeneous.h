@@ -47,19 +47,18 @@ public:
 		}
 
 		//計算散射係數
-		Spectrum Tr= Exp(-_sigma_t*std::min(t*ray.d.Length(), MaxFloat));
+		Spectrum Tr= Exp(-_sigma_t*std::min(t, MaxFloat)*ray.d.Length());
 		//根據是否是介質，返回不同的密度函數
-		Spectrum density = isMedium ? _sigma_t*Tr : Tr;
+		Spectrum density = isMedium ? (_sigma_t*Tr) : Tr;
 		Float pdf = 0.0;
 		//以各個分量的平均值作爲pdf
 		for (int i = 0; i < Spectrum::numSample; ++i) {
 			pdf += density[i];
 		}
-		pdf /= Spectrum::numSample;
+		pdf*=(1.0/ Spectrum::numSample);
 		if (pdf == 0) {
 			pdf = 1;
 		}
-		
 		return isMedium? (Tr * _sigma_s / pdf) : (Tr / pdf);
 	}
 };

@@ -25,7 +25,7 @@ Float PerspectiveCamera::GenerateRay(const CameraSample &sample,
 		Ray *ray) const {
 	Point3f pRas = Point3f(sample.pFilm.x, sample.pFilm.y, 0.0f);
 	Point3f pCam = _rasterToCamera(pRas); //计算相机空间下的image panel样本值
-	*ray = RayDifferential(Point3f(0,0,0), Vector3f(pCam));
+	*ray = RayDifferential(Point3f(0,0,0), Normalize(Vector3f(pCam)));
 	if (_lensRadius > 0.0f) {
 		Point2f lens = ConcentricSampleDisk(sample.pLen) * _lensRadius; //采样Lens
 		//计算焦距平面交点
@@ -46,7 +46,7 @@ Float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
 		RayDifferential *ray) const {
 	Point3f pRas = Point3f(sample.pFilm.x, sample.pFilm.y, 0.0f);
 	Point3f pCam = _rasterToCamera(pRas); //计算相机空间下的image panel样本值
-	*ray = RayDifferential(Point3f(0,0,0), Vector3f(pCam));
+	*ray = RayDifferential(Point3f(0,0,0), Normalize(Vector3f(pCam)));
 	if (_lensRadius > 0.0f) {
 		Point2f lens = ConcentricSampleDisk(sample.pLen) * _lensRadius; //采样Lens
 		//计算焦距平面交点

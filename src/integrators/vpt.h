@@ -54,6 +54,8 @@ public:
 
 			//如果采样到中间介质交点的话，按照中间介质的处理方法来做
 			//并且生成新的射线
+
+			//if (false) {
 			if (mi.IsValid()) {
 				//终止条件
 				if (bounces >= _maxDepth) {
@@ -62,7 +64,7 @@ public:
 				//计算当前光源提供的直接光能量
 				L = L + beta*UniformSampleOneLight(mi, scene, arena, sampler, true);
 				//采样新的方向
-				Vector3f wo = -ray.d;
+				Vector3f wo = Normalize(-ray.d);
 				Vector3f wi;
 				mi.phase->Sample_p(wo, &wi, sampler.Get2DSample());
 				ray = mi.SpawnRay(wi);
@@ -104,7 +106,7 @@ public:
 				}
 
 				//开始采样新的方向
-				Vector3f wo = -ray.d;
+				Vector3f wo = Normalize(-ray.d);
 				Vector3f wi;
 				Float pdf;
 				BxDFType flag;
