@@ -191,6 +191,7 @@
     <ClCompile Include="src\lights\diffuse.cpp" />
     <ClCompile Include="src\lights\distant.cpp" />
     <ClCompile Include="src\lights\point.cpp" />
+    <ClCompile Include="src\lights\spot.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\materials\grass.cpp" />
     <ClCompile Include="src\materials\lambertian.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="src\lights\diffuse.h" />
     <ClInclude Include="src\lights\distant.h" />
     <ClInclude Include="src\lights\point.h" />
+    <ClInclude Include="src\lights\spot.h" />
     <ClInclude Include="src\materials\grass.h" />
     <ClInclude Include="src\materials\lambertian.h" />
     <ClInclude Include="src\materials\mirror.h" />

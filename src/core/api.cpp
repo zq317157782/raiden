@@ -26,6 +26,7 @@
 #include "lights/point.h"
 #include "lights/distant.h"
 #include "lights/diffuse.h"
+#include "lights/spot.h"
 #include "integrators/normal.h"
 #include "integrators/depth.h"
 #include "integrators/whitted.h"
@@ -279,13 +280,17 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 }
 
 std::shared_ptr<Light> MakeLight(const std::string &name,
-		const ParamSet &paramSet, const Transform &light2world) {
+		const ParamSet &paramSet, const Transform &light2world, const MediumInterface &mediumInterface) {
 	std::shared_ptr<Light> light;
 	if (name == "point") {
 		light = CreatePointLight(light2world, paramSet);
 	} else if (name == "distant") {
 		light = CreateDistantLight(light2world, paramSet);
-	} else {
+	}
+	else if (name == "spot") {
+		light = CreateSpotLight(light2world, mediumInterface.outside,paramSet);
+	}
+	else {
 		Error("light \"" << name.c_str() << "\" unknown.");
 	}
 	paramSet.ReportUnused();
@@ -606,7 +611,8 @@ namedCoordinateSystems["camera"] = renderOptions->CameraToWorld;
 
 void raidenLightSource(const std::string& name, const ParamSet &params) {
 VERIFY_WORLD("LightSource");
-std::shared_ptr<Light> light = MakeLight(name, params, curTransform[0]);
+MediumInterface mi = graphicsState.CreateMediumInterface();
+std::shared_ptr<Light> light = MakeLight(name, params, curTransform[0], mi);
 if (light) {
 renderOptions->lights.push_back(light); //插入光源
 } else {

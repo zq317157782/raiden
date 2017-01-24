@@ -1354,7 +1354,7 @@ inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
 template<typename T>
 inline void CoordinateSystem(const Vector3<T>& V, Vector3<T>* VT,
 		Vector3<T>* VB) {
-	if (V.x > V.y) {
+	if (std::abs(V.x) > std::abs(V.y)) {
 		Float inv = 1.0f / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
 		(*VT) = Vector3<T>(-V.z * inv, 0, V.x * inv);
 	} else {
