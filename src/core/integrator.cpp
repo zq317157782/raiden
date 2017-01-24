@@ -234,7 +234,7 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	VisibilityTester vis;
 	//采样光源MIS
 	Spectrum Li=light.Sample_Li(it,uLight,&wi,&lightPdf,&vis);
-	if (!Li.IsBlack()&&lightPdf > 0) {
+	if (lightPdf > 0&& !Li.IsBlack()) {
 		Spectrum f;
 		if (it.IsSurfaceInteraction()) {
 			const SurfaceInteraction& si = (const SurfaceInteraction&)(it);
@@ -299,7 +299,7 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 			Float p = mi.phase->Sample_p(mi.wo,&wi, uScattering);
 			Assert(!std::isnan(p));
 			f = Spectrum(p);
-			sampledSpecular = p;
+			scatteringPdf = p;
 		}
 
 		if (!f.IsBlack() && scatteringPdf > 0) {
