@@ -64,7 +64,7 @@ void Film::WriteImage() {
 			}
 		}
 	Vector2i resolution=croppedPixelBound.Diagonal();
-	Debug("[Film::WriteImage][name:" << fileName << "]");
+	//Debug("[Film::WriteImage][name:" << fileName << "]");
 	unsigned error = lodepng::encode(fileName, image, resolution.x,
 			resolution.y);
 	if (error) {

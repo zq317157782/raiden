@@ -15,6 +15,7 @@
 #include "memory.h"
 #include "reflection.h"
 #include "sampling.h"
+#include "progressreporter.h"
 
 //这个函数主要是为了解决RayDifferential的生成
 Spectrum SamplerIntegrator::SpecularReflect(const RayDifferential& ray, const SurfaceInteraction& isect, const Scene&scene, Sampler& sampler, MemoryArena& arena, int depth) const {
@@ -120,6 +121,7 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 	int numTileX = (filmExtent.x + tileSize - 1) / tileSize;
 	int numTileY = (filmExtent.y + tileSize - 1) / tileSize;
 	Point2i numTile(numTileX, numTileY);
+	ProgressReporter reporter(numTile.x*numTile.y,"Rendering");
 	//开始并行处理每个tile
 	ParallelFor2D([&](Point2i tile) {
 //<<并行循环体开始>>
@@ -164,8 +166,10 @@ void SamplerIntegrator::RenderScene(const Scene& scene) {
 			}
 			//合并tile
 			_camera->film->MergeFilmTile(std::move(filmTile));
+			reporter.Update();
 //<<并行循环体结束>>
 		}, numTile);
+		reporter.Done();
 		_camera->film->WriteImage();
 }
 
