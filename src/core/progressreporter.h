@@ -54,7 +54,6 @@ private:
 	}
 public:
 	ProgressReporter(uint64_t totalNum,const std::string& title):_totalNum(std::max((uint64_t)1,totalNum)),_title(title){
-		_startTime=std::chrono::system_clock::now();
 		_doneNum=0;
 		_threadExit=false;
 		//开启更新进程

@@ -34,7 +34,7 @@ public:
 		MediumInteraction *mi) const override {
 
 		//選擇某個分量來計算pdf
-		int c = std::min(sampler.Get1DSample()*Spectrum::numSample, sampler.Get1DSample()*Spectrum::numSample - 1);
+		int c = std::min(sampler.Get1DSample()*Spectrum::numSample,(Float)Spectrum::numSample - 1);
 		//根據選擇的分量，隨機采樣參數t 
 		Float dist= -std::log(1 - sampler.Get1DSample()) / _sigma_t[c];
 		Float t = std::min(dist*ray.d.Length(), ray.tMax);
