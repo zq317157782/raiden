@@ -10,6 +10,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "camera.h"
+#include "RNG.h"
 //采样器
 // sample[x,y,t,u,v,[array],[array],[array],...]
 class Sampler{
@@ -28,6 +29,9 @@ protected:
 public:
 	Sampler(int64_t samplesPerPixel):samplesPerPixel(samplesPerPixel){
 		Assert(samplesPerPixel>0);
+		_currentPixelSampleIndex=0;
+		_array1DOffset=0;
+		_array2DOffset=0;
 	}
 	virtual ~Sampler(){}
 	virtual Float Get1DSample()=0;//获取一维样本
@@ -103,6 +107,58 @@ public:
 };
 
 
+//像素采样器:用于需要为整个像素事前生成样本的采样算法，而不能生成on fly
+//只预计算no-array样本
+class PixelSampler:public Sampler{
+private:
+	std::vector<std::vector<Float>> _samples1D;//预先计算的1维样本
+	std::vector<std::vector<Point2f>> _samples2D;//预先计算的2维样本
+	int _cur1DPos;
+	int _cur2DPos;
+	RNG _rng;//用于生成均匀随机样本
+public:
+	PixelSampler(int64_t samplesPerPixel,int maxD):Sampler(samplesPerPixel){
+		_cur1DPos=0;
+		_cur2DPos=0;
+		//开始填充未生成的样本
+		for(int i=0;i<maxD;++i){
+			_samples1D.push_back(std::vector<Float>(samplesPerPixel));
+			_samples2D.push_back(std::vector<Point2f>(samplesPerPixel));
+		}
+	}
+
+	virtual bool StartNextSample() override{
+		_cur1DPos=0;
+		_cur2DPos=0;
+		return Sampler::StartNextSample();
+	}
+
+	virtual bool SetSampleNumber(int num) override{
+		_cur1DPos=0;
+		_cur2DPos=0;
+		return Sampler::SetSampleNumber(num);
+	}
+
+	//先返回预计算的样本，然后超出预计算的样本维度，返回均匀采样的样本
+	virtual Float Get1DSample() override{//获取一维样本
+		if(_cur1DPos<_samples1D.size()){
+			return _samples1D[_cur1DPos++][_currentPixelSampleIndex];
+		}
+		else{
+			return _rng.UniformFloat();
+		}
+	}
+
+	//同上，只是2维样本
+	//先返回预计算的样本，然后超出预计算的样本维度，返回均匀采样的样本
+	virtual Point2f Get2DSample() override{
+		if(_cur2DPos<_samples2D.size()){
+			return _samples2D[_cur2DPos++][_currentPixelSampleIndex];
+		}else{
+			return Point2f(_rng.UniformFloat(),_rng.UniformFloat());
+		}
+	}
+};
 
 
 #endif /* SRC_CORE_SAMPLER_H_ */
