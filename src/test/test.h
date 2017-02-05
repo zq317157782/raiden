@@ -622,7 +622,12 @@ TEST(RNG,all) {
 #include "samplers/random.h"
 TEST(RandomSampler,all) {
 	RandomSampler sampler(4);
+	sampler.Request1DArray(5);
+	sampler.StartPixel(Point2i(0,0));
 	Float f = sampler.Get1DSample();
+
+	Float* array=sampler.Get1DArray(5);
+	ASSERT_NE(array[0],0);
 }
 #include "scene.h"
 #include "integrator.h"

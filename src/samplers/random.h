@@ -17,6 +17,30 @@ public:
 	RandomSampler(int64_t spp) :
 			Sampler(spp) {
 	}
+
+	//重写StartPixel,为样本做分层采样
+	virtual void StartPixel(const Point2i& p) override {
+
+		//为一维数组生成随机样本
+		for(int i=0;i<_samplesArray1DSize.size();++i){
+			int size=_samplesArray1DSize[i];
+			for(int j=0;j<size*samplesPerPixel;++j){
+				_sample1DArray[i][j]=_rng.UniformFloat();
+			}
+		}
+
+		//为二维数组生成随机样本
+		for(int i=0;i<_samplesArray2DSize.size();++i){
+			int size=_samplesArray2DSize[i];
+			for(int j=0;j<size*samplesPerPixel;++j){
+				_sample2DArray[i][j].x=_rng.UniformFloat();
+				_sample2DArray[i][j].y=_rng.UniformFloat();
+			}
+		}
+
+		Sampler::StartPixel(p);
+	}
+
 	virtual Float Get1DSample() override {
 		return _rng.UniformFloat();
 	}

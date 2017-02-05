@@ -13,152 +13,158 @@
 #include "RNG.h"
 //采样器
 // sample[x,y,t,u,v,[array],[array],[array],...]
-class Sampler{
+class Sampler {
 private:
 	size_t _array1DOffset;
 	size_t _array2DOffset;
 public:
 	const int64_t samplesPerPixel;
 protected:
-	Point2i _currentPixel;//当前处理的像素点
-	int64_t _currentPixelSampleIndex;//当前像素的index
-	std::vector<int> _samplesArray1DSize;//记录1D样本数组的大小
-	std::vector<int> _samplesArray2DSize;//记录2D样本数组的大小
-	std::vector<std::vector<Float>> _sample1DArray;//1D样本数组
-	std::vector<std::vector<Point2f>> _sample2DArray;//2D样本数组
+	Point2i _currentPixel; //当前处理的像素点
+	int64_t _currentPixelSampleIndex; //当前像素的index
+	std::vector<int> _samplesArray1DSize; //记录1D样本数组的大小
+	std::vector<int> _samplesArray2DSize; //记录2D样本数组的大小
+	std::vector<std::vector<Float>> _sample1DArray; //1D样本数组
+	std::vector<std::vector<Point2f>> _sample2DArray; //2D样本数组
 public:
-	Sampler(int64_t samplesPerPixel):samplesPerPixel(samplesPerPixel){
-		Assert(samplesPerPixel>0);
-		_currentPixelSampleIndex=0;
-		_array1DOffset=0;
-		_array2DOffset=0;
+	Sampler(int64_t samplesPerPixel) :
+			samplesPerPixel(samplesPerPixel) {
+		Assert(samplesPerPixel > 0);
+		_currentPixelSampleIndex = 0;
+		_array1DOffset = 0;
+		_array2DOffset = 0;
 	}
-	virtual ~Sampler(){}
-	virtual Float Get1DSample()=0;//获取一维样本
-	virtual Point2f Get2DSample()=0;//获取二维样本
-
+	virtual ~Sampler() {
+	}
+	virtual Float Get1DSample()=0; //获取一维样本
+	virtual Point2f Get2DSample()=0; //获取二维样本
 
 	//申请一个1D样本数组
-	void Request1DArray(int n){
-		Assert(n==RoundCount(n));
+	void Request1DArray(int n) {
+		Assert(n == RoundCount(n));
 		_samplesArray1DSize.push_back(n);
-		_sample1DArray.push_back(std::vector<Float>(n*samplesPerPixel));
+		_sample1DArray.push_back(std::vector<Float>(n * samplesPerPixel));
 	}
 	//申请一个2D样本数组
-	void Request2DArray(int n){
-		Assert(n==RoundCount(n));
+	void Request2DArray(int n) {
+		Assert(n == RoundCount(n));
 		_samplesArray2DSize.push_back(n);
-		_sample2DArray.push_back(std::vector<Point2f>(n*samplesPerPixel));
+		_sample2DArray.push_back(std::vector<Point2f>(n * samplesPerPixel));
 	}
 	//对样本个数做优化
-	virtual int RoundCount(int n) const{
+	virtual int RoundCount(int n) const {
 		return n;
 	}
 	//获取一个相机样本
-	CameraSample GetCameraSample(const Point2i& pRaster){
+	CameraSample GetCameraSample(const Point2i& pRaster) {
 		CameraSample sample;
-		sample.pFilm=(Point2f)pRaster+Get2DSample();
-		sample.time=Get1DSample();
-		sample.pLen=Get2DSample();
+		sample.pFilm = (Point2f) pRaster + Get2DSample();
+		sample.time = Get1DSample();
+		sample.pLen = Get2DSample();
 		return sample;
 	}
 	//获得当前的样本索引
-	int64_t CurrentSampleNumber() const{
+	int64_t CurrentSampleNumber() const {
 		return _currentPixelSampleIndex;
 	}
 
 	//设置当前的样本索引
-	virtual bool SetSampleNumber(int num){
-		_array1DOffset=0;
-		_array2DOffset=0;
-		_currentPixelSampleIndex=num;
-		return _currentPixelSampleIndex<samplesPerPixel;
+	virtual bool SetSampleNumber(int num) {
+		_array1DOffset = 0;
+		_array2DOffset = 0;
+		_currentPixelSampleIndex = num;
+		return _currentPixelSampleIndex < samplesPerPixel;
 	}
 
 	//开始一个新的像素
-	virtual void StartPixel(const Point2i& p){
-		_currentPixel=p;
-		_currentPixelSampleIndex=0;
-		_array1DOffset=0;
-		_array2DOffset=0;
+	virtual void StartPixel(const Point2i& p) {
+		_currentPixel = p;
+		_currentPixelSampleIndex = 0;
+		_array1DOffset = 0;
+		_array2DOffset = 0;
 	}
 	//开始一个新的样本
-	virtual bool StartNextSample(){
-		_array1DOffset=0;
-		_array2DOffset=0;
-		return (++_currentPixelSampleIndex)<samplesPerPixel;
+	virtual bool StartNextSample() {
+		_array1DOffset = 0;
+		_array2DOffset = 0;
+		return (++_currentPixelSampleIndex) < samplesPerPixel;
 	}
 
 	//返回一个包含n个样本的数组，返回的时候要根据requert的时候申请的大小做检查
-	virtual Float* Get1DArray(int n){
-		Assert(_array1DOffset<_samplesArray1DSize.size());
-		Assert(_samplesArray1DSize[_array1DOffset]==n);
-		return &_sample1DArray[_array1DOffset][samplesPerPixel*n];
+	virtual Float* Get1DArray(int n) {
+		if (_array1DOffset == _samplesArray1DSize.size()) {
+			return nullptr;
+		}
+		Assert(_currentPixelSampleIndex < samplesPerPixel);
+		Assert(_samplesArray1DSize[_array1DOffset] == n);
+		return &_sample1DArray[_array1DOffset++][_currentPixelSampleIndex * n];
 	}
 
-	virtual Point2f* Get2DArray(int n){
-		Assert(_array2DOffset<_samplesArray2DSize.size());
-		Assert(_samplesArray2DSize[_array2DOffset]==n);
-		return &_sample2DArray[_array2DOffset][samplesPerPixel*n];
+	virtual Point2f* Get2DArray(int n) {
+		if (_array2DOffset == _samplesArray2DSize.size()) {
+			return nullptr;
+		}
+		Assert(_currentPixelSampleIndex < samplesPerPixel);
+		Assert(_samplesArray2DSize[_array2DOffset] == n);
+		return &_sample2DArray[_array2DOffset++][_currentPixelSampleIndex * n];
 	}
 
 	//克隆方法，用来克隆本sampler
-	virtual std::unique_ptr<Sampler> Clone(int seed=0/*用来设置随机策略的种子数据*/) const=0;
+	virtual std::unique_ptr<Sampler> Clone(
+			int seed = 0/*用来设置随机策略的种子数据*/) const=0;
 };
-
 
 //像素采样器:用于需要为整个像素事前生成样本的采样算法，而不能生成on fly
 //只预计算no-array样本
-class PixelSampler:public Sampler{
+class PixelSampler: public Sampler {
 protected:
-	std::vector<std::vector<Float>> _samples1D;//预先计算的1维样本
-	std::vector<std::vector<Point2f>> _samples2D;//预先计算的2维样本
+	std::vector<std::vector<Float>> _samples1D; //预先计算的1维样本
+	std::vector<std::vector<Point2f>> _samples2D; //预先计算的2维样本
 	int _cur1DPos;
 	int _cur2DPos;
-	RNG _rng;//用于生成均匀随机样本
+	RNG _rng; //用于生成均匀随机样本
 public:
-	PixelSampler(int64_t samplesPerPixel,int numD):Sampler(samplesPerPixel){
-		_cur1DPos=0;
-		_cur2DPos=0;
+	PixelSampler(int64_t samplesPerPixel, int numD) :
+			Sampler(samplesPerPixel) {
+		_cur1DPos = 0;
+		_cur2DPos = 0;
 		//开始填充未生成的样本
-		for(int i=0;i<numD;++i){
+		for (int i = 0; i < numD; ++i) {
 			_samples1D.push_back(std::vector<Float>(samplesPerPixel));
 			_samples2D.push_back(std::vector<Point2f>(samplesPerPixel));
 		}
 	}
 
-	virtual bool StartNextSample() override{
-		_cur1DPos=0;
-		_cur2DPos=0;
+	virtual bool StartNextSample() override {
+		_cur1DPos = 0;
+		_cur2DPos = 0;
 		return Sampler::StartNextSample();
 	}
 
-	virtual bool SetSampleNumber(int num) override{
-		_cur1DPos=0;
-		_cur2DPos=0;
+	virtual bool SetSampleNumber(int num) override {
+		_cur1DPos = 0;
+		_cur2DPos = 0;
 		return Sampler::SetSampleNumber(num);
 	}
 
 	//先返回预计算的样本，然后超出预计算的样本维度，返回均匀采样的样本
-	virtual Float Get1DSample() override{//获取一维样本
-		if(_cur1DPos<_samples1D.size()){
+	virtual Float Get1DSample() override { //获取一维样本
+		if (_cur1DPos < _samples1D.size()) {
 			return _samples1D[_cur1DPos++][_currentPixelSampleIndex];
-		}
-		else{
+		} else {
 			return _rng.UniformFloat();
 		}
 	}
 
 	//同上，只是2维样本
 	//先返回预计算的样本，然后超出预计算的样本维度，返回均匀采样的样本
-	virtual Point2f Get2DSample() override{
-		if(_cur2DPos<_samples2D.size()){
+	virtual Point2f Get2DSample() override {
+		if (_cur2DPos < _samples2D.size()) {
 			return _samples2D[_cur2DPos++][_currentPixelSampleIndex];
-		}else{
-			return Point2f(_rng.UniformFloat(),_rng.UniformFloat());
+		} else {
+			return Point2f(_rng.UniformFloat(), _rng.UniformFloat());
 		}
 	}
 };
-
 
 #endif /* SRC_CORE_SAMPLER_H_ */
