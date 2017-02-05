@@ -20,6 +20,7 @@
 #include "cameras/orthographic.h"
 #include "cameras/perspective.h"
 #include "samplers/random.h"
+#include "samplers/stratified.h"
 #include "filters/box.h"
 #include "accelerators/iteration.h"
 #include "accelerators/grid.h"
@@ -260,7 +261,10 @@ std::shared_ptr<Sampler> MakeSampler(const std::string &name,
 	Sampler *sampler = nullptr;
 	if (name == "random") {
 		sampler = CreateRandomSampler(paramSet);
-	} else {
+	} else if (name == "stratified") {
+		sampler = CreateStratifiedSampler(paramSet);
+	}
+	else {
 		Error("sampler \"" << name.c_str() << "\" unknown.");
 	}
 	return std::shared_ptr<Sampler>(sampler);

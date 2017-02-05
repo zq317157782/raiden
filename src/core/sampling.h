@@ -9,6 +9,7 @@
 #define SRC_CORE_SAMPLING_H_
 #include "raiden.h"
 #include "geometry.h"
+#include "RNG.h"
 //1维分层采样
 void StratifiedSample1D(Float *samples, int nsamples, RNG &rand,
                         bool jitter = true);
@@ -46,6 +47,18 @@ inline Float BalanceHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
 inline Float PowerHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
 	Float f = nf * fPdf, g = ng * gPdf;
 	return (f * f) / (f * f + g * g);
+}
+
+//重排列
+template<typename T>
+void Shuffle(T* samples,int count,int d,RNG&  rng){
+	for(int i=0;i<count;++i){
+		int other=i+rng.UniformUInt32(count-i);//随机获取一个在i左边的索引
+		//交换i和other之间两个样本的所有维度数据
+		for(int j=0;j<d;++j){
+			std::swap(samples[i*d+j],samples[other*d+j]);//交换两个变量
+		}
+	}
 }
 
 #endif /* SRC_CORE_SAMPLING_H_ */

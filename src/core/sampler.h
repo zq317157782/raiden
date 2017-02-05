@@ -110,18 +110,18 @@ public:
 //像素采样器:用于需要为整个像素事前生成样本的采样算法，而不能生成on fly
 //只预计算no-array样本
 class PixelSampler:public Sampler{
-private:
+protected:
 	std::vector<std::vector<Float>> _samples1D;//预先计算的1维样本
 	std::vector<std::vector<Point2f>> _samples2D;//预先计算的2维样本
 	int _cur1DPos;
 	int _cur2DPos;
 	RNG _rng;//用于生成均匀随机样本
 public:
-	PixelSampler(int64_t samplesPerPixel,int maxD):Sampler(samplesPerPixel){
+	PixelSampler(int64_t samplesPerPixel,int numD):Sampler(samplesPerPixel){
 		_cur1DPos=0;
 		_cur2DPos=0;
 		//开始填充未生成的样本
-		for(int i=0;i<maxD;++i){
+		for(int i=0;i<numD;++i){
 			_samples1D.push_back(std::vector<Float>(samplesPerPixel));
 			_samples2D.push_back(std::vector<Point2f>(samplesPerPixel));
 		}
