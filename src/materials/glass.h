@@ -5,8 +5,8 @@
  *      Author: zhuqian
  */
 
-#ifndef SRC_MATERIALS_GRASS_H_
-#define SRC_MATERIALS_GRASS_H_
+#ifndef SRC_MATERIALS_GLASS_H_
+#define SRC_MATERIALS_GLASS_H_
 
 #include "raiden.h"
 #include "material.h"
@@ -14,14 +14,14 @@
 #include "interaction.h"
 #include "reflection.h"
 #include "texture.h"
-class GrassMaterial : public Material {
+class GlassMaterial : public Material {
 private:
 	std::shared_ptr<Texture<Spectrum>> _kr;
 	std::shared_ptr<Texture<Spectrum>> _kt;
 	std::shared_ptr<Texture<Float>> _eta;
 public:
 
-	GrassMaterial(const std::shared_ptr<Texture<Spectrum>>& kr, const std::shared_ptr<Texture<Spectrum>>& kt, const std::shared_ptr<Texture<Float>>& eta) :_kr(kr),_kt(kt), _eta(eta){
+	GlassMaterial(const std::shared_ptr<Texture<Spectrum>>& kr, const std::shared_ptr<Texture<Spectrum>>& kt, const std::shared_ptr<Texture<Float>>& eta) :_kr(kr),_kt(kt), _eta(eta){
 	}
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *si,
 		MemoryArena &arena, TransportMode mode,
@@ -45,10 +45,10 @@ public:
 		}
 		
 	}
-	virtual ~GrassMaterial() {};
+	virtual ~GlassMaterial() {};
 };
 
-GrassMaterial* CreateGrassMaterial(const TextureParams&mp);
+GlassMaterial* CreateGlassMaterial(const TextureParams&mp);
 
 
-#endif /* SRC_MATERIALS_GRASS_H_ */
+#endif /* SRC_MATERIALS_GLASS_H_ */

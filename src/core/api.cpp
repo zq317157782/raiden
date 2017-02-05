@@ -4,6 +4,7 @@
  *  Created on: 2016年12月16日
  *      Author: zhuqian
  */
+#include <materials/glass.h>
 #include "api.h"
 #include <map>
 #include "transform.h"
@@ -36,7 +37,6 @@
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
-#include "materials/grass.h"
 #include "media/homogeneous.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
@@ -324,8 +324,8 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 		material = CreateLambertianMaterial(mp);
 	} else if (name == "mirror") {
 		material = CreateMirrorMaterial(mp);
-	} else if (name == "grass") {
-		material = CreateGrassMaterial(mp);
+	} else if (name == "glass") {
+		material = CreateGlassMaterial(mp);
 	} else {
 		Warning("Material \'" << name << "\'unknown. Using \'lambertian\'");
 		material = CreateLambertianMaterial(mp);
