@@ -593,6 +593,11 @@ static int TransformEnd() {
 	return LUA_OK;
 }
 
+static int ReverseOrientation() {
+	raidenReverseOrientation();
+	return LUA_OK;
+}
+
 void parse(char* filename) {
 	int status, result;
 	L = luaL_newstate(); /* create state */
@@ -631,6 +636,7 @@ void parse(char* filename) {
 	lua_register(L, "AttributeEnd", (lua_CFunction )AttributeEnd);
 	lua_register(L, "TransformBegin", (lua_CFunction )TransformBegin);
 	lua_register(L, "TransformEnd", (lua_CFunction )TransformEnd);
+	lua_register(L, "ReverseOrientation", (lua_CFunction)ReverseOrientation);
 	int ret = luaL_dofile(L, filename);
 	if (ret != LUA_OK) {
 		lua_error(L);

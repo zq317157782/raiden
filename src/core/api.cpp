@@ -886,3 +886,7 @@ void raidenMediumInterface(const std::string &insideName,
 	graphicsState.currentOutsideMedium = outsideName;
 	renderOptions->haveScatteringMedia = true;
 }
+
+void raidenReverseOrientation() {
+	graphicsState.reverseOrientation = !graphicsState.reverseOrientation;
+}

@@ -47,7 +47,7 @@ void raidenAttributeBegin();
 void raidenAttributeEnd();
 void raidenTransformBegin();
 void raidenTransformEnd();
-
+void raidenReverseOrientation();
 
 
 #endif /* SRC_CORE_API_H_ */
