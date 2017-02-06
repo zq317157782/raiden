@@ -25,6 +25,7 @@
 #include "filters/box.h"
 #include "accelerators/iteration.h"
 #include "accelerators/grid.h"
+#include "accelerators/bvh.h"
 #include "lights/point.h"
 #include "lights/distant.h"
 #include "lights/diffuse.h"
