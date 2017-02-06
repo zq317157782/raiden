@@ -243,9 +243,6 @@
     <ClCompile Include="src\materials\mirror.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\materials\grass.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\shapes\trianglemesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -262,6 +259,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\lights\spot.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\samplers\stratified.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\materials\glass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -482,9 +485,6 @@
     <ClInclude Include="src\materials\mirror.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\materials\grass.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\shapes\trianglemesh.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -507,6 +507,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\lights\spot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\samplers\stratified.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\materials\glass.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -193,10 +193,11 @@
     <ClCompile Include="src\lights\point.cpp" />
     <ClCompile Include="src\lights\spot.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\materials\grass.cpp" />
+    <ClCompile Include="src\materials\glass.cpp" />
     <ClCompile Include="src\materials\lambertian.cpp" />
     <ClCompile Include="src\materials\mirror.cpp" />
     <ClCompile Include="src\samplers\random.cpp" />
+    <ClCompile Include="src\samplers\stratified.cpp" />
     <ClCompile Include="src\shapes\sphere.cpp" />
     <ClCompile Include="src\shapes\trianglemesh.cpp" />
     <ClCompile Include="src\test\statsTest.cpp" />
@@ -274,11 +275,12 @@
     <ClInclude Include="src\lights\distant.h" />
     <ClInclude Include="src\lights\point.h" />
     <ClInclude Include="src\lights\spot.h" />
-    <ClInclude Include="src\materials\grass.h" />
+    <ClInclude Include="src\materials\glass.h" />
     <ClInclude Include="src\materials\lambertian.h" />
     <ClInclude Include="src\materials\mirror.h" />
     <ClInclude Include="src\media\homogeneous.h" />
     <ClInclude Include="src\samplers\random.h" />
+    <ClInclude Include="src\samplers\stratified.h" />
     <ClInclude Include="src\shapes\sphere.h" />
     <ClInclude Include="src\shapes\trianglemesh.h" />
     <ClInclude Include="src\test\statsTest.h" />

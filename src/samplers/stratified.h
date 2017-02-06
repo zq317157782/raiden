@@ -1,4 +1,4 @@
-/*
+﻿/*
  * stratified.h
  *
  *  Created on: 2017年2月4日

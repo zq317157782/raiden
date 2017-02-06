@@ -24,7 +24,7 @@ private:
 	void PrintBar(){
 		//线程的睡眠时间
 		std::chrono::milliseconds sleepDuration(500);
-		int totalLength=88;
+		const int totalLength=88;
 		char buf[totalLength];
 		for(int i=0;i<88;++i){
 			buf[i]=' ';
