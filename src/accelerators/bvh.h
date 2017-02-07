@@ -59,7 +59,7 @@ private:
 	//递归生成BVHBuildNode
 	BVHBuildNode* RecursiveBuild(MemoryArena& arena, std::vector<BVHPrimitiveInfo>& primitiveInfos,int start,int end,int* totalNodes, std::vector<std::shared_ptr<Primitive>>& orderedPrimitives) const {
 		BVHBuildNode* node = arena.Alloc<BVHBuildNode>();
-		*totalNodes++;
+		(*totalNodes)++;
 		Bound3f bound;
 		for (int i = 0; i < primitiveInfos.size(); ++i) {
 			bound = Union(bound, primitiveInfos[i].bound);
@@ -101,11 +101,17 @@ private:
 				return info.centroid[dim] < cMid;
 			});
 			mid = midPtr - &primitiveInfos[0];
-			if (mid == start||mid == end) {
-				mid = (start + end) / 2;
-			}
+			if (mid != start&&mid != end) {
 				node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
-			
+			}
+			else {
+				int firstOffset = orderedPrimitives.size();
+				for (int i = start; i < end; ++i) {
+					int index = primitiveInfos[i].index;
+					orderedPrimitives.push_back(_primitives[index]);
+				}
+				node->InitLeaf(firstOffset, numPrimitive, bound);
+			}
 		}
 
 		return node;
@@ -119,10 +125,11 @@ public:
 		}
 		//生成build tree
 		BVHBuildNode * root;
-		int totalNodes;
+		int totalNodes=0;
 		std::vector<std::shared_ptr<Primitive>> orderedPrimitives;
 		MemoryArena arena(1024 * 1024);//用于为中间节点提供内存空间
 		root=RecursiveBuild(arena, primitiveInfos, 0, primitiveInfos.size(), &totalNodes, orderedPrimitives);
+		//std::cout << totalNodes << std::endl;
 	}
 
 	bool Intersect(const Ray& r, SurfaceInteraction* ref) const override {
