@@ -216,7 +216,11 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 		accel = CreateIterationAccelerator(prims, paramSet);
 	} else if (name == "grid") {
 		accel = CreateGridAccelerator(prims, paramSet);
-	} else {
+	}
+	else if (name == "bvh") {
+		accel = CreateBVHAccelerator(prims, paramSet);
+	}
+	else {
 		Error("accelerator \"" << name.c_str() << "\" unknown.");
 	}
 	paramSet.ReportUnused();

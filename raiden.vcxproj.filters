@@ -267,6 +267,9 @@
     <ClCompile Include="src\materials\glass.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\accelerators\bvh.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">
@@ -513,6 +516,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\materials\glass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\accelerators\bvh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\progressreporter.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
