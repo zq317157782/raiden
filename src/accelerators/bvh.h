@@ -78,7 +78,7 @@ private:
 		BVHBuildNode* node = arena.Alloc<BVHBuildNode>();
 		(*totalNodes)++;
 		Bound3f bound;
-		for (int i = 0; i < primitiveInfos.size(); ++i) {
+		for (int i = start; i < end; ++i) {
 			bound = Union(bound, primitiveInfos[i].bound);
 		}
 		
@@ -96,7 +96,7 @@ private:
 		//生成中间节点
 		else {
 			Bound3f cBound;
-			for (int i = 0; i < primitiveInfos.size(); ++i) {
+			for (int i = start; i < end; ++i) {
 				cBound = Union(cBound, primitiveInfos[i].centroid);
 			}
 			//获取最大坐标轴
@@ -164,7 +164,7 @@ public:
 		std::vector<std::shared_ptr<Primitive>> orderedPrimitives;
 		MemoryArena arena(1024 * 1024);//用于为中间节点提供内存空间
 		root=RecursiveBuild(arena, primitiveInfos, 0, primitiveInfos.size(), &totalNodes, orderedPrimitives);
-
+		_primitives.swap(orderedPrimitives);
 		//为实际线性树分配空间
 		_nodes = AllocAligned<LinearBVHNode>(totalNodes);
 		int offset = 0;
