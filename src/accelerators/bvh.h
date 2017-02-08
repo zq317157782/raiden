@@ -53,9 +53,26 @@ public:
 	}
 };
 
+//代表在内存中的一个线性BVH节点
+class LinearBVHNode {
+public:
+	Bound3f bound;//包围盒				24
+	uint16_t numPrimitive;//图元的个数	26
+	uint8_t axis;//                     27
+	union {
+		int primitiveOffset;//指向图元
+		int secondChildOffset;
+	};	//31
+	uint8_t pad[1];
+public:
+};
+
 class BVHAccelerator:public Aggregate{
 private:
 	std::vector<std::shared_ptr<Primitive>> _primitives;
+
+	LinearBVHNode* _nodes;
+
 	//递归生成BVHBuildNode
 	BVHBuildNode* RecursiveBuild(MemoryArena& arena, std::vector<BVHPrimitiveInfo>& primitiveInfos,int start,int end,int* totalNodes, std::vector<std::shared_ptr<Primitive>>& orderedPrimitives) const {
 		BVHBuildNode* node = arena.Alloc<BVHBuildNode>();
@@ -116,6 +133,24 @@ private:
 
 		return node;
 	}
+
+	//让tree在内存中线性分布
+	int FlattenBVHTree(BVHBuildNode* node,int *offset) {
+		LinearBVHNode* linearNode = &_nodes[*offset];
+		linearNode->bound = node->bound;
+		int myOffset = (*offset)++;
+		if (node->numPrimitives > 0) {
+			linearNode->primitiveOffset = node->firstPrimitiveOffset;
+			linearNode->numPrimitive = node->numPrimitives;
+		}
+		else {
+			linearNode->numPrimitive = 0;
+			linearNode->axis = node->splitAxis;
+			FlattenBVHTree(node->children[0], offset);
+			linearNode->secondChildOffset= FlattenBVHTree(node->children[1], offset);
+		}
+		return myOffset;
+	}
 public:
 	BVHAccelerator(const std::vector<std::shared_ptr<Primitive>>& primitives):_primitives(primitives){
 		//生成图元生成需要的部分信息
@@ -129,19 +164,115 @@ public:
 		std::vector<std::shared_ptr<Primitive>> orderedPrimitives;
 		MemoryArena arena(1024 * 1024);//用于为中间节点提供内存空间
 		root=RecursiveBuild(arena, primitiveInfos, 0, primitiveInfos.size(), &totalNodes, orderedPrimitives);
-		//std::cout << totalNodes << std::endl;
+
+		//为实际线性树分配空间
+		_nodes = AllocAligned<LinearBVHNode>(totalNodes);
+		int offset = 0;
+		FlattenBVHTree(root, &offset);
+		arena.Reset();
 	}
 
 	bool Intersect(const Ray& r, SurfaceInteraction* ref) const override {
-		
-		return false;
+		bool hit = false;
+		Vector3f invDir(1.0f / r.d.x, 1.0f / r.d.y, 1.0f / r.d.z);
+		int dirIsNeg[3] = { invDir.x < 0,invDir.y < 0 ,invDir.z < 0 };
+
+		int curNodeIndex = 0;//当前需要访问的顶点
+		int nextNodeToVisitOffset = 0;
+		int nextNodeToVisit[64];
+		while (true) {
+			LinearBVHNode* node = &_nodes[curNodeIndex];
+			if (node->bound.IntersectP(r, invDir, dirIsNeg)) {
+				//叶子节点
+				if (node->numPrimitive > 0) {
+					for (int i = 0; i < node->numPrimitive; ++i) {
+						if (_primitives[node->primitiveOffset + i]->Intersect(r, ref)) {
+							hit = true;
+						}
+					}
+					if (nextNodeToVisitOffset == 0) {
+						break;
+					}
+					curNodeIndex = nextNodeToVisit[--nextNodeToVisitOffset];
+				}
+				//中间节点
+				else {
+					if (dirIsNeg[node->axis]) {
+						//先访问第二个节点
+						nextNodeToVisit[nextNodeToVisitOffset++] = curNodeIndex + 1;
+						curNodeIndex = node->secondChildOffset;
+					}
+					else {
+						//先访问第一个节点
+						nextNodeToVisit[nextNodeToVisitOffset++]= node->secondChildOffset;
+						curNodeIndex = curNodeIndex + 1;
+					}
+				}
+			}
+			else {
+				//没有需要继续测试的node
+				if (nextNodeToVisitOffset == 0) {
+					break;
+				}
+				curNodeIndex = nextNodeToVisit[--nextNodeToVisitOffset];
+			}
+		}
+		return hit;
 	}
 	
 	Bound3f WorldBound() const override {
-		return Bound3f();
+		return _nodes[0].bound;
 	}
 	bool IntersectP(const Ray& r) const override {
+		Vector3f invDir(1.0f / r.d.x, 1.0f / r.d.y, 1.0f / r.d.z);
+		int dirIsNeg[3] = { invDir.x < 0,invDir.y < 0 ,invDir.z < 0 };
+
+		int curNodeIndex = 0;//当前需要访问的顶点
+		int nextNodeToVisitOffset = 0;
+		int nextNodeToVisit[64];
+
+		while (true) {
+			LinearBVHNode* node = &_nodes[curNodeIndex];
+			if (node->bound.IntersectP(r, invDir, dirIsNeg)) {
+				//叶子节点
+				if (node->numPrimitive > 0) {
+					for (int i = 0; i < node->numPrimitive; ++i) {
+						if (_primitives[node->primitiveOffset + i]->IntersectP(r)) {
+							return true;
+						}
+					}
+					if (nextNodeToVisitOffset == 0) {
+						break;
+					}
+					curNodeIndex = nextNodeToVisit[--nextNodeToVisitOffset];
+				}
+				//中间节点
+				else {
+					if (dirIsNeg[node->axis]) {
+						//先访问第二个节点
+						nextNodeToVisit[nextNodeToVisitOffset++] = curNodeIndex + 1;
+						curNodeIndex = node->secondChildOffset;
+					}
+					else {
+						//先访问第一个节点
+						nextNodeToVisit[nextNodeToVisitOffset++] = node->secondChildOffset;
+						curNodeIndex = curNodeIndex + 1;
+					}
+				}
+			}
+			else {
+				//没有需要继续测试的node
+				if (nextNodeToVisitOffset == 0) {
+					break;
+				}
+				curNodeIndex = nextNodeToVisit[--nextNodeToVisitOffset];
+			}
+		}
 		return false;
+	}
+
+	~BVHAccelerator() {
+
 	}
 };
 
