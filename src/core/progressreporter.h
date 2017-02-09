@@ -34,11 +34,16 @@ private:
 		char* barStart=buf+_title.size()+1;
 		barStart[50]=']';
 		barStart[87]='\0';
+		int it = 0;
 		while(!_threadExit){
-			//清空上次一的数据
-			for(int i=0;i<89;++i){
-				printf("\b");
+			if (it == 100) {
+				sleepDuration = std::chrono::milliseconds(2000);
 			}
+			//清空上次一的数据
+			/*for(int i=0;i<89;++i){
+				printf("\b");
+			}*/
+			printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			std::this_thread::sleep_for(sleepDuration);
 			Float percent=(Float)(_doneNum)/(_totalNum);
 			Float num=50*percent;
@@ -55,6 +60,7 @@ private:
 			 snprintf(buf+52+_title.size(),24,"(s:%.1f|es:%.1f)              ",seconds,nokotaSeconds);
 			 fputs(buf, stdout);
 			 fflush(stdout);
+			 it++;
 		}
 		printf("\n");
 	}
