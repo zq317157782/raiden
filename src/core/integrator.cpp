@@ -211,9 +211,9 @@ Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryA
 		return Spectrum(0.0);
 	}
 	//选择一个光源
-	int lightIndex = std::min((int)sampler.Get1DSample()*numLights, numLights - 1);
+	int lightIndex = std::min((int)(sampler.Get1DSample()*numLights), numLights - 1);
 	Float lightPdf = 1.0 / numLights;
-
+	
 	std::shared_ptr<Light> light = scene.lights[lightIndex];
 
 	Point2f lightSample = sampler.Get2DSample();
