@@ -67,13 +67,20 @@ public:
 public:
 };
 
+//用于SAH的结构
+struct BucketInfo {
+	int count=0;//包含的个数
+	Bound3f bound;
+};
+
 class BVHAccelerator:public Aggregate{
 public:
-	enum SplitMethod { MIDDLE, EQUAL_COUNT };
+	enum SplitMethod { MIDDLE, EQUAL_COUNT,SAH};
 private:
 	std::vector<std::shared_ptr<Primitive>> _primitives;
 	LinearBVHNode* _nodes;
 	SplitMethod _splitMethod;
+	int _maxPrimitivesInNode;
 
 	//递归生成BVHBuildNode
 	BVHBuildNode* RecursiveBuild(MemoryArena& arena, std::vector<BVHPrimitiveInfo>& primitiveInfos,int start,int end,int* totalNodes, std::vector<std::shared_ptr<Primitive>>& orderedPrimitives) const {
@@ -125,7 +132,6 @@ private:
 				});
 				mid = midPtr - &primitiveInfos[0];
 				if (mid != start&&mid != end) {
-					node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
 					break;
 				}
 			}
@@ -134,20 +140,87 @@ private:
 				std::nth_element(&primitiveInfos[start], &primitiveInfos[mid], &primitiveInfos[end - 1] + 1, [dim](const BVHPrimitiveInfo& i1, const BVHPrimitiveInfo& i2) {
 					return i1.centroid[dim] < i2.centroid[dim];
 				});
-				node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
 				break;
 			}
-			default:
-			{
-				int firstOffset = orderedPrimitives.size();
-				for (int i = start; i < end; ++i) {
-					int index = primitiveInfos[i].index;
-					orderedPrimitives.push_back(_primitives[index]);
+
+			case SplitMethod::SAH: {
+				if (numPrimitive<=2) {
+					mid = (start + end)*0.5f;
+					std::nth_element(&primitiveInfos[start], &primitiveInfos[mid], &primitiveInfos[end - 1] + 1, [dim](const BVHPrimitiveInfo& i1, const BVHPrimitiveInfo& i2) {
+						return i1.centroid[dim] < i2.centroid[dim];
+					});
 				}
-				node->InitLeaf(firstOffset, numPrimitive, bound);
+				else {
+					constexpr int numBucket = 12;
+					BucketInfo buckets[numBucket];//PBRT使用了12个bucket
+												  //初始化buckets
+					for (int i = start; i < end; ++i) {
+						int bucketIndex = numBucket*cBound.Offset(primitiveInfos[i].centroid)[dim];
+						if (bucketIndex == numBucket) {
+							bucketIndex = bucketIndex - 1;
+						}
+						buckets[bucketIndex].count++;
+						buckets[bucketIndex].bound = Union(buckets[bucketIndex].bound, primitiveInfos[i].bound);
+					}
+
+					//计算每一次分割策略所花费的开销
+					Float costs[numBucket - 1];
+					for (int i = 0; i < numBucket - 1; ++i) {
+						int count0 = 0, count1 = 0;
+						Bound3f b0, b1;
+						for (int j = 0; j < i + 1; ++j) {
+							count0 += buckets[j].count;
+							b0 = Union(b0, buckets[j].bound);
+						}
+						for (int j = i + 1; j < numBucket; ++j) {
+							count1 += buckets[j].count;
+							b1 = Union(b1, buckets[j].bound);
+						}
+						//计算SAH系数
+						//pbrt的最新代码中已经把0.125的近似改成了1
+						costs[i] =/*0.125f*/1.0f + (count0*b0.SurfaceArea() + count1*b1.SurfaceArea()) / bound.SurfaceArea();
+					}
+
+					//寻找最小的SAH系数
+					Float minCost = costs[0];
+					int minCostIndex = 0;
+					for (int i = 1; i < numBucket - 1; ++i) {
+						if (costs[i] < minCost) {
+							minCost = costs[i];
+							minCostIndex = i;
+						}
+					}
+
+					Float leafCost = numPrimitive;//近似
+					if (numPrimitive > _maxPrimitivesInNode || minCost < leafCost) {
+						//继续分割
+						BVHPrimitiveInfo* midPtr = std::partition(&primitiveInfos[start], &primitiveInfos[end - 1] + 1, [=](const BVHPrimitiveInfo& info) {
+							//按照SAH系数进行分割
+							int bucketIndex = numBucket*cBound.Offset(info.centroid)[dim];
+							if (bucketIndex == numBucket) {
+								bucketIndex = bucketIndex - 1;
+							}
+							return bucketIndex <= minCostIndex;
+						});
+						mid = midPtr - &primitiveInfos[0];
+					}
+					else {
+						//创建子节点
+						int firstOffset = orderedPrimitives.size();
+						for (int i = start; i < end; ++i) {
+							int index = primitiveInfos[i].index;
+							orderedPrimitives.push_back(_primitives[index]);
+						}
+						node->InitLeaf(firstOffset, numPrimitive, bound);
+						return node;
+					}
+				}
+				break;
+			} 
+
 			}
-			break;
-			}
+			node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
+
 		}
 
 		return node;
@@ -173,7 +246,7 @@ private:
 public:
 	
 
-	BVHAccelerator(const std::vector<std::shared_ptr<Primitive>>& primitives,SplitMethod sm):_primitives(primitives),_splitMethod(sm){
+	BVHAccelerator(const std::vector<std::shared_ptr<Primitive>>& primitives,SplitMethod sm=SplitMethod::SAH, int mpin=1):_primitives(primitives),_splitMethod(sm), _maxPrimitivesInNode(mpin){
 		//生成图元生成需要的部分信息
 		std::vector<BVHPrimitiveInfo> primitiveInfos(_primitives.size());
 		for(int i=0;i<_primitives.size();++i){

@@ -19,9 +19,12 @@ std::shared_ptr<BVHAccelerator> CreateBVHAccelerator(
 	else if (splitMethodName == "equalcount") {
 		splitMethod = BVHAccelerator::SplitMethod::EQUAL_COUNT;
 	}
+	else if (splitMethodName == "sah") {
+		splitMethod = BVHAccelerator::SplitMethod::SAH;
+	}
 	else {
-		splitMethod = BVHAccelerator::SplitMethod::MIDDLE;
-		Warning("SplitMethod:" << splitMethodName << " is unknown, using Middle Method.");
+		splitMethod = BVHAccelerator::SplitMethod::SAH;
+		Warning("SplitMethod:" << splitMethodName << " is unknown, using SAH Method.");
 	}
 	Debug("[CreateBVHAccelerator][SplitMethod:"<< splitMethodName <<"]");
 	return std::make_shared<BVHAccelerator>(prims, splitMethod);
