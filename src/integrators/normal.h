@@ -25,7 +25,7 @@ public:
 		SurfaceInteraction ref;//和表面的交互点
 		if (scene.Intersect(ray, &ref)) {
 			Spectrum ret(0.0f);
-			Normal3f nn=ref.n;
+			Normal3f nn=ref.shading.n;
 			nn=(nn+Normal3f(1.0f,1.0f,1.0f))*0.5f;
 			ret[0]=nn.x;
 			ret[1]=nn.y;

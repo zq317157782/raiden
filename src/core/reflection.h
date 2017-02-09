@@ -404,7 +404,7 @@ private:
 public:
 	const Float eta;	//折射率之比
 	BSDF(const SurfaceInteraction&si, Float eta=1.0f) :
-			eta(eta), _ns(si.shading.n), _ng(si.n), _ss(si.dpdu), _ts(
+			eta(eta), _ns(si.shading.n), _ng(si.n), _ss(Normalize(si.dpdu)), _ts(
 					Cross(_ns, _ss)) {
 	}
 	//增加一个BxDF组件
