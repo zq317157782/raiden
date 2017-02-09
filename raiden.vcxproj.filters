@@ -270,6 +270,9 @@
     <ClCompile Include="src\accelerators\bvh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\cameras\environment.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">
@@ -522,6 +525,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\core\progressreporter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cameras\environment.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

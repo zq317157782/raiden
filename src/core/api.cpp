@@ -20,6 +20,7 @@
 #include "cameras/pinhole.h"
 #include "cameras/orthographic.h"
 #include "cameras/perspective.h"
+#include "cameras/environment.h"
 #include "samplers/random.h"
 #include "samplers/stratified.h"
 #include "filters/box.h"
@@ -130,7 +131,7 @@ struct RenderOptions {
 	std::string IntegratorName = "normal";
 	ParamSet IntegratorParams;
 	//相机的名字
-	std::string CameraName = "pinhole";
+	std::string CameraName = "perspective";
 	ParamSet CameraParams;
 	TransformSet CameraToWorld;
 	//光源
@@ -242,7 +243,11 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 		camera = CreateOrthoCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
 	} else if (name == "perspective") {
 		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
-	} else {
+	}
+	else if (name == "environment") {
+		camera = CreateEnvironmentCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
+	}
+	else {
 		Error("camera \"" << name.c_str() << "\" unknown.");
 	}
 	paramSet.ReportUnused();
