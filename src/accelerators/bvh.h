@@ -151,9 +151,9 @@ private:
 					});
 				}
 				else {
-					constexpr int numBucket = 12;
-					BucketInfo buckets[numBucket];//PBRT使用了12个bucket
-												  //初始化buckets
+					constexpr int numBucket = 24;//PBRT使用了12个bucket			 			  
+					BucketInfo buckets[numBucket];
+					//初始化buckets	
 					for (int i = start; i < end; ++i) {
 						int bucketIndex = numBucket*cBound.Offset(primitiveInfos[i].centroid)[dim];
 						if (bucketIndex == numBucket) {
