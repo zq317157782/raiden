@@ -11,7 +11,20 @@
 std::shared_ptr<BVHAccelerator> CreateBVHAccelerator(
 	const std::vector<std::shared_ptr<Primitive>> &prims,
 	const ParamSet &ps) {
-	return std::make_shared<BVHAccelerator>(prims);
+	std::string splitMethodName = ps.FindOneString("splitmethod", "middle");
+	BVHAccelerator::SplitMethod  splitMethod;
+	if (splitMethodName == "middle") {
+		splitMethod = BVHAccelerator::SplitMethod::MIDDLE;
+	}
+	else if (splitMethodName == "equalcount") {
+		splitMethod = BVHAccelerator::SplitMethod::EQUAL_COUNT;
+	}
+	else {
+		splitMethod = BVHAccelerator::SplitMethod::MIDDLE;
+		Warning("SplitMethod:" << splitMethodName << " is unknown, using Middle Method.");
+	}
+	Debug("[CreateBVHAccelerator][SplitMethod:"<< splitMethodName <<"]");
+	return std::make_shared<BVHAccelerator>(prims, splitMethod);
 }
 
 

@@ -68,10 +68,12 @@ public:
 };
 
 class BVHAccelerator:public Aggregate{
+public:
+	enum SplitMethod { MIDDLE, EQUAL_COUNT };
 private:
 	std::vector<std::shared_ptr<Primitive>> _primitives;
-
 	LinearBVHNode* _nodes;
+	SplitMethod _splitMethod;
 
 	//递归生成BVHBuildNode
 	BVHBuildNode* RecursiveBuild(MemoryArena& arena, std::vector<BVHPrimitiveInfo>& primitiveInfos,int start,int end,int* totalNodes, std::vector<std::shared_ptr<Primitive>>& orderedPrimitives) const {
@@ -112,22 +114,39 @@ private:
 				return node;
 			}
 			//这里确定是要生成中间节点了
-			//这里默认使用middle,其他模式，以后会加入
-			Float cMid = (cBound.maxPoint[dim] + cBound.minPoint[dim])*0.5f;
-			BVHPrimitiveInfo* midPtr = std::partition(&primitiveInfos[start], &primitiveInfos[end - 1] + 1, [cMid,dim](const BVHPrimitiveInfo& info) {
-				return info.centroid[dim] < cMid;
-			});
-			mid = midPtr - &primitiveInfos[0];
-			if (mid != start&&mid != end) {
-				node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
+			
+			switch (_splitMethod)
+			{
+			case SplitMethod::MIDDLE: 
+			{
+				Float cMid = (cBound.maxPoint[dim] + cBound.minPoint[dim])*0.5f;
+				BVHPrimitiveInfo* midPtr = std::partition(&primitiveInfos[start], &primitiveInfos[end - 1] + 1, [cMid, dim](const BVHPrimitiveInfo& info) {
+					return info.centroid[dim] < cMid;
+				});
+				mid = midPtr - &primitiveInfos[0];
+				if (mid != start&&mid != end) {
+					node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
+					break;
+				}
 			}
-			else {
+			case SplitMethod::EQUAL_COUNT: {
+				mid = (start + end)*0.5f;
+				std::nth_element(&primitiveInfos[start], &primitiveInfos[mid], &primitiveInfos[end - 1] + 1, [dim](const BVHPrimitiveInfo& i1, const BVHPrimitiveInfo& i2) {
+					return i1.centroid[dim] < i2.centroid[dim];
+				});
+				node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
+				break;
+			}
+			default:
+			{
 				int firstOffset = orderedPrimitives.size();
 				for (int i = start; i < end; ++i) {
 					int index = primitiveInfos[i].index;
 					orderedPrimitives.push_back(_primitives[index]);
 				}
 				node->InitLeaf(firstOffset, numPrimitive, bound);
+			}
+			break;
 			}
 		}
 
@@ -152,7 +171,9 @@ private:
 		return myOffset;
 	}
 public:
-	BVHAccelerator(const std::vector<std::shared_ptr<Primitive>>& primitives):_primitives(primitives){
+	
+
+	BVHAccelerator(const std::vector<std::shared_ptr<Primitive>>& primitives,SplitMethod sm):_primitives(primitives),_splitMethod(sm){
 		//生成图元生成需要的部分信息
 		std::vector<BVHPrimitiveInfo> primitiveInfos(_primitives.size());
 		for(int i=0;i<_primitives.size();++i){
