@@ -29,7 +29,11 @@ public:
 	virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const = 0;
 	virtual Float GenerateRayDifferential(const CameraSample &sample,
 			RayDifferential *rd) const;
-
+	//返回ray方向上的importance
+	virtual Spectrum We(const Ray& ray,Point2f* rasterPos=nullptr) const;
+	//返回ray方向上采样到importance的pdf
+	virtual void Pdf_We(const Ray& ray,Float* posPdf,Float* dirPdf) const;
+	virtual Spectrum Sample_Wi(const Interaction& ref,const Point2f&sample,Vector3f* wi,Float* pdf,Point2f* rasterPos,VisibilityTester* tester) const;
 	virtual ~Camera() {
 	}
 };

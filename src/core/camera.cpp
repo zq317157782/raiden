@@ -14,6 +14,7 @@ Camera::Camera(const Transform& c2w, Float shutterOpen, Float shutterEnd,
 
 }
 
+
 float Camera::GenerateRayDifferential(const CameraSample &sample,
 		RayDifferential *rd) const {
 	float wt = GenerateRay(sample, rd);
@@ -39,6 +40,23 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 	rd->hasDifferential = true;
 	rd->medium = medium;
 	return wt;
+}
+
+Spectrum Camera::We(const Ray& ray, Point2f* rasterPos) const {
+	Assert(false);
+	Error("Camera::We is not implemented.");
+	return 0;
+}
+
+void Camera::Pdf_We(const Ray& ray, Float* posPdf, Float* dirPdf) const {
+	Assert(false);
+	Error("Camera::Pdf_We is not implemented.");
+}
+
+Spectrum Camera::Sample_Wi(const Interaction& ref, const Point2f&sample, Vector3f* wi, Float* pdf, Point2f* rasterPos, VisibilityTester* tester) const {
+	Assert(false);
+	Error("Camera::Sample_Wi is not implemented.");
+	return 0;
 }
 
 ProjectiveCamera::ProjectiveCamera(const Transform& c2w, const Transform& c2s,
