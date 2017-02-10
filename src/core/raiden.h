@@ -38,7 +38,7 @@ static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 //打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
 #define Error(x) std::cerr<<"[ERROR]"<<x<<std::endl;
 #define Warning(x) std::cout<<"[WARNING]"<<x<<std::endl;
-#define Info(x) std::cout<<"[Info]"<<x<<std::endl;
+#define Info(x) std::cout<<x<<std::endl;
 
 #ifdef DEBUG_BUILD
 #define Debug(x) std::cout<<"[DEBUG]"<<x<<std::endl;

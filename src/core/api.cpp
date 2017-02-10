@@ -783,7 +783,6 @@ return integrator;
 
 void raidenWorldEnd() {
 VERIFY_WORLD("WorldEnd");
-
 while (pushedGraphicsStates.size()) {
 Warning("raidenAttributeEnd() miss match. try to fix it auto");
 pushedGraphicsStates.pop_back();
