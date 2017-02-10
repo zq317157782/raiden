@@ -33,7 +33,7 @@ private:
 		buf[_title.size()]='[';
 		char* barStart=buf+_title.size()+1;
 		barStart[50]=']';
-		barStart[87]='\0';
+		buf[87]='\0';
 		int it = 0;
 		while(!_threadExit){
 			if (it == 100) {
@@ -71,9 +71,6 @@ public:
 		//开启更新进程
 		_updateThread=std::thread([this](){
 			this->PrintBar();
-			if(_totalNum==_doneNum){
-				_threadExit=true;
-			}
 		});
 	}
 	~ProgressReporter(){
@@ -90,8 +87,6 @@ public:
 	//完成进度
 	void Done(){
 		_doneNum=_totalNum;
-
-
 	}
 };
 

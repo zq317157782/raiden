@@ -809,6 +809,7 @@ curTransform[i] = Transform();
 activeTransformBits = AllTransformsBits;
 namedCoordinateSystems.erase(namedCoordinateSystems.begin(),
 namedCoordinateSystems.end());
+
 }
 
 //生成纹理,
