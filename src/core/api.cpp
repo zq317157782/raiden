@@ -797,7 +797,7 @@ pushedTransforms.pop_back();
 std::unique_ptr<Integrator> integrator(renderOptions->MakeIntegrator());
 std::unique_ptr<Scene> scene(renderOptions->MakeScene());
 if (scene && integrator) {
-integrator->RenderScene(*scene);
+integrator->Render(*scene);
 }
 
 graphicsState = GraphicsState();

@@ -112,7 +112,7 @@ Spectrum SamplerIntegrator::SpecularTransmit(const RayDifferential& ray, const S
 	}
 }
 
-void SamplerIntegrator::RenderScene(const Scene& scene) {
+void SamplerIntegrator::Render(const Scene& scene) {
 	//首先计算需要的tile数
 	Bound2i filmBound = _camera->film->GetSampleBounds();
 	Debug("[SamplerIntegrator::RenderScene][filmBound:"<<filmBound<<"]");

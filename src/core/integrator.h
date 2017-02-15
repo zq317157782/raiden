@@ -11,7 +11,7 @@
 #include "geometry.h"
 class Integrator{
 public:
-	virtual void RenderScene(const Scene&)=0;
+	virtual void Render(const Scene&)=0;
 	virtual ~Integrator(){}
 };
 
@@ -26,7 +26,7 @@ public:
 		_sampler(sampler),_camera(camera),_pixelBound(pixelBound){
 
 	}
-	virtual void RenderScene(const Scene&) override;
+	virtual void Render(const Scene&) override;
 	//返回ray射线上的radiance
 	virtual Spectrum Li(const RayDifferential &ray, const Scene &scene,
 	                        Sampler &sampler, MemoryArena &arena,
