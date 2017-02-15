@@ -36,6 +36,7 @@
 #include "integrators/whitted.h"
 #include "integrators/pt.h"
 #include "integrators/vpt.h"
+#include "integrators/sppm.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
@@ -770,6 +771,9 @@ integrator = CreateDepthIntegrator(IntegratorParams, sampler, camera);
 integrator = CreateWhittedIntegrator(IntegratorParams, sampler, camera);
 } else if (IntegratorName == "path") {
 integrator = CreatePathIntegrator(IntegratorParams, sampler, camera);
+}
+else if (IntegratorName == "sppm") {
+integrator = CreateSPPMIntegrator(IntegratorParams, sampler, camera);
 }
 else if (IntegratorName == "volpath") {
 	integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
