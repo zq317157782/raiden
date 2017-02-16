@@ -11,8 +11,9 @@ SPPMIntegrator *CreateSPPMIntegrator(
 	std::shared_ptr<const Camera> camera) {
 	int nIterations = params.FindOneInt("numiterations", 64);
 	int depth = params.FindOneInt("depth", 5);
+	Float radius = params.FindOneFloat("radius", 1.0f);
 	Debug("[CreateSPPMIntegrator]");
-	return new SPPMIntegrator(camera,nIterations,depth);
+	return new SPPMIntegrator(camera,nIterations,depth, radius);
 }
 
 

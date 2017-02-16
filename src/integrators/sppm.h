@@ -19,9 +19,29 @@
 #include "memory.h"
 #include "reflection.h"
 
+//PBRT所使用的哈希函数，会发生碰撞
+inline unsigned int hash(const Point3i &p, int hashSize) {
+	return (unsigned int)((p.x * 73856093) ^ (p.y * 19349663) ^
+		(p.z * 83492791)) %
+		hashSize;
+}
+
+//返回在grid中的索引
+static bool ToGrid(const Point3f& p, const Bound3f& gridBound, const int gridRes[3],Point3i* index) {
+	bool inBound = true;
+	Vector3f offset = gridBound.Offset(p);
+	for (int i = 0; i < 3; ++i) {
+		(*index)[i] = gridRes[i] * offset[i];
+		inBound &= ((*index)[i] >= 0 && (*index)[i] < gridRes[i]);
+		(*index)[i] = Clamp((*index)[i], 0, gridRes[i] - 1);
+	}
+	return inBound;
+}
+
 //统计SPPM单个像素信息的结构
 struct SPPMPixel {
 	Spectrum Ld;//直接光(累积)
+	Float radius;//像素的搜索半径
 	struct VisiblePoint {
 	public:
 		Point3f p;//vp位置
@@ -35,21 +55,30 @@ struct SPPMPixel {
 };
 
 
+//SPPM Linked list node
+struct SPPMPixelListNode
+{
+public:
+	SPPMPixel* pixel;
+	SPPMPixelListNode* next;
+};
+
 //SPPM 随机渐进式光子映射
 class SPPMIntegrator:public Integrator{
 private:
 	std::shared_ptr<const Camera> _camera;
 	const int _numIteration;//ray-photon pass个数
 	const int _maxDepth; //path的最大深度
+	const Float _initRadius;
 public:
 
-	SPPMIntegrator(std::shared_ptr<const Camera>& camera,int numIteration,int maxDepth):_camera(camera),_numIteration(numIteration), _maxDepth(maxDepth){
+	SPPMIntegrator(std::shared_ptr<const Camera>& camera,int numIteration,int maxDepth,Float initRadius):_camera(camera),_numIteration(numIteration), _maxDepth(maxDepth), _initRadius(initRadius){
 	}
 
 	virtual void Render(const Scene& scene){
 		//获取有效的像素范围，然后计算像素个数
 		const Bound2i& pixelBound=_camera->film->croppedPixelBound;
-		int pixelNum=pixelBound.Area();//面积便是像素个数
+		int numPixel=pixelBound.Area();//面积便是像素个数
 		Vector2i tileExtent=pixelBound.Diagonal();
 		int tileSize=16;//这是pbrt的标配tile大小>_<
 		//计算tile的分辨率
@@ -59,12 +88,14 @@ public:
 		//todo PBRT中这里使用了Halton Sampler
 		RandomSampler sampler(_numIteration);
 
-		std::unique_ptr<SPPMPixel[]> pixels = std::unique_ptr<SPPMPixel[]>(new SPPMPixel[pixelNum]);
-
+		std::unique_ptr<SPPMPixel[]> pixels = std::unique_ptr<SPPMPixel[]>(new SPPMPixel[numPixel]);
+		for (int i = 0; i < numPixel; ++i) {
+			pixels[i].radius = _initRadius;
+		}
 		//初始化进度条
 		ProgressReporter reporter(2*_numIteration,"Rendering");
 		for(int iter=0;iter<_numIteration;++iter){
-			//首先是 camera pass
+			//首先是 camera passs
 			//产生visible point(hit point)的pass
 
 
@@ -166,7 +197,50 @@ public:
 			reporter.Update();
 			//开始建立grid加速后续photon对vp的访问
 
+			//开始建立grid
+			Bound3f gridBound;
+			Float maxRadius=0;
+			for (int i = 0; i < numPixel; ++i) {
+				if (pixels[i].vp.beta.IsBlack()) {
+					continue;
+				}
+				Bound3f pixelBound = Expand(Bound3f(pixels[i].vp.p), pixels[i].radius);
+				gridBound = Union(gridBound, pixelBound);
+				maxRadius = std::max(maxRadius, pixels[i].radius);
+			}
 
+			Vector3f gridDiagonal = gridBound.Diagonal();
+			Float maxDiagonal = MaxComponent(gridDiagonal);
+			int  gridBaseRes = maxDiagonal / maxRadius;
+			Assert(gridBaseRes > 0);
+			int gridRes[3];
+			for (int i = 0; i < 3; ++i) {
+				gridRes[i] = std::max(1,(int)(gridBaseRes*gridDiagonal[i]/maxDiagonal));
+			}
+			//grid
+			std::vector<std::atomic<SPPMPixelListNode*>> grid(numPixel);
+			//并行的为grid加节点
+			ParallelFor([&](int pixelIndex) {
+				//std::cout << pixelIndex << std::endl;
+				MemoryArena& arena = threadMemoryArens[ThreadIndex];
+				SPPMPixel &pixel = pixels[pixelIndex];
+				Point3i pMin,pMax;
+				ToGrid(pixel.vp.p - Vector3f(pixel.radius, pixel.radius, pixel.radius), gridBound, gridRes,&pMin);
+				ToGrid(pixel.vp.p + Vector3f(pixel.radius, pixel.radius, pixel.radius), gridBound, gridRes, &pMax);
+				
+				for (int z = pMin.z; z <= pMax.z; ++z) {
+					for (int y = pMin.y; y <= pMax.y; ++y) {
+						for (int x = pMin.x; x <= pMax.x; ++x) {
+							uint32_t index= hash(Point3i(x, y, z), numPixel);
+							SPPMPixelListNode* node=arena.Alloc<SPPMPixelListNode>();
+							node->pixel = &pixel;
+							node->next = grid[index];
+							while (!grid[index].compare_exchange_weak(node->next, node));
+						}
+					}
+				}
+				//std::cout << pMin << " " << pMax << std::endl;
+			}, numPixel, 4096);
 			//然后是 photon pass
 			reporter.Update();
 		}

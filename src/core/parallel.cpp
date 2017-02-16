@@ -102,7 +102,7 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 
 }
 
-void ParallelFor(std::function<void(int64_t)> func, int64_t count, int chunkSize) {
+void ParallelFor(std::function<void(int64_t)> func, int count, int chunkSize) {
 	Assert(count > 0);
 	//首先处理单核以及遍历数非常小的情况
 	if (NumSystemCores() == 1 || count < chunkSize) {
