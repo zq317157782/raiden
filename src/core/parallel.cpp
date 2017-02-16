@@ -216,3 +216,10 @@ void ParallelCleanup(){
 	threads.erase(threads.begin(),threads.end());
 	shutdownThreads=false;//重置，准备下次再启动
 }
+
+int MaxThreadIndex() {
+	if (RaidenOptions.numThread == 0) {
+		return NumSystemCores();
+	}
+	return RaidenOptions.numThread;
+}

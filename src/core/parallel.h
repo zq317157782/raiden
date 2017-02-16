@@ -63,4 +63,6 @@ void ParallelFor(std::function<void(int64_t)> func,int count,int chunkSize=1);
 void ParallelFor2D(std::function<void(Point2i)> func,const Point2i&count);
 //返回当前系统核心数
 int NumSystemCores();
+
+int MaxThreadIndex();
 #endif /* SRC_CORE_PARALLEL_H_ */
