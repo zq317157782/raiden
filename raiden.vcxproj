@@ -190,6 +190,7 @@
     <ClCompile Include="src\integrators\depth.cpp" />
     <ClCompile Include="src\integrators\normal.cpp" />
     <ClCompile Include="src\integrators\pt.cpp" />
+    <ClCompile Include="src\integrators\sppm.cpp" />
     <ClCompile Include="src\integrators\vpt.cpp" />
     <ClCompile Include="src\integrators\whitted.cpp" />
     <ClCompile Include="src\lights\diffuse.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="src\integrators\depth.h" />
     <ClInclude Include="src\integrators\normal.h" />
     <ClInclude Include="src\integrators\pt.h" />
+    <ClInclude Include="src\integrators\sppm.h" />
     <ClInclude Include="src\integrators\vpt.h" />
     <ClInclude Include="src\integrators\whitted.h" />
     <ClInclude Include="src\lights\diffuse.h" />
