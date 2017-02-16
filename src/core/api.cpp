@@ -36,6 +36,7 @@
 #include "integrators/whitted.h"
 #include "integrators/pt.h"
 #include "integrators/vpt.h"
+#include "integrators/sppm.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
@@ -771,6 +772,9 @@ integrator = CreateWhittedIntegrator(IntegratorParams, sampler, camera);
 } else if (IntegratorName == "path") {
 integrator = CreatePathIntegrator(IntegratorParams, sampler, camera);
 }
+else if (IntegratorName == "sppm") {
+integrator = CreateSPPMIntegrator(IntegratorParams, sampler, camera);
+}
 else if (IntegratorName == "volpath") {
 	integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
 }
@@ -796,7 +800,7 @@ pushedTransforms.pop_back();
 std::unique_ptr<Integrator> integrator(renderOptions->MakeIntegrator());
 std::unique_ptr<Scene> scene(renderOptions->MakeScene());
 if (scene && integrator) {
-integrator->RenderScene(*scene);
+integrator->Render(*scene);
 }
 
 graphicsState = GraphicsState();
