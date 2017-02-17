@@ -76,4 +76,21 @@ inline uint64_t ReverseBits64(uint64_t n) {
 	return (ReverseBits32(n >> 32) | ReverseBits32(n) << 32);
 }
 
+
+//用来计算某个base下的RadicalInverse
+//这里使用模板是为了减少以BASE为低的时候的除法操作
+template <int base>
+static Float RadicalInverseSpecialized(uint64_t a) {
+	Float invBase = 1.0f / (Float)base;
+	uint64_t reverse = 0;
+	Float invBaseN = 1;
+	while (a) {
+		uint64_t next = a*invBase;
+		uint64_t digit = a - next*base;
+		reverse = reverse*base + digit;
+		invBaseN *= invBase;
+		a = next;
+	}
+	return std::min(reverse*invBaseN,OneMinusEpsilon);
+}
 #endif /* SRC_CORE_SAMPLING_H_ */
