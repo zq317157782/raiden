@@ -226,6 +226,7 @@
     <ClInclude Include="src\core\interaction.h" />
     <ClInclude Include="src\core\light.h" />
     <ClInclude Include="src\core\lodepng.h" />
+    <ClInclude Include="src\core\lowdiscrepancy.h" />
     <ClInclude Include="src\core\lua\lapi.h" />
     <ClInclude Include="src\core\lua\lauxlib.h" />
     <ClInclude Include="src\core\lua\lcode.h" />
