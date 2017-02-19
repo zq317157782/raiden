@@ -1642,5 +1642,4 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,const Vector3f& invDir,const in
 	return (tMinX < ray.tMax) && (tMaxX > 0);
 }
 
-//todo geomtry相关函数的扩充(补充说明:还有一小部分)
 #endif /* SRC_CORE_GEOMETRY_H_ */
