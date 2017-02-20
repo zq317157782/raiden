@@ -12,7 +12,7 @@
 #include "camera.h"
 #include "film.h"
 #include "parallel.h"
-#include "samplers/random.h"
+#include "samplers/stratified.h"
 #include "progressreporter.h"
 #include "scene.h"
 #include "light.h"
@@ -79,9 +79,10 @@ private:
 	const int _maxDepth; //path的最大深度
 	const Float _initRadius;
 	const int _photonNumPreIteration;//每次追踪的光子数
+	const int _writeFrequency;
 public:
 
-	SPPMIntegrator(std::shared_ptr<const Camera>& camera,int numIteration,int maxDepth,Float initRadius,int photonNumPreIteration):_camera(camera),_numIteration(numIteration), _maxDepth(maxDepth), _initRadius(initRadius),_photonNumPreIteration((photonNumPreIteration>0)? photonNumPreIteration :camera->film->croppedPixelBound.Area()){
+	SPPMIntegrator(std::shared_ptr<const Camera>& camera,int numIteration,int maxDepth,Float initRadius,int photonNumPreIteration,int writeFrequency):_camera(camera),_numIteration(numIteration), _maxDepth(maxDepth), _initRadius(initRadius),_photonNumPreIteration((photonNumPreIteration>0)? photonNumPreIteration :camera->film->croppedPixelBound.Area()), _writeFrequency(writeFrequency){
 	}
 
 	virtual void Render(const Scene& scene){
@@ -95,7 +96,8 @@ public:
 		Float rayDifferentialScale = 1.0 / std::sqrt(_numIteration);
 		//样本生成器
 		//todo PBRT中这里使用了Halton Sampler
-		RandomSampler sampler(_numIteration);
+		int w = std::sqrt(_numIteration);
+		StratifiedSampler sampler(w,w,true,5);
 
 		std::unique_ptr<SPPMPixel[]> pixels = std::unique_ptr<SPPMPixel[]>(new SPPMPixel[numPixel]);
 		for (int i = 0; i < numPixel; ++i) {
@@ -381,20 +383,19 @@ public:
 
 			//向外部写出Image
 			int offset = 0;
-			if ((iter + 1) == _numIteration) {
+			if ((iter + 1) == _numIteration||(iter%_writeFrequency==0)) {
 				std::unique_ptr<Spectrum[]> image(new Spectrum[numPixel]);
 				int x0 = pixelBound.minPoint.x;
 				int x1 = pixelBound.maxPoint.x;
 				int y0 = pixelBound.minPoint.y;
 				int y1 = pixelBound.maxPoint.y;
-				Info(x0);
-				Info(x1);
-				Info(y0);
-				Info(y1);
-				for (int x = x0; x < x1; ++x) {
-					for (int y = y0; y < y1; ++y) {
+				int numPhoton = (iter + 1)*_photonNumPreIteration;
+				for (int y = y0; y < y1; ++y) {
+					for (int x = x0; x < x1; ++x) {
 						SPPMPixel& pixel = pixels[(y - y0)*(x1 - x0) + (x - x0)];
-						image[offset++]=Spectrum(1);
+						Spectrum L = pixel.Ld / (iter + 1);//直接光成分的mean(Direct算法)
+						L = L + pixel.tau / (numPhoton*Pi*pixel.radius*pixel.radius);//计算间接光成分(SPPM算法)
+						image[offset++]=L;
 					}
 				}
 				_camera->film->SetImage(image.get());
