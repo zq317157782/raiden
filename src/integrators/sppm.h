@@ -379,6 +379,28 @@ public:
 				pixel.vp.bsdf = nullptr;
 			}, numPixel, 4096);
 
+			//向外部写出Image
+			int offset = 0;
+			if ((iter + 1) == _numIteration) {
+				std::unique_ptr<Spectrum[]> image(new Spectrum[numPixel]);
+				int x0 = pixelBound.minPoint.x;
+				int x1 = pixelBound.maxPoint.x;
+				int y0 = pixelBound.minPoint.y;
+				int y1 = pixelBound.maxPoint.y;
+				Info(x0);
+				Info(x1);
+				Info(y0);
+				Info(y1);
+				for (int x = x0; x < x1; ++x) {
+					for (int y = y0; y < y1; ++y) {
+						SPPMPixel& pixel = pixels[(y - y0)*(x1 - x0) + (x - x0)];
+						image[offset++]=Spectrum(1);
+					}
+				}
+				_camera->film->SetImage(image.get());
+				_camera->film->WriteImage();
+
+			}
 			reporter.Update();
 		}
 		reporter.Done();

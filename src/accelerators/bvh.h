@@ -78,7 +78,7 @@ public:
 	enum SplitMethod { MIDDLE, EQUAL_COUNT,SAH};
 private:
 	std::vector<std::shared_ptr<Primitive>> _primitives;
-	LinearBVHNode* _nodes;
+	LinearBVHNode* _nodes=nullptr;
 	SplitMethod _splitMethod;
 	int _maxPrimitivesInNode;
 
@@ -248,6 +248,9 @@ public:
 
 	BVHAccelerator(const std::vector<std::shared_ptr<Primitive>>& primitives,SplitMethod sm=SplitMethod::SAH, int mpin=1):_primitives(primitives),_splitMethod(sm), _maxPrimitivesInNode(mpin){
 		//生成图元生成需要的部分信息
+		if (_primitives.empty()) {
+			return;
+		}
 		std::vector<BVHPrimitiveInfo> primitiveInfos(_primitives.size());
 		for(int i=0;i<_primitives.size();++i){
 			primitiveInfos[i]=BVHPrimitiveInfo(i,_primitives[i]->WorldBound());
@@ -267,6 +270,9 @@ public:
 	}
 
 	bool Intersect(const Ray& r, SurfaceInteraction* ref) const override {
+		if (!_nodes) {
+			return false;
+		}
 		bool hit = false;
 		Vector3f invDir(1.0f / r.d.x, 1.0f / r.d.y, 1.0f / r.d.z);
 		int dirIsNeg[3] = { invDir.x < 0,invDir.y < 0 ,invDir.z < 0 };
@@ -315,9 +321,12 @@ public:
 	}
 	
 	Bound3f WorldBound() const override {
-		return _nodes[0].bound;
+		return _nodes?_nodes[0].bound:Bound3f();
 	}
 	bool IntersectP(const Ray& r) const override {
+		if (!_nodes) {
+			return false;
+		}
 		Vector3f invDir(1.0f / r.d.x, 1.0f / r.d.y, 1.0f / r.d.z);
 		int dirIsNeg[3] = { invDir.x < 0,invDir.y < 0 ,invDir.z < 0 };
 
