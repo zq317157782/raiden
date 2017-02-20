@@ -49,7 +49,7 @@ public:
 	}
 	virtual std::unique_ptr<Sampler> Clone(int seed=0) const override{
 		RandomSampler *rs=new RandomSampler(samplesPerPixel);
-		rs->_rng=RNG(seed);
+		rs->_rng.SetSequence(seed);
 		return std::unique_ptr<RandomSampler>(rs);
 
 	}

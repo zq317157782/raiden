@@ -12,7 +12,7 @@
 #include "camera.h"
 #include "film.h"
 #include "parallel.h"
-#include "samplers/stratified.h"
+#include "samplers/random.h"
 #include "progressreporter.h"
 #include "scene.h"
 #include "light.h"
@@ -96,9 +96,7 @@ public:
 		Float rayDifferentialScale = 1.0 / std::sqrt(_numIteration);
 		//样本生成器
 		//todo PBRT中这里使用了Halton Sampler
-		int w = std::sqrt(_numIteration);
-		StratifiedSampler sampler(w,w,true,5);
-
+		RandomSampler sampler(_numIteration);
 		std::unique_ptr<SPPMPixel[]> pixels = std::unique_ptr<SPPMPixel[]>(new SPPMPixel[numPixel]);
 		for (int i = 0; i < numPixel; ++i) {
 			pixels[i].radius = _initRadius;
