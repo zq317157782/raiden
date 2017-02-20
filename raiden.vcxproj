@@ -137,6 +137,7 @@
     <ClCompile Include="src\core\interaction.cpp" />
     <ClCompile Include="src\core\light.cpp" />
     <ClCompile Include="src\core\lodepng.cpp" />
+    <ClCompile Include="src\core\lowdiscrepancy.cpp" />
     <ClCompile Include="src\core\lua\lapi.c" />
     <ClCompile Include="src\core\lua\lauxlib.c" />
     <ClCompile Include="src\core\lua\lbaselib.c" />

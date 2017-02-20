@@ -276,6 +276,9 @@
     <ClCompile Include="src\integrators\sppm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\lowdiscrepancy.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">

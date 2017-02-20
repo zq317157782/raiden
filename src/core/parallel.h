@@ -22,7 +22,7 @@ private:
 	std::atomic<uint32_t> _bits;
 #endif
 public:
-	explicit AtomicFloat(Float f){
+	explicit AtomicFloat(Float f=0){
 		_bits=FloatToBits(f);
 	}
 

@@ -12,8 +12,9 @@ SPPMIntegrator *CreateSPPMIntegrator(
 	int nIterations = params.FindOneInt("numiterations", 64);
 	int depth = params.FindOneInt("depth", 5);
 	Float radius = params.FindOneFloat("radius", 1.0f);
+	uint64_t photonNumPreIteration = params.FindOneInt("photonnumpreiteration", -1);
 	Debug("[CreateSPPMIntegrator]");
-	return new SPPMIntegrator(camera,nIterations,depth, radius);
+	return new SPPMIntegrator(camera,nIterations,depth, radius, photonNumPreIteration);
 }
 
 

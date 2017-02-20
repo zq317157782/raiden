@@ -18,6 +18,7 @@
 #include "light.h"
 #include "memory.h"
 #include "reflection.h"
+#include "lowdiscrepancy.h"
 
 //PBRT所使用的哈希函数，会发生碰撞
 inline unsigned int hash(const Point3i &p, int hashSize) {
@@ -42,6 +43,8 @@ static bool ToGrid(const Point3f& p, const Bound3f& gridBound, const int gridRes
 struct SPPMPixel {
 	Spectrum Ld;//直接光(累积)
 	Float radius;//像素的搜索半径
+	std::atomic<int> M=0;//累积的光子个数
+	AtomicFloat Phi[Spectrum::numSample];//累积的能量
 	struct VisiblePoint {
 	public:
 		Point3f p;//vp位置
@@ -52,6 +55,9 @@ struct SPPMPixel {
 		VisiblePoint() {}
 		VisiblePoint(const Point3f& pos,const Vector3f& w,BSDF* bsdf,const Spectrum& beta):p(pos),wo(w),bsdf(bsdf),beta(beta){}
 	} vp;
+
+public:
+	SPPMPixel() {}
 };
 
 
@@ -70,9 +76,10 @@ private:
 	const int _numIteration;//ray-photon pass个数
 	const int _maxDepth; //path的最大深度
 	const Float _initRadius;
+	const int _photonNumPreIteration;//每次追踪的光子数
 public:
 
-	SPPMIntegrator(std::shared_ptr<const Camera>& camera,int numIteration,int maxDepth,Float initRadius):_camera(camera),_numIteration(numIteration), _maxDepth(maxDepth), _initRadius(initRadius){
+	SPPMIntegrator(std::shared_ptr<const Camera>& camera,int numIteration,int maxDepth,Float initRadius,int photonNumPreIteration):_camera(camera),_numIteration(numIteration), _maxDepth(maxDepth), _initRadius(initRadius),_photonNumPreIteration((photonNumPreIteration>0)? photonNumPreIteration :camera->film->croppedPixelBound.Area()){
 	}
 
 	virtual void Render(const Scene& scene){
@@ -241,7 +248,109 @@ public:
 				}
 				//std::cout << pMin << " " << pMax << std::endl;
 			}, numPixel, 4096);
+
+
 			//然后是 photon pass
+			std::vector<MemoryArena> photonMemoryArenas(MaxThreadIndex());
+
+			ParallelFor([&](int pixelIndex) {
+				//获取为光子分配空间的内存区域
+				MemoryArena& photonArena = photonMemoryArenas[ThreadIndex];
+				
+				int haltonDim = 0;
+				uint64_t haltonIndex = (uint64_t)_photonNumPreIteration*(uint64_t)iter + pixelIndex;
+
+				//选择光源
+				//TODO 修改成使用LightPowerDistrubition
+				Float lightPdf=RadicalInverse(haltonDim++, haltonIndex);
+				int lightIndex = std::min((uint64_t)(scene.lights.size()*lightPdf), scene.lights.size() - 1);
+				std::shared_ptr<Light> light = scene.lights[lightIndex];
+				lightPdf = 1.0f / scene.lights.size();
+				//采样光源的pos和dir
+				
+				Point2f lightPosPdf(RadicalInverse(haltonDim, haltonIndex), RadicalInverse(haltonDim + 1, haltonIndex));
+				Point2f lightDirPdf(RadicalInverse(haltonDim + 2, haltonIndex), RadicalInverse(haltonDim + 3, haltonIndex));
+				Float time = Lerp(RadicalInverse(haltonDim + 4, haltonIndex), _camera->shutterOpen, _camera->shutterEnd);
+				haltonDim += 5;
+
+				RayDifferential photonRay;
+				Normal3f nLight;//光源法线
+				Float posPdf;//光源Pos pdf
+				Float dirPdf;//光源Dir Pdf
+				Spectrum Le=light->Sample_Le(lightPosPdf, lightDirPdf, time, &photonRay, &nLight, &posPdf, &dirPdf);
+				if (posPdf == 0 || dirPdf == 0|| Le.IsBlack()) {
+					return;
+				}
+				//光源累计的beta
+				Spectrum beta=Le*(AbsDot(nLight,photonRay.d))/(lightPdf*posPdf*dirPdf);
+				if (beta.IsBlack()) {
+					return;
+				}
+				SurfaceInteraction ref;
+				for (int depth=0; depth < _maxDepth; ++depth) {
+
+					if (!scene.Intersect(photonRay, &ref)) {
+						break;
+					}
+
+					if (depth > 0) {
+						//累计photon的贡献
+						Point3i gridPoint;
+						if (ToGrid(ref.p, gridBound, gridRes, &gridPoint)) {
+							int gridIndex = hash(gridPoint, numPixel);
+							for (SPPMPixelListNode* listNode = grid[gridIndex].load(std::memory_order_relaxed); listNode!= nullptr; listNode = listNode->next) {
+								SPPMPixel& pixel = *listNode->pixel;
+								if (DistanceSquared(pixel.vp.p, ref.p) > pixel.radius*pixel.radius) {
+									continue;//不在半径范围内
+								}
+								Vector3f wi = -photonRay.d;
+								//计算贡献
+								Spectrum phi = beta*pixel.vp.bsdf->f(pixel.vp.wo,wi);
+								//累计贡献
+								for (int i = 0; i < Spectrum::numSample; ++i) {
+									pixel.Phi[i].Add(phi[i]);
+								}
+								//更新总计累积光子数
+								++pixel.M;
+							}
+						}
+					}
+					ref.ComputeScatteringFunctions(photonRay, photonArena, true, TransportMode::Importance);
+					//判断射中的是medium interface
+					if (!ref.bsdf) {
+						photonRay = ref.SpawnRay(photonRay.d);
+						--depth;
+						continue;
+					}
+
+					BSDF& photonBSDF = *ref.bsdf;
+					
+					//寻找新的photon反射方向
+					Vector3f wo = -photonRay.d;
+					Vector3f wi;
+					Float bsdfPdf;
+					BxDFType flags;
+					Point2f bsdfSample(RadicalInverse(haltonDim, haltonIndex), RadicalInverse(haltonDim + 1, haltonIndex));
+					haltonDim += 2;
+					Spectrum f=ref.bsdf->Sample_f(wo,&wi, bsdfSample,&bsdfPdf,BSDF_ALL,&flags);
+					if (bsdfPdf == 0 || f.IsBlack()) {
+						break;
+					}
+					Spectrum betaNew = beta*f*AbsDot(ref.shading.n, wi) / bsdfPdf;
+
+					//俄罗斯罗盘
+					Float quitProb=std::max(0.0f, (1 - betaNew.y()/beta.y()));
+					if (RadicalInverse(haltonDim++, haltonIndex) > quitProb) {
+						beta = betaNew / (1.0f - quitProb);
+						photonRay = (RayDifferential)ref.SpawnRay(wi);
+					}
+					else {
+						break;
+					}
+				}
+				photonArena.Reset();
+			}, _photonNumPreIteration, 8192);
+
 			reporter.Update();
 		}
 		reporter.Done();
