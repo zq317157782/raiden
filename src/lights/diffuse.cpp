@@ -6,6 +6,8 @@
  */
 #include "diffuse.h"
 #include "paramset.h"
+#include "interaction.h"
+#include "sampling.h"
 Spectrum DiffuseAreaLight::Sample_Li(const Interaction& ref, const Point2f &u,
 		Vector3f* wi, Float* pdf, VisibilityTester* vis) const {
 	//采样光源上的一个空间点
@@ -28,6 +30,26 @@ Float DiffuseAreaLight::Pdf_Li(const Interaction &ref,
 Spectrum DiffuseAreaLight::Power() const {
 	//计算flux的公式:radiance*area*st
 	return _Le * _area * Pi;
+}
+
+Spectrum DiffuseAreaLight::Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
+			Ray *ray, Normal3f *nLight, Float *pdfPos, Float *pdfDir) const{
+	//先从shape上采样交点
+	Interaction ref=_shape->Sample(u1,pdfPos);
+	ref.mediumInterface=mediumInterface;
+	//采样方向,light空间
+	Vector3f wi=CosineSampleHemisphere(u2);
+	*pdfDir=CosineHemispherePdf(wi.z);
+	//获得法线
+	*nLight=ref.n;
+	//转换到相应的世界坐标
+	Vector3f v1,v2,n(ref.n);
+	CoordinateSystem(n,&v1,&v2);
+	//转换
+	Vector3f w=v1*wi.x+v2*wi.y+n*wi.z;
+	//产生射线
+	*ray=ref.SpawnRay(w);
+	return L(ref,w);
 }
 
 std::shared_ptr<AreaLight> CreateDiffuseAreaLight(const Transform &light2world,

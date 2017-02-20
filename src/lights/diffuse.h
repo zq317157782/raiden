@@ -36,11 +36,7 @@ public:
 	virtual Spectrum Power() const override;
 
 	virtual Spectrum Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
-			Ray *ray, Normal3f *nLight, Float *pdfPos, Float *pdfDir) const
-					override {
-		Assert(false);
-		return 0;
-	}
+			Ray *ray, Normal3f *nLight, Float *pdfPos, Float *pdfDir) const;
 	virtual void Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
 			Float *pdfDir) const override {
 		Assert(false);
