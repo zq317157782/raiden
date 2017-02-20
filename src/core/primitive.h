@@ -28,7 +28,6 @@ public:
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
 			MemoryArena &arena, TransportMode mode,
 			bool allowMultipleLobes) const=0;
-	//todo 返回区域光结构
 };
 
 class GeomPrimitive: public Primitive {

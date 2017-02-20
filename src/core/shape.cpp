@@ -7,12 +7,10 @@
 #include "shape.h"
 #include "stats.h"
 
-STAT_COUNTER("Shape/Shape created",nShapesCreated);
 Shape::Shape(const Transform *objectToWorld, const Transform *worldToObject,
 			bool reverseOrientation) :
 			objectToWorld(objectToWorld), worldToObject(worldToObject), reverseOrientation(
 					reverseOrientation),transformSwapsHandedness(objectToWorld->SwapsHandedness()){
-	nShapesCreated++;
 }
 
 Shape::~Shape(){};
