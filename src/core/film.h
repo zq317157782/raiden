@@ -75,6 +75,8 @@ public:
 		Point2f maxP=Ceil(Point2f(croppedPixelBound.maxPoint)-Vector2f(0.5f,0.5f)+filter->radius);
 		return Bound2i(minP,maxP);
 	}
+	//直接设置image数据
+	void SetImage(const Spectrum* img);
 };
 
 struct FilmTilePixel {

@@ -34,6 +34,16 @@ Film::Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染
 
 }
 
+void Film::SetImage(const Spectrum* img) {
+	int numPixel = croppedPixelBound.Area();
+	for (int i = 0; i < numPixel; ++i) {
+		Pixel& p = _pixels[i];
+		img[i].ToXYZ(p.xyz);
+		p.filterWeightSum = 1;
+		p.splatXYZ[0] = p.splatXYZ[1] = p.splatXYZ[2] = 0;
+	}
+}
+
 void Film::WriteImage() {
 	std::vector<uint8_t> image;
 	for (int j = croppedPixelBound[0].y; j < croppedPixelBound[1].y; ++j) {
