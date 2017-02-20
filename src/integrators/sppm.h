@@ -113,7 +113,8 @@ public:
 				//获取当前tile索引
 				int tileIndex=tile.y*tileNum.x+tile.x;
 				//克隆样本生成器
-				std::unique_ptr<Sampler> tileSampler=sampler.Clone(tileIndex);
+				//todo 参数 不要忘记改回来
+				std::unique_ptr<Sampler> tileSampler=sampler.Clone(tileIndex+iter*tileNum.x*tileNum.y);
 
 				//计算当前tile占据的像素范围
 				int x0=pixelBound.minPoint.x+tile.x*tileSize;
@@ -122,6 +123,7 @@ public:
 				int y1=std::min(y0+tileSize,pixelBound.maxPoint.y);
 				Bound2i tileBound(Point2i(x0,y0),Point2i(x1,y1));
 				for(Point2i raster:tileBound){
+
 					//设置样本生成器
 					tileSampler->StartPixel(raster);
 					tileSampler->SetSampleNumber(iter);
