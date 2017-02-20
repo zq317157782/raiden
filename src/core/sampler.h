@@ -167,4 +167,17 @@ public:
 	}
 };
 
+//全局采样器，采样的时候以整个image空间为采样空间
+class GlobalSampler:public Sampler{
+private:
+	int _dimension;//记录当前的样本维度
+	int64_t _globalIndex;//记录当前样本的全局索引
+public:
+	//从当前的pixel和sampleNumber 映射到全局的index
+	virtual int64_t GetIndexForSample(int64_t) const=0;
+	//提供全局index和维度，返回index样本的dimension维度的值，对于第一和第二个样本，返回在当前pixel中的偏移
+	virtual Float SampleDimension(int64_t index,int dimension) const=0;
+
+};
+
 #endif /* SRC_CORE_SAMPLER_H_ */
