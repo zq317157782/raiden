@@ -45,6 +45,8 @@ struct SPPMPixel {
 	Float radius;//像素的搜索半径
 	std::atomic<int> M=0;//累积的光子个数
 	AtomicFloat Phi[Spectrum::numSample];//累积的能量
+	Float N;
+	Spectrum tau;
 	struct VisiblePoint {
 	public:
 		Point3f p;//vp位置
@@ -350,6 +352,32 @@ public:
 				}
 				photonArena.Reset();
 			}, _photonNumPreIteration, 8192);
+
+			//更新Pixel中的数据
+
+			//pbrt中gamma是每个遍历都计算一次，包含除法操作，我觉得这个除法的开销是无用且昂贵的
+			constexpr Float gamma = (Float)2 / (Float)3;
+			ParallelFor([&](int pixelIndex) {
+				SPPMPixel& pixel = pixels[pixelIndex];
+				if (pixel.M > 0) {
+					Float nNew = pixel.N + pixel.M*gamma;
+					Float rNew = pixel.radius*std::sqrt(nNew / (pixel.N + pixel.M));
+					Spectrum phi;
+					for (int i = 0; i < Spectrum::numSample; ++i) {
+						phi[i] = pixel.Phi[i];
+					}
+					//计算新的累计值
+					pixel.tau = (pixel.tau + pixel.vp.beta*phi)*(rNew*rNew) / (pixel.radius*pixel.radius);
+					pixel.N = nNew;
+					pixel.radius = rNew;
+					pixel.M = 0;
+					for (int i = 0; i < Spectrum::numSample; ++i) {
+						pixel.Phi[i] = 0;
+					}
+				}
+				pixel.vp.beta = 0.0;
+				pixel.vp.bsdf = nullptr;
+			}, numPixel, 4096);
 
 			reporter.Update();
 		}
