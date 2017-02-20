@@ -43,7 +43,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/raiden/src}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.666238197" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="DEBUG_BUILD"/>
+									<listOptionValue builtIn="false" value="_DEBUG_BUILD"/>
 									<listOptionValue builtIn="false" value="UNIT_TEST"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1893573836" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>

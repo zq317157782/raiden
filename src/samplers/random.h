@@ -37,7 +37,6 @@ public:
 				_sample2DArray[i][j].y=_rng.UniformFloat();
 			}
 		}
-
 		Sampler::StartPixel(p);
 	}
 
@@ -51,7 +50,9 @@ public:
 		RandomSampler *rs=new RandomSampler(samplesPerPixel);
 		rs->_rng.SetSequence(seed);
 		return std::unique_ptr<RandomSampler>(rs);
-
+	}
+	virtual bool SetSampleNumber(int num) override{
+			return Sampler::SetSampleNumber(num);
 	}
 };
 Sampler *CreateRandomSampler(const ParamSet &params);

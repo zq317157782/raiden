@@ -43,7 +43,7 @@ static bool ToGrid(const Point3f& p, const Bound3f& gridBound, const int gridRes
 struct SPPMPixel {
 	Spectrum Ld;//直接光(累积)
 	Float radius;//像素的搜索半径
-	std::atomic<int> M=0;//累积的光子个数
+	std::atomic<int> M;//累积的光子个数
 	AtomicFloat Phi[Spectrum::numSample];//累积的能量
 	Float N;
 	Spectrum tau;
@@ -59,7 +59,7 @@ struct SPPMPixel {
 	} vp;
 
 public:
-	SPPMPixel() {}
+	SPPMPixel() {M=0;}
 };
 
 
@@ -122,7 +122,6 @@ public:
 				int y1=std::min(y0+tileSize,pixelBound.maxPoint.y);
 				Bound2i tileBound(Point2i(x0,y0),Point2i(x1,y1));
 				for(Point2i raster:tileBound){
-					
 					//设置样本生成器
 					tileSampler->StartPixel(raster);
 					tileSampler->SetSampleNumber(iter);
@@ -265,7 +264,7 @@ public:
 				//选择光源
 				//TODO 修改成使用LightPowerDistrubition
 				Float lightPdf=RadicalInverse(haltonDim++, haltonIndex);
-				int lightIndex = std::min((uint64_t)(scene.lights.size()*lightPdf), scene.lights.size() - 1);
+				int lightIndex = std::min((int)(scene.lights.size()*lightPdf), (int)(scene.lights.size() - 1));
 				std::shared_ptr<Light> light = scene.lights[lightIndex];
 				lightPdf = 1.0f / scene.lights.size();
 				//采样光源的pos和dir
@@ -394,6 +393,7 @@ public:
 						Spectrum L = pixel.Ld / (iter + 1);//直接光成分的mean(Direct算法)
 						L = L + pixel.tau / (numPhoton*Pi*pixel.radius*pixel.radius);//计算间接光成分(SPPM算法)
 						image[offset++]=L;
+						//image[offset++]=Spectrum(pixel.radius);
 					}
 				}
 				_camera->film->SetImage(image.get());
