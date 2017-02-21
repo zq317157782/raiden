@@ -339,7 +339,7 @@ public:
 					if (bsdfPdf == 0 || f.IsBlack()) {
 						break;
 					}
-					Spectrum betaNew = beta*f*AbsDot(ref.shading.n, wi) / bsdfPdf;
+					Spectrum betaNew = beta*f*AbsDot(ref.shading.n, wi) / bsdfPdf; 
 
 					//俄罗斯罗盘
 					Float quitProb=std::max(0.0f, (1 - betaNew.y()/beta.y()));
