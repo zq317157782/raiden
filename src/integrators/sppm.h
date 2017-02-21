@@ -303,6 +303,9 @@ public:
 							int gridIndex = hash(gridPoint, numPixel);
 							for (SPPMPixelListNode* listNode = grid[gridIndex].load(std::memory_order_relaxed); listNode!= nullptr; listNode = listNode->next) {
 								SPPMPixel& pixel = *listNode->pixel;
+								if (pixel.vp.bsdf == nullptr) {
+									continue;
+								}
 								if (DistanceSquared(pixel.vp.p, ref.p) > pixel.radius*pixel.radius) {
 									continue;//不在半径范围内
 								}
