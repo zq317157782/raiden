@@ -39,6 +39,25 @@ static Float RadicalInverseSpecialized(uint64_t a) {
 	return std::min(reverse*invBaseN, OneMinusEpsilon);
 }
 
+
+//重排列版本
+template <int base>
+static Float ScrambledRadicalInverseSpecialized(const uint16_t*perm,uint64_t a) {
+	Float invBase = 1.0f / (Float)base;
+	uint64_t reverse = 0;
+	Float invBaseN = 1;
+	while (a) {
+		uint64_t next = a*invBase;
+		uint64_t digit = a - next*base;
+		reverse = reverse*base + perm[digit];
+		invBaseN *= invBase;
+		a = next;
+	}
+	return std::min((reverse+invBase*perm[0]/(1-invBase))*invBaseN, OneMinusEpsilon);
+}
+
+
+
 //反转已经反转过的数字
 template <int base>
 uint64_t InverseRadicalInverse(uint64_t v, int nDigit) {
@@ -52,6 +71,7 @@ uint64_t InverseRadicalInverse(uint64_t v, int nDigit) {
 }
 
 Float RadicalInverse(int baseIndex, uint64_t a);
+Float ScrambledRadicalInverse(int baseIndex, uint64_t a, const uint16_t* prem);
 
 //只算RadicalInverse的重排列表 
 //base2,base3,base5,....etc
