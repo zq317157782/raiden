@@ -1,5 +1,9 @@
 ﻿#include "raiden.h"
 #include "rng.h"
+#include "sampling.h"
+static constexpr int PrimeTableSize = 1000;//质数表大小
+extern const int Primes[PrimeTableSize];
+
 //反转2进制的位数(eg.b1000(8)=>b0001(1))
 inline uint32_t ReverseBits32(uint32_t n) {
 	//这里使用了2进制方便的位操作计算
@@ -48,3 +52,8 @@ uint64_t InverseRadicalInverse(uint64_t v, int nDigit) {
 }
 
 Float RadicalInverse(int baseIndex, uint64_t a);
+
+//只算RadicalInverse的重排列表 
+//base2,base3,base5,....etc
+//0,1,0,1,2,0,1,2,3,4....etc
+std::vector<uint16_t> ComputeRadicalInversePermutations(RNG& rng);
