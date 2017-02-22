@@ -35,4 +35,16 @@ static Float RadicalInverseSpecialized(uint64_t a) {
 	return std::min(reverse*invBaseN, OneMinusEpsilon);
 }
 
+//反转已经反转过的数字
+template <int base>
+uint64_t InverseRadicalInverse(uint64_t v, int nDigit) {
+	uint64_t ret = 0;
+	for (int i = 0; i < nDigit; ++i) {
+		uint64_t d = v%base;
+		v = v / base;
+		ret = ret*base + d;
+	}
+	return ret;
+}
+
 Float RadicalInverse(int baseIndex, uint64_t a);
