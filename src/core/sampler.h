@@ -22,10 +22,10 @@ public:
 protected:
 	Point2i _currentPixel; //当前处理的像素点
 	int64_t _currentPixelSampleIndex; //当前像素的index
-	std::vector<int> _samplesArray1DSize; //记录1D样本数组的大小
-	std::vector<int> _samplesArray2DSize; //记录2D样本数组的大小
-	std::vector<std::vector<Float>> _sample1DArray; //1D样本数组
-	std::vector<std::vector<Point2f>> _sample2DArray; //2D样本数组
+	std::vector<int> _samples1DArraySize; //记录1D样本数组的大小
+	std::vector<int> _samples2DArraySize; //记录2D样本数组的大小
+	std::vector<std::vector<Float>> _sampleArray1D; //1D样本数组
+	std::vector<std::vector<Point2f>> _sampleArray2D; //2D样本数组
 public:
 	Sampler(int64_t samplesPerPixel) :
 			samplesPerPixel(samplesPerPixel) {
@@ -42,14 +42,14 @@ public:
 	//申请一个1D样本数组
 	void Request1DArray(int n) {
 		Assert(n == RoundCount(n));
-		_samplesArray1DSize.push_back(n);
-		_sample1DArray.push_back(std::vector<Float>(n * samplesPerPixel));
+		_samples1DArraySize.push_back(n);
+		_sampleArray1D.push_back(std::vector<Float>(n * samplesPerPixel));
 	}
 	//申请一个2D样本数组
 	void Request2DArray(int n) {
 		Assert(n == RoundCount(n));
-		_samplesArray2DSize.push_back(n);
-		_sample2DArray.push_back(std::vector<Point2f>(n * samplesPerPixel));
+		_samples2DArraySize.push_back(n);
+		_sampleArray2D.push_back(std::vector<Point2f>(n * samplesPerPixel));
 	}
 	//对样本个数做优化
 	virtual int RoundCount(int n) const {
@@ -92,21 +92,21 @@ public:
 
 	//返回一个包含n个样本的数组，返回的时候要根据requert的时候申请的大小做检查
 	virtual Float* Get1DArray(int n) {
-		if (_array1DOffset == _samplesArray1DSize.size()) {
+		if (_array1DOffset == _samples1DArraySize.size()) {
 			return nullptr;
 		}
 		Assert(_currentPixelSampleIndex < samplesPerPixel);
-		Assert(_samplesArray1DSize[_array1DOffset] == n);
-		return &_sample1DArray[_array1DOffset++][_currentPixelSampleIndex * n];
+		Assert(_samples1DArraySize[_array1DOffset] == n);
+		return &_sampleArray1D[_array1DOffset++][_currentPixelSampleIndex * n];
 	}
 
 	virtual Point2f* Get2DArray(int n) {
-		if (_array2DOffset == _samplesArray2DSize.size()) {
+		if (_array2DOffset == _samples2DArraySize.size()) {
 			return nullptr;
 		}
 		Assert(_currentPixelSampleIndex < samplesPerPixel);
-		Assert(_samplesArray2DSize[_array2DOffset] == n);
-		return &_sample2DArray[_array2DOffset++][_currentPixelSampleIndex * n];
+		Assert(_samples2DArraySize[_array2DOffset] == n);
+		return &_sampleArray2D[_array2DOffset++][_currentPixelSampleIndex * n];
 	}
 
 	//克隆方法，用来克隆本sampler
@@ -172,12 +172,75 @@ class GlobalSampler:public Sampler{
 private:
 	int _dimension;//记录当前的样本维度
 	int64_t _globalIndex;//记录当前样本的全局索引
+	//前5个样本值是给CameraSample的
+	static const int _arrayStartDim = 5;
+	int _arrayEndDim;//数组样本的结束
 public:
 	//从当前的pixel和sampleNumber 映射到全局的index
 	virtual int64_t GetIndexForSample(int64_t) const=0;
 	//提供全局index和维度，返回index样本的dimension维度的值，对于第一和第二个样本，返回在当前pixel中的偏移
 	virtual Float SampleDimension(int64_t index,int dimension) const=0;
 
+
+	virtual void StartPixel(const Point2i& p) override{
+		Sampler::StartPixel(p);
+		_dimension = 0;//每次开始新的像素,要重置维度
+		_globalIndex = GetIndexForSample(0);
+		//计算数组样本的维度
+		_arrayEndDim = _arrayStartDim + _sampleArray1D.size() + 2 * _sampleArray2D.size();
+
+		//生成1D数组样本
+		for (int i = 0; i < _samples1DArraySize.size(); ++i) {
+			int nSample = _samples1DArraySize[i]* samplesPerPixel;
+			for (int j = 0; j < nSample; ++j) {
+				int64_t index=GetIndexForSample(j);//根据当前的像素和样本索引，获取样本的内部索引
+				_sampleArray1D[i][j] = SampleDimension(index, _arrayStartDim + i);
+			}
+		}
+
+		//生成2D数组样本
+		int dim = _arrayStartDim + _sampleArray1D.size();
+		for (int i = 0; i < _samples2DArraySize.size(); ++i) {
+			int nSample = _samples2DArraySize[i] * samplesPerPixel;
+			for (int j = 0; j < nSample; ++j) {
+				int64_t index = GetIndexForSample(j);//根据当前的像素和样本索引，获取样本的内部索引
+				_sampleArray2D[i][j].x = SampleDimension(index,dim);
+				_sampleArray2D[i][j].y = SampleDimension(index, dim+1);
+			}
+			dim += 2;//步进到下个维度
+		}
+
+	}
+
+	virtual bool StartNextSample() override {
+		_dimension = 0;
+		_globalIndex = GetIndexForSample(_currentPixelSampleIndex+1);//计算全局索引
+		return Sampler::StartNextSample();
+	}
+
+	virtual bool SetSampleNumber(int num) override {
+		_dimension = 0;
+		_globalIndex = GetIndexForSample(_currentPixelSampleIndex + 1);//计算全局索引
+		return Sampler::SetSampleNumber(num);
+	}
+
+	virtual Float Get1DSample() override {
+		//判断是否跳过数组维度
+		if (_dimension >= _arrayStartDim&&_dimension<_arrayEndDim) {
+			_dimension = _arrayEndDim;
+		}
+		//返回样本值
+		return SampleDimension(_globalIndex, _dimension++);
+	}
+	virtual Point2f Get2DSample() override {
+		if ((_dimension+1)>= _arrayStartDim&&_dimension<_arrayEndDim) {
+			_dimension = _arrayEndDim;
+		}
+		Float x= SampleDimension(_globalIndex, _dimension);
+		Float y= SampleDimension(_globalIndex, _dimension+1);
+		_dimension += 2;
+		return Point2f(x, y);
+	}
 };
 
 #endif /* SRC_CORE_SAMPLER_H_ */

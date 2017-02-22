@@ -45,19 +45,19 @@ public:
 		}
 
 		//随机排列数组
-		for (int i = 0; i < _samplesArray1DSize.size(); ++i) {
-			int size = _samplesArray1DSize[i];
+		for (int i = 0; i < _samples1DArraySize.size(); ++i) {
+			int size = _samples1DArraySize[i];
 			for (int j = 0; j < samplesPerPixel; ++j) {
-				StratifiedSample1D(&_sample1DArray[i][j * size],size, _rng, _jitterSamples);
-				Shuffle(&_sample1DArray[i][j * size], size, 1,_rng);
+				StratifiedSample1D(&_sampleArray1D[i][j * size],size, _rng, _jitterSamples);
+				Shuffle(&_sampleArray1D[i][j * size], size, 1,_rng);
 			}
 		}
 
 		//生成超拉丁立方样本的数组，只限于2维变量
-		for (int i = 0; i < _samplesArray2DSize.size(); ++i) {
-			int size = _samplesArray2DSize[i];
+		for (int i = 0; i < _samples2DArraySize.size(); ++i) {
+			int size = _samples2DArraySize[i];
 			for (int j = 0; j < samplesPerPixel; ++j) {
-				LatinHypercube(&_sample2DArray[i][j * size].x, size, 2, _rng);
+				LatinHypercube(&_sampleArray2D[i][j * size].x, size, 2, _rng);
 			}
 		}
 

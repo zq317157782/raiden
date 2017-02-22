@@ -22,19 +22,19 @@ public:
 	virtual void StartPixel(const Point2i& p) override {
 
 		//为一维数组生成随机样本
-		for(int i=0;i<_samplesArray1DSize.size();++i){
-			int size=_samplesArray1DSize[i];
+		for(int i=0;i<_samples1DArraySize.size();++i){
+			int size=_samples1DArraySize[i];
 			for(int j=0;j<size*samplesPerPixel;++j){
-				_sample1DArray[i][j]=_rng.UniformFloat();
+				_sampleArray1D[i][j]=_rng.UniformFloat();
 			}
 		}
 
 		//为二维数组生成随机样本
-		for(int i=0;i<_samplesArray2DSize.size();++i){
-			int size=_samplesArray2DSize[i];
+		for(int i=0;i<_samples2DArraySize.size();++i){
+			int size=_samples2DArraySize[i];
 			for(int j=0;j<size*samplesPerPixel;++j){
-				_sample2DArray[i][j].x=_rng.UniformFloat();
-				_sample2DArray[i][j].y=_rng.UniformFloat();
+				_sampleArray2D[i][j].x=_rng.UniformFloat();
+				_sampleArray2D[i][j].y=_rng.UniformFloat();
 			}
 		}
 		Sampler::StartPixel(p);
