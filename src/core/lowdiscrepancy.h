@@ -3,6 +3,7 @@
 #include "sampling.h"
 static constexpr int PrimeTableSize = 1000;//质数表大小
 extern const int Primes[PrimeTableSize];
+extern const int PrimeSums[PrimeTableSize];
 
 //反转2进制的位数(eg.b1000(8)=>b0001(1))
 inline uint32_t ReverseBits32(uint32_t n) {
