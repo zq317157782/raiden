@@ -542,5 +542,8 @@
     <ClInclude Include="src\core\lowdiscrepancy.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\samplers\halton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

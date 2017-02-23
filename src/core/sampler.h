@@ -176,6 +176,8 @@ private:
 	static const int _arrayStartDim = 5;
 	int _arrayEndDim;//数组样本的结束
 public:
+	GlobalSampler(int64_t samplesPerPixel) :Sampler(samplesPerPixel) {}
+
 	//从当前的pixel和sampleNumber 映射到全局的index
 	virtual int64_t GetIndexForSample(int64_t) const=0;
 	//提供全局index和维度，返回index样本的dimension维度的值，对于第一和第二个样本，返回在当前pixel中的偏移
