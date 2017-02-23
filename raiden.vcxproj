@@ -290,6 +290,7 @@
     <ClInclude Include="src\materials\lambertian.h" />
     <ClInclude Include="src\materials\mirror.h" />
     <ClInclude Include="src\media\homogeneous.h" />
+    <ClInclude Include="src\samplers\halton.h" />
     <ClInclude Include="src\samplers\random.h" />
     <ClInclude Include="src\samplers\stratified.h" />
     <ClInclude Include="src\shapes\sphere.h" />
