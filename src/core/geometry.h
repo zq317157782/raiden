@@ -25,7 +25,7 @@ inline bool IsNaN(int n) {
 template<typename T>
 class Vector3 {
 public:
-	Float x, y, z;
+	T x, y, z;
 public:
 	Vector3() {
 		x = y = z = 0;
@@ -188,7 +188,7 @@ typedef Vector3<int> Vector3i;
 template<typename T>
 class Vector2 {
 public:
-	Float x, y;
+	T x, y;
 public:
 	Vector2() {
 		x = y = 0;
