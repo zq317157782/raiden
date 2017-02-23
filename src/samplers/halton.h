@@ -81,10 +81,6 @@ public:
 		_multInverse[1] = multiplicativeInverse(_baseScales[0], _baseScales[1]);
 
 		_offsetForCurrentPixel = 0;
-		Info("_baseScales:"<<_baseScales);
-		Info("_multInverse:"<<_multInverse[0]<<" "<<_multInverse[1]);
-		Info("_baseExponents:"<<_baseExponents);
-
 	}
 
 	const uint16_t *PermutationForDimension(int dim) const {
