@@ -23,6 +23,7 @@
 #include "cameras/environment.h"
 #include "samplers/random.h"
 #include "samplers/stratified.h"
+#include "samplers/halton.h"
 #include "filters/box.h"
 #include "accelerators/iteration.h"
 #include "accelerators/grid.h"
@@ -218,11 +219,9 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 		accel = CreateIterationAccelerator(prims, paramSet);
 	} else if (name == "grid") {
 		accel = CreateGridAccelerator(prims, paramSet);
-	}
-	else if (name == "bvh") {
+	} else if (name == "bvh") {
 		accel = CreateBVHAccelerator(prims, paramSet);
-	}
-	else {
+	} else {
 		Error("accelerator \"" << name.c_str() << "\" unknown.");
 	}
 	paramSet.ReportUnused();
@@ -239,16 +238,18 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 	MediumInterface mediumInterface = graphicsState.CreateMediumInterface();
 
 	if (name == "pinhole") {
-		camera = CreatePinholeCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
+		camera = CreatePinholeCamera(paramSet, *cam2world[0], film,
+				mediumInterface.outside);
 	} else if (name == "ortho") {
-		camera = CreateOrthoCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
+		camera = CreateOrthoCamera(paramSet, *cam2world[0], film,
+				mediumInterface.outside);
 	} else if (name == "perspective") {
-		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
-	}
-	else if (name == "environment") {
-		camera = CreateEnvironmentCamera(paramSet, *cam2world[0], film, mediumInterface.outside);
-	}
-	else {
+		camera = CreatePerspectiveCamera(paramSet, *cam2world[0], film,
+				mediumInterface.outside);
+	} else if (name == "environment") {
+		camera = CreateEnvironmentCamera(paramSet, *cam2world[0], film,
+				mediumInterface.outside);
+	} else {
 		Error("camera \"" << name.c_str() << "\" unknown.");
 	}
 	paramSet.ReportUnused();
@@ -274,8 +275,9 @@ std::shared_ptr<Sampler> MakeSampler(const std::string &name,
 		sampler = CreateRandomSampler(paramSet);
 	} else if (name == "stratified") {
 		sampler = CreateStratifiedSampler(paramSet);
-	}
-	else {
+	} else if (name == "halton") {
+		sampler = CreateHaltonSampler(paramSet,film->croppedPixelBound);
+	} else {
 		Error("sampler \"" << name.c_str() << "\" unknown.");
 	}
 	return std::shared_ptr<Sampler>(sampler);
@@ -295,17 +297,16 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 }
 
 std::shared_ptr<Light> MakeLight(const std::string &name,
-		const ParamSet &paramSet, const Transform &light2world, const MediumInterface &mediumInterface) {
+		const ParamSet &paramSet, const Transform &light2world,
+		const MediumInterface &mediumInterface) {
 	std::shared_ptr<Light> light;
 	if (name == "point") {
 		light = CreatePointLight(light2world, paramSet);
 	} else if (name == "distant") {
 		light = CreateDistantLight(light2world, paramSet);
-	}
-	else if (name == "spot") {
-		light = CreateSpotLight(light2world, mediumInterface.outside,paramSet);
-	}
-	else {
+	} else if (name == "spot") {
+		light = CreateSpotLight(light2world, mediumInterface.outside, paramSet);
+	} else {
 		Error("light \"" << name.c_str() << "\" unknown.");
 	}
 	paramSet.ReportUnused();
@@ -320,7 +321,7 @@ std::shared_ptr<AreaLight> MakeAreaLight(const std::string &name,
 		light = CreateDiffuseAreaLight(light2world, paramSet, shape);
 	} else {
 		Error("area light \"" << name.c_str() << "\" unknown.");
-		light=nullptr;
+		light = nullptr;
 	}
 	paramSet.ReportUnused();
 	return light;
@@ -349,22 +350,21 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 }
 
 std::shared_ptr<Medium> MakeMedium(const std::string &name,
-	const ParamSet &paramSet) {
+		const ParamSet &paramSet) {
 	//默认参数
-	Float sig_a_rgb[3] = { .0011f, .0024f, .014f },
-		sig_s_rgb[3] = { 2.55f, 3.21f, 3.77f };
-	Spectrum sig_a = Spectrum::FromRGB(sig_a_rgb),
-		sig_s = Spectrum::FromRGB(sig_s_rgb);
+	Float sig_a_rgb[3] = { .0011f, .0024f, .014f }, sig_s_rgb[3] = { 2.55f,
+			3.21f, 3.77f };
+	Spectrum sig_a = Spectrum::FromRGB(sig_a_rgb), sig_s = Spectrum::FromRGB(
+			sig_s_rgb);
 
 	Float scale = paramSet.FindOneFloat("scale", 1.0f);
-	Float g = paramSet.FindOneFloat("g", 0.0f)*scale;
-	sig_a = paramSet.FindOneSpectrum("sigma_a", sig_a)*scale; //吸收率
-	sig_s = paramSet.FindOneSpectrum("sigma_s", sig_s)*scale; //散射率
+	Float g = paramSet.FindOneFloat("g", 0.0f) * scale;
+	sig_a = paramSet.FindOneSpectrum("sigma_a", sig_a) * scale; //吸收率
+	sig_s = paramSet.FindOneSpectrum("sigma_s", sig_s) * scale; //散射率
 	Medium* medium = nullptr;
 	if (name == "homogeneous") {
-		medium = new HomogeneousMedium(sig_a, sig_s,g);
-	}
-	else {
+		medium = new HomogeneousMedium(sig_a, sig_s, g);
+	} else {
 		Warning("Medium \'" << name << "\'unknown.");
 	}
 	paramSet.ReportUnused();
@@ -397,23 +397,22 @@ std::shared_ptr<Material> GraphicsState::CreateMaterial(
 	return mtl;
 }
 
-
 MediumInterface GraphicsState::CreateMediumInterface() {
 	MediumInterface m;
 	if (currentInsideMedium != "") {
-		if (renderOptions->namedMedia.find(currentInsideMedium) !=
-			renderOptions->namedMedia.end())
+		if (renderOptions->namedMedia.find(currentInsideMedium)
+				!= renderOptions->namedMedia.end())
 			m.inside = renderOptions->namedMedia[currentInsideMedium].get();
-		else{
+		else {
 			Error("Named medium \"" << currentInsideMedium << "\" undefined.");
 		}
 	}
 	if (currentOutsideMedium != "") {
-		if (renderOptions->namedMedia.find(currentOutsideMedium) !=
-			renderOptions->namedMedia.end())
+		if (renderOptions->namedMedia.find(currentOutsideMedium)
+				!= renderOptions->namedMedia.end())
 			m.outside = renderOptions->namedMedia[currentOutsideMedium].get();
 		else {
-			Error("Named medium \"" << currentOutsideMedium << "\" undefined."); 
+			Error("Named medium \"" << currentOutsideMedium << "\" undefined.");
 		}
 	}
 	return m;
@@ -655,15 +654,15 @@ return;
 }
 std::shared_ptr<Material> mtl = graphicsState.CreateMaterial(params);
 for (auto s : shapes) {
-	std::shared_ptr<AreaLight> area;
+std::shared_ptr<AreaLight> area;
 if (graphicsState.areaLight != "") {
- area= MakeAreaLight(graphicsState.areaLight,
-graphicsState.areaLightParams, curTransform[0], s);
+area = MakeAreaLight(graphicsState.areaLight, graphicsState.areaLightParams,
+curTransform[0], s);
 if (area) {
 areaLights.push_back(area);
 }
 }
-prims.push_back(std::make_shared<GeomPrimitive>(s, mtl,area,nullptr));
+prims.push_back(std::make_shared<GeomPrimitive>(s, mtl, area, nullptr));
 }
 }
 if (areaLights.size() > 0) {
@@ -771,14 +770,11 @@ integrator = CreateDepthIntegrator(IntegratorParams, sampler, camera);
 integrator = CreateWhittedIntegrator(IntegratorParams, sampler, camera);
 } else if (IntegratorName == "path") {
 integrator = CreatePathIntegrator(IntegratorParams, sampler, camera);
-}
-else if (IntegratorName == "sppm") {
+} else if (IntegratorName == "sppm") {
 integrator = CreateSPPMIntegrator(IntegratorParams, sampler, camera);
-}
-else if (IntegratorName == "volpath") {
-	integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
-}
-else {
+} else if (IntegratorName == "volpath") {
+integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
+} else {
 Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");
 return nullptr;
 }
@@ -878,29 +874,27 @@ Warning("Named material \""<< name <<"\" redefined");
 graphicsState.namedMaterials[name] = mtl;
 }
 
-
 void raidenMakeNamedMedium(const std::string &name, const ParamSet &params) {
-	VERIFY_INITIALIZED("MakeNamedMedium");
-	std::string type = params.FindOneString("type", "");
-	if (type == "") {
-		Error("No parameter string \"type\" found in MakeNamedMedium");
-	}
-	else {
-		std::shared_ptr<Medium> medium =MakeMedium(type, params);
-		if (medium) { 
-			renderOptions->namedMedia[name] = medium; 
-		}
-	}
+VERIFY_INITIALIZED("MakeNamedMedium");
+std::string type = params.FindOneString("type", "");
+if (type == "") {
+Error("No parameter string \"type\" found in MakeNamedMedium");
+} else {
+std::shared_ptr<Medium> medium = MakeMedium(type, params);
+if (medium) {
+renderOptions->namedMedia[name] = medium;
+}
+}
 }
 
 void raidenMediumInterface(const std::string &insideName,
-	const std::string &outsideName) {
-	VERIFY_INITIALIZED("MediumInterface");
-	graphicsState.currentInsideMedium = insideName;
-	graphicsState.currentOutsideMedium = outsideName;
-	renderOptions->haveScatteringMedia = true;
+const std::string &outsideName) {
+VERIFY_INITIALIZED("MediumInterface");
+graphicsState.currentInsideMedium = insideName;
+graphicsState.currentOutsideMedium = outsideName;
+renderOptions->haveScatteringMedia = true;
 }
 
 void raidenReverseOrientation() {
-	graphicsState.reverseOrientation = !graphicsState.reverseOrientation;
+graphicsState.reverseOrientation = !graphicsState.reverseOrientation;
 }

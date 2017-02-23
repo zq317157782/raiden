@@ -66,7 +66,7 @@ public:
 		for (int i = 0; i < 2; ++i) {
 			int base = (i == 0) ? 2 : 3;
 			int scale = 1, exp = 0;
-			while (scale < std::min(kMaxResolution,res[i])) {
+			while (scale < std::min(kMaxResolution, res[i])) {
 				scale *= base;
 				++exp;
 			}
@@ -80,7 +80,11 @@ public:
 		_multInverse[0] = multiplicativeInverse(_baseScales[1], _baseScales[0]);
 		_multInverse[1] = multiplicativeInverse(_baseScales[0], _baseScales[1]);
 
-		_offsetForCurrentPixel=0;
+		_offsetForCurrentPixel = 0;
+		Info("_baseScales:"<<_baseScales);
+		Info("_multInverse:"<<_multInverse[0]<<" "<<_multInverse[1]);
+		Info("_baseExponents:"<<_baseExponents);
+
 	}
 
 	const uint16_t *PermutationForDimension(int dim) const {
@@ -112,6 +116,7 @@ public:
 			}
 			_pixelForOffset = _currentPixel;
 		}
+
 		return _offsetForCurrentPixel + sampleNum * _sampleStride;
 	}
 
@@ -127,13 +132,12 @@ public:
 		}
 	}
 
-	virtual std::unique_ptr<Sampler> Clone(int seed=0) const override{
-			HaltonSampler *rs=new HaltonSampler(*this);
-			return std::unique_ptr<HaltonSampler>(rs);
+	virtual std::unique_ptr<Sampler> Clone(int seed = 0) const override {
+		return std::unique_ptr<Sampler>(new HaltonSampler(*this));
 	}
 };
 
 HaltonSampler *CreateHaltonSampler(const ParamSet &params,
-                                   const Bound2i &sampleBounds);
+		const Bound2i &sampleBounds);
 
 #endif /* SRC_SAMPLERS_HALTON_H_ */

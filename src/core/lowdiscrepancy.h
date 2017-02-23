@@ -1,6 +1,11 @@
 ﻿#include "raiden.h"
 #include "rng.h"
 #include "sampling.h"
+
+
+#ifndef SRC_CORE_LOWDISCREPANCY_H_
+#define SRC_CORE_LOWDISCREPANCY_H_
+
 static constexpr int PrimeTableSize = 1000;//质数表大小
 extern const int Primes[PrimeTableSize];
 extern const int PrimeSums[PrimeTableSize];
@@ -78,3 +83,4 @@ Float ScrambledRadicalInverse(int baseIndex, uint64_t a, const uint16_t* prem);
 //base2,base3,base5,....etc
 //0,1,0,1,2,0,1,2,3,4....etc
 std::vector<uint16_t> ComputeRadicalInversePermutations(RNG& rng);
+#endif
