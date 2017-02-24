@@ -213,8 +213,21 @@ inline constexpr Float gamma(int n) {
 	return (n * MachineEpsion) / (1 - n * MachineEpsion);
 }
 
-inline Float Mod(Float a,Float b){
-	return std::fmod(a,b);
+
+
+
+template <typename T>
+inline T Mod(T a, T b) {
+	T ret = a - (a / b)*b;
+	if (ret < 0) {
+		ret = ret + b;
+	}
+	return ret;
+}
+
+template <>
+inline Float Mod(Float a, Float b) {
+	return std::fmod(a, b);
 }
 
 //裁剪函数
