@@ -12,7 +12,7 @@
 #include "camera.h"
 #include "film.h"
 #include "parallel.h"
-#include "samplers/random.h"
+#include "samplers/halton.h"
 #include "progressreporter.h"
 #include "scene.h"
 #include "light.h"
@@ -96,7 +96,7 @@ public:
 		Float rayDifferentialScale = 1.0 / std::sqrt(_numIteration);
 		//样本生成器
 		//todo PBRT中这里使用了Halton Sampler
-		RandomSampler sampler(_numIteration);
+		HaltonSampler sampler(_numIteration, pixelBound);
 		std::unique_ptr<SPPMPixel[]> pixels = std::unique_ptr<SPPMPixel[]>(new SPPMPixel[numPixel]);
 		for (int i = 0; i < numPixel; ++i) {
 			pixels[i].radius = _initRadius;
@@ -114,7 +114,7 @@ public:
 				int tileIndex=tile.y*tileNum.x+tile.x;
 				//克隆样本生成器
 				//todo 参数 不要忘记改回来
-				std::unique_ptr<Sampler> tileSampler=sampler.Clone(tileIndex+iter*tileNum.x*tileNum.y);
+				std::unique_ptr<Sampler> tileSampler=sampler.Clone(tileIndex);
 
 				//计算当前tile占据的像素范围
 				int x0=pixelBound.minPoint.x+tile.x*tileSize;
