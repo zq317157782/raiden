@@ -87,7 +87,6 @@ const int Primes[PrimeTableSize] = {
 
 const int PrimeSums[PrimeTableSize] = {
     0, 2, 5, 10, 17,
-    // Subsequent prime sums
     28, 41, 58, 77, 100, 129, 160, 197, 238, 281, 328, 381, 440, 501, 568, 639,
     712, 791, 874, 963, 1060, 1161, 1264, 1371, 1480, 1593, 1720, 1851, 1988,
     2127, 2276, 2427, 2584, 2747, 2914, 3087, 3266, 3447, 3638, 3831, 4028,
@@ -4332,7 +4331,7 @@ std::vector<uint16_t> ComputeRadicalInversePermutations(RNG& rng) {
 	for (int i = 0; i < PrimeTableSize; ++i) {
 		//初始化数组
 		for (int j = 0; j < Primes[i]; ++j) {
-			ptr[0] = j;
+			ptr[j] = j;
 		}
 		Shuffle(ptr, Primes[i], 1, rng);
 		ptr += Primes[i];
