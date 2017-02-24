@@ -220,7 +220,7 @@ template <typename T>
 inline T Mod(T a, T b) {
 	T ret = a - (a / b)*b;
 	if (ret < 0) {
-		ret = ret + b;
+		 return ret + b;
 	}
 	return ret;
 }

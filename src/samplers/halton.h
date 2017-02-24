@@ -118,6 +118,7 @@ public:
 
 	//提供全局index和维度，返回index样本的dimension维度的值，对于第一和第二个样本，返回在当前pixel中的偏移
 	virtual Float SampleDimension(int64_t index, int dimension) const override {
+		
 		if (dimension == 0) {
 			return RadicalInverse(dimension, index >> _baseExponents[0]);
 		} else if (dimension == 1) {

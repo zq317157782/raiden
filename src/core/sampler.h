@@ -222,7 +222,7 @@ public:
 
 	virtual bool SetSampleNumber(int num) override {
 		_dimension = 0;
-		_globalIndex = GetIndexForSample(_currentPixelSampleIndex + 1);//计算全局索引
+		_globalIndex = GetIndexForSample(num);//计算全局索引
 		return Sampler::SetSampleNumber(num);
 	}
 
