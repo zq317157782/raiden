@@ -234,6 +234,10 @@ public:
 				//std::cout << pixelIndex << std::endl;
 				MemoryArena& arena = threadMemoryArens[ThreadIndex];
 				SPPMPixel &pixel = pixels[pixelIndex];
+				//如果像素的visible point的贡献为0的话，跳过这个像素
+				if (pixel.vp.beta.IsBlack()) {
+					return;
+				}
 				Point3i pMin,pMax;
 				ToGrid(pixel.vp.p - Vector3f(pixel.radius, pixel.radius, pixel.radius), gridBound, gridRes,&pMin);
 				ToGrid(pixel.vp.p + Vector3f(pixel.radius, pixel.radius, pixel.radius), gridBound, gridRes, &pMax);
@@ -303,9 +307,6 @@ public:
 							int gridIndex = hash(gridPoint, numPixel);
 							for (SPPMPixelListNode* listNode = grid[gridIndex].load(std::memory_order_relaxed); listNode!= nullptr; listNode = listNode->next) {
 								SPPMPixel& pixel = *listNode->pixel;
-								if (pixel.vp.bsdf == nullptr) {
-									continue;
-								}
 								if (DistanceSquared(pixel.vp.p, ref.p) > pixel.radius*pixel.radius) {
 									continue;//不在半径范围内
 								}
