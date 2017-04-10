@@ -275,8 +275,8 @@ public:
 				lightPdf = 1.0f / scene.lights.size();
 				//采样光源的pos和dir
 				
-				Point2f lightPosPdf(RadicalInverse(haltonDim, haltonIndex), RadicalInverse(haltonDim + 1, haltonIndex));
-				Point2f lightDirPdf(RadicalInverse(haltonDim + 2, haltonIndex), RadicalInverse(haltonDim + 3, haltonIndex));
+				Point2f lightPosSample(RadicalInverse(haltonDim, haltonIndex), RadicalInverse(haltonDim + 1, haltonIndex));
+				Point2f lightDirSample(RadicalInverse(haltonDim + 2, haltonIndex), RadicalInverse(haltonDim + 3, haltonIndex));
 				Float time = Lerp(RadicalInverse(haltonDim + 4, haltonIndex), _camera->shutterOpen, _camera->shutterEnd);
 				haltonDim += 5;
 
@@ -284,7 +284,7 @@ public:
 				Normal3f nLight;//光源法线
 				Float posPdf;//光源Pos pdf
 				Float dirPdf;//光源Dir Pdf
-				Spectrum Le=light->Sample_Le(lightPosPdf, lightDirPdf, time, &photonRay, &nLight, &posPdf, &dirPdf);
+				Spectrum Le=light->Sample_Le(lightPosSample, lightDirSample, time, &photonRay, &nLight, &posPdf, &dirPdf);
 				if (posPdf == 0 || dirPdf == 0|| Le.IsBlack()) {
 					return;
 				}
