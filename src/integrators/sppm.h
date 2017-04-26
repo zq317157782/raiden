@@ -95,7 +95,6 @@ public:
 		Point2i tileNum=Point2i((tileExtent.x+tileSize-1)/tileSize,(tileExtent.y+tileSize-1)/tileSize);
 		Float rayDifferentialScale = 1.0 / std::sqrt(_numIteration);
 		//样本生成器
-		//todo PBRT中这里使用了Halton Sampler
 		HaltonSampler sampler(_numIteration, pixelBound);
 		std::unique_ptr<SPPMPixel[]> pixels = std::unique_ptr<SPPMPixel[]>(new SPPMPixel[numPixel]);
 		for (int i = 0; i < numPixel; ++i) {
@@ -113,7 +112,6 @@ public:
 				//获取当前tile索引
 				int tileIndex=tile.y*tileNum.x+tile.x;
 				//克隆样本生成器
-				//todo 参数 不要忘记改回来
 				std::unique_ptr<Sampler> tileSampler=sampler.Clone(tileIndex);
 
 				//计算当前tile占据的像素范围
