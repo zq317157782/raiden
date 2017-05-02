@@ -797,6 +797,17 @@ TEST(sampling,all){
 	for(int i=0;i<4;++i){
 		Error(array[i]);
 	}
+
+	//测试Distribution1D
+	Float array2[4]={0.25,0.25,0.25,0.25};
+	Distribution1D d(array2,4);
+	Float pdf;
+	int no=d.SampleDiscrete(0.4,&pdf);
+	ASSERT_EQ(no,1);
+	ASSERT_EQ(pdf,0.25);
+	Float a=d.SampleContinuous(0.26,&pdf);
+	//ASSERT_EQ(a,0.4);
+	ASSERT_EQ(pdf,1);
 }
 
 #include "texture.h"

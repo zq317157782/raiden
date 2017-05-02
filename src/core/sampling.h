@@ -74,7 +74,7 @@ public:
 			_funcs(f, f + n), _cdfs(n + 1) {
 		_cdfs[0] = 0;
 		for (int i = 1; i < n + 1; ++i) {
-			_cdfs[i] = _cdfs[i - 1] + _funcs[i] / n;
+			_cdfs[i] = _cdfs[i - 1] + _funcs[i - 1] / n;
 		}
 		_funcInt = _cdfs[n];		//获取积分值
 		//标准化CDF
@@ -117,7 +117,12 @@ public:
 
 		//pdf等于函数值除以积分值
 		if (pdf) {
-			*pdf = _funcs[OFFSET] / _funcInt;
+			if (_funcInt == 0) {
+				//定积分值为0的情况
+				*pdf = 0;
+			} else {
+				*pdf = _funcs[OFFSET] / _funcInt;
+			}
 		}
 		return (Float(OFFSET) + du) / Count();	//计算返回值
 	}
@@ -130,8 +135,13 @@ public:
 				[&](int index) {return _cdfs[index]<=u;});
 		//pdf等于函数值除以积分值
 		if (pdf) {
-			//这里要比连续版本多一个Count,因为要乘以区间delta
-			*pdf = _funcs[offset] / (_funcInt * Count());
+			if (_funcInt == 0) {
+				//定积分值为0的情况
+				*pdf=0;
+			} else {
+				//这里要比连续版本多一个Count,因为要乘以区间delta
+				*pdf = _funcs[offset] / (_funcInt * Count());
+			}
 		}
 		if (uRemapped) {
 			//这里没有像连续版本一样判断_cdfs[offset + 1]==_cdfs[offset]的情况
