@@ -205,14 +205,29 @@ Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, Memory
 
 
 Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
-	bool handleMedia) {
+	bool handleMedia,const Distribution1D* lightPowerDistribution) {
 	int numLights = scene.lights.size();
 	if (numLights == 0) {
 		return Spectrum(0.0);
 	}
 	//选择一个光源
-	int lightIndex = std::min((int)(sampler.Get1DSample()*numLights), numLights - 1);
-	Float lightPdf = 1.0 / numLights;
+
+	int lightIndex=0;
+	Float lightPdf=0;
+	if(lightPowerDistribution){
+		//使用光源能量分布
+		lightIndex=lightPowerDistribution->SampleDiscrete(sampler.Get1DSample(),&lightPdf);
+		//这里判断pdf为0的情况，正常情况是不会出现这种情况的，作者真是谨慎啊
+		if(lightPdf==0){
+			return Spectrum(0);
+		}
+	}
+	else{
+		//均匀分布
+		lightIndex = std::min((int)(sampler.Get1DSample()*numLights), numLights - 1);
+		lightPdf = 1.0 / numLights;
+	}
+
 	
 	std::shared_ptr<Light> light = scene.lights[lightIndex];
 
