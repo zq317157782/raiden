@@ -52,4 +52,8 @@ Spectrum UniformSampleAllLights(const Interaction&it, const Scene& scene, Memory
 //采样单个光源,这里是保证采样单个光源，并且除以它出现的PDF在样本足够多的情况下，近似采样多个光源的情况的统计学近似
 Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryArena &arena, Sampler &sampler,
 	bool handleMedia = false);
+
+//根据场景中所用的光源，计算相应的光源能量的1D离散分布，用于采样光源.
+std::unique_ptr<Distribution1D> ComputeLightPowerDistribution(Scene& scene);
+
 #endif /* SRC_CORE_INTEGRATOR_H_ */

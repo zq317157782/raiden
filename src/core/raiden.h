@@ -101,6 +101,7 @@ class VisibilityTester;
 class Medium;
 struct MediumInterface;
 class PhaseFunction;
+struct Distribution1D;
 
 struct Options {
 	int numThread = 0; //线程个数

@@ -344,4 +344,17 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 	return Ld;
 }
 
+std::unique_ptr<Distribution1D> ComputeLightPowerDistribution(Scene& scene){
+	if(scene.lights.empty()){
+		return nullptr;
+	}
+	std::vector<Float> powers;
+	for(const auto& light:scene.lights){
+		//计算光源的能量
+		powers.push_back(light->Power().y());
+	}
+	//爱死C++的std::vector，取地址真是方便
+	return std::unique_ptr<Distribution1D>(new Distribution1D(&powers[0],powers.size()));
+}
+
 
