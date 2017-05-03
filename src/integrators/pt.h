@@ -15,14 +15,22 @@
 #include "scene.h"
 #include "sampler.h"
 #include "reflection.h"
+#include "lightdistrib.h"
 class PathIntegrator : public SamplerIntegrator {
 private:
 	int _maxDepth; //路径的最大长度
 	Float _rrThreshold;//开始考虑俄罗斯罗盘的阈值
+	std::string _lightStrategy;
+	std::unique_ptr<LightDistribution> _lightDistribution;//光源的分布
 public:
 	PathIntegrator(int maxdepth,const std::shared_ptr<const Camera>& camera,
-		const std::shared_ptr<Sampler>& sampler, const Bound2i&pixelBound, Float rrThreshold=1) :
-		SamplerIntegrator(camera, sampler, pixelBound), _maxDepth(maxdepth), _rrThreshold(rrThreshold){
+		const std::shared_ptr<Sampler>& sampler, const Bound2i&pixelBound, Float rrThreshold=1,const std::string& lightStrategy="uniform") :
+		SamplerIntegrator(camera, sampler, pixelBound), _maxDepth(maxdepth), _rrThreshold(rrThreshold),_lightStrategy(lightStrategy){
+	}
+	//PathIntegrator这里主要是为了处理相应的光源分布选择
+	//为啥是这两个参数是因为PBRT就用到这两个参数,哈哈哈哈
+	virtual void Preprocess(const Scene& scene,Sampler& sampler) override{
+		_lightDistribution=ComputeLightSampleDistribution(_lightStrategy,scene);
 	}
 
 	virtual Spectrum Li(const RayDifferential &r, const Scene &scene,
@@ -64,9 +72,13 @@ public:
 				continue;
 			}
 
+			//通过相交点，计算相应的光源分布
+			//这样子可以保证每个相交点使用的都是最好的光源分布策略
+			const Distribution1D* distribution=_lightDistribution->Lookup(ref.p);
+
 			//判断bsdf中是否包含非specular成分，有的话，就要计算交点处的贡献
 			if (ref.bsdf->NumComponents(BxDFType(BSDF_ALL&~BSDF_SPECULAR))) {
-				Spectrum Ld= beta*UniformSampleOneLight(ref, scene, arena, sampler, false);
+				Spectrum Ld= beta*UniformSampleOneLight(ref, scene, arena, sampler, false,distribution);
 				Assert(Ld.y() >=0);
 				L += Ld;
 			}

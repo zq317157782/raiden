@@ -22,6 +22,6 @@ PathIntegrator *CreatePathIntegrator(
 
 	int depth = params.FindOneInt("depth", 5);
 	Float rr = params.FindOneFloat("rrthreshold", 1.0);
-	Debug("[CreatePathIntegrator]");
-	return new PathIntegrator(depth,camera, sampler, pixelBounds,rr);
+	std::string lightStrategy=params.FindOneString("lightstrategy","uniform");//默认使用Unifrom光源分布
+	return new PathIntegrator(depth,camera, sampler, pixelBounds,rr,lightStrategy);
 }
