@@ -26,6 +26,12 @@ public:
 		_sampler(sampler),_camera(camera),_pixelBound(pixelBound){
 
 	}
+
+	//样本积分器的预处理阶段
+	virtual void Preprocess(const Scene& scene,Sampler& sampler){
+
+	}
+
 	virtual void Render(const Scene&) override;
 	//返回ray射线上的radiance
 	virtual Spectrum Li(const RayDifferential &ray, const Scene &scene,
