@@ -16,17 +16,16 @@ class LightDistribution {
 public:
 	//返回空间中相应点的合适的高效的分布
 	virtual const Distribution1D* Lookup(const Point3f& p) const=0;
-	virtual ~LightDistribution(){}
+	virtual ~LightDistribution() {
+	}
 };
 
 //通过参数，计算相应的光源分布策略
 std::unique_ptr<LightDistribution> ComputeLightSampleDistribution(
 		const std::string& lightStrategy, const Scene& scene);
 
-
-
 //均匀分布
-class UniformLightDistribution: public LightDistribution{
+class UniformLightDistribution: public LightDistribution {
 private:
 	std::unique_ptr<Distribution1D> _distribution; //相应的分布
 public:
@@ -34,6 +33,28 @@ public:
 		std::vector<Float> weights(scene.lights.size(), 1.0f);
 		//std::unique_ptr要用reset,记住！！！
 		_distribution.reset(new Distribution1D(&weights[0], weights.size()));
+	}
+
+	virtual const Distribution1D* Lookup(const Point3f& p) const override {
+		return _distribution.get();
+	}
+};
+
+//根据光源的能量来计算光源分布
+class PowerLightDistribution: public LightDistribution {
+private:
+	std::unique_ptr<Distribution1D> _distribution; //相应的分布
+public:
+	PowerLightDistribution(const Scene& scene) {
+		if (scene.lights.empty()) {
+			return;
+		}
+		std::vector<Float> powers;
+		for (const auto& light : scene.lights) {
+			//计算光源的能量
+			powers.push_back(light->Power().y());
+		}
+		_distribution.reset(new Distribution1D(&powers[0], powers.size()));
 	}
 
 	virtual const Distribution1D* Lookup(const Point3f& p) const override {

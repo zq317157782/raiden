@@ -9,12 +9,15 @@
 std::unique_ptr<LightDistribution> ComputeLightSampleDistribution(
 		const std::string& lightStrategy, const Scene& scene) {
 	if (lightStrategy == "uniform") {
-		return std::unique_ptr<UniformLightDistribution>(new UniformLightDistribution(scene));
-	}
-	else {
+		return std::unique_ptr<UniformLightDistribution>(
+				new UniformLightDistribution(scene));
+	} else if (lightStrategy == "power") {
+		return std::unique_ptr<PowerLightDistribution>(
+				new PowerLightDistribution(scene));
+	} else {
 		Warning("LightStrategy "<<lightStrategy<<" is unknown,use uniform");
-		return std::unique_ptr<UniformLightDistribution>(new UniformLightDistribution(scene));
+		return std::unique_ptr<UniformLightDistribution>(
+				new UniformLightDistribution(scene));
 	}
 }
-
 
