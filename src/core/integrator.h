@@ -60,6 +60,6 @@ Spectrum UniformSampleOneLight(const Interaction&it, const Scene& scene, MemoryA
 	bool handleMedia = false,const Distribution1D* lightPowerDistribution=nullptr);
 
 //根据场景中所用的光源，计算相应的光源能量的1D离散分布，用于采样光源.
-std::unique_ptr<Distribution1D> ComputeLightPowerDistribution(Scene& scene);
+std::unique_ptr<Distribution1D> ComputeLightPowerDistribution(const Scene& scene);
 
 #endif /* SRC_CORE_INTEGRATOR_H_ */

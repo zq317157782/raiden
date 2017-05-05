@@ -363,7 +363,7 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 }
 
 //计算相应的Power相关的分布，但是貌似已经被lightDistrib中的PowerLightDistribution所取代
-std::unique_ptr<Distribution1D> ComputeLightPowerDistribution(Scene& scene){
+std::unique_ptr<Distribution1D> ComputeLightPowerDistribution(const Scene& scene){
 	if(scene.lights.empty()){
 		return nullptr;
 	}

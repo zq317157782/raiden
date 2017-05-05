@@ -100,6 +100,9 @@ public:
 		for (int i = 0; i < numPixel; ++i) {
 			pixels[i].radius = _initRadius;
 		}
+
+		//初始化光源分布,使用基于power的分布
+		std::unique_ptr<Distribution1D> lightDistrib=ComputeLightPowerDistribution(scene);
 		//初始化进度条
 		ProgressReporter reporter(2*_numIteration,"Rendering");
 		for(int iter=0;iter<_numIteration;++iter){
@@ -162,8 +165,8 @@ public:
 						if (depth == 0 || isSpecular) {
 							pixel.Ld = pixel.Ld + beta*ref.Le(wo);
 						}
-						//采样直接光s
-						pixel.Ld = pixel.Ld + beta*UniformSampleOneLight(ref, scene, arena,*tileSampler);
+						//采样直接光,使用的也是power分布
+						pixel.Ld = pixel.Ld + beta*UniformSampleOneLight(ref, scene, arena,*tileSampler,lightDistrib.get());
 						
 						bool isDiffuse = bsdf.NumComponents(BxDFType(BSDF_DIFFUSE | BSDF_REFLECTION | BSDF_TRANSMISSION)) > 0;
 						bool isGlossy = bsdf.NumComponents(BxDFType(BSDF_GLOSSY | BSDF_REFLECTION | BSDF_TRANSMISSION)) > 0;
@@ -266,13 +269,13 @@ public:
 				uint64_t haltonIndex = (uint64_t)_photonNumPreIteration*(uint64_t)iter + pixelIndex;
 
 				//选择光源
-				//TODO 修改成使用LightPowerDistrubition
-				Float lightPdf=RadicalInverse(haltonDim++, haltonIndex);
-				int lightIndex = std::min((int)(scene.lights.size()*lightPdf), (int)(scene.lights.size() - 1));
+				Float lightPdf = 0;
+				Float lightSample=RadicalInverse(haltonDim++, haltonIndex);
+				//根据Power分布，选择光源
+				int lightIndex =lightDistrib->SampleDiscrete(lightSample,&lightPdf);
 				std::shared_ptr<Light> light = scene.lights[lightIndex];
-				lightPdf = 1.0f / scene.lights.size();
+
 				//采样光源的pos和dir
-				
 				Point2f lightPosSample(RadicalInverse(haltonDim, haltonIndex), RadicalInverse(haltonDim + 1, haltonIndex));
 				Point2f lightDirSample(RadicalInverse(haltonDim + 2, haltonIndex), RadicalInverse(haltonDim + 3, haltonIndex));
 				Float time = Lerp(RadicalInverse(haltonDim + 4, haltonIndex), _camera->shutterOpen, _camera->shutterEnd);
