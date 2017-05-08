@@ -38,6 +38,7 @@
 #include "integrators/pt.h"
 #include "integrators/vpt.h"
 #include "integrators/sppm.h"
+#include "integrators/bdpt.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
@@ -772,7 +773,10 @@ integrator = CreateWhittedIntegrator(IntegratorParams, sampler, camera);
 integrator = CreatePathIntegrator(IntegratorParams, sampler, camera);
 } else if (IntegratorName == "sppm") {
 integrator = CreateSPPMIntegrator(IntegratorParams, sampler, camera);
-} else if (IntegratorName == "volpath") {
+}
+else if (IntegratorName == "bdpt") {
+integrator = CreateBDPTIntegrator(IntegratorParams, sampler, camera);
+}else if (IntegratorName == "volpath") {
 integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
 } else {
 Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");

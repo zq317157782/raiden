@@ -10,7 +10,9 @@
 
 #include "raiden.h"
 #include "interaction.h"
-
+#include "integrator.h"
+#include "camera.h"
+#include "film.h"
 //代表lens上的或者光源上的一个点
 struct EndpointInteraction: public Interaction {
 public:
@@ -46,5 +48,22 @@ public:
 //详见Vech的论文[Robust Monte Carlo Methods for Light Transport],解释得非常到位
 //只有的表面交点的情况下，才会出现这种情况
 Float CorrectShadingNormal(const SurfaceInteraction& ref,const Vector3f& wo,const Vector3f& wi,TransportMode mode);
+
+
+//双向路径追踪
+class BDPTIntegrator:public Integrator{
+private:
+	std::shared_ptr<const Camera> _camera;
+public:
+	BDPTIntegrator(const std::shared_ptr<const Camera>& camera):_camera(camera){}
+	virtual void Render(const Scene&) override{
+		_camera->film->WriteImage();
+	}
+};
+
+
+
+BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
+	std::shared_ptr<Sampler> sampler, std::shared_ptr<const Camera> camera);
 
 #endif /* SRC_INTEGRATORS_BDPT_H_ */

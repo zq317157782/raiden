@@ -18,3 +18,8 @@ Float CorrectShadingNormal(const SurfaceInteraction& ref, const Vector3f& wo,
 	}
 }
 
+
+BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
+	std::shared_ptr<Sampler> sampler, std::shared_ptr<const Camera> camera){
+	return new BDPTIntegrator(camera);
+}
