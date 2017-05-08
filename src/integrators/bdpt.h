@@ -43,7 +43,7 @@ public:
 	}
 };
 
-//TODO 还没有完全理解，需要进一步的理解修正shading normal带来的非对称操作的步骤
+//详见Vech的论文[Robust Monte Carlo Methods for Light Transport],解释得非常到位
 //只有的表面交点的情况下，才会出现这种情况
 Float CorrectShadingNormal(const SurfaceInteraction& ref,const Vector3f& wo,const Vector3f& wi,TransportMode mode);
 
