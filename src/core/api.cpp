@@ -39,6 +39,7 @@
 #include "integrators/vpt.h"
 #include "integrators/sppm.h"
 #include "integrators/bdpt.h"
+#include "integrators/ao.h"
 #include "textures/constant.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
