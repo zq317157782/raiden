@@ -90,8 +90,27 @@ struct Vertex {
 	}
 
 	//初始化代表EndPoint的顶点，需要提供是Camera还是Light
-	Vertex(VertexType vertexType,const EndpointInteraction& endpointInteraction,const Spectrum& beta):
-		type(vertexType),ei(endpointInteraction),beta(beta){}
+	Vertex(VertexType vertexType,
+			const EndpointInteraction& endpointInteraction,
+			const Spectrum& beta) :
+			type(vertexType), ei(endpointInteraction), beta(beta) {
+	}
+
+	//初始化Medium顶点
+	Vertex(const MediumInteraction& mediumInteraction, const Spectrum& beta) :
+			type(VertexType::Medium), mi(mediumInteraction), beta(beta) {
+	}
+
+	//这里保留了PBRT的解释
+	// Need to define these two to make compilers happy with the non-POD
+	// objects in the anonymous union above.
+	Vertex(const Vertex &v) {
+		memcpy(this, &v, sizeof(Vertex));
+	}
+	Vertex &operator=(const Vertex &v) {
+		memcpy(this, &v, sizeof(Vertex));
+		return *this;
+	}
 };
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
