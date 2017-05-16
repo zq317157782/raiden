@@ -208,28 +208,43 @@ struct Vertex {
 
 	//判断是否是delta光源
 	bool IsDeltaLight() const {
-	if(type==VertexType::Light&&ei.light&&::IsDeltaLight(ei.light->flags)){
-		return true;
+		if (type == VertexType::Light && ei.light
+				&& ::IsDeltaLight(ei.light->flags)) {
+			return true;
+		}
+		return false;
 	}
-	return false;
-}
 
 	//TODO InfiniteLight相关
 
 	//获取这个点的自发光能量
-	Spectrum Le(const Scene& scene,const Vertex& v) const{
+	Spectrum Le(const Scene& scene, const Vertex& v) const {
 		//先判断是否是光源
-		if(!IsLight()){
+		if (!IsLight()) {
 			return Spectrum(0);
 		}
-		Vector3f w=v.p()-p();
-		if(w.LengthSquared()==0){
+		Vector3f w = v.p() - p();
+		if (w.LengthSquared() == 0) {
 			return Spectrum(0);
 		}
-		w=Normalize(w);
+		w = Normalize(w);
 		//TODO 这里也有InfiniteLight相关
-		const AreaLight* light=si.primitive->GetAreaLight();
-		return light->L(si,w);
+		const AreaLight* light = si.primitive->GetAreaLight();
+		return light->L(si, w);
+	}
+
+	//从立体角pdf转变到area pdf
+	Float ConvertDensity(Float pdf, const Vertex& next) const {
+		//TODO InfiniteLight 相关
+		Vector3f w=p()-next.p();
+		if(w.LengthSquared()==0){
+			return 0;
+		}
+		Float invRadius2=1.0/(w.LengthSquared());
+		if(next.IsOnSurface()){
+			pdf=pdf*Dot(w*std::sqrt(invRadius2),next.ng());
+		}
+		return pdf*invRadius2;
 	}
 };
 
