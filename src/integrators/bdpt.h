@@ -246,6 +246,34 @@ struct Vertex {
 		}
 		return pdf*invRadius2;
 	}
+
+	//采样一个光源到另外一个vertex的概率
+
+	Float PdfLight(const Scene& scene,const Vertex& v) const{
+
+		Vector3f w=v.p()-p();
+		Float invLengthSquared=1.0/w.LengthSquared();
+		w=w*std::sqrt(invLengthSquared);//标准化
+		//TODO InfiniteLight 相关
+
+		Assert(IsLight());//首先判断当前Vetex是否是光源
+		const Light* light=nullptr;//初始化指向光源的指针
+		if(type==VertexType::Light){
+			light=ei.light;
+		}
+		else{
+			light=si.primitive->GetAreaLight();//区域光情况
+		}
+		Assert(light!=nullptr);//判断光源不为空
+		Float pdfPos,pdfDir;//(立体角)
+		light->Pdf_Le(Ray(p(),w),ng(),&pdfPos,&pdfDir);
+		Float pdf=pdfDir*invLengthSquared;//(立体角)
+		//转换到area度量
+		if(IsOnSurface()){
+			pdf*=AbsDot(w,v.ng());//回忆起几何衰减系数
+		}
+		return pdf;
+	}
 };
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
