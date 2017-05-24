@@ -559,7 +559,7 @@ public:
 	}
 
 	//计算PDF
-	Float Pdf(const Vector3f& woWorld, const Vector3f& wiWorld, BxDFType type) const {
+	Float Pdf(const Vector3f& woWorld, const Vector3f& wiWorld, BxDFType type=BSDF_ALL) const {
 		if (_nBxDF == 0) {
 			return 0.0f;
 		}

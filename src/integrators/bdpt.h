@@ -139,6 +139,11 @@ struct Vertex {
 		return GetInteraction().n;
 	}
 
+	//返回time
+	Float time() const {
+		return GetInteraction().time;
+	}
+
 	//判断是否在Surface上，用法线来判断，如果没有法线就说明不在Surface上
 	bool IsOnSurface() const {
 		if (GetInteraction().n == Normal3f(0, 0, 0)) {
@@ -236,43 +241,82 @@ struct Vertex {
 	//从立体角pdf转变到area pdf
 	Float ConvertDensity(Float pdf, const Vertex& next) const {
 		//TODO InfiniteLight 相关
-		Vector3f w=p()-next.p();
-		if(w.LengthSquared()==0){
+		Vector3f w = p() - next.p();
+		if (w.LengthSquared() == 0) {
 			return 0;
 		}
-		Float invRadius2=1.0/(w.LengthSquared());
-		if(next.IsOnSurface()){
-			pdf=pdf*Dot(w*std::sqrt(invRadius2),next.ng());
+		Float invRadius2 = 1.0 / (w.LengthSquared());
+		if (next.IsOnSurface()) {
+			pdf = pdf * Dot(w * std::sqrt(invRadius2), next.ng());
 		}
-		return pdf*invRadius2;
+		return pdf * invRadius2;
 	}
 
 	//采样一个光源到另外一个vertex的概率
 
-	Float PdfLight(const Scene& scene,const Vertex& v) const{
+	Float PdfLight(const Scene& scene, const Vertex& v) const {
 
-		Vector3f w=v.p()-p();
-		Float invLengthSquared=1.0/w.LengthSquared();
-		w=w*std::sqrt(invLengthSquared);//标准化
+		Vector3f w = v.p() - p();
+		Float invLengthSquared = 1.0 / w.LengthSquared();
+		w = w * std::sqrt(invLengthSquared);	//标准化
 		//TODO InfiniteLight 相关
 
-		Assert(IsLight());//首先判断当前Vetex是否是光源
-		const Light* light=nullptr;//初始化指向光源的指针
-		if(type==VertexType::Light){
-			light=ei.light;
+		Assert(IsLight());		//首先判断当前Vetex是否是光源
+		const Light* light = nullptr;		//初始化指向光源的指针
+		if (type == VertexType::Light) {
+			light = ei.light;
+		} else {
+			light = si.primitive->GetAreaLight();		//区域光情况
 		}
-		else{
-			light=si.primitive->GetAreaLight();//区域光情况
-		}
-		Assert(light!=nullptr);//判断光源不为空
-		Float pdfPos,pdfDir;//(立体角)
-		light->Pdf_Le(Ray(p(),w),ng(),&pdfPos,&pdfDir);
-		Float pdf=pdfDir*invLengthSquared;//(立体角)
+		Assert(light != nullptr);		//判断光源不为空
+		Float pdfPos, pdfDir;		//(立体角)
+		light->Pdf_Le(Ray(p(), w,time()), ng(), &pdfPos, &pdfDir);
+		Float pdf = pdfDir * invLengthSquared;		//(立体角)
 		//转换到area度量
-		if(IsOnSurface()){
-			pdf*=AbsDot(w,v.ng());//回忆起几何衰减系数
+		if (IsOnSurface()) {
+			pdf *= AbsDot(w, v.ng());		//回忆起几何衰减系数
 		}
 		return pdf;
+	}
+
+	Float Pdf(const Scene& scene, const Vertex* pre, const Vertex& next) const {
+		if (type == VertexType::Light) {
+			return PdfLight(scene, next);
+		}
+
+		//指向next的向量
+		Vector3f wn = next.p() - p();
+		if (wn.LengthSquared() == 0) {
+			return 0;
+		}
+		wn = Normalize(wn);
+
+		//指向pre的向量
+		Vector3f wp;
+		if (pre) {
+			wp = pre->p() - p();
+			if (wp.LengthSquared() == 0) {
+				return 0;
+			}
+			wp = Normalize(wp);
+		} else {
+			//pre不存在的情况只有Camera,因为Light在上一步已经处理了
+			Assert(type == VertexType::Camera);
+		}
+
+		Float pdf = 0, unused;		//unused!PUPUPU!
+		if (type == VertexType::Camera) {
+			ei.camera->Pdf_We(ei.SpawnRay(wn), &unused, &pdf);		//采样重要性的概率
+		} else if (type == VertexType::Surface) {
+			pdf = si.bsdf->Pdf(wp, wn);
+		} else if (type == VertexType::Medium) {
+			pdf = mi.phase->P(wp, wn);
+		} else {
+			Error("Unimplemented in Vertex::Pdf!");
+		}
+
+		//转换到area measurement
+		return ConvertDensity(pdf, next);
 	}
 };
 
