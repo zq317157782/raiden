@@ -16,6 +16,8 @@
 #include "reflection.h"
 #include "light.h"
 #include "primitive.h"
+#include <unordered_map>
+#include "lightdistrib.h"
 //代表lens上的或者光源上的一个点
 struct EndpointInteraction: public Interaction {
 public:
@@ -270,13 +272,38 @@ struct Vertex {
 		}
 		Assert(light != nullptr);		//判断光源不为空
 		Float pdfPos, pdfDir;		//(立体角)
-		light->Pdf_Le(Ray(p(), w,time()), ng(), &pdfPos, &pdfDir);
+		light->Pdf_Le(Ray(p(), w, time()), ng(), &pdfPos, &pdfDir);
 		Float pdf = pdfDir * invLengthSquared;		//(立体角)
 		//转换到area度量
 		if (IsOnSurface()) {
 			pdf *= AbsDot(w, v.ng());		//回忆起几何衰减系数
 		}
 		return pdf;
+	}
+
+	Float PdfLightOrigin(const Scene& scene, const Vertex& v,
+			const Distribution1D& distrib,
+			const std::unordered_map<const Light *, size_t> &lightToDistrIndex) const {
+		Vector3f w = v.p() - p();
+		if (w.LengthSquared() == 0) {
+			return 0;
+		}
+		w = Normalize(w);
+		//TODO InfiniteLight 相关
+		Assert(IsLight());		//首先判断当前Vetex是否是光源
+		const Light* light = nullptr;		//初始化指向光源的指针
+		if (type == VertexType::Light) {
+			light = ei.light;
+		} else {
+			light = si.primitive->GetAreaLight();		//区域光情况
+		}
+		Assert(light != nullptr);		//判断光源不为空
+
+		int index=lightToDistrIndex.find(light)->second;
+		Float pdfChoice=distrib.DiscretePDF(index);//选中这个光源的概率
+		Float pdfPos,unused;
+		light->Pdf_Le(Ray(p(),w,time()),ng(),&pdfPos,&unused);
+		return pdfChoice*pdfPos;
 	}
 
 	Float Pdf(const Scene& scene, const Vertex* pre, const Vertex& next) const {
