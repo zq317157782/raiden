@@ -105,7 +105,7 @@ struct Vertex {
 	Vertex(const MediumInteraction& mediumInteraction, const Spectrum& beta) :
 			type(VertexType::Medium), mi(mediumInteraction), beta(beta) {
 	}
-
+	static inline Vertex CreateMedium(const MediumInteraction& mi,const Spectrum& beta,Float pdf,const Vertex& prev);
 	//这里保留了PBRT的解释
 	// Need to define these two to make compilers happy with the non-POD
 	// objects in the anonymous union above.
@@ -341,11 +341,18 @@ struct Vertex {
 		} else {
 			Error("Unimplemented in Vertex::Pdf!");
 		}
-
 		//转换到area measurement
 		return ConvertDensity(pdf, next);
 	}
 };
+
+//基于medium创建vertex
+inline Vertex Vertex::CreateMedium(const MediumInteraction& mi,const Spectrum& beta,Float pdf,const Vertex& prev){
+	Vertex v(mi,beta);
+	//转换立体角pdf到area pdf
+	v.pdfFwd=prev.ConvertDensity(pdf,v);
+	return v;
+}
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
 		std::shared_ptr<Sampler> sampler, std::shared_ptr<const Camera> camera);
