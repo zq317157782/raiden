@@ -136,6 +136,7 @@
     <ClCompile Include="src\core\integrator.cpp" />
     <ClCompile Include="src\core\interaction.cpp" />
     <ClCompile Include="src\core\light.cpp" />
+    <ClCompile Include="src\core\lightdistrib.cpp" />
     <ClCompile Include="src\core\lodepng.cpp" />
     <ClCompile Include="src\core\lowdiscrepancy.cpp" />
     <ClCompile Include="src\core\lua\lapi.c" />
@@ -188,6 +189,7 @@
     <ClCompile Include="src\core\texture.cpp" />
     <ClCompile Include="src\core\transform.cpp" />
     <ClCompile Include="src\filters\box.cpp" />
+    <ClCompile Include="src\integrators\bdpt.cpp" />
     <ClCompile Include="src\integrators\depth.cpp" />
     <ClCompile Include="src\integrators\normal.cpp" />
     <ClCompile Include="src\integrators\pt.cpp" />
@@ -227,6 +229,7 @@
     <ClInclude Include="src\core\integrator.h" />
     <ClInclude Include="src\core\interaction.h" />
     <ClInclude Include="src\core\light.h" />
+    <ClInclude Include="src\core\lightdistrib.h" />
     <ClInclude Include="src\core\lodepng.h" />
     <ClInclude Include="src\core\lowdiscrepancy.h" />
     <ClInclude Include="src\core\lua\lapi.h" />
@@ -277,6 +280,7 @@
     <ClInclude Include="src\core\texture.h" />
     <ClInclude Include="src\core\transform.h" />
     <ClInclude Include="src\filters\box.h" />
+    <ClInclude Include="src\integrators\bdpt.h" />
     <ClInclude Include="src\integrators\depth.h" />
     <ClInclude Include="src\integrators\normal.h" />
     <ClInclude Include="src\integrators\pt.h" />

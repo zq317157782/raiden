@@ -282,6 +282,12 @@
     <ClCompile Include="src\samplers\halton.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\lightdistrib.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\integrators\bdpt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\accelerators\iteration.h">
@@ -546,6 +552,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\samplers\halton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\lightdistrib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\integrators\bdpt.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
