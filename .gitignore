@@ -359,3 +359,6 @@ RayTracer.project
 
 .codelite/compilation.db
 
+#自定义
+build
+.cproject
