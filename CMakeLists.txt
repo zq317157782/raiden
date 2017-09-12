@@ -14,25 +14,35 @@ set(CMAKE_BUILD_TYPE Debug)
 #根据操作系统配置不同的设置
 IF (WIN32)  
     MESSAGE(STATUS "在Windows操作系统下") 
-    message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})	
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
+    #message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})	
+    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
+    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
 ELSEIF (APPLE)  
     MESSAGE(STATUS "在MACOSX操作系统下") 
-    message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
+    #message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
+    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
+    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
   ELSEIF (UNIX)  
     MESSAGE(STATUS "在类UNIX操作系统下")  
 ENDIF ()  
  
- 
+
+ message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
+ message(STATUS "当前CMAKE_MODULE_PATH:" ${CMAKE_MODULE_PATH})
+
 set(SOURCE_DIR src)
 
 #添加头文件路径和库路径
 include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)
-#include_directories(${SOURCE_DIR}/core/lus)
+
+#lua库
+find_package(lua REQUIRED)
+include_directories(${LUA_INCLUDE_PATH})
+message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_PATH})
+message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
 
 #设置源文件
 aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)
@@ -53,3 +63,6 @@ aux_source_directory(${SOURCE_DIR}/core/lua RAIDEN_SRC_CORE_LUA)
 set(SOURCE_FILE ${RAIDEN_SRC} ${RAIDEN_SRC_CORE} ${RAIDEN_SRC_CORE_LUA} ${RAIDEN_SRC_ACCE} ${RAIDEN_SRC_CAMERA} ${RAIDEN_SRC_FILTER} ${RAIDEN_SRC_INTEGRATOR} ${RAIDEN_SRC_LIGHT} ${RAIDEN_SRC_MATERIAL} ${RAIDEN_SRC_MEDIA} ${RAIDEN_SRC_SAMPLER} ${RAIDEN_SRC_SHAPE} ${RAIDEN_SRC_TEXTURE})
 #MESSAGE(STATUS ${SOURCE_FILE})
 add_executable(${RAIDEN} ${SOURCE_FILE})
+
+#链接库
+target_link_libraries(${RAIDEN} ${LUA_LIBRARY})

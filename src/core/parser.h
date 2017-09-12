@@ -10,8 +10,9 @@
 #include "paramset.h"
 #include "raiden.h"
 #include "api.h"
-#include "lua/lua.hpp"
+//#include "lua/lua.hpp"
 extern "C" {
+#include "lua/lua.h"
 #include "lua/lualib.h"
 #include "lua/lauxlib.h"
 }
