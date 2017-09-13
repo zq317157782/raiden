@@ -1,6 +1,7 @@
 #自定义
 build
 temp
+Debug
 
 #vscode
 .vscode
