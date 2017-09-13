@@ -36,19 +36,34 @@ void ExecScript(const char* src){
 int main(int argc, char* argv[]) {
 	InitWrappers();
     int result;
-    char *scriptName=nullptr;
-    while((result = getopt(argc,argv,"i:l:")) != -1) {
+	char *scriptName=nullptr;
+	Options options;
+    while((result = getopt(argc,argv,"i:t:o:")) != -1) {
         switch(result){
             case 'i':{ 
                // strcpy(scriptName,optarg);
                 scriptName=optarg;
-            }
+			}break;
+			case 't':{ 
+				int numThread=atoi(optarg);
+				if(numThread==0){
+					numThread=1;
+				}
+				options.numThread=numThread;
+			}break;
+			case 'o':{ 
+				options.imageFile=optarg;
+			}
             break;
         }
     }
 
+	raidenInit(options);
+
 	if (scriptName != nullptr) {
 		ExecScript(scriptName);
 	}
+	
+	raidenCleanup();
 }
 
