@@ -6,29 +6,8 @@
  */
 #include "raiden.h"
 #include "stats.h"
-#include "parser.h"
 
 static int test() {
 	Error("test");
-}
-
-void RaidenMain(int argc, char* argv[]) {
-	//开始解析输入命令
-	Options options;
-//	for (int i = 0; i < argc; ++i) {
-//		if (!std::strcmp(argv[i], "--numThreads")
-//				|| !std::strcmp(argv[i], "-numThreads")) {
-//			if (i + 1 == argc) {
-//				printf("--numThreads mis value \n");
-//				return;
-//			}
-//			options.numThread = atoi(argv[++i]);
-//		}
-//	}
-	if (argv[1]) {
-		parse(argv[1]);
-	} else {
-		Error("no input!");
-	}
 }
 
