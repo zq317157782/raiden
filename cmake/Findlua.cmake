@@ -1,5 +1,3 @@
-message(STATUS "我进入了")
-
 FIND_PATH(LUA_INCLUDE_PATH lua/lua.h
         /usr/include
         /usr/local/include

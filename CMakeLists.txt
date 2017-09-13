@@ -5,32 +5,28 @@ cmake_minimum_required(VERSION 2.8.0)
 set(RAIDEN raiden)
 PROJECT (${RAIDEN})
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_BUILD_TYPE Debug)
-
+  
 
 #根据操作系统配置不同的设置
 IF (WIN32)  
     MESSAGE(STATUS "在Windows操作系统下") 
-    #message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})	
-    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")	
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
 ELSEIF (APPLE)  
     MESSAGE(STATUS "在MACOSX操作系统下") 
-    #message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
-    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-    #list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
-  ELSEIF (UNIX)  
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
+ELSEIF (UNIX)  
     MESSAGE(STATUS "在类UNIX操作系统下")  
 ENDIF ()  
- 
-
- message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
- list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
- list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
- message(STATUS "当前CMAKE_MODULE_PATH:" ${CMAKE_MODULE_PATH})
+message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
+message(STATUS "当前CMAKE_MODULE_PATH:" ${CMAKE_MODULE_PATH})
 
 set(SOURCE_DIR src)
 
@@ -66,3 +62,8 @@ add_executable(${RAIDEN} ${SOURCE_FILE})
 
 #链接库
 target_link_libraries(${RAIDEN} ${LUA_LIBRARY})
+
+
+if (WIN32)
+    set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
+endif ()
