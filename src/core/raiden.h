@@ -25,26 +25,27 @@ typedef float Float;
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
-//根据编译选项设置断言宏
-#ifdef DEBUG_BUILD
+
+#ifndef NDEBUG
+ #define  DEBUG
+#endif // !NDEBUG
+
+
+
+
+
+//断言宏
 #define Assert(x) assert(x)
-#else
-#define Assert(x) ((void)0)
-#endif
 
 //一如既往的全局Alloc函数,分配栈空间
 #define ALLOCA(TYPE, COUNT) (TYPE *) alloca((COUNT) * sizeof(TYPE))
 
+//todo 转换成google log
 //打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
 #define Error(x) std::cerr<<"[ERROR]"<<x<<std::endl;
 #define Warning(x) std::cout<<"[WARNING]"<<x<<std::endl;
 #define Info(x) std::cout<<x<<std::endl;
-
-#ifdef DEBUG_BUILD
 #define Debug(x) std::cout<<"[DEBUG]"<<x<<std::endl;
-#else
-#define Debug(x) ((void)0);
-#endif
 
 
 

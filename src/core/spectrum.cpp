@@ -12,7 +12,7 @@ SampledSpectrum SampledSpectrum::_Z;
 
 Float AverageSpectrumSamples(const Float *lambda, const Float *vals, int n,
 		Float lambdaStart, Float lambdaEnd) {
-#ifdef DEBUG_BUILD
+#ifdef DEBUG
 	//数据检查
 	for (int i = 0; i < n - 1; ++i) {
 		Assert(lambda[i] < lambda[i + 1]);
@@ -91,7 +91,7 @@ void SortSpectrumSamples(Float *lambda, Float *vals, int n) {
 
 Float InterpolateSpectrumSamples(const Float *lambda, const Float *vals,
                                         int n, Float wl){
-#ifdef DEBUG_BUILD
+#ifdef DEBUG
 	//数据检查
 	for (int i = 0; i < n - 1; ++i) {
 		Assert(lambda[i] < lambda[i + 1]);
