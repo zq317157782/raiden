@@ -7,9 +7,13 @@
 
 #ifdef WIN32
   #include "getopt.h"
+  #define GOOGLE_GLOG_DLL_DECL           // 使用静态glog库用这个
+  #define GLOG_NO_ABBREVIATED_SEVERITIES // 没这个编译会出错,传说因为和Windows.h冲突
 #else
   #include <unistd.h>
 #endif
+
+
 #include "api.h"
 #include "wrapper/luawrapper.h"
 static std::vector<std::unique_ptr<APIWrapper>> wrappers;
@@ -34,6 +38,10 @@ void ExecScript(const char* src){
 
 
 int main(int argc, char* argv[]) {
+	
+	FLAGS_logtostderr = 1;
+	google::InitGoogleLogging(argv[0]);
+
 	InitWrappers();
     int result;
 	char *scriptName=nullptr;

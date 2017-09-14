@@ -40,6 +40,12 @@ include_directories(${LUA_INCLUDE_PATH})
 message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_PATH})
 message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
 
+#glog库
+find_package(glog REQUIRED)
+include_directories(${GLOG_INCLUDE_PATH})
+message(STATUS "glog头文件路径: " ${GLOG_INCLUDE_PATH})
+message(STATUS "glog库文件路径: " ${GLOG_LIBRARY})
+
 #设置源文件
 aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)
 aux_source_directory(${SOURCE_DIR}/core RAIDEN_SRC_CORE)
@@ -61,6 +67,7 @@ set(SOURCE_FILE ${RAIDEN_SRC} ${RAIDEN_SRC_WRAPPER} ${RAIDEN_SRC_CORE} ${RAIDEN_
 add_executable(${RAIDEN} ${SOURCE_FILE})
 
 #链接库
+target_link_libraries(${RAIDEN} ${GLOG_LIBRARY})
 target_link_libraries(${RAIDEN} ${LUA_LIBRARY})
 
 
