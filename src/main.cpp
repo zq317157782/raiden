@@ -56,7 +56,8 @@ int main(int argc, char* argv[]) {
 				int numThread=atoi(optarg);
 				if(numThread==0){
 					numThread=1;
-				}
+                }
+                LDebug<<"Used thread num:"<<numThread;
 				options.numThread=numThread;
 			}break;
 			case 'o':{ 
