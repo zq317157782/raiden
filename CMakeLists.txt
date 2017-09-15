@@ -77,3 +77,13 @@ if (WIN32)
     target_link_libraries(${RAIDEN} ${GETOPT_LIB})
     message(STATUS "getopt库文件路径:" ${GETOPT_LIB})
 endif()
+message(STATUS "------------------------------------工具--------------------------------------")
+#工具们
+
+#objtolua
+aux_source_directory(${SOURCE_DIR}/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
+set(OBJ_TO_LUA obj2lua)
+add_executable(${OBJ_TO_LUA} ${RAIDEN_SRC_OBJ_TO_LUA})
+if (WIN32)
+    set_target_properties(${OBJ_TO_LUA} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
+endif()
