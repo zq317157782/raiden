@@ -2,6 +2,7 @@
 build
 temp
 Debug
+Release
 
 #vscode
 .vscode
