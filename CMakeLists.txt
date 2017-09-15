@@ -28,6 +28,22 @@ ENDIF ()
 message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
 message(STATUS "当前CMAKE_MODULE_PATH:" ${CMAKE_MODULE_PATH})
 
+#使用MSVC的编译器的时候需要设置下
+if(MSVC)     
+    # Use the static C library for all build types
+    foreach(var 
+        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+      )
+      if(${var} MATCHES "/MDd")
+        string(REGEX REPLACE "/MDd" "/MD" ${var} "${${var}}")
+      endif()
+    endforeach()    
+endif(MSVC)
+
+
 set(SOURCE_DIR src)
 
 #添加头文件路径和库路径
