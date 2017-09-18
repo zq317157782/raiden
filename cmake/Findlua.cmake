@@ -1,4 +1,4 @@
-FIND_PATH(LUA_INCLUDE_PATH lua/lua.h
+FIND_PATH(LUA_INCLUDE_DIR lua.h
         /usr/include
         /usr/local/include
         /opt/local/include
@@ -12,6 +12,6 @@ FIND_LIBRARY(LUA_LIBRARY NAMES lua PATHS
         external/lib)
 
 
-IF (LUA_INCLUDE_PATH AND LUA_LIBRARY)
+IF (LUA_INCLUDE_DIR AND LUA_LIBRARY)
     SET(LUA_FOUND TRUE)
 ENDIF ()

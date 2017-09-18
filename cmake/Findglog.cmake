@@ -1,4 +1,4 @@
-FIND_PATH(GLOG_INCLUDE_PATH glog/logging.h
+FIND_PATH(GLOG_INCLUDE_PATH NAMES glog/logging.h PATHS
         /usr/include
         /usr/local/include
         /opt/local/include

@@ -1,6 +1,6 @@
 #cmake 最低版本要求
 cmake_minimum_required(VERSION 2.8.0)
-
+message(STATUS "------------------------------------主体--------------------------------------")
 #项目名 (雷電　ライデン)
 set(RAIDEN raiden)
 PROJECT (${RAIDEN})
@@ -50,17 +50,19 @@ set(SOURCE_DIR src)
 include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)
 
-#lua库
-find_package(lua REQUIRED)
-include_directories(${LUA_INCLUDE_PATH})
-message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_PATH})
-message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
 
 #glog库
 find_package(glog REQUIRED)
 include_directories(${GLOG_INCLUDE_PATH})
 message(STATUS "glog头文件路径: " ${GLOG_INCLUDE_PATH})
 message(STATUS "glog库文件路径: " ${GLOG_LIBRARY})
+
+#lua库
+find_package(Lua REQUIRED)
+include_directories(${LUA_INCLUDE_DIR})
+message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIR})
+message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
+
 
 #设置源文件
 aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)
@@ -93,6 +95,7 @@ if (WIN32)
     target_link_libraries(${RAIDEN} ${GETOPT_LIB})
     message(STATUS "getopt库文件路径:" ${GETOPT_LIB})
 endif()
+message(STATUS "配置raiden完成")
 message(STATUS "------------------------------------工具--------------------------------------")
 #工具们
 
@@ -103,3 +106,4 @@ add_executable(${OBJ_TO_LUA} ${RAIDEN_SRC_OBJ_TO_LUA})
 if (WIN32)
     set_target_properties(${OBJ_TO_LUA} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
 endif()
+message(STATUS "配置objtolua完成")
