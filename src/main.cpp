@@ -45,7 +45,9 @@ int main(int argc, char* argv[]) {
 	InitWrappers();
     int result;
 	char *scriptName=nullptr;
-	Options options;
+    Options options;
+    options.numThread=0;
+    options.imageFile="raiden.png";
     while((result = getopt(argc,argv,"i:t:o:")) != -1) {
         switch(result){
             case 'i':{ 
@@ -54,10 +56,6 @@ int main(int argc, char* argv[]) {
 			}break;
 			case 't':{ 
 				int numThread=atoi(optarg);
-				if(numThread==0){
-					numThread=1;
-                }
-                LDebug<<"Used thread num:"<<numThread;
 				options.numThread=numThread;
 			}break;
 			case 'o':{ 

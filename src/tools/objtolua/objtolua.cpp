@@ -138,12 +138,12 @@ int main(int argc, char**argv) {
 		std::cout << "--uv num:" << ss[s].uvs.size() << std::endl;
 
 	}
-	out << inputfile.substr(0, inputfile.size() - 4) << "={}\n";
-	out << inputfile.substr(0, inputfile.size() - 4)<<"[\"shapes\"]={}\n";
+	out <<"local mesh={}\n";
+	out <<"mesh[\"shapes\"]={}\n";
 
 	//开始写文件
 	for (int i = 0; i < shapes.size(); ++i) {
-		out << inputfile.substr(0, inputfile.size() - 4)<< ".shapes[" << i << "]={\n  ";
+		out <<"mesh.shapes[" << i << "]={\n  ";
 
 		out << "indices={ type=\"int[]\" ,value={";
 		for (int v = 0; v < ss[i].indices.size(); ++v) {
@@ -186,7 +186,7 @@ int main(int argc, char**argv) {
 
 		out << "}\n";
 	}
-
+	out << "return mesh\n";
 	return 0;
 }
 

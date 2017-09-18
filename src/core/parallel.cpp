@@ -97,7 +97,7 @@ void WorkerThreadFunc(int tIndex/*线程索引*/) {
 			}
 		}
 	}
-	ReportThreadStats();
+	// TODO ReportThreadStats();
 	//Info("work thread" <<ThreadIndex<<" over ");
 
 }
