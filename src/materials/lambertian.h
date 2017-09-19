@@ -7,6 +7,7 @@
 
 #ifndef SRC_MATERIALS_LAMBERTIAN_H_
 #define SRC_MATERIALS_LAMBERTIAN_H_
+
 #include "raiden.h"
 #include "material.h"
 #include "memory.h"
