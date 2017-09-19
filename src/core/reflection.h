@@ -389,6 +389,57 @@ public:
 
 };
 
+//OrenNayar漫反射模型
+//考虑了在视角和光线方向相近的情况下的自反射
+//输入的sigma角度
+class OrenNayar: public BxDF {
+private:
+	const Spectrum _R;
+	Float _A,_B;
+public:
+	OrenNayar(const Spectrum& R,Float sigma):
+			BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)), _R(R) {
+	//首先把角度转换到弧度
+	sigma=Radians(sigma);
+	//然后计算A和B
+	Float sigma2=sigma*sigma;
+	_A=1-(sigma2/(2*(sigma2+0.33)));
+	_B=(0.45*sigma2)/(sigma2+0.09);
+	}
+
+	//OrenNayar的BRDF系数
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override {
+		Float sinThetaWo=SinTheta(wo);
+		Float sinThetaWi=SinTheta(wi);
+		
+		//根据sinTheta的值来判断是否在半球的上半球
+		//PBRT这里使用了1e-4作为最小值，我有点理解不能为啥用这个数，因为可以用更小的数
+		Float maxCos=0;
+		if(sinThetaWo>1e-4&&sinThetaWi>1e-4){
+			//使用三角函数变换式 cos(a-b)=cos(a)*cos(b)+sin(a)*sin(b)
+			Float sinPhiWi=SinPhi(wi),cosPhiWi=CosPhi(wi);
+			Float sinPhiWo=SinPhi(wo),cosPhiWo=CosPhi(wo);
+			maxCos=std::max((Float)(0.0),(cosPhiWi*cosPhiWo+sinPhiWi*sinPhiWo));
+		}
+
+		Float sinAlpha=0;
+		Float tanBeta=0;
+		//使用cos值来比较大小
+		//cos值大的角度小
+		if(AbsCosTheta(wi)>AbsCosTheta(wo)){
+			sinAlpha=sinThetaWo;
+			tanBeta=sinThetaWi/AbsCosTheta(wi);
+		}
+		else{
+			sinAlpha=sinThetaWi;
+			tanBeta=sinThetaWo/AbsCosTheta(wo);
+		}
+
+		//整合所有成分
+		return _R*InvPi*(_A+_B*maxCos*sinAlpha*tanBeta);
+	}
+};
+
 //双向散射分布函数
 class BSDF {
 private:
