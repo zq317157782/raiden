@@ -440,6 +440,21 @@ public:
 	}
 };
 
+
+//微平面反射模型
+class MicrofacetReflection: public BxDF {
+private:
+	const Spectrum _R;
+	const MicrofacetDistribution* _distribution;
+	const Fresnel * _fresnel;
+public:
+	MicrofacetReflection(const Spectrum& R,MicrofacetDistribution* distribution,Fresnel * fresnel):
+			BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)), _R(R),_distribution(distribution),_fresnel(fresnel){
+	}
+
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
+};
+
 //双向散射分布函数
 class BSDF {
 private:

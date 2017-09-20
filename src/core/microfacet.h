@@ -11,10 +11,12 @@
 #include "geometry.h"
 class MicrofacetDistribution {
 protected:
-	MicrofacetDistribution(bool sampleVisibleArea) :
-			_sampleVisibleArea(sampleVisibleArea) {
+	MicrofacetDistribution()  {
 	}
-	const bool _sampleVisibleArea;
+	//Lambda是 不可见微平面面积 与 可见微平面面积 的比值
+	//或者是 可见微平面面积 与 总微平面面积 的比值
+	virtual Float Lambda(const Vector3f &w) const = 0;
+
 public:
 	virtual ~MicrofacetDistribution(){};
 
@@ -22,9 +24,7 @@ public:
 	//传入半角向量，返回相应方向的微平面总面积,或者说是法线分布
 	virtual Float D(const Vector3f &wh) const = 0;
 	
-	//Lambda是 不可见微平面面积 与 可见微平面面积 的比值
-	//或者是 可见微平面面积 与 总微平面面积 的比值
-	virtual Float Lambda(const Vector3f &w) const = 0;
+	
 	
 	//Masking-Function
 	//返回有多少比例的法线为wh的微平面可以被w方向看见，微平面的可见性假设和微平面的wh无关
@@ -50,9 +50,19 @@ public:
 class GGXDistribution:public MicrofacetDistribution{
 private:
 	Float _alphaX,_alphaY;
-public:
-	Float D(const Vector3f &wh) const override;
 	Float Lambda(const Vector3f &w) const override;
+public:
+	GGXDistribution(Float ax,Float ay):_alphaX(ax),_alphaY(ay){}
+	Float D(const Vector3f &wh) const override;
+	//从粗糙度到alpha参数的转换的工具函数
+	static inline Float RoughnessToAlpha(Float roughness);
 };
 
+//直接copy自PBRT的GGX粗糙度到alpha的工具函数
+ Float GGXDistribution::RoughnessToAlpha(Float roughness){
+	roughness = std::max(roughness, (Float)1e-3);
+    Float x = std::log(roughness);
+    return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
+           0.000640711f * x * x * x * x;
+}
 #endif /* SRC_CORE_MICROFACET_H_ */

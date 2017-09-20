@@ -7,6 +7,7 @@
 #include "reflection.h"
 #include "sampling.h"
 #include "spectrum.h"
+#include "microfacet.h"
 
 bool Refract(const Vector3f& wi, const Normal3f& n,
 		Float oeta/*这里是两个折射率之比(i/t)*/, Vector3f* wt) {
@@ -141,4 +142,27 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		}
 		*pdf = Pdf(wo, *wi);
 		return f(wo, *wi);
+	}
+
+
+
+	Spectrum MicrofacetReflection::f(const Vector3f &wo, const Vector3f &wi) const  {
+		
+		//计算分母的系数
+		Float cosThetaWo=AbsCosTheta(wo);
+		Float cosThetaWi=AbsCosTheta(wi);
+		//判断退化情况
+		if(cosThetaWo==0||cosThetaWi==0){
+			return 0.0;
+		}
+		//计算半角向量
+		Vector3f wh=wo+wi;
+		if(wh.x==0&&wh.y==0&&wh.z==0){
+			return 0.0;
+		}
+		wh=Normalize(wh);
+		//计算菲涅尔反射系数
+		Spectrum F=_fresnel->Evaluate(cosThetaWi);
+
+		return _R*(F*_distribution->D(wh)*_distribution->G(wo,wi))/(4*cosThetaWo*cosThetaWi);
 	}

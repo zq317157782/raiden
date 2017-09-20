@@ -108,6 +108,7 @@ class Medium;
 struct MediumInterface;
 class PhaseFunction;
 struct Distribution1D;
+class MicrofacetDistribution;
 
 struct Options {
 	int numThread = 0; //线程个数
