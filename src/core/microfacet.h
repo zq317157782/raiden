@@ -46,4 +46,13 @@ public:
 };
 
 
+//GGX的各项异性版本
+class GGXDistribution:public MicrofacetDistribution{
+private:
+	Float _alphaX,_alphaY;
+public:
+	Float D(const Vector3f &wh) const override;
+	Float Lambda(const Vector3f &w) const override;
+};
+
 #endif /* SRC_CORE_MICROFACET_H_ */
