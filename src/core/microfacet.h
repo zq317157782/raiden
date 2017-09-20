@@ -8,6 +8,7 @@
 #ifndef SRC_CORE_MICROFACET_H_
 #define SRC_CORE_MICROFACET_H_
 #include "raiden.h"
+#include "geometry.h"
 class MicrofacetDistribution {
 protected:
 	MicrofacetDistribution(bool sampleVisibleArea) :
