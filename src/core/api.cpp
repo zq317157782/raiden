@@ -43,6 +43,7 @@
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
 #include "materials/matte.h"
+#include "materials/metal.h"
 #include "media/homogeneous.h"
 //transform相关参数
 constexpr int MaxTransforms = 2;
@@ -343,6 +344,9 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	} 
 	else if (name == "matte") {
 		material = CreateMatteMaterial(mp);
+	} 
+	else if (name == "metal") {
+		material = CreateMetalMaterial(mp);
 	} 
 	else {
 		Warning("Material \'" << name << "\'unknown. Using \'lambertian\'");
