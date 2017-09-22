@@ -168,29 +168,33 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 	}
 
 
-	// Spectrum MicrofacetTransmission::f(const Vector3f &wo, const Vector3f &wi) const {
-	// 	//首先判断wo和wi是否在同一个半球内
-	// 	if(SameHemisphere(wo,wi)){
-	// 		return 0.0;
-	// 	}
+	Spectrum MicrofacetTransmission::f(const Vector3f &wo, const Vector3f &wi) const {
+		//首先判断wo和wi是否在同一个半球内
+		if(SameHemisphere(wo,wi)){
+			return 0.0;
+		}
 
-	// 	Float cosThetaWo=CosTheta(wo);
-	// 	Float cosThetaWi=CosTheta(wi);
-	// 	//TODO 完成微平面透射的代码
-	// 	if(cosThetaWo==0||cosThetaWi==0){
-	// 		return 0.0;
-	// 	}
+		Float cosThetaWo=CosTheta(wo);
+		Float cosThetaWi=CosTheta(wi);
+		
+		if(cosThetaWo==0||cosThetaWi==0){
+			return 0.0;
+		}
 
-	// 	//判断wo的折射率是A还是B
-	// 	Float eta=cosThetaWo>0?(_etaB/_etaA):(_etaA/_etaB);
+		//判断wo的折射率是A还是B
+		Float eta=cosThetaWo>0?(_etaB/_etaA):(_etaA/_etaB);
 
-	// 	//计算半角向量
-	// 	Vector3f wh=Normalize(wo+eta*wi);
-	// 	if(wh.z<0){
-	// 		wh=-wh;//半角永远要在微平面的上半球
-	// 	}
+		//计算半角向量
+		Vector3f wh=Normalize(wo+eta*wi);
+		if(wh.z<0){
+			wh=-wh;//半角永远要在微平面的上半球
+		}
 
-	// 	//1.计算Fresnel
-	// 	Spectrum fresnel=_fresnel->Evaluate();
-		 
-	// }
+		//计算Fresnel
+		Spectrum F=_fresnel->Evaluate(Dot(wo,wh));//这里不能使用Dot(wo,wh)
+		
+		Float term=Dot(wo,wh)+eta*Dot(wi,wh);
+		term=term*term;
+
+		return eta*eta*_distribution->D(wh)*_distribution->G(wo,wi)*(Spectrum(1.0)-F)*AbsDot(wi,wh)*AbsDot(wo,wh)/(term*cosThetaWo*cosThetaWi);
+	}
