@@ -166,3 +166,16 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 
 		return _R*(F*_distribution->D(wh)*_distribution->G(wo,wi))/(4*cosThetaWo*cosThetaWi);
 	}
+
+
+	Spectrum MicrofacetTransmission::f(const Vector3f &wo, const Vector3f &wi) const {
+		//首先判断wo和wi是否在同一个半球内
+		if(SameHemisphere(wo,wi)){
+			return 0.0;
+		}
+
+		Float cosThetaWo=CosTheta(wo);
+		Float cosThetaWi=CosTheta(wi);
+		//TODO 完成微平面透射的代码
+		
+	}

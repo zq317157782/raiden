@@ -455,6 +455,22 @@ public:
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
 };
 
+
+//微平面透视模型
+class MicrofacetTransmission: public BxDF {
+private:
+	const Spectrum _T;
+	const MicrofacetDistribution* _distribution;
+	const FresnelDielectric * _fresnel;//只考虑绝缘体，电解质不考虑透射
+	const Float _etaA,_etaB;//折射率 A为上层材质折射率 B为下层材质折射率
+public:
+	MicrofacetTransmission(const Spectrum& T,MicrofacetDistribution* distribution,FresnelDielectric * fresnel,Float etaA,Float etaB):
+			BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)), _T(T),_distribution(distribution),_fresnel(fresnel),_etaA(etaA),_etaB(etaB){
+	}
+
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
+};
+
 //双向散射分布函数
 class BSDF {
 private:
