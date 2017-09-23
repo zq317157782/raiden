@@ -463,9 +463,10 @@ private:
 	const MicrofacetDistribution* _distribution;
 	const FresnelDielectric * _fresnel;//只考虑绝缘体，电解质不考虑透射
 	const Float _etaA,_etaB;//折射率 A为上层材质折射率 B为下层材质折射率
+	const TransportMode _mode;
 public:
-	MicrofacetTransmission(const Spectrum& T,MicrofacetDistribution* distribution,FresnelDielectric * fresnel,Float etaA,Float etaB):
-			BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)), _T(T),_distribution(distribution),_fresnel(fresnel),_etaA(etaA),_etaB(etaB){
+	MicrofacetTransmission(const Spectrum& T,MicrofacetDistribution* distribution,FresnelDielectric * fresnel,Float etaA,Float etaB,const TransportMode mode):
+			BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)), _T(T),_distribution(distribution),_fresnel(fresnel),_etaA(etaA),_etaB(etaB),_mode(mode){
 	}
 
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;

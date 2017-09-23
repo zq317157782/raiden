@@ -196,5 +196,7 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		Float term=Dot(wo,wh)+eta*Dot(wi,wh);
 		term=term*term;
 
-		return eta*eta*_distribution->D(wh)*_distribution->G(wo,wi)*(Spectrum(1.0)-F)*AbsDot(wi,wh)*AbsDot(wo,wh)/(term*cosThetaWo*cosThetaWi);
+		Float factor=(_mode==TransportMode::Radiance)?(1/eta):1.0;
+
+		return eta*eta*_distribution->D(wh)*_distribution->G(wo,wi)*(Spectrum(1.0)-F)*AbsDot(wi,wh)*AbsDot(wo,wh)*factor*factor/(term*cosThetaWo*cosThetaWi);
 	}
