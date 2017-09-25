@@ -194,9 +194,20 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		Spectrum F=_fresnel->Evaluate(Dot(wo,wh));//这里不能使用Dot(wo,wh)
 		
 		Float term=Dot(wo,wh)+eta*Dot(wi,wh);
-		term=term*term;
+		Float term2=term*term;
 
 		Float factor=(_mode==TransportMode::Radiance)?(1/eta):1.0;
+		Spectrum brdf = _T*(Spectrum(1.0) - F)*std::abs(eta*eta*_distribution->D(wh)*_distribution->G(wo, wi)*AbsDot(wi, wh)*AbsDot(wo, wh)*factor*factor / (term2*cosThetaWo*cosThetaWi));
+		return brdf;
+	}
 
-		return eta*eta*_distribution->D(wh)*_distribution->G(wo,wi)*(Spectrum(1.0)-F)*AbsDot(wi,wh)*AbsDot(wo,wh)*factor*factor/(term*cosThetaWo*cosThetaWi);
+	Spectrum MicrofacetTransmission::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample,
+		Float *pdf, BxDFType *sampledType) const {
+		//默认先使用Cosnie分布
+		*wi = CosineSampleHemisphere(sample);
+		if (SameHemisphere(wo, *wi)) {
+			wi->z *= -1;
+		}
+		*pdf = Pdf(wo, *wi);
+		return f(wo, *wi);
 	}

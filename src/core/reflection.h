@@ -466,9 +466,13 @@ private:
 	const TransportMode _mode;
 public:
 	MicrofacetTransmission(const Spectrum& T,const MicrofacetDistribution* distribution,const FresnelDielectric * fresnel,Float etaA,Float etaB,const TransportMode mode):
-			BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)), _T(T),_distribution(distribution),_fresnel(fresnel),_etaA(etaA),_etaB(etaB),_mode(mode){
+			BxDF(BxDFType(BSDF_TRANSMISSION | BSDF_GLOSSY)), _T(T),_distribution(distribution),_fresnel(fresnel),_etaA(etaA),_etaB(etaB),_mode(mode){
 	}
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
+	//透射需要修改采样方式，需要wo和wi不在同一个半球内
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+		const Point2f &sample, Float *pdf,
+		BxDFType *sampledType = nullptr) const override;
 };
 
 //双向散射分布函数
