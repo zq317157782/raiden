@@ -275,7 +275,6 @@ int FindInterval(int size, const PredicateFunc &pred) {
 	}
 	return Clamp(first - 1, 0, size - 2);
 }
-void RaidenMain(int argc, char* argv[]);
 
 //gamma校验
 //sRGB空间下crt显示器的gamma校验的近似曲线是个分段函数

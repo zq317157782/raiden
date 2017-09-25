@@ -63,7 +63,7 @@ public:
 				break;
 			}
 
-			ref.ComputeScatteringFunctions(ray, arena, true);
+			ref.ComputeScatteringFunctions(ray, arena, false);
 			//这里考虑的其实是media边界的情况
 			//path 不考虑media,所以继续向下追踪
 			if (!ref.bsdf) {

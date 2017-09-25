@@ -37,6 +37,29 @@ void ExecScript(const char* src){
 }
 
 
+void Trim(char * str)
+{
+    int i , len ;
+
+    //先去除左边的空格
+    len = strlen( str ) ;
+    for( i=0; i<len; i++)
+    {
+        if( str[i] != ' ') break ;
+    }
+    memmove(str,str+i,len-i+1);
+
+    //再去除右边的空格
+    len = strlen( str ) ;
+    for(i = len-1; i>=0; i--)
+    {
+        if(str[i] != ' ') break ;
+    }
+    str[i+1] = 0 ;
+
+    return ;
+}
+
 int main(int argc, char* argv[]) {
 	
 	FLAGS_logtostderr = 1;
@@ -66,8 +89,8 @@ int main(int argc, char* argv[]) {
     }
 
 	raidenInit(options);
-
 	if (scriptName != nullptr) {
+        Trim(scriptName);
 		ExecScript(scriptName);
 	}
 	
