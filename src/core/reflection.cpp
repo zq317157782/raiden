@@ -224,3 +224,34 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 			return 0.0f;
 		}
 	}
+
+	Spectrum FresnelBlend::f(const Vector3f &wo, const Vector3f &wi) const{
+		if (!SameHemisphere(wo, wi)) {
+			return 0;
+		}
+		//求半角向量
+		Vector3f wh=wo+wi;
+		if(wh.x==0&&wh.y==0&&wh.z==0){
+			return 0;
+		}
+		wh=Normalize(wh);
+
+		Float cosThetaWi=AbsCosTheta(wi);
+		Float cosThetaWo=AbsCosTheta(wo);
+		Spectrum diffuse(0);
+		//两个cos有一个为0，漫反射就没有贡献了
+		if(cosThetaWi!=0&&cosThetaWo!=0){
+			//首先计算漫反射成分
+			auto pow5=[](Float a){return (a*a)*(a*a)*a;};
+			Float termWo=1-pow5(1-cosThetaWo*0.5);
+			Float termWi=1-pow5(1-cosThetaWi*0.5);
+			diffuse=(28.0/23.0)*InvPi*termWo*termWi*_Rd*(Spectrum(1)-_Rs);
+		}
+
+		//计算Specular成分
+		Spectrum specular(0);
+		Float dotHI=Dot(wi,wh);
+		specular=_distribution->D(wh)/(4*dotHI*std::max(cosThetaWi,cosThetaWo))*SchlickFresnel(_Rs,dotHI);
+		
+		return diffuse+specular;
+	}

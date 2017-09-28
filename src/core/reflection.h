@@ -482,6 +482,21 @@ public:
 			
 };
 
+//Ashikhmin-Shirley model
+//考虑了diffuse和fresnel成分，并且保证了能量守恒
+class FresnelBlend: public BxDF{
+private:
+	const Spectrum _Rd;//albedo
+	const Spectrum _Rs;//F0
+	const MicrofacetDistribution* _distribution;//Specular分布
+public:
+	FresnelBlend(const Spectrum& Rd,const Spectrum& Rs,const MicrofacetDistribution* distribution):BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)),_Rd(Rd),_Rs(Rs),_distribution(distribution){
+
+	}
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
+};
+
+
 //双向散射分布函数
 class BSDF {
 private:
