@@ -92,6 +92,10 @@ Float FrDielectric(Float cosThetaI, Float etaI, Float etaT);
 //计算导电体的菲涅尔反射系数，金属的折射率是复数，包含吸收率
 Spectrum FrConductor(Float cosThetaI, const Spectrum &etaI,
 		const Spectrum &etaT, const Spectrum &k);
+
+//Schlick Fresnel近似
+Spectrum SchlickFresnel(const Spectrum& R,Float cosTheta);
+
 //计算菲涅尔系数相关的操作
 class Fresnel {
 public:

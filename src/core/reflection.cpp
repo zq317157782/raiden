@@ -50,6 +50,11 @@ Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
 	return (Rparl * Rparl + Rperp * Rperp) / 2;
 }
 
+Spectrum SchlickFresnel(const Spectrum& R,Float cosTheta){
+	auto pow5=[](Float a){return (a*a)*(a*a)*a;};
+	return R+(Spectrum(1)-R)*pow5(1-cosTheta);
+}
+
 //没想到这个公式是参考塞巴斯的博客的
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 Spectrum FrConductor(Float cosThetaI, const Spectrum &etai,
