@@ -211,3 +211,11 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		*pdf = Pdf(wo, *wi);
 		return f(wo, *wi);
 	}
+
+	Float MicrofacetTransmission::Pdf(const Vector3f &wo, const Vector3f &wi) const {
+		if (!SameHemisphere(wo, wi)) {
+			return AbsCosTheta(wi) * InvPi;
+		} else {
+			return 0.0f;
+		}
+	}

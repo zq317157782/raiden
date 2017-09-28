@@ -473,6 +473,9 @@ public:
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
 		const Point2f &sample, Float *pdf,
 		BxDFType *sampledType = nullptr) const override;
+	//PDF 需要wo和wi不在同一个半球内
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override;
+			
 };
 
 //双向散射分布函数
