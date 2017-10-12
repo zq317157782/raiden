@@ -594,17 +594,18 @@ public:
 		//2.根据入射和出射方向，采样pdf
 		//3.计算BSDF系数	
 		int matchingCompNum = NumComponents(type);
+		
 		//没有匹配的BxDF就直接返回0
 		if (matchingCompNum == 0) {
 			*pdf = 0;
 			if (sampledType) {
 				*sampledType = BxDFType(0);//未知类型
 			}
+			
 			return 0;
 		}
 		//根据0~1之间的样本值，采样出1个组件
 		int comp = std::min((int)std::floor(matchingCompNum*u[0]), matchingCompNum-1);
-
 		//开始采样1个bxdf
 		BxDF* bxdf = nullptr;
 		int count = comp;
@@ -650,15 +651,18 @@ public:
 					*pdf += _bxdfs[i]->Pdf(wo, wi);
 				}
 			}
+		}
+		if(matchingCompNum > 1){
 			*pdf = (*pdf)/matchingCompNum;
-
+		}
+		if (!(bxdf->type&BSDF_SPECULAR) && matchingCompNum > 1) {			
 			//计算bxdf系数和
 			//bool reflect = (wi.z*wo.z) > 0;
 			//PBRT中其实是这样写的
 			bool reflect = Dot(*wiWorld, _ng) * Dot(woWorld, _ng) > 0;
 			f = Spectrum(0);//重置
 			for (int i = 0; i < _nBxDF; ++i) {
-				if (_bxdfs[i]->MatchesFlags(type)&&((reflect&&_bxdfs[i]->type&BSDF_SPECULAR)|| (!reflect&&_bxdfs[i]->type&BSDF_TRANSMISSION))) {
+				if (_bxdfs[i]->MatchesFlags(type)&&((reflect&&_bxdfs[i]->type&BSDF_REFLECTION)|| (!reflect&&_bxdfs[i]->type&BSDF_TRANSMISSION))) {
 					f += _bxdfs[i]->f(wo, wi);
 				}
 			}
