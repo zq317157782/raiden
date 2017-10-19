@@ -30,7 +30,7 @@ public:
         si->bsdf = ARENA_ALLOC(arena, BSDF)(*si);
         
         //2.获得GGX分布
-        GGXDistribution *ggx=ARENA_ALLOC(arena,GGXDistribution)(GGXDistribution::RoughnessToAlpha(rx),GGXDistribution::RoughnessToAlpha(ry));
+        AnisotropyGGXDistribution *ggx=ARENA_ALLOC(arena,AnisotropyGGXDistribution)(AnisotropyGGXDistribution::RoughnessToAlpha(rx),AnisotropyGGXDistribution::RoughnessToAlpha(ry));
         
         //3.获得Fresnel
         Fresnel *fresnel=ARENA_ALLOC(arena,FresnelConductor)(1.0,eta,absorb);

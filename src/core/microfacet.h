@@ -40,26 +40,33 @@ public:
 		return 1.0 / (1.0 + Lambda(wo) + Lambda(wi));
 	}
 	
-	//virtual Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const = 0;
+	//根据样本点 采样半角向量
+	virtual Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const = 0;
 	//Float Pdf(const Vector3f &wo, const Vector3f &wh) const;
 	//virtual std::string ToString() const = 0;
 };
 
 
 //GGX的各项异性版本
-class GGXDistribution:public MicrofacetDistribution{
+class AnisotropyGGXDistribution:public MicrofacetDistribution{
 private:
 	Float _alphaX,_alphaY;
 	Float Lambda(const Vector3f &w) const override;
 public:
-	GGXDistribution(Float ax,Float ay):_alphaX(ax),_alphaY(ay){}
+	AnisotropyGGXDistribution(Float ax,Float ay):_alphaX(ax),_alphaY(ay){}
 	Float D(const Vector3f &wh) const override;
 	//从粗糙度到alpha参数的转换的工具函数
 	static inline Float RoughnessToAlpha(Float roughness);
+	
+	//采样GGX的半角向量
+	Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override{
+		LError << "AnisotropyGGXDistribution::Sample_wh is implemented!!!";
+		return Vector3f(0,0,0);
+	}
 };
 
 //直接copy自PBRT的GGX粗糙度到alpha的工具函数
- Float GGXDistribution::RoughnessToAlpha(Float roughness){
+ Float AnisotropyGGXDistribution::RoughnessToAlpha(Float roughness){
 	roughness = std::max(roughness, (Float)1e-3);
     Float x = std::log(roughness);
     return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
