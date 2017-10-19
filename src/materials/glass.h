@@ -21,11 +21,10 @@ private:
 	std::shared_ptr<Texture<Spectrum>> _kr;
 	std::shared_ptr<Texture<Spectrum>> _kt;
 	std::shared_ptr<Texture<Float>> _eta;
-	std::shared_ptr<Texture<Float>> _roughnessX;
-	std::shared_ptr<Texture<Float>> _roughnessY;
+	std::shared_ptr<Texture<Float>> _roughness;
 public:
 
-	GlassMaterial(const std::shared_ptr<Texture<Spectrum>>& kr, const std::shared_ptr<Texture<Spectrum>>& kt, const std::shared_ptr<Texture<Float>>& eta,const std::shared_ptr<Texture<Float>>& roughnessX,const std::shared_ptr<Texture<Float>>& roughnessY):_kr(kr),_kt(kt),_eta(eta),_roughnessX(roughnessX),_roughnessY(roughnessY){
+	GlassMaterial(const std::shared_ptr<Texture<Spectrum>>& kr, const std::shared_ptr<Texture<Spectrum>>& kt, const std::shared_ptr<Texture<Float>>& eta,const std::shared_ptr<Texture<Float>>& roughness):_kr(kr),_kt(kt),_eta(eta),_roughness(roughness){
 		
 	}
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *si,
@@ -41,11 +40,10 @@ public:
 		}
 
 		//2.判断是否是镜面反射或者折射
-		Float rx = _roughnessX->Evaluate(*si);
-		Float ry = _roughnessY->Evaluate(*si);
-		bool isSpecular=(rx==0)&&(ry==0);
+		Float r = _roughness->Evaluate(*si);
+		bool isSpecular=(r==0);
 		//3.判断是否需要微平面分布
-		AnisotropyGGXDistribution *ggx=(isSpecular==true)?nullptr:ARENA_ALLOC(arena,AnisotropyGGXDistribution)(GGXRoughnessToAlpha(rx), GGXRoughnessToAlpha(ry));
+		IsotropyGGXDistribution *ggx=(isSpecular==true)?nullptr:ARENA_ALLOC(arena, IsotropyGGXDistribution)(GGXRoughnessToAlpha(r));
 		
 		FresnelDielectric * fresnel=ARENA_ALLOC(arena, FresnelDielectric)(1.0,eta);
 

@@ -76,7 +76,11 @@ private:
 public:
 	IsotropyGGXDistribution(Float a) :_alpha(a) {}
 	Float D(const Vector3f &wh) const override;
-
+	//采样GGX的半角向量
+	Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override {
+		LError << "IsotropyGGXDistribution::Sample_wh is implemented!!!";
+		return Vector3f(0, 0, 0);
+	}
 };
 
 
