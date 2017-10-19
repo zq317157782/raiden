@@ -457,6 +457,12 @@ public:
 	}
 
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
+
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override;
+
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+		const Point2f &sample, Float *pdf,
+		BxDFType *sampledType = nullptr) const override;
 };
 
 

@@ -173,6 +173,44 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 	}
 
 
+	Float MicrofacetReflection::Pdf(const Vector3f &wo, const Vector3f &wi) const {
+		
+		if (!SameHemisphere(wo, wi)) {
+			return 0.0;
+		}
+		//首先获取半角向量
+		Vector3f wh = wo + wi;
+		wh = Normalize(wh);
+
+		//获取measurement为半角向量的pdf
+		Float pdf_wh=_distribution->Pdf(wo, wh);
+		
+		//从wh measurement转换到wi measurement
+		return pdf_wh / (4 * Dot(wo, wh));
+	}
+
+	Spectrum MicrofacetReflection::Sample_f(const Vector3f &wo, Vector3f *wi,
+		const Point2f &sample, Float *pdf,
+		BxDFType *sampledType) const {
+		//采样半角向量
+		//半角向量和wo是在同一个半球中的
+		Vector3f wh=_distribution->Sample_wh(wo, sample);
+		if (wh.z < 0) {
+			return 0.0;
+		}
+		//根据根据半角向量获得反射向量
+		*wi = Reflect(wo,Normal3f(wh));
+		//获得pdf
+		*pdf = _distribution->Pdf(wo, wh) / (4 * Dot(wo, wh));
+		
+		if (*pdf == 0) {
+			return 0.0;
+		}
+		
+		return f(wo, *wi);
+	}
+
+
 	Spectrum MicrofacetTransmission::f(const Vector3f &wo, const Vector3f &wi) const {
 		//首先判断wo和wi是否在同一个半球内
 		if(SameHemisphere(wo,wi)){
