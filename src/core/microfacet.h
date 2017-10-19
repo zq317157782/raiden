@@ -47,6 +47,9 @@ public:
 };
 
 
+//从粗糙度到alpha参数的转换的工具函数
+Float GGXRoughnessToAlpha(Float roughness);
+
 //GGX的各项异性版本
 class AnisotropyGGXDistribution:public MicrofacetDistribution{
 private:
@@ -55,8 +58,7 @@ private:
 public:
 	AnisotropyGGXDistribution(Float ax,Float ay):_alphaX(ax),_alphaY(ay){}
 	Float D(const Vector3f &wh) const override;
-	//从粗糙度到alpha参数的转换的工具函数
-	static inline Float RoughnessToAlpha(Float roughness);
+	
 	
 	//采样GGX的半角向量
 	Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override{
@@ -65,11 +67,17 @@ public:
 	}
 };
 
-//直接copy自PBRT的GGX粗糙度到alpha的工具函数
- Float AnisotropyGGXDistribution::RoughnessToAlpha(Float roughness){
-	roughness = std::max(roughness, (Float)1e-3);
-    Float x = std::log(roughness);
-    return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
-           0.000640711f * x * x * x * x;
-}
+
+//GGX各向同性版本
+class IsotropyGGXDistribution:public MicrofacetDistribution{
+private:
+	Float _alpha;
+	Float Lambda(const Vector3f &w) const override;
+public:
+	IsotropyGGXDistribution(Float a) :_alpha(a) {}
+	Float D(const Vector3f &wh) const override;
+
+};
+
+
 #endif /* SRC_CORE_MICROFACET_H_ */

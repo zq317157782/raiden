@@ -1,6 +1,15 @@
 #include "microfacet.h"
 #include "reflection.h"
 
+
+//直接copy自PBRT的GGX粗糙度到alpha的工具函数
+Float GGXRoughnessToAlpha(Float roughness) {
+	roughness = std::max(roughness, (Float)1e-3);
+	Float x = std::log(roughness);
+	return 1.62142f + 0.819955f * x + 0.1734f * x * x + 0.0171201f * x * x * x +
+		0.000640711f * x * x * x * x;
+}
+
 Float AnisotropyGGXDistribution::D(const Vector3f &wh) const {
     
     Float cosTheta=AbsCosTheta(wh);
@@ -30,6 +39,37 @@ Float AnisotropyGGXDistribution::Lambda(const Vector3f &w) const{
 
     return (-1.0+std::sqrt(1.0+alpha*alpha*tanTheta2))/2.0;
 }
+
+
+Float IsotropyGGXDistribution::D(const Vector3f &wh) const {
+	//各向同性版本和各向异性版本是有区别的
+	//気をつけて
+	Float cosTheta = AbsCosTheta(wh);
+	if (cosTheta == 0) {
+		return 0;
+	}
+
+	//这里使用简化成只包含一个cos(theta)成分的公式 GGX=a^2/[PI*(cos(theta)^2x(a^2-1)+1)^2]
+	Float alpha2 = _alpha*_alpha;
+	Float cosTheta2 = cosTheta*cosTheta;
+	Float term = cosTheta2*(alpha2 - 1) + 1;
+	return alpha2 / (Pi*term*term);
+}
+
+Float IsotropyGGXDistribution::Lambda(const Vector3f &w) const {
+	//各向同性版本和各向异性版本是有区别的
+	//気をつけて
+	Float tanTheta2 = TanTheta2(w);
+	if (std::isinf(tanTheta2)) {
+		return 0;
+	}
+	
+	return (-1.0 + std::sqrt(1.0 + _alpha*_alpha*tanTheta2))/2.0;
+}
+
+
+
+
 
 
 //这个是各项同性版本

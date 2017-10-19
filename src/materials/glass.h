@@ -45,7 +45,7 @@ public:
 		Float ry = _roughnessY->Evaluate(*si);
 		bool isSpecular=(rx==0)&&(ry==0);
 		//3.判断是否需要微平面分布
-		AnisotropyGGXDistribution *ggx=(isSpecular==true)?nullptr:ARENA_ALLOC(arena,AnisotropyGGXDistribution)(AnisotropyGGXDistribution::RoughnessToAlpha(rx),AnisotropyGGXDistribution::RoughnessToAlpha(ry));
+		AnisotropyGGXDistribution *ggx=(isSpecular==true)?nullptr:ARENA_ALLOC(arena,AnisotropyGGXDistribution)(GGXRoughnessToAlpha(rx), GGXRoughnessToAlpha(ry));
 		
 		FresnelDielectric * fresnel=ARENA_ALLOC(arena, FresnelDielectric)(1.0,eta);
 

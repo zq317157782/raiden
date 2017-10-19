@@ -40,7 +40,7 @@ public:
         if(!ks.IsBlack()){
             Float roughness=_roughness->Evaluate(*si);
             //使用各项同性GGX配置(虽然是各向异性分布,难道塑料没有各项异性？)
-            roughness=AnisotropyGGXDistribution::RoughnessToAlpha(roughness);
+            roughness= GGXRoughnessToAlpha(roughness);
             AnisotropyGGXDistribution *ggx=ARENA_ALLOC(arena,AnisotropyGGXDistribution)(roughness,roughness);
             //绝缘体的菲涅尔系数,为啥是1.5的IOR？塑料是1.5？
             FresnelDielectric * fresnel=ARENA_ALLOC(arena, FresnelDielectric)(1.0,1.5);
