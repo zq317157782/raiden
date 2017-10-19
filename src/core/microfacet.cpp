@@ -83,9 +83,10 @@ Float IsotropyGGXDistribution::Lambda(const Vector3f &w) const {
      Float y=sinTheta*std::sin(phi);
      Float z=cosTheta;
      Vector3f wh=Vector3f(x,y,z);
-     if(wo.z<0){
+     //到底需不需要让wo和wh在同一个半球内，我并没有完全理解，暂时注释掉
+	 /*if(wo.z<0){
          wh=-wh;
-     }
+     }*/
      return wh;
  }
 
