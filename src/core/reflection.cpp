@@ -197,13 +197,14 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		Vector3f wh=_distribution->Sample_wh(wo, sample);
 		//根据根据半角向量获得反射向量
 		*wi = Reflect(wo,Normal3f(wh));
-		//获得pdf
-		*pdf = _distribution->Pdf(wo, wh) / (4 * Dot(wo, wh));
-		
-		if (*pdf == 0) {
+		//这里wh和wo之间的夹角可能大于90度，以此wi可能和wo不在一个半球上，以此需要判断
+		if(!SameHemisphere(wo,*wi)){
+			*pdf=0;
 			return 0.0;
 		}
-		
+		//获得pdf
+		*pdf = _distribution->Pdf(wo, wh) / (4 * Dot(wo, wh));
+			
 		return f(wo, *wi);
 	}
 
