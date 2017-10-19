@@ -10,12 +10,11 @@ class MetalMaterial : public Material {
 private:
 	std::shared_ptr<Texture<Spectrum>> _absorb;
 	std::shared_ptr<Texture<Spectrum>> _eta;
-    std::shared_ptr<Texture<Float>> _roughnessX;
-    std::shared_ptr<Texture<Float>> _roughnessY;
+    std::shared_ptr<Texture<Float>> _roughness;
 public:
 
-	MetalMaterial(const std::shared_ptr<Texture<Spectrum>>& eta,const std::shared_ptr<Texture<Spectrum>>& absorb,const std::shared_ptr<Texture<Float>>& roughnessX,const std::shared_ptr<Texture<Float>>& roughnessY) 
-	:_absorb(absorb),_eta(eta),_roughnessX(roughnessX),_roughnessY(roughnessY){    
+	MetalMaterial(const std::shared_ptr<Texture<Spectrum>>& eta,const std::shared_ptr<Texture<Spectrum>>& absorb,const std::shared_ptr<Texture<Float>>& roughness) 
+	:_absorb(absorb),_eta(eta),_roughness(roughness){
     }
 
     
@@ -25,12 +24,11 @@ public:
 		//1.先为SurfaceInteraction分配bsdf
 		Spectrum eta = _eta->Evaluate(*si);
 		Spectrum absorb = _absorb->Evaluate(*si);
-		Float rx = _roughnessX->Evaluate(*si);
-		Float ry = _roughnessY->Evaluate(*si);
+		Float r = _roughness->Evaluate(*si);
         si->bsdf = ARENA_ALLOC(arena, BSDF)(*si);
         
         //2.获得GGX分布
-        AnisotropyGGXDistribution *ggx=ARENA_ALLOC(arena,AnisotropyGGXDistribution)(GGXRoughnessToAlpha(rx), GGXRoughnessToAlpha(ry));
+        IsotropyGGXDistribution *ggx=ARENA_ALLOC(arena,IsotropyGGXDistribution)(GGXRoughnessToAlpha(r));
         
         //3.获得Fresnel
         Fresnel *fresnel=ARENA_ALLOC(arena,FresnelConductor)(1.0,eta,absorb);
