@@ -41,6 +41,8 @@ Float AnisotropyGGXDistribution::Lambda(const Vector3f &w) const{
 }
 
 
+
+
 Float IsotropyGGXDistribution::D(const Vector3f &wh) const {
 	//各向同性版本和各向异性版本是有区别的
 	//気をつけて
@@ -68,27 +70,28 @@ Float IsotropyGGXDistribution::Lambda(const Vector3f &w) const {
 }
 
 
-
-
-
-
 //这个是各项同性版本
-// Vector3f GGXDistribution::Sample_wh(const Vector3f &wo, const Point2f &u) const{
-//     //Pdf(theta)和Pdf(phi)是两个独立分布，因此可以独立处理
-//     Float phi=u.x*2*Pi;
-//     Float cosTheta=0;
-//     //各向同性
-//     if(_alphaX==_alphaY){
-//         cosTheta=std::sqrt((1-u.y)/(1+u.y*(_alphaX*_alphaY-1)));
-//     }
-//     //sin2+cos2=1
-//     Float sinTheta=std::max(0.0,std::sqrt(1.0-(cosTheta*cosTheta)));
-//     Float x=sinTheta*std::cos(phi);
-//     Float y=sinTheta*std::sin(phi);
-//     Float z=cosTheta;
-//     Vector3f wh=Vector3f(x,y,z);
-//     if(wo.z<0){
-//         wh=-wh;
-//     }
-//     return wh;
-// }
+ Vector3f IsotropyGGXDistribution::Sample_wh(const Vector3f &wo, const Point2f &u) const{
+     //Pdf(theta)和Pdf(phi)是两个独立分布，因此可以独立处理
+     Float phi=u.x*2*Pi;
+     Float cosTheta=0;
+     
+	 cosTheta=std::sqrt((1-u.y)/(1+u.y*(_alpha*_alpha-1)));
+     //sin2+cos2=1
+     Float sinTheta=std::max(0.0,std::sqrt(1.0-(cosTheta*cosTheta)));
+     Float x=sinTheta*std::cos(phi);
+     Float y=sinTheta*std::sin(phi);
+     Float z=cosTheta;
+     Vector3f wh=Vector3f(x,y,z);
+     if(wo.z<0){
+         wh=-wh;
+     }
+     return wh;
+ }
+
+ //这个是各项同性版本
+ //PDF = D * COS(wh)
+ //返回的是半角向量空间的
+ Float IsotropyGGXDistribution::Pdf(const Vector3f &wo, const Vector3f &wh) const {
+	 return D(wh)*AbsCosTheta(wh);
+ }
