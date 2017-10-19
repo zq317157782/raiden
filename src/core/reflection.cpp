@@ -181,7 +181,7 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		//首先获取半角向量
 		Vector3f wh = wo + wi;
 		wh = Normalize(wh);
-
+		
 		//获取measurement为半角向量的pdf
 		Float pdf_wh=_distribution->Pdf(wo, wh);
 		
@@ -195,9 +195,6 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 		//采样半角向量
 		//半角向量和wo是在同一个半球中的
 		Vector3f wh=_distribution->Sample_wh(wo, sample);
-		if (wh.z < 0) {
-			return 0.0;
-		}
 		//根据根据半角向量获得反射向量
 		*wi = Reflect(wo,Normal3f(wh));
 		//获得pdf
@@ -256,6 +253,18 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 	}
 
 	Float MicrofacetTransmission::Pdf(const Vector3f &wo, const Vector3f &wi) const {
+		////折射情况下,wo和wi不能在同一个半球内
+		//if (SameHemisphere(wo, wi)) {
+		//	return 0.0f;
+		//}
+
+		////获取折射情况下的半角向量
+		////etaA是上半球ior etaB是下班球ior
+		////eta==iorI/iorO
+		//Float eta = (wo.z > 0) ? (_etaB / _etaA) : (_etaA / _etaB);
+		//Vector3f wh = Normalize(wo + eta*wi);
+
+
 		if (!SameHemisphere(wo, wi)) {
 			return AbsCosTheta(wi) * InvPi;
 		} else {
