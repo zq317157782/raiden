@@ -82,7 +82,7 @@ inline Vector3f Reflect(const Vector3f& wo, const Normal3f& n) {
 	return Vector3f(2 * Dot(wo, n) * n) - wo;
 }
 //计算折射方向
-//默认wt和n在同一半球
+//默认wi和n在同一半球
 //eta是材质的折射率
 bool Refract(const Vector3f& wi, const Normal3f& n,
 		Float oeta/*这里是两个折射率之比(i/t)*/, Vector3f* wt);
