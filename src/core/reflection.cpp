@@ -244,11 +244,26 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 
 	Spectrum MicrofacetTransmission::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample,
 		Float *pdf, BxDFType *sampledType) const {
-		//默认先使用Cosnie分布
-		*wi = CosineSampleHemisphere(sample);
-		if (SameHemisphere(wo, *wi)) {
-			wi->z *= -1;
+		
+		//判断wo是否和表面平行
+		//平行没能量 YOYOYO
+		if (wo.z == 0) {
+			*pdf = 0;
+			return 0;
 		}
+
+		//采样半角向量
+		Vector3f wh = _distribution->Sample_wh(wo, sample);
+
+		//计算eta 这里的eta=iorO/iorI
+		Float eta = CosTheta(wh) > 0 ? (_etaA / _etaB) : (_etaB / _etaA);
+		//采样折射后的
+		if (!Refract(wo, Normal3f(wh), eta, wi)) {
+			*pdf = 0;
+			return 0;
+		}
+
+		//计算相应的pdf和brdf系数
 		*pdf = Pdf(wo, *wi);
 		return f(wo, *wi);
 	}
