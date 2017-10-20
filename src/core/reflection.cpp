@@ -255,22 +255,27 @@ Spectrum LambertianTransmission::Sample_f(const Vector3f &wo, Vector3f *wi,
 
 	Float MicrofacetTransmission::Pdf(const Vector3f &wo, const Vector3f &wi) const {
 		////折射情况下,wo和wi不能在同一个半球内
-		//if (SameHemisphere(wo, wi)) {
-		//	return 0.0f;
-		//}
-
-		////获取折射情况下的半角向量
-		////etaA是上半球ior etaB是下班球ior
-		////eta==iorI/iorO
-		//Float eta = (wo.z > 0) ? (_etaB / _etaA) : (_etaA / _etaB);
-		//Vector3f wh = Normalize(wo + eta*wi);
-
-
-		if (!SameHemisphere(wo, wi)) {
-			return AbsCosTheta(wi) * InvPi;
-		} else {
+		if (SameHemisphere(wo, wi)) {
 			return 0.0f;
 		}
+
+		//获取折射情况下的半角向量
+		//etaA是上半球ior etaB是下班球ior
+		//eta==iorI/iorO
+		Float eta = (wo.z > 0) ? (_etaB / _etaA) : (_etaA / _etaB);
+		Vector3f wh = Normalize(wo + eta*wi);
+
+		//获得半角向量空间的pdf
+		Float pdf_wh=_distribution->Pdf(wo, wh);
+
+		//计算dwh/dwi 用来从wh空间转换到wi空间
+		//这里从论文的公式转换到PBRT中那套公式需要变换下i,o的定位以及wh所在的半球范围
+		//ior^2*abs(i_dot_h)/(iorO*o_dot_h+iorI*i_dot_h)^2
+		Float term = Dot(wo, wh) + eta * Dot(wi, wh);
+		Float dwh_dwi = std::abs((eta * eta * Dot(wi, wh)) / (term * term));
+
+		//返回已经变换到wi空间的pdf
+		return pdf_wh*dwh_dwi;
 	}
 
 	Spectrum FresnelBlend::f(const Vector3f &wo, const Vector3f &wi) const{
