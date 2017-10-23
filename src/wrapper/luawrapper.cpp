@@ -271,6 +271,13 @@ static void ParseString(lua_State *L,ParamSet& set, const std::string& name) {
 	set.AddString(name, std::move(strings), size);
 }
 
+static void ParseTexture(lua_State *L,ParamSet& set, const std::string& name) {
+	lua_geti(L, -1,1);
+	std::string str = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	set.AddTexture(name, str);
+}
+
 static void ParseFloatArray(lua_State *L,ParamSet& set, const std::string& name) {
 	lua_len(L, -1); //长度入栈
 	int size = lua_tointeger(L, -1);
@@ -362,7 +369,10 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 				ParseFloatArray(L, set, key);
 			} else if (type == "int[]") {
 				ParseIntArray(L, set, key);
-			} else {
+			} else if (type=="texture"){
+				ParseTexture(L, set, key);
+			} 
+			else {
 				PARAM_TYPR_WRONG("unknow type");
 			}
 			lua_pop(L, 1); //value 出站

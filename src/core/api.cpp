@@ -437,8 +437,12 @@ MediumInterface GraphicsState::CreateMediumInterface() {
 std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
 		const Transform &tex2world, const TextureParams &tp) {
 	Texture<Float> *tex = nullptr;
-	if (name == "constant")
+	if (name == "constant"){
 		tex = CreateConstantFloatTexture(tex2world, tp);
+	}
+	else if(name=="checkerboard"){
+		tex = CreateCheckerboard2DFloatTexture(tex2world,tp);
+	}
 	else {
 		Warning("Float texture \"" << name.c_str() << "\" unknown");
 	}
@@ -449,8 +453,12 @@ std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
 std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
 		const Transform &tex2world, const TextureParams &tp) {
 	Texture<Spectrum> *tex = nullptr;
-	if (name == "constant")
+	if (name == "constant"){
 		tex = CreateConstantSpectrumTexture(tex2world, tp);
+	}
+	else if(name=="checkerboard"){
+		tex = CreateCheckerboard2DSpectrumTexture(tex2world,tp);
+	}
 	else {
 		Warning("Spectrum texture \"" << name.c_str() << "\" unknown");
 	}
