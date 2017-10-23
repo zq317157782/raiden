@@ -20,7 +20,7 @@ public:
 			Vector2f *dstdy) const = 0;
 };
 //uv参数坐标到st纹理坐标的映射
-class UVMapping2D: TextureMapping2D {
+class UVMapping2D: public TextureMapping2D {
 private:
 	Float _su; //dsdu
 	Float _sv; //dtdv

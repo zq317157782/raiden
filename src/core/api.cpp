@@ -40,6 +40,7 @@
 #include "integrators/sppm.h"
 #include "integrators/bdpt.h"
 #include "textures/constant.h"
+#include "textures/checkerboard2d.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
 #include "materials/matte.h"
