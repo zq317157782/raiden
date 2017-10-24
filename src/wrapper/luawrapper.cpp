@@ -272,9 +272,9 @@ static void ParseString(lua_State *L,ParamSet& set, const std::string& name) {
 }
 
 static void ParseTexture(lua_State *L,ParamSet& set, const std::string& name) {
-	lua_geti(L, -1,1);
+	//lua_geti(L, -1,1);
 	std::string str = lua_tostring(L, -1);
-	lua_pop(L, 1);
+	//lua_pop(L, 1);
 	set.AddTexture(name, str);
 }
 
