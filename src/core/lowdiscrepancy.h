@@ -53,7 +53,7 @@ static Float ScrambledRadicalInverseSpecialized(const uint16_t*perm,uint64_t a) 
 	uint64_t reverse = 0;
 	Float invBaseN = 1;
 	while (a) {
-		uint64_t next = a*invBase;
+		uint64_t next = a/base;
 		uint64_t digit = a - next*base;
 		Assert(perm[digit] < base);
 		reverse = reverse*base + perm[digit];
