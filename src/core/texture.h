@@ -155,11 +155,14 @@ private:
 	//组成平面坐标系的两根轴，可以非正交
 	Vector3f _vs;
 	Vector3f _vt;
-	
+	//scale
+	Float _ss; 
+	Float _st; 
+	//delta
 	Float _ds;
 	Float _dt;
 public:
-	PlanarMapping2D(const Vector3f& vs,const Vector3f& vt,Float ds=0,Float dt=0):_vs(vs),_vt(vt),_ds(ds),_dt(dt){
+	PlanarMapping2D(const Vector3f& vs,const Vector3f& vt,Float ss=1,Float st=1,Float ds=0,Float dt=0):_vs(vs),_vt(vt),_ss(ss),_st(st),_ds(ds),_dt(dt){
 
 	}
 	
@@ -170,7 +173,7 @@ public:
 			*dstdx=Vector2f(Dot(_vs,si.dpdx),Dot(_vt,si.dpdx));
 			*dstdy=Vector2f(Dot(_vs,si.dpdy),Dot(_vt,si.dpdy));
 			//转换到平面空间
-			return Point2f(Dot(_vs,vec)+_ds,Dot(_vt,vec)+_dt);
+			return Point2f(Dot(_vs,vec)*_ss+_ds,Dot(_vt,vec)*_st+_dt);
 		}
 	};
 
