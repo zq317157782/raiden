@@ -331,7 +331,10 @@ std::string TextureParams::FindString(const std::string& name, const std::string
 		_materialParams.FindOneString(name, defaultValue));
 }
 
-
+Vector3f TextureParams::FindVector3f(const std::string& name, const Vector3f& defaultValue) const{
+	return _geomParams.FindOneVector3f(name,
+		_materialParams.FindOneVector3f(name, defaultValue));
+}
 
 
 std::shared_ptr<Texture<Spectrum>> TextureParams::GetSpectrumTexture(
