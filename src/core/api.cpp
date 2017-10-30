@@ -41,6 +41,7 @@
 #include "integrators/bdpt.h"
 #include "textures/constant.h"
 #include "textures/checkerboard2d.h"
+#include "textures/imagemap.h"
 #include "materials/lambertian.h"
 #include "materials/mirror.h"
 #include "materials/matte.h"
@@ -458,6 +459,9 @@ std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
 	}
 	else if(name=="checkerboard"){
 		tex = CreateCheckerboard2DSpectrumTexture(tex2world,tp);
+	}
+	else if(name=="imagemap"){
+		tex = CreateImageSpectrumTexture(tex2world,tp);
 	}
 	else {
 		Warning("Spectrum texture \"" << name.c_str() << "\" unknown");
