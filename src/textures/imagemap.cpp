@@ -1,7 +1,8 @@
 #include "imagemap.h"
 #include "paramset.h"
 
-ImageTexture<Spectrum> *CreateImageSpectrumTexture(const Transform &tex2world,
+
+ImageTexture<RGBSpectrum,Spectrum> *CreateImageSpectrumTexture(const Transform &tex2world,
 	const TextureParams &tp){
         std::unique_ptr<TextureMapping2D> mapping;
         if (tp.FindString("mapping") == "uv") {
@@ -42,5 +43,5 @@ ImageTexture<Spectrum> *CreateImageSpectrumTexture(const Transform &tex2world,
 
        std::string fileName=tp.FindString("filename");
 
-        return new ImageTexture<Spectrum>(std::move(mapping),fileName);
+        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName);
     }
