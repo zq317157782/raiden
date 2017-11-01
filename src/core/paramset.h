@@ -137,7 +137,8 @@ public:
 	Spectrum FindSpectrum(const std::string& name,const Spectrum& defaultValue) const;
 	//寻找一个string
 	std::string FindString(const std::string& name, const std::string& defaultValue="") const;
-	
+	//寻找一个bool
+	bool FindBool(const std::string& name,const bool defaultValue) const;
 	//寻找一个Vector3f
 	Vector3f FindVector3f(const std::string& name, const Vector3f& defaultValue) const;
 
