@@ -42,6 +42,7 @@ ImageTexture<RGBSpectrum,Spectrum> *CreateImageSpectrumTexture(const Transform &
         }
 
        std::string fileName=tp.FindString("filename");
-
-        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName);
+       Float scale = tp.FindFloat("scale",1);
+       bool gamma = tp.FindBool("gamma",false);
+        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName,scale,gamma);
     }

@@ -21,36 +21,46 @@ private:
 	Vector2i _resolution;
 	std::unique_ptr<Tmemory[]> _image;
 public:
-	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName):_mapping(std::move(mapping)) {
+	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
 		//1.读取PNG图片
 		std::vector<unsigned char> rawData;
 		uint32_t width, height;
 		uint32_t error = lodepng::decode(rawData, width, height, fileName);
 		if(error){
+			//菜如图像失败
 			LError << "decoder error " << error << ": " << lodepng_error_text(error);
-			exit(-1);
-		} 
-		_resolution.x=width;
-		_resolution.y=height;
-		std::unique_ptr<RGBSpectrum[]> rgbData(new Tmemory[_resolution.x*_resolution.y]);
-		
-		uint32_t index=0;
-		Float invDiv=1.0/255.0;
-		for(int j=0;j<_resolution.y;++j){
-			for(int i=0;i<_resolution.x;++i){
-				int k=i*_resolution.y+j;
-				rgbData[k][0]=rawData[0+index]*invDiv;
-				rgbData[k][1]=rawData[1+index]*invDiv;
-				rgbData[k][2]=rawData[2+index]*invDiv;
-				index+=4;//递增4个字节，因为PNG是按照RGBA 4Byte*8Bit的方式组织的
+			_resolution.x=1;
+			_resolution.y=1;
+			_image.reset(new Tmemory[_resolution.x*_resolution.y]);
+			RGBSpectrum errorRGB;
+			errorRGB[0]=1;
+			errorRGB[1]=0.0;
+			errorRGB[2]=1;
+			_image[0]=errorRGB;
+		} else{
+			//成功载入图像
+			_resolution.x=width;
+			_resolution.y=height;
+			std::unique_ptr<RGBSpectrum[]> rgbData(new Tmemory[_resolution.x*_resolution.y]);
+			
+			uint32_t index=0;
+			Float invDiv=1.0/255.0;
+			for(int j=0;j<_resolution.y;++j){
+				for(int i=0;i<_resolution.x;++i){
+					int k=i*_resolution.y+j;
+					rgbData[k][0]=rawData[0+index]*invDiv;
+					rgbData[k][1]=rawData[1+index]*invDiv;
+					rgbData[k][2]=rawData[2+index]*invDiv;
+					index+=4;//递增4个字节，因为PNG是按照RGBA 4Byte*8Bit的方式组织的
+				}
 			}
-		}
-
-		//2. 转换PNG图片到Tmemory
-		//根据分辨率分配空间
-		_image.reset(new Tmemory[_resolution.x*_resolution.y]);
-		for(int i=0;i<_resolution.x*_resolution.y;++i){
-			ConvertIn(rgbData[i],&(_image[i]),1,false);
+	
+			//2. 转换PNG图片到Tmemory
+			//根据分辨率分配空间
+			_image.reset(new Tmemory[_resolution.x*_resolution.y]);
+			for(int i=0;i<_resolution.x*_resolution.y;++i){
+				ConvertIn(rgbData[i],&(_image[i]),scale,gamma);
+			}
 		}
 	}
 	virtual Treturn Evaluate(const SurfaceInteraction & is) const override {
