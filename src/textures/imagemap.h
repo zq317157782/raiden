@@ -34,8 +34,8 @@ public:
 			_image.reset(new Tmemory[_resolution.x*_resolution.y]);
 			RGBSpectrum errorRGB;
 			errorRGB[0]=1;
-			errorRGB[1]=0.0;
-			errorRGB[2]=1;
+			errorRGB[1]=0.0196;
+			errorRGB[2]=0.9529;
 			_image[0]=errorRGB;
 		} else{
 			//成功载入图像
