@@ -109,6 +109,7 @@ struct MediumInterface;
 class PhaseFunction;
 struct Distribution1D;
 class MicrofacetDistribution;
+template<typename T> class MIPMap;
 
 struct Options {
 	int numThread = 0; //线程个数

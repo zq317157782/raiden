@@ -9,6 +9,7 @@
 #include "raiden.h"
 #include "texture.h"
 #include "lodepng.h"
+#include "mipmap.h"
 //ImageTexture
 //PBRT是实现了储存使用一种格式，返回也使用一种格式的方式
 //我目前不使用全频谱的格式，因此我这边只实现储存和查询是一种格式的纹理
@@ -18,7 +19,7 @@ template<typename Tmemory,typename Treturn>
 class ImageTexture: public Texture<Tmemory> {
 private:
 	const std::unique_ptr<TextureMapping2D> _mapping;//纹理映射函数
-	Vector2i _resolution;
+	Point2i _resolution;
 	std::unique_ptr<Tmemory[]> _image;
 public:
 	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
@@ -61,6 +62,8 @@ public:
 			for(int i=0;i<_resolution.x*_resolution.y;++i){
 				ConvertIn(rgbData[i],&(_image[i]),scale,gamma);
 			}
+
+			MIPMap<Tmemory> mipmap(_resolution,&_image[0]);
 		}
 	}
 	virtual Treturn Evaluate(const SurfaceInteraction & is) const override {
