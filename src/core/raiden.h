@@ -286,4 +286,32 @@ inline Float InverseGammaCorrect(Float value) {
     if (value <= 0.04045f) return value * 1.f / 12.92f;
     return std::pow((value + 0.055f) * 1.f / 1.055f, (Float)2.4f);
 }
+
+
+//判断是否是2的幂
+template <typename T>
+inline constexpr bool IsPowerOf2(T v) {
+    return v && !(v & (v - 1));
+}
+//32位int到2的幂的转换函数
+inline int32_t RoundUpPow2(int32_t v) {
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    return v + 1;
+}
+//64位int到2的幂的转换函数
+inline int64_t RoundUpPow2(int64_t v) {
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v |= v >> 32;
+    return v + 1;
+}
 #endif /* SRC_CORE_RAIDEN_H_ */
