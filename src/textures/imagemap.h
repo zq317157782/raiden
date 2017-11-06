@@ -21,6 +21,7 @@ private:
 	const std::unique_ptr<TextureMapping2D> _mapping;//纹理映射函数
 	Point2i _resolution;
 	std::unique_ptr<Tmemory[]> _image;
+	std::unique_ptr<MIPMap<Tmemory>> _mipmap;
 public:
 	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
 		//1.读取PNG图片
@@ -63,7 +64,7 @@ public:
 				ConvertIn(rgbData[i],&(_image[i]),scale,gamma);
 			}
 
-			MIPMap<Tmemory> mipmap(_resolution,&_image[0]);
+			 _mipmap.reset(new MIPMap<Tmemory>(_resolution,&_image[0]));
 		}
 	}
 	virtual Treturn Evaluate(const SurfaceInteraction & is) const override {
@@ -71,7 +72,8 @@ public:
 		Point2f st = _mapping->Map(is, &dstdx, &dstdy);
 		int w=std::min((int)(st.x*_resolution.x),_resolution.x);
 		int h=std::min((int)(st.y*_resolution.y),_resolution.y);
-		return _image[w*_resolution.y+h];
+		return _mipmap->Lookup(st);
+		//return _image[w*_resolution.y+h];
 	}
 	virtual ~ImageTexture(){}
 
