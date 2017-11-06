@@ -187,4 +187,7 @@ public:
 	}
 };
 
+// Lanczos分布
+//Sinc(X)*Lanczos
+Float Lanczos(Float x, Float tau);
 #endif /* SRC_CORE_TEXTURE_H_ */
