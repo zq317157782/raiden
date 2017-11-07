@@ -315,4 +315,12 @@ inline int64_t RoundUpPow2(int64_t v) {
     v |= v >> 32;
     return v + 1;
 }
+
+//求int的log2
+//__builtin_clz是glibc内置函数，作用是返回左起第一个为1的位之前0的个数
+inline int Log2Int(uint32_t v) {
+	return 31 - __builtin_clz(v);
+}
+	
+
 #endif /* SRC_CORE_RAIDEN_H_ */
