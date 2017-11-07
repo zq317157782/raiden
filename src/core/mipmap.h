@@ -12,6 +12,20 @@ struct ResampleWeight{
     Float weights[4];
 };
 
+//临时实现的暂时存放mipmap数据的结构
+template <typename T>
+struct MIPMapArray{
+    MIPMapArray(int w,int h,T* dd):width(w),height(h){
+        data.reset(new T[w*h]);
+        for(int i=0;i<w*h;++i){
+            data[i]=dd[i];
+        }
+    }
+    std::unique_ptr<T[]> data;
+    uint32_t width;
+    uint32_t height;
+};
+
 //mipmap实现
 template <typename T>
 class MIPMap{
@@ -19,6 +33,11 @@ private:
     Point2i _resolution;
     std::unique_ptr<T[]> _data;
     WrapMode _wrapMode;
+    //PBRT使用的是BlockedArray类型，
+    //我还没有研究和实现，
+    //所以先暂时自己实现个简单的结构
+    std::vector<std::unique_ptr<MIPMapArray<T>>> _pyramid;
+    uint32_t _numLevel;
     //计算某一行，或者某一列的权重的函数
     std::unique_ptr<ResampleWeight[]> ResampleWeights(int oldRes,int newRes){
         Assert(oldRes<newRes);
@@ -28,7 +47,6 @@ private:
 
         //1. 生成一个存放每个新像素权重的数组
         std::unique_ptr<ResampleWeight[]> wt(new ResampleWeight[newRes]);
-
 
         
         //2. 填充权重
@@ -143,18 +161,18 @@ public:
              }
             //完成数据的赋值
             _resolution=resampledRes;
-            _data=std::move(resampledImage);
         }
-        else{
-            //设置成原来的图片数据
-            _data.reset(data);
-        }
+
+        _numLevel=Log2Int(std::max(_resolution[0],_resolution[1]));
+        _pyramid.resize(_numLevel);
+        //最上层
+        _pyramid[0].reset(new MIPMapArray<T>(_resolution[0],_resolution[1],resampledImage.get()));
     }
 
     T Lookup(const Point2f &st) const{
 
 		//_data[(int)(st.x*_resolution[0])* _resolution[1] + (int)(st.y* _resolution[1])];
 		//LInfo << rgb[0] << " " << rgb[1] << " " << rgb[2] << " ";
-        return _data[(int)(st.x*_resolution[0])+(int)(st.y* _resolution[1])* _resolution[0]];
+        return _pyramid[0]->data[(int)(st.x*_resolution[0])+(int)(st.y* _resolution[1])* _resolution[0]];
     }
 };
