@@ -65,73 +65,82 @@ public:
         //1.判断分辨率是都是2的幂
         if(!IsPowerOf2(_resolution[0])||!IsPowerOf2(_resolution[1])){
             //获得2的幂的分辨率
-            Point2i resampledResolution(RoundUpPow2(_resolution[0]),RoundUpPow2(_resolution[1]));
-            LInfo<<"MIPMap从"<<_resolution<<" 到 "<<resampledResolution<<" Ratio:"<<(resampledResolution[0]*resampledResolution[1])/(_resolution[0]*_resolution[1]);
+            Point2i resampledRes(RoundUpPow2(_resolution[0]),RoundUpPow2(_resolution[1]));
+            //LInfo<<"MIPMap从"<<_resolution<<" 到"<<resampledResolution<<" Ratio:"<<(resampledResolution[0]*resampledResolution[1])/(_resolution[0]*_resolution[1]);
             
             //为正式的分辨率分配空间
-            resampledImage.reset(new T[resampledResolution[0]*resampledResolution[1]]);
+            resampledImage.reset(new T[resampledRes[0]*resampledRes[1]]);
             //计算s方向上的权重
-            std::unique_ptr<ResampleWeight[]>sWeights=ResampleWeights(resolution[0],resampledResolution[0]);
+            std::unique_ptr<ResampleWeight[]>sWeights=ResampleWeights(resolution[0],resampledRes[0]);
             //以16列为一组，多线程处理resample s坐标
             ParallelFor([&](int t){
-                for(int i=0;i<resampledResolution[0];++i){
+                for(int i=0;i<resampledRes[0];++i){
                     //初始化当前新的文素
-                    resampledImage[t*resampledResolution[0]+i]=0;
+                    resampledImage[t*resampledRes[0]+i]=0;
 
                     for(int j=0;j<4;++j){
                         //计算得到旧坐标系下的S坐标
                         int origS=sWeights[i].firstTexel+j;
                         //暂时没有任何的包围模式 
-                        origS=std::min(origS,resolution[0]-1);
+                        origS= std::max(0,std::min(origS,resolution[0]-1));
                         //获得相应的旧纹素值并且乘以相应的权重值
-                        resampledImage[t*resampledResolution[0]+i]+=data[t*resolution[0]+origS]*sWeights[i].weights[j];
+                        resampledImage[t*resampledRes[0]+i]+=data[origS*resolution[1]+t]*sWeights[i].weights[j];
                     }
                 }
 
             },resolution[1],16);
             
-            //计算t方向上的权重
-            std::unique_ptr<ResampleWeight[]>tWeights=ResampleWeights(resolution[1],resampledResolution[1]);
-            //处理t方向上的时候需要一些临时缓存来防止污染resampledImage中的数据
-            //临时空间需要手动删除
-            std::vector<T*> tempBuf;
-            Float numThread= MaxThreadIndex();
-            for(int i=0;i<numThread;++i){
-                tempBuf.push_back(new T[resampledResolution[1]]);//分配线程数量的临时空间
-            }
+             //计算t方向上的权重
+             std::unique_ptr<ResampleWeight[]>tWeights=ResampleWeights(resolution[1], resampledRes[1]);
+             //处理t方向上的时候需要一些临时缓存来防止污染resampledImage中的数据
+             //临时空间需要手动删除
+             std::vector<T*> tempBuf;
+             Float numThread= MaxThreadIndex();
+             for(int i=0;i<numThread;++i){
+                 tempBuf.push_back(new T[resampledRes[1]]);//分配线程数量的临时空间
+             }
             
-            //以32列为一组，多线程处理resample t坐标
-            ParallelFor([&](int t){
-                //拿取临时空间
-                T* workData=tempBuf[ThreadIndex];
-                for(int i=0;i<resampledResolution[1];++i){
-                    //初始化当前新的文素
-                    workData[i]=0;
-                    for(int j=0;j<4;++j){
-                        //计算得到旧坐标系下的S坐标
-                        int origT=tWeights[i].firstTexel+j;
-                        //暂时没有任何的包围模式 
-                        origT=std::min(origT,resolution[1]-1);
-                        //获得相应的旧纹素值并且乘以相应的权重值
-                        workData[i]+=resampledImage[t*resampledResolution[1]+origT]*tWeights[i].weights[j];
-                    }
-                }
-                 //覆盖到resampledImage中
-                 for(int i=0;i<resampledResolution[1];++i){
-                    resampledImage[t*resampledResolution[1]+i]=workData[i];
+             //以32列为一组，多线程处理resample t坐标
+             ParallelFor([&](int s){
+                 //拿取临时空间
+                 T* workData=tempBuf[ThreadIndex];
+                 for(int i=0;i<resampledRes[1];++i){
+                     //初始化当前新的文素
+                     workData[i]=0;
+                     for(int j=0;j<4;++j){
+                         //计算得到旧坐标系下的S坐标
+                         int origT=tWeights[i].firstTexel+j;
+                         //暂时没有任何的包围模式 
+                         origT=std::max(0,std::min(origT,resolution[1]-1));
+                         //获得相应的旧纹素值并且乘以相应的权重值
+                         workData[i]+=resampledImage[origT*resampledRes[0]+s]*tWeights[i].weights[j];
+                     }
                  }
-            },resampledResolution[0],32);
-            //删除临时空间
-            for(int i=0;i<numThread;++i){
-                delete[] tempBuf[i];
-            }
+                  //覆盖到resampledImage中
+                  for(int i=0;i<resampledRes[1];++i){
+                     resampledImage[i*resampledRes[0] + s]=workData[i];
+                  }
+             }, resampledRes[0],32);
+             
+			 
+			 //删除临时空间
+             for(int i=0;i<numThread;++i){
+                 delete[] tempBuf[i];
+             }
             //完成数据的赋值
-            _resolution=resampledResolution;
+            _resolution=resampledRes;
             _data=std::move(resampledImage);
+        }
+        else{
+            //设置成原来的图片数据
+            _data.reset(data);
         }
     }
 
     T Lookup(const Point2f &st) const{
-        return _data[st.x*_resolution[1]+st.y];
+
+		//_data[(int)(st.x*_resolution[0])* _resolution[1] + (int)(st.y* _resolution[1])];
+		//LInfo << rgb[0] << " " << rgb[1] << " " << rgb[2] << " ";
+        return _data[(int)(st.x*_resolution[0])+(int)(st.y* _resolution[1])* _resolution[0]];
     }
 };

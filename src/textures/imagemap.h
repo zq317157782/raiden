@@ -70,9 +70,10 @@ public:
 	virtual Treturn Evaluate(const SurfaceInteraction & is) const override {
 		Vector2f dstdx, dstdy;
 		Point2f st = _mapping->Map(is, &dstdx, &dstdy);
+		return _mipmap->Lookup(st);
 		int w=std::min((int)(st.x*_resolution.x),_resolution.x);
 		int h=std::min((int)(st.y*_resolution.y),_resolution.y);
-		return _mipmap->Lookup(st);
+	
 		//return _image[w*_resolution.y+h];
 	}
 	virtual ~ImageTexture(){}
