@@ -23,7 +23,7 @@ private:
 	std::unique_ptr<Tmemory[]> _image;
 	std::unique_ptr<MIPMap<Tmemory>> _mipmap;
 public:
-	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
+	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,WrapMode wrapMode,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
 		//1.读取PNG图片
 		std::vector<unsigned char> rawData;
 		uint32_t width, height;
@@ -64,7 +64,7 @@ public:
 				ConvertIn(rgbData[i],&(_image[i]),scale,gamma);
 			}
 
-			 _mipmap.reset(new MIPMap<Tmemory>(_resolution,&_image[0]));
+			 _mipmap.reset(new MIPMap<Tmemory>(_resolution,&_image[0],wrapMode));
 		}
 	}
 	virtual Treturn Evaluate(const SurfaceInteraction & is) const override {

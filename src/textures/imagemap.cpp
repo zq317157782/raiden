@@ -44,5 +44,20 @@ ImageTexture<RGBSpectrum,Spectrum> *CreateImageSpectrumTexture(const Transform &
        std::string fileName=tp.FindString("filename");
        Float scale = tp.FindFloat("scale",1);
        bool gamma = tp.FindBool("gamma",false);
-        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName,scale,gamma);
+       std::string wrapmodeStr = tp.FindString("wrapmode","black");
+       WrapMode wrapMode;
+       if(wrapmodeStr=="repeat"){
+          wrapMode=WrapMode::Repeat;
+       }
+       else if(wrapmodeStr=="clamp"){
+          wrapMode=WrapMode::Clamp;
+       }
+       else if(wrapmodeStr=="black"){
+          wrapMode=WrapMode::Black;
+       }
+       else{
+           LWarning<<"Invalid WrapMode "<<wrapmodeStr<<". Use Black Mode.";
+           wrapMode=WrapMode::Black;
+       }
+        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName,wrapMode,scale,gamma);
     }

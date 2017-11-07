@@ -18,6 +18,7 @@ class MIPMap{
 private:
     Point2i _resolution;
     std::unique_ptr<T[]> _data;
+    WrapMode _wrapMode;
     //计算某一行，或者某一列的权重的函数
     std::unique_ptr<ResampleWeight[]> ResampleWeights(int oldRes,int newRes){
         Assert(oldRes<newRes);
@@ -57,7 +58,7 @@ private:
     }
 
 public:
-    MIPMap(const Point2i& resolution,T* data):_resolution(resolution){
+    MIPMap(const Point2i& resolution,T* data,WrapMode wm):_resolution(resolution),_wrapMode(wm){
 
         //resample后的图像指针
         std::unique_ptr<T[]> resampledImage=nullptr;
@@ -81,10 +82,16 @@ public:
                     for(int j=0;j<4;++j){
                         //计算得到旧坐标系下的S坐标
                         int origS=sWeights[i].firstTexel+j;
-                        //暂时没有任何的包围模式 
-                        origS= std::max(0,std::min(origS,resolution[0]-1));
-                        //获得相应的旧纹素值并且乘以相应的权重值
-                        resampledImage[t*resampledRes[0]+i]+=data[origS*resolution[1]+t]*sWeights[i].weights[j];
+                        if(_wrapMode==WrapMode::Repeat){
+                            origS=Mod(origS,resolution[0]);
+                        }
+                        else if(_wrapMode==WrapMode::Clamp){
+                            origS=Clamp(origS,0,resolution[0]-1);
+                        }
+                        if(origS>=0&&origS<resolution[0]){
+                            //获得相应的旧纹素值并且乘以相应的权重值
+                            resampledImage[t*resampledRes[0]+i]+=data[origS*resolution[1]+t]*sWeights[i].weights[j];
+                        }
                     }
                 }
 
@@ -109,12 +116,19 @@ public:
                      workData[i]=0;
                      for(int j=0;j<4;++j){
                          //计算得到旧坐标系下的S坐标
-                         int origT=tWeights[i].firstTexel+j;
-                         //暂时没有任何的包围模式 
-                         origT=std::max(0,std::min(origT,resolution[1]-1));
-                         //获得相应的旧纹素值并且乘以相应的权重值
+                        int origT=tWeights[i].firstTexel+j;
+
+                        if(_wrapMode==WrapMode::Repeat){
+                            origT=Mod(origT,resolution[1]);
+                        }
+                        else if(_wrapMode==WrapMode::Clamp){
+                            origT=Clamp(origT,0,resolution[1]-1);
+                        }
+                        if(origT>=0&&origT<resolution[1]){
+                             //获得相应的旧纹素值并且乘以相应的权重值
                          workData[i]+=resampledImage[origT*resampledRes[0]+s]*tWeights[i].weights[j];
-                     }
+                        }
+                    }
                  }
                   //覆盖到resampledImage中
                   for(int i=0;i<resampledRes[1];++i){
