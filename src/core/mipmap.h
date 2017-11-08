@@ -207,13 +207,15 @@ public:
 			uint32_t h=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->height/2);
 			_pyramid[i].reset(new MIPMapArray<T>(w,h));
 
-			for (int s = 0; s < w; ++s) {
-				for (int t = 0; t < h; ++t) {
+			//并行处理过滤
+			ParallelFor([&](int t) {
+				for (int s = 0; s < w; ++s) {
 					//BOX过滤
 					_pyramid[i]->data[t*w + s] = 0.25*(Texel(i - 1, 2 * s, 2 * t) + Texel(i - 1, 2 * s + 1, 2 * t) + Texel(i - 1, 2 * s, 2 * t + 1) + Texel(i - 1, 2 * s + 1, 2 * t + 1));
 				}
-			}			
+			}, h, 16);
         }
+		WriteMIPMap("MIPMap");
     }
 
    
@@ -222,7 +224,7 @@ public:
 
 		//_data[(int)(st.x*_resolution[0])* _resolution[1] + (int)(st.y* _resolution[1])];
 		//LInfo << rgb[0] << " " << rgb[1] << " " << rgb[2] << " ";
-        return Texel(_numLevel-1,st[0],st[1]);
+        return Texel(0,st[0]* _resolution[0],st[1]* _resolution[1]);
     }
 
 
