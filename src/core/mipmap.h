@@ -107,7 +107,30 @@ private:
 		}
 	}
 
-	
+	// triangle mipmap filter
+	T Triangle(uint32_t level, const Point2f& st) const {
+		level = Clamp(level, 0, _numLevel - 1);
+
+		uint32_t w = _pyramid[level]->width;
+		uint32_t h = _pyramid[level]->height;
+		//这里使用了一定的trick来把连续坐标变换到离散坐标
+		Float s = w*st[0]-0.5;
+		Float t = h*st[1]-0.5;
+		
+		//获得4个texel的左下角坐标
+		int s0 = std::floor(s);
+		int t0 = std::floor(t);
+
+		//计算左下角和样本点之间的距离
+		Float ds = s - s0;
+		Float dt = t - t0;
+		
+		//运用三角过滤
+		return (ds*dt*Texel(level, s0, t0))+
+			((1 - ds)*dt*Texel(level, s0 + 1, t0))+
+			(ds*(1 - dt)*Texel(level, s0, t0 + 1))+
+			((1 - ds)*(1 - dt)*Texel(level, s0 + 1, t0 + 1));
+	}
 
 public:
     MIPMap(const Point2i& resolution,T* data,WrapMode wm):_resolution(resolution),_wrapMode(wm){
@@ -218,15 +241,38 @@ public:
 		WriteMIPMap("MIPMap");
     }
 
-   
+	
 
-    T Lookup(const Point2f &st) const{
+	T Lookup(const Point2f &st, Vector2f dstdx, Vector2f dstdy) const {
+		Float width = std::max(std::max(std::abs(dstdx[0]), std::abs(dstdx[1])),std::max(std::abs(dstdy[0]), std::abs(dstdy[1])));
+		return Lookup(st, width*2);
+	}
 
-		//_data[(int)(st.x*_resolution[0])* _resolution[1] + (int)(st.y* _resolution[1])];
-		//LInfo << rgb[0] << " " << rgb[1] << " " << rgb[2] << " ";
-        return Texel(0,st[0]* _resolution[0],st[1]* _resolution[1]);
+	//各项同性版本的Triangle过滤器Lookup
+    T Lookup(const Point2f &st,Float width) const{
+		
+		// resolution = 2^(_numLevel-1-l)
+		// l=_numLevel-1-log2(width);
+		//PBRT的公式我认为是错的，它是add log2不是minus log2
+		Float level = _numLevel - 1 + Log2(std::max(width, (Float)1e-8));
+
+		if (level < 0) {
+			//使用细节量最大的level
+			return Triangle(0, st);
+		}
+		else if (level >= (_numLevel - 1)) {
+			//使用最小的level
+			return Texel(_numLevel-1,0,0);
+		}
+		else {
+			int levelInt = std::floor(level);
+			Float delta = level - levelInt;
+			return Lerp(delta, Triangle(levelInt, st), Triangle(levelInt + 1, st));
+		}
     }
 
+
+	
 
 	void WriteMIPMap(std::string name) {
 

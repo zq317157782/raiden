@@ -258,6 +258,12 @@ inline Float Lerp(Float val, Float min, Float max) {
 	return min + (max - min) * val;
 }
 
+//线性插值
+template<typename T>
+inline T Lerp(Float val, T min, T max) {
+	return min + (max - min) * val;
+}
+
 //角度转换弧度
 inline Float Radians(Float deg) {
 	return (Pi / 180) * deg;
@@ -319,6 +325,14 @@ inline int64_t RoundUpPow2(int64_t v) {
     v |= v >> 32;
     return v + 1;
 }
+
+//求Float型的Log2
+inline Float Log2(Float x) {
+	//使用了换底公式
+	const Float invLog2 = 1.442695040888963387004650940071;
+	return std::log(x) * invLog2;
+}
+
 
 //求int的log2
 //__builtin_clz是glibc内置函数，作用是返回左起第一个为1的位之前0的个数
