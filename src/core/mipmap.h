@@ -15,15 +15,24 @@ struct ResampleWeight{
 //临时实现的暂时存放mipmap数据的结构
 template <typename T>
 struct MIPMapArray{
-    MIPMapArray(int w,int h,T* dd):width(w),height(h){
-        data.reset(new T[w*h]);
-        for(int i=0;i<w*h;++i){
+    MIPMapArray(int w,int h,T* dd):MIPMapArray(w,h){
+		for(int i=0;i<w*h;++i){
             data[i]=dd[i];
         }
+    }
+
+    MIPMapArray(int w,int h):width(w),height(h){
+        data.reset(new T[w*h]);
     }
     std::unique_ptr<T[]> data;
     uint32_t width;
     uint32_t height;
+
+    void Resize(uint32_t w,uint32_t h){
+        width=w;
+        height=s;
+        data.reset(new T[w*h]);
+    }
 };
 
 //mipmap实现
@@ -74,6 +83,31 @@ private:
 
         return wt;
     }
+
+	//从某个层级的mipmap获取信息
+	T Texel(uint32_t level, uint32_t s, uint32_t t) const {
+		uint32_t w = _pyramid[level]->width;
+		uint32_t h = _pyramid[level]->height;
+		//首先处理包围模式
+		if (_wrapMode == WrapMode::Repeat) {
+			s = Mod(s, w);
+			t = Mod(t, h);
+		}
+		else if (_wrapMode == WrapMode::Clamp) {
+			s = Clamp(s, 0, w - 1);
+			t = Clamp(t, 0, h - 1);
+		}
+
+		if (s >= 0 && s<w&&t >= 0 &&t<h) {
+			return _pyramid[level]->data[t*w + s];
+		}
+		else {
+			//BLACK包围模式
+			return 0;
+		}
+	}
+
+	
 
 public:
     MIPMap(const Point2i& resolution,T* data,WrapMode wm):_resolution(resolution),_wrapMode(wm){
@@ -163,16 +197,72 @@ public:
             _resolution=resampledRes;
         }
 
-        _numLevel=Log2Int(std::max(_resolution[0],_resolution[1]));
+        _numLevel=Log2Int(std::max(_resolution[0],_resolution[1]))+1;
         _pyramid.resize(_numLevel);
         //最上层
         _pyramid[0].reset(new MIPMapArray<T>(_resolution[0],_resolution[1],resampledImage.get()));
+        //使用BOX过滤生成mipmap
+        for(int i=1;i<_numLevel;++i){
+			uint32_t w=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->width/2);
+			uint32_t h=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->height/2);
+			_pyramid[i].reset(new MIPMapArray<T>(w,h));
+
+			for (int s = 0; s < w; ++s) {
+				for (int t = 0; t < h; ++t) {
+					//BOX过滤
+					_pyramid[i]->data[t*w + s] = 0.25*(Texel(i - 1, 2 * s, 2 * t) + Texel(i - 1, 2 * s + 1, 2 * t) + Texel(i - 1, 2 * s, 2 * t + 1) + Texel(i - 1, 2 * s + 1, 2 * t + 1));
+				}
+			}			
+        }
     }
+
+   
 
     T Lookup(const Point2f &st) const{
 
 		//_data[(int)(st.x*_resolution[0])* _resolution[1] + (int)(st.y* _resolution[1])];
 		//LInfo << rgb[0] << " " << rgb[1] << " " << rgb[2] << " ";
-        return _pyramid[0]->data[(int)(st.x*_resolution[0])+(int)(st.y* _resolution[1])* _resolution[0]];
+        return Texel(_numLevel-1,st[0],st[1]);
     }
+
+
+	void WriteMIPMap(std::string name) {
+
+		for (int lv = 0; lv < _numLevel; ++lv) {
+			std::vector<uint8_t> image;
+			uint32_t w = _pyramid[lv]->width;
+			uint32_t h = _pyramid[lv]->height;
+			T* data = _pyramid[lv]->data.get();
+			Float rgb[3];
+			for (int i = 0; i < w; ++i) {
+				for (int j = 0; j < h; ++j) {
+					T p = data[i*h + j];
+					p.ToRGB(rgb);
+					//进行sRGB空间下的gamma校验
+					rgb[0] = GammaCorrect(rgb[0]);
+					rgb[1] = GammaCorrect(rgb[1]);
+					rgb[2] = GammaCorrect(rgb[2]);
+
+					//这里clmap了值在0~1LHR范围内
+					//这里只是暂时的代码，以后要换成HDR，做ToneMapping
+					rgb[0] = Clamp(rgb[0], 0, 1);
+					rgb[1] = Clamp(rgb[1], 0, 1);
+					rgb[2] = Clamp(rgb[2], 0, 1);
+
+					//Info("[ x:" << i << " y:" << j << "][" << rgb[0] * 255 << " " << rgb[1] * 255 << " " << rgb[2] * 255 << "]");
+					image.push_back(rgb[0] * 255);//R
+					image.push_back(rgb[1] * 255);//G
+					image.push_back(rgb[2] * 255);//B
+					image.push_back(255);		//A
+				}
+			}
+			std::ostringstream stringStream;
+			stringStream << name << "_level_" << lv << ".png";
+			std::string copyOfStr = stringStream.str();
+			lodepng::encode(copyOfStr, image, w,
+				h);
+		}
+
+
+	}
 };

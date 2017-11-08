@@ -19,6 +19,10 @@
 
 #include "glog/logging.h"
 
+#ifdef _WIN32
+	#include <intrin.h>
+#endif
+
 //定义一个Float宏 可能指向float可能指向double
 #ifdef FLOAT_IS_DOUBLE
 typedef double Float;
@@ -319,7 +323,17 @@ inline int64_t RoundUpPow2(int64_t v) {
 //求int的log2
 //__builtin_clz是glibc内置函数，作用是返回左起第一个为1的位之前0的个数
 inline int Log2Int(uint32_t v) {
+#ifdef _WIN32
+	unsigned long lz;
+	if (_BitScanReverse(&lz, v >> 32))
+		lz += 32;
+	else {
+		_BitScanReverse(&lz, v & 0xffffffff);
+	}
+	return lz;
+#else
 	return 31 - __builtin_clz(v);
+#endif
 }
 	
 
