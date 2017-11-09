@@ -95,7 +95,6 @@ int main(int argc, char**argv) {
 		int index = 0;
 		std::map<int, int> indexMap;
 		std::cout << "shape:" << ss[s].name << std::endl;
-		std::cout <<"-->triangle num:"<<shapes[s].mesh.num_face_vertices.size()<< std::endl;
 		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
 
 			int fv = shapes[s].mesh.num_face_vertices[f];
@@ -105,17 +104,18 @@ int main(int argc, char**argv) {
 				if (indexMap.find(idx.vertex_index) == indexMap.end()) {
 					indexMap[idx.vertex_index] = index;
 					index++;
-					//std::cout<<index<<" ";
 				}
 
+				
 				ss[s].indices.push_back(indexMap[idx.vertex_index]);
-
+				std::cout<<"Index:"<<indexMap[idx.vertex_index]<<" ";
 				if (attrib.vertices.size() > 0) {
 					Vertex vertex;
 					vertex.x = attrib.vertices[3 * idx.vertex_index];
 					vertex.y = attrib.vertices[3 * idx.vertex_index + 1];
 					vertex.z = attrib.vertices[3 * idx.vertex_index + 2];
 					ss[s].vertices[indexMap[idx.vertex_index]] = vertex;
+					std::cout<<"V["<<vertex.x<<" "<<vertex.y<<" "<<vertex.z<<"] ";
 				}
 				if (attrib.normals.size() > 0) {
 					Vertex normal;
@@ -123,20 +123,24 @@ int main(int argc, char**argv) {
 					normal.y = attrib.normals[3 * idx.normal_index + 1];
 					normal.z = attrib.normals[3 * idx.normal_index + 2];
 					ss[s].normals[indexMap[idx.vertex_index]] = normal;
+					std::cout<<"N["<<normal.x<<" "<<normal.y<<" "<<normal.z<<"] ";
 				}
 				if (attrib.texcoords.size() > 0) {
 					UV uv;
 					uv.u = attrib.texcoords[2 * idx.texcoord_index];
 					uv.v = attrib.texcoords[2 * idx.texcoord_index + 1];
+					
 					ss[s].uvs[indexMap[idx.vertex_index]] = uv;
+					std::cout<<"UV["<<uv.u<<" "<<uv.v<<"] "<< std::endl;
 				}
 
 			}
 			index_offset += fv;
 		}
-		std::cout << "-->vertex num:" << ss[s].vertices.size() << std::endl;
-		std::cout << "-->normal num:" << ss[s].normals.size() << std::endl;
-		std::cout << "--uv num:" << ss[s].uvs.size() << std::endl;
+		std::cout <<"triangle num:"<<shapes[s].mesh.num_face_vertices.size()<< std::endl;
+		std::cout << "vertex num:" << ss[s].vertices.size() << std::endl;
+		std::cout << "normal num:" << ss[s].normals.size() << std::endl;
+		std::cout << "uv num:" << ss[s].uvs.size() << std::endl;
 
 	}
 	out <<"local mesh={}\n";
