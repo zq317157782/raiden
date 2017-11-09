@@ -46,6 +46,7 @@ int main(int argc, char**argv) {
 
 	std::cout << "start pharse obj" << std::endl;
 	std::ofstream out(inputfile.substr(0, inputfile.size() - 4) + ".lua");
+	out.setf(std::iostream::fixed, std::iostream::floatfield);
 //	out << inputfile.substr(0, inputfile.size() - 4)
 //			<< "_vertices={type=\"point3f\",\n value={";
 //	for (size_t i = 0; i < attrib.vertices.size(); ++i) {
@@ -125,8 +126,8 @@ int main(int argc, char**argv) {
 				}
 				if (attrib.texcoords.size() > 0) {
 					UV uv;
-					uv.u = attrib.texcoords[3 * idx.texcoord_index];
-					uv.v = attrib.texcoords[3 * idx.texcoord_index + 1];
+					uv.u = attrib.texcoords[2 * idx.texcoord_index];
+					uv.v = attrib.texcoords[2 * idx.texcoord_index + 1];
 					ss[s].uvs[indexMap[idx.vertex_index]] = uv;
 				}
 
@@ -181,7 +182,21 @@ int main(int argc, char**argv) {
 				out << "\n";
 			}
 		}
-		out << "}}"; //normal end
+		out << "}},"; //normal end
+		out << "\n";
+
+		out << "uvs={ type=\"point2f\" ,value={";
+		for (int v = 0; v < ss[i].uvs.size(); ++v) {
+			out << ss[i].uvs[v].u << ",";
+			out << ss[i].uvs[v].v;
+			if (v != ss[i].uvs.size() - 1) {
+				out << ",";
+			}
+			if (v % 3 == 2) {
+				out << "\n";
+			}
+		}
+		out << "}}"; //uv end
 		out << "\n";
 
 		out << "}\n";
