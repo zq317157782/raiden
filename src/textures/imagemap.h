@@ -92,7 +92,7 @@ void ImageTexture<Tmemory, Treturn>::ConvertOut(const RGBSpectrum& from, RGBSpec
 
 
 template<typename Tmemory,typename Treturn> 
-MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileName,WrapMode wrapMode,Float scale=1,bool gamma=false){
+MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileName,WrapMode wrapMode,Float scale,bool gamma){
 	TexInfo texInfo(fileName, wrapMode, scale, gamma);
 	if (_textures.find(texInfo) != _textures.end()) {
 		return _textures[texInfo].get();

@@ -30,7 +30,7 @@ struct MIPMapArray{
 
     void Resize(uint32_t w,uint32_t h){
         width=w;
-        height=s;
+        height=h;
         data.reset(new T[w*h]);
     }
 };
