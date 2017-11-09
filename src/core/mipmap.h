@@ -142,7 +142,7 @@ public:
         if(!IsPowerOf2(_resolution[0])||!IsPowerOf2(_resolution[1])){
             //获得2的幂的分辨率
             Point2i resampledRes(RoundUpPow2(_resolution[0]),RoundUpPow2(_resolution[1]));
-            //LInfo<<"MIPMap从"<<_resolution<<" 到"<<resampledResolution<<" Ratio:"<<(resampledResolution[0]*resampledResolution[1])/(_resolution[0]*_resolution[1]);
+            LInfo<<"MIPMap from"<<_resolution<<" to"<< resampledRes <<" Ratio:"<<(resampledRes[0]* resampledRes[1])/(_resolution[0]*_resolution[1]);
             
             //为正式的分辨率分配空间
             resampledImage.reset(new T[resampledRes[0]*resampledRes[1]]);
@@ -218,12 +218,14 @@ public:
              }
             //完成数据的赋值
             _resolution=resampledRes;
-        }
+		}
+		
 
         _numLevel=Log2Int(std::max(_resolution[0],_resolution[1]))+1;
         _pyramid.resize(_numLevel);
+		//LInfo << _numLevel;
         //最上层
-        _pyramid[0].reset(new MIPMapArray<T>(_resolution[0],_resolution[1],resampledImage.get()));
+        _pyramid[0].reset(new MIPMapArray<T>(_resolution[0],_resolution[1], resampledImage?resampledImage.get():data));
         //使用BOX过滤生成mipmap
         for(int i=1;i<_numLevel;++i){
 			uint32_t w=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->width/2);
