@@ -73,13 +73,13 @@ bool LoadObjFile(const std::string& filename,tinyobj::attrib_t* attrib, std::vec
 }
 
 void PrintMesh(const Mesh& mesh) {
-	/*std::cout << "Mesh Name: "<<mesh.name<<std::endl;
-	for (auto v = mesh.vertices.begin(); v != mesh.vertices.end(); ++v) {
-		std::cout << "Index[" << v->second << "]" << std::endl;
-		std::cout << "Vertex[" << v->first.position.x<<" " << v->first.position.y << " " << v->first.position.z << "]" << std::endl;
-		std::cout << "Normal[" << v->first.normal.x << " " << v->first.normal.y << " " << v->first.normal.z << "]" << std::endl;
-		std::cout << "UV[" << v->first.uv.x << " " << v->first.uv.y << "]" << std::endl;
-	}*/
+	std::cout << "Mesh Name: "<<mesh.name<<std::endl;
+	for (int i = 0; i < mesh.verticesKeys.size();++i) {
+		std::cout << "Index[" << mesh.verticesValues[i] << "]" << std::endl;
+		std::cout << "Vertex[" << mesh.verticesKeys[i].position.x<<" " << mesh.verticesKeys[i].position.y << " " << mesh.verticesKeys[i].position.z << "]" << std::endl;
+		std::cout << "Normal[" << mesh.verticesKeys[i].normal.x << " " << mesh.verticesKeys[i].normal.y << " " << mesh.verticesKeys[i].normal.z << "]" << std::endl;
+		std::cout << "UV[" << mesh.verticesKeys[i].uv.x << " " << mesh.verticesKeys[i].uv.y << "]" << std::endl;
+	}
 }
 
 void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attrib, const std::vector<tinyobj::shape_t>& shapes, const std::vector<tinyobj::material_t>& materials) {
@@ -106,7 +106,7 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 				std::cerr<<"Only Support Triangle Mesh! But has "<<fv<<" Vertex's mesh!" << std::endl;
 				exit(-1);
 			}
-
+			//std::cout << "Convert Mesh[" << s << "] Face[ "<< f <<"]" << std::endl;
 			//遍历当前Face下的Vertex
 			for (size_t v = 0; v < fv; v++) {
 				//获得当前的Index结构
@@ -160,7 +160,7 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 			index_offset += fv;
 		}
 	}
-
+	std::cout << "start Write " << filename << " to " << luaName << std::endl;
 	//开始写lua文件
 	lua << "local mesh={}\n";
 	lua <<"mesh[\"shapes\"]={}\n";
@@ -196,6 +196,9 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 			if (count != (orderedVertices.size()-1)) {
 				lua << ",";
 			}
+			if (i % 3 == 0) {
+				lua << "\n";
+			}
 			count++;
 		}
 		lua << "}},\n";
@@ -204,13 +207,16 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 		lua << "  normals={ type=\"normal3f\" ,value={";
 		count = 0;
 
-		for (auto v : orderedVertices) {
+		for (int i = 0; i < orderedVertices.size(); ++i) {
 
-			lua << v.normal.x << ",";
-			lua << v.normal.y << ",";
-			lua << v.normal.z;
+			lua << orderedVertices[i].normal.x << ",";
+			lua << orderedVertices[i].normal.y << ",";
+			lua << orderedVertices[i].normal.z;
 			if (count != (orderedVertices.size() - 1)) {
 				lua << ",";
+			}
+			if (i % 3 == 0) {
+				lua << "\n";
 			}
 			count++;
 		}
@@ -220,12 +226,15 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 		lua << "  uvs={ type=\"point2f\" ,value={";
 		count = 0;
 
-		for (auto v : orderedVertices) {
+		for (int i = 0; i < orderedVertices.size(); ++i) {
 
-			lua << v.uv.x << ",";
-			lua << v.uv.y;
+			lua << orderedVertices[i].uv.x << ",";
+			lua << orderedVertices[i].uv.y;
 			if (count != (orderedVertices.size() - 1)) {
 				lua << ",";
+			}
+			if (i % 3 == 0) {
+				lua << "\n";
 			}
 			count++;
 		}
