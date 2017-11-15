@@ -25,10 +25,10 @@ struct MIPMapArray{
         data.reset(new T[w*h]);
     }
     std::unique_ptr<T[]> data;
-    uint32_t width;
-    uint32_t height;
+    int width;
+    int height;
 
-    void Resize(uint32_t w,uint32_t h){
+    void Resize(int w,int h){
         width=w;
         height=h;
         data.reset(new T[w*h]);
@@ -47,6 +47,10 @@ private:
     //所以先暂时自己实现个简单的结构
     std::vector<std::unique_ptr<MIPMapArray<T>>> _pyramid;
     uint32_t _numLevel;
+
+    bool _doTrilinear;
+    Float _maxAnisotropy;//最大各项异性比例 
+
     //计算某一行，或者某一列的权重的函数
     std::unique_ptr<ResampleWeight[]> ResampleWeights(int oldRes,int newRes){
         Assert(oldRes<newRes);
@@ -85,9 +89,9 @@ private:
     }
 
 	//从某个层级的mipmap获取信息
-	T Texel(uint32_t level, uint32_t s, uint32_t t) const {
-		uint32_t w = _pyramid[level]->width;
-		uint32_t h = _pyramid[level]->height;
+	T Texel(int level, int s, int t) const {
+		int w = _pyramid[level]->width;
+		int h = _pyramid[level]->height;
 		//首先处理包围模式
 		if (_wrapMode == WrapMode::Repeat) {
 			s = Mod(s, w);
@@ -107,12 +111,15 @@ private:
 		}
 	}
 
-	// triangle mipmap filter
-	T Triangle(uint32_t level, const Point2f& st) const {
-		level = Clamp(level, 0, _numLevel - 1);
+	// triangle过滤
+	T Triangle(int level, const Point2f& st) const {
+		//level = Clamp(level, 0, _numLevel - 1);
+        if(level>=_numLevel){
+            return Texel(_numLevel-1,0,0);
+        }
 
-		uint32_t w = _pyramid[level]->width;
-		uint32_t h = _pyramid[level]->height;
+		int w = _pyramid[level]->width;
+		int h = _pyramid[level]->height;
 		//这里使用了一定的trick来把连续坐标变换到离散坐标
 		Float s = w*st[0]-0.5;
 		Float t = h*st[1]-0.5;
@@ -130,10 +137,72 @@ private:
 			((1 - ds)*dt*Texel(level, s0 + 1, t0))+
 			(ds*(1 - dt)*Texel(level, s0, t0 + 1))+
 			((1 - ds)*(1 - dt)*Texel(level, s0 + 1, t0 + 1));
-	}
+    }
+    
+    //EWA过滤
+    T EWA(int level, const Point2f& st,const Vector2f& dst0,const Vector2f& dst1) const{
+        if(level>=_numLevel){
+            return Texel(_numLevel-1,0,0);
+        }
+
+        int w = _pyramid[level]->width;
+		int h = _pyramid[level]->height;
+		//这里使用了一定的trick来把连续坐标变换到离散坐标
+		Float s = w*st[0]-0.5;
+		Float t = h*st[1]-0.5;
+
+        //把椭圆的两根轴也转换到当前level的坐标系下
+        Vector2f majorAxis,minorAxis;
+        majorAxis.x=dst0.x*w;
+        majorAxis.y=dst0.y*h;
+        minorAxis.x=dst1.x*w;
+        minorAxis.y=dst1.y*h;
+
+        //计算隐式椭圆的几个系数
+        //具体的隐式函数的推导要看 [Heck89]Fundamentals of Texture Mapping and Image 
+        Float A=majorAxis[1]*majorAxis[1]+minorAxis[1]*minorAxis[1]+1;
+        Float B=-2*(majorAxis[0]*majorAxis[1]+minorAxis[0]*minorAxis[1]);
+        Float C=majorAxis[0]*majorAxis[0]+minorAxis[0]*minorAxis[0]+1;
+        Float invF=1/(A*C-B*B*0.25);
+        A*=invF;
+        B*=invF;
+        C*=invF;
+
+        //开始计算椭圆在纹理空间中的包围盒
+        //公式我没太理解，还是需要看上述论文
+        Float det = -B * B + 4 * A * C;
+        Float invDet = 1 / det;
+        Float uSqrt = std::sqrt(det * C);
+        Float vSqrt = std::sqrt(A * det);
+        int s0 = std::ceil (st[0] - 2 * invDet * uSqrt);
+        int s1 = std::floor(st[0] + 2 * invDet * uSqrt);
+        int t0 = std::ceil (st[1] - 2 * invDet * vSqrt);
+        int t1 = std::floor(st[1] + 2 * invDet * vSqrt);
+
+        Float sumWeight;
+        Spectrum sum(0);
+        //开始遍历包围盒，计算每个Texeld的贡献
+        for(int it=t0;it<=t1;++it){
+            Float tt=it-st[1];//转换到st为原点的空间
+            for(int is=s0;is<=s1;++is){
+                Float ss=is-st[0];//转换到st为原点的空间
+    
+                //计算椭圆系数
+                Float r2 = A * ss * ss + B * ss * tt + C * tt * tt;
+                //如果当前的texel在椭圆中的话
+                if(r2<1){
+                    //累积贡献和权重
+                    Float weight=1;
+                    sum+=Texel(level,s,t)*weight;
+                    sumWeight+=weight;
+                }
+            }
+        }
+        return sum/sumWeight;
+    }
 
 public:
-    MIPMap(const Point2i& resolution,T* data,WrapMode wm):_resolution(resolution),_wrapMode(wm){
+    MIPMap(const Point2i& resolution,T* data,WrapMode wm,bool doTrilinear,Float maxAnisotropy):_resolution(resolution),_wrapMode(wm),_doTrilinear(doTrilinear),_maxAnisotropy(maxAnisotropy){
 
         //resample后的图像指针
         std::unique_ptr<T[]> resampledImage=nullptr;
@@ -245,9 +314,51 @@ public:
 
 	
 
-	T Lookup(const Point2f &st, Vector2f dstdx, Vector2f dstdy) const {
+	T Lookup(const Point2f &st, const Vector2f& dstdx, const Vector2f& dstdy) const {
 		Float width = std::max(std::max(std::abs(dstdx[0]), std::abs(dstdx[1])),std::max(std::abs(dstdy[0]), std::abs(dstdy[1])));
-		return Lookup(st, width*2);
+        if(_doTrilinear){
+            //使用Triangle过滤
+            return Lookup(st, width*2);
+        }
+
+       
+        //各项异性版本的EWA过滤
+        //判断主轴和副轴
+        Vector2f majorAxis;
+        Vector2f minorAxis;
+        Float majorLength;
+        Float minorLength;
+        if(dstdx.LengthSquared()>dstdy.LengthSquared()){
+            majorAxis=dstdx;
+            minorAxis=dstdy;
+        }
+        else{
+            majorAxis=dstdy;
+            minorAxis=dstdx;
+        }
+        //计算Axis长度
+        majorLength=majorAxis.Length();
+        minorLength=minorAxis.Length();
+        //判断是否需要对 minorLength进行缩放
+        if(minorLength*_maxAnisotropy<majorLength&&minorLength>0){
+            //这里是限制texel最大个数的缩放操作
+            Float scale=minorLength/(minorLength*_maxAnisotropy);
+            minorAxis=minorAxis*scale;
+            minorLength*=scale;
+        }
+        
+        if(minorLength<0){
+            //使用细节度最高的三角过滤
+            return Triangle(0, st);
+        }
+        
+        //使用minorLength来选择lod
+        //这里和三角过滤lookup一样
+        Float lod = std::max((Float)0, _numLevel - (Float)1 + Log2(minorLength));
+        int lodInt = std::floor(lod);
+        Float delta = lod - lodInt;
+        return Lerp(delta, EWA(lod, st,majorAxis,minorAxis), EWA(lod+1,st, majorAxis,minorAxis));
+
 	}
 
 	//各项同性版本的Triangle过滤器Lookup
@@ -272,7 +383,6 @@ public:
 			return Lerp(delta, Triangle(levelInt, st), Triangle(levelInt + 1, st));
 		}
     }
-
 
 	
 

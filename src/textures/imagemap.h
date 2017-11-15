@@ -51,8 +51,8 @@ private:
 	//纹理缓存
 	static std::map<TexInfo, std::unique_ptr<MIPMap<Tmemory>>> _textures;
 public:
-	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,WrapMode wrapMode,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
-		_mipmap = GetTexture(fileName, wrapMode, scale, gamma);
+	ImageTexture(std::unique_ptr<TextureMapping2D> mapping,std::string& fileName,WrapMode wrapMode,bool doTrilinear,Float maxAnisotropy,Float scale=1,bool gamma=false):_mapping(std::move(mapping)) {
+		_mipmap = GetTexture(fileName, wrapMode,doTrilinear,maxAnisotropy,scale, gamma);
 	}
 	virtual Treturn Evaluate(const SurfaceInteraction & is) const override {
 		Vector2f dstdx, dstdy;
@@ -64,7 +64,7 @@ public:
 	}
 	virtual ~ImageTexture(){}
 
-	static MIPMap<Tmemory>* GetTexture(std::string& fileName,WrapMode wrapMode,Float scale=1,bool gamma=false);
+	static MIPMap<Tmemory>* GetTexture(std::string& fileName,WrapMode wrapMode,bool doTrilinear,Float maxAnisotropy,Float scale=1,bool gamma=false);
 
 private:
 	//一系列转换函数，从from类型转换到to类型，并且根据参数进行缩放和GAMMA校正
@@ -92,7 +92,7 @@ void ImageTexture<Tmemory, Treturn>::ConvertOut(const RGBSpectrum& from, RGBSpec
 
 
 template<typename Tmemory,typename Treturn> 
-MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileName,WrapMode wrapMode,Float scale,bool gamma){
+MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileName,WrapMode wrapMode,bool doTrilinear,Float maxAnisotropy,Float scale,bool gamma){
 	TexInfo texInfo(fileName, wrapMode, scale, gamma);
 	if (_textures.find(texInfo) != _textures.end()) {
 		return _textures[texInfo].get();
@@ -118,7 +118,7 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 		errorRGB[0] = 1;
 		errorRGB[1] = 0.0196;
 		errorRGB[2] = 0.9529;
-		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(1, 1), &errorRGB, WrapMode::Repeat));
+		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(1, 1), &errorRGB, WrapMode::Repeat,doTrilinear,maxAnisotropy));
 		return _textures[texInfo].get();
 	}
 	else {
@@ -146,7 +146,7 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 		}
 
 		//3.创建MIPMap
-		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(width, height), image.get(), wrapMode));
+		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(width, height), image.get(), wrapMode,doTrilinear,maxAnisotropy));
 		return _textures[texInfo].get();
 	}
 }

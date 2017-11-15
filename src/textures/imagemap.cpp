@@ -42,6 +42,10 @@ ImageTexture<RGBSpectrum,Spectrum> *CreateImageSpectrumTexture(const Transform &
         }
 
        std::string fileName=tp.FindString("filename");
+
+       Float maxAniso = tp.FindFloat("maxanisotropy", 8.0f);
+       bool trilerp = tp.FindBool("trilinear", false);
+
        Float scale = tp.FindFloat("scale",1);
        bool gamma = tp.FindBool("gamma",false);
        std::string wrapmodeStr = tp.FindString("wrapmode","black");
@@ -59,5 +63,5 @@ ImageTexture<RGBSpectrum,Spectrum> *CreateImageSpectrumTexture(const Transform &
            LWarning<<"Invalid WrapMode "<<wrapmodeStr<<". Use Black Mode.";
            wrapMode=WrapMode::Black;
        }
-        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName,wrapMode,scale,gamma);
+        return new ImageTexture<RGBSpectrum,Spectrum>(std::move(mapping),fileName,wrapMode,trilerp,maxAniso,scale,gamma);
     }
