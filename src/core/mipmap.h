@@ -5,6 +5,10 @@
 //提供三种包围模式[裁剪 重复 纯黑]
 enum class WrapMode{Clamp,Repeat,Black};
 
+//高斯表的大小
+static constexpr uint32_t WeightLUTSize=128; 
+static Float WeightLUT[WeightLUTSize];//高斯表
+
 //新的Texel对应的旧的相应的Texel的权重
 //只表示一行的权重，默认filter宽度为4,所以只要存4个数据
 struct ResampleWeight{
@@ -179,7 +183,7 @@ private:
         int t0 = std::ceil (st[1] - 2 * invDet * vSqrt);
         int t1 = std::floor(st[1] + 2 * invDet * vSqrt);
 
-        Float sumWeight;
+        Float sumWeight=0;
         Spectrum sum(0);
         //开始遍历包围盒，计算每个Texeld的贡献
         for(int it=t0;it<=t1;++it){
@@ -192,7 +196,7 @@ private:
                 //如果当前的texel在椭圆中的话
                 if(r2<1){
                     //累积贡献和权重
-                    Float weight=1;
+                    Float weight=WeightLUT[int((WeightLUTSize-1)*r2)];
                     sum+=Texel(level,s,t)*weight;
                     sumWeight+=weight;
                 }
@@ -287,6 +291,15 @@ public:
              }
             //完成数据的赋值
             _resolution=resampledRes;
+
+            //初始化高斯表
+            Float alpha=2;
+            if(WeightLUT[0]==0){
+                for(int i=0;i<WeightLUTSize;++i){
+                    Float r2=Float(i)/Float(WeightLUTSize-1);
+                    WeightLUT[i]=std::exp(-alpha*r2)-std::exp(-alpha);
+                }
+            }
 		}
 		
 
