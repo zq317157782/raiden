@@ -167,7 +167,7 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 
 	for (int m = 0; m < meshs.size(); ++m) {
 		lua << "mesh.shapes[" << m << "]={\n";
-		PrintMesh(meshs[m]);
+		//PrintMesh(meshs[m]);
 		auto verticesKeys=meshs[m].verticesKeys;
 		auto verticesValues = meshs[m].verticesValues;
 
