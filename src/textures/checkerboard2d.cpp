@@ -42,8 +42,21 @@ Checkerboard2DTexture<Float> *CreateCheckerboard2DFloatTexture(const Transform &
 	//纹理
 	std::shared_ptr<Texture<Float>> tex0 = tp.GetFloatTexture("tex1", 0);
 	std::shared_ptr<Texture<Float>> tex1 = tp.GetFloatTexture("tex2", 1);
+
+
+	Checkerboard2DTexture<Float>::AAMethod aa;
+	if (tp.FindString("aa", "closedform") == "none") {
+		aa = Checkerboard2DTexture<Float>::AAMethod::None;
+	}
+	else  if(tp.FindString("aa", "closedform") == "closedform"){
+		aa = Checkerboard2DTexture<Float>::AAMethod::ClosedForm;
+	}
+	else{
+		LError << "AAMethod \"" << tp.FindString("aa") << "\" unknown,using closedform";
+		aa = Checkerboard2DTexture<Float>::AAMethod::ClosedForm;
+	}
 	
-	return new Checkerboard2DTexture<Float>(std::move(mapping),tex0,tex1);
+	return new Checkerboard2DTexture<Float>(std::move(mapping),tex0,tex1,aa);
 }
 
 
@@ -90,5 +103,17 @@ Checkerboard2DTexture<Spectrum> *CreateCheckerboard2DSpectrumTexture(const Trans
 	std::shared_ptr<Texture<Spectrum>> tex0 = tp.GetSpectrumTexture("tex1", 0);
 	std::shared_ptr<Texture<Spectrum>> tex1 = tp.GetSpectrumTexture("tex2", 1);
 
-	return new Checkerboard2DTexture<Spectrum>(std::move(mapping), tex0, tex1);
+	Checkerboard2DTexture<Spectrum>::AAMethod aa;
+	if (tp.FindString("aa", "closedform") == "none") {
+		aa = Checkerboard2DTexture<Spectrum>::AAMethod::None;
+	}
+	else  if (tp.FindString("aa", "closedform") == "closedform") {
+		aa = Checkerboard2DTexture<Spectrum>::AAMethod::ClosedForm;
+	}
+	else {
+		LError << "AAMethod \"" << tp.FindString("aa") << "\" unknown,using closedform";
+		aa = Checkerboard2DTexture<Spectrum>::AAMethod::ClosedForm;
+	}
+
+	return new Checkerboard2DTexture<Spectrum>(std::move(mapping), tex0, tex1, aa);
 }
