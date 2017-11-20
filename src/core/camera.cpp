@@ -23,8 +23,9 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 	++sshift.pFilm.x;
 	Ray rx;
 	float wtx = GenerateRay(sshift, &rx);
-	if (wtx == 0)
+	if (wtx == 0) {
 		return 0;
+	}
 	rd->ox = rx.o;
 	rd->dx = rx.d;
 	//生成y偏移射线
@@ -32,8 +33,9 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 	++sshift.pFilm.y;
 	Ray ry;
 	float wty = GenerateRay(sshift, &ry);
-	if (wty == 0)
+	if (wty == 0) {
 		return 0;
+	}
 	rd->oy = ry.o;
 	rd->dy = ry.d;
 	//设置射线为微分射线
