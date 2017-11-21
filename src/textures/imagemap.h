@@ -13,11 +13,13 @@
 #include <map>
 //纹理的信息
 struct TexInfo{
-	TexInfo(const std::string& name, WrapMode wm, Float s,bool g):fileName(name), wrapMode(wm), scale(s), gamma(g){
+	TexInfo(const std::string& name, WrapMode wm, bool trilinear,Float maxAn,  Float s,bool g):fileName(name), wrapMode(wm),doTrilinear(trilinear), maxAnisotropy(maxAn), scale(s), gamma(g){
 
 	}
 	std::string fileName;//纹理文件的名字
 	WrapMode wrapMode; //wrapMode
+	bool doTrilinear;
+	Float maxAnisotropy;
 	Float scale;
 	bool gamma;
 
@@ -25,12 +27,20 @@ struct TexInfo{
 		if (fileName != t2.fileName) {
 			return fileName < t2.fileName;
 		}
+		if (doTrilinear!=t2.doTrilinear) {
+			return !doTrilinear;
+		}
+		if (maxAnisotropy != t2.maxAnisotropy) {
+			return maxAnisotropy < t2.maxAnisotropy;
+		}
+
 		if (scale != t2.scale) {
 			return scale < t2.scale;
 		}
 		if (gamma != t2.gamma) {
 			return !gamma;
 		}
+		
 		return wrapMode < t2.wrapMode;
 	}
 };
@@ -93,7 +103,7 @@ void ImageTexture<Tmemory, Treturn>::ConvertOut(const RGBSpectrum& from, RGBSpec
 
 template<typename Tmemory,typename Treturn> 
 MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileName,WrapMode wrapMode,bool doTrilinear,Float maxAnisotropy,Float scale,bool gamma){
-	TexInfo texInfo(fileName, wrapMode, scale, gamma);
+	TexInfo texInfo(fileName, wrapMode, doTrilinear, maxAnisotropy,scale, gamma);
 	if (_textures.find(texInfo) != _textures.end()) {
 		return _textures[texInfo].get();
 	}
@@ -109,6 +119,8 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 		
 		texInfo.fileName = "error";
 		texInfo.wrapMode = WrapMode::Repeat;
+		texInfo.doTrilinear = true;
+		texInfo.maxAnisotropy = 0;
 		texInfo.scale = 1;
 		texInfo.gamma = false;
 		if (_textures.find(texInfo) != _textures.end()) {
