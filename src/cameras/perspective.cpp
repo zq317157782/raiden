@@ -15,10 +15,10 @@ PerspectiveCamera::PerspectiveCamera(const Transform& c2w,
 		ProjectiveCamera(c2w, Perspective(fov, 1e-3f, 1000.0f)/*c2s*/,
 				screenWindow, shutterOpen, shutterEnd, lensr, focald,f,medium) {
 	//获得光栅化空间下，相机空间对应的差分
-	_dxCamera = _rasterToCamera(Vector3f(1, 0, 0))
-			- _rasterToCamera(Vector3f(0, 0, 0));
-	_dyCamera = _rasterToCamera(Vector3f(0, 1, 0))
-			- _rasterToCamera(Vector3f(0, 0, 0));
+	_dxCamera = _rasterToCamera(Point3f(1, 0, 0))
+			- _rasterToCamera(Point3f(0, 0, 0));
+	_dyCamera = _rasterToCamera(Point3f(0, 1, 0))
+			- _rasterToCamera(Point3f(0, 0, 0));
 }
 
 Float PerspectiveCamera::GenerateRay(const CameraSample &sample,
@@ -45,8 +45,10 @@ Float PerspectiveCamera::GenerateRay(const CameraSample &sample,
 }
 Float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
 		RayDifferential *ray) const {
+	
 	Point3f pRas = Point3f(sample.pFilm.x, sample.pFilm.y, 0.0f);
 	Point3f pCam = _rasterToCamera(pRas); //计算相机空间下的image panel样本值
+	
 	*ray = RayDifferential(Point3f(0,0,0), Normalize(Vector3f(pCam)));
 	if (_lensRadius > 0.0f) {
 		Point2f lens = ConcentricSampleDisk(sample.pLen) * _lensRadius; //采样Lens
