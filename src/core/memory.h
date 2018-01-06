@@ -125,4 +125,72 @@ private:
 
 };
 
+
+//在内存分布上是以block分布来储存的2D数组,可以降低访问临近内存区域时候的时候的cache miss概率
+template<typename T,int logBlockSize>
+class BlockedArray{
+private:
+	T* _data;
+	int _uRes,_vRes;
+	int _allocSize;
+	int _uBlockNum;
+	int RoundUp(int v) const{
+		return (v+BlockSize()-1)&~(BlockSize()-1);
+	}
+public:
+	BlockedArray(int uRes,int vRes,T* raw=nullptr):_uRes(uRes),_vRes(vRes),_allocSize(RoundUp(uRes)*RoundUp(vRes)),_uBlockNum(RoundUp(uRes)>>logBlockSize){
+		_data=AllocAligned<T>(_allocSize);//分配空间
+		for(int i=0;i<_allocSize;++i){
+			//初始化数据
+			new (&_data[i]) T();
+		}
+		//有初始化数据的情况
+		if(raw){
+			for(int i=0;i<uRes;++i){
+				for(int j=0;j<vRes;++j){
+					(*this)(i,j)=raw[j*_uRes+i];
+				}
+			}
+		}
+	}
+
+	//返回一个block的大小(byte)
+	constexpr int BlockSize() const{
+		return (1<<logBlockSize);
+	}
+
+	//返回block编号
+	int Block(int a) const{
+		return a>>logBlockSize;
+	}
+
+	//返回在block中的offset
+	int Offset(int a) const{
+		return a&(BlockSize()-1);
+	}
+
+	T& operator()(int u,int v) const{
+		int uBlock=Block(u);
+		int vBlock=Block(v);
+		int uOffset=Offset(u);
+		int vOffset=Offset(v);
+
+		//block间的offset
+		int offset=(vBlock*_uBlockNum+uBlock)*BlockSize()*BlockSize();
+		//block内的offset
+		offset=offset+vOffset*BlockSize()+uOffset;
+		
+		return _data[offset];
+	}
+
+	int URes() const{
+		return _uRes;
+	}
+	
+	int VRes() const{
+		return _vRes;
+	}
+};
+
+
 #endif /* SRC_CORE_MEMORY_H_ */
