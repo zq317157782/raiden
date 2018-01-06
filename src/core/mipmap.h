@@ -1,6 +1,7 @@
 #include "raiden.h"
 #include "texture.h"
 #include "parallel.h"
+#include "memory.h"
 
 //提供三种包围模式[裁剪 重复 纯黑]
 enum class WrapMode{Clamp,Repeat,Black};
@@ -16,29 +17,6 @@ struct ResampleWeight{
     Float weights[4];
 };
 
-//临时实现的暂时存放mipmap数据的结构
-template <typename T>
-struct MIPMapArray{
-    MIPMapArray(int w,int h,T* dd):MIPMapArray(w,h){
-		for(int i=0;i<w*h;++i){
-            data[i]=dd[i];
-        }
-    }
-
-    MIPMapArray(int w,int h):width(w),height(h){
-        data.reset(new T[w*h]);
-    }
-    std::unique_ptr<T[]> data;
-    int width;
-    int height;
-
-    void Resize(int w,int h){
-        width=w;
-        height=h;
-        data.reset(new T[w*h]);
-    }
-};
-
 //mipmap实现
 template <typename T>
 class MIPMap{
@@ -46,10 +24,7 @@ private:
     Point2i _resolution;
     std::unique_ptr<T[]> _data;
     WrapMode _wrapMode;
-    //PBRT使用的是BlockedArray类型，
-    //我还没有研究和实现，
-    //所以先暂时自己实现个简单的结构
-    std::vector<std::unique_ptr<MIPMapArray<T>>> _pyramid;
+    std::vector<std::unique_ptr<BlockedArray<T>>> _pyramid;
     uint32_t _numLevel;
 
     bool _doTrilinear;
@@ -94,8 +69,8 @@ private:
 
 	//从某个层级的mipmap获取信息
 	T Texel(int level, int s, int t) const {
-		int w = _pyramid[level]->width;
-		int h = _pyramid[level]->height;
+		int w = _pyramid[level]->USize();
+		int h = _pyramid[level]->VSize();
 		//首先处理包围模式
 		if (_wrapMode == WrapMode::Repeat) {
 			s = Mod(s, w);
@@ -107,7 +82,7 @@ private:
 		}
 
 		if (s >= 0 && s<w&&t >= 0 &&t<h) {
-			return _pyramid[level]->data[t*w + s];
+            return (*_pyramid[level])(s,t);
 		}
 		else {
 			//BLACK包围模式
@@ -122,8 +97,8 @@ private:
             return Texel(_numLevel-1,0,0);
         }
 
-		int w = _pyramid[level]->width;
-		int h = _pyramid[level]->height;
+		int w = _pyramid[level]->USize();
+		int h = _pyramid[level]->VSize();
 		//这里使用了一定的trick来把连续坐标变换到离散坐标
 		Float s = w*st[0]-0.5;
 		Float t = h*st[1]-0.5;
@@ -149,8 +124,8 @@ private:
             return Texel(_numLevel-1,0,0);
         }
 
-        int w = _pyramid[level]->width;
-		int h = _pyramid[level]->height;
+        int w = _pyramid[level]->USize();
+		int h = _pyramid[level]->VSize();
 		//这里使用了一定的trick来把连续坐标变换到离散坐标
 		Float s = w*st[0]-0.5;
 		Float t = h*st[1]-0.5;
@@ -307,18 +282,18 @@ public:
         _pyramid.resize(_numLevel);
 		//LInfo << _numLevel;
         //最上层
-        _pyramid[0].reset(new MIPMapArray<T>(_resolution[0],_resolution[1], resampledImage?resampledImage.get():data));
+        _pyramid[0].reset(new BlockedArray<T>(_resolution[0],_resolution[1], resampledImage?resampledImage.get():data));
         //使用BOX过滤生成mipmap
         for(int i=1;i<_numLevel;++i){
-			uint32_t w=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->width/2);
-			uint32_t h=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->height/2);
-			_pyramid[i].reset(new MIPMapArray<T>(w,h));
+			uint32_t w=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->USize()/2);
+			uint32_t h=std::max((uint32_t)1, (uint32_t)_pyramid[i-1]->VSize()/2);
+			_pyramid[i].reset(new BlockedArray<T>(w,h));
 
 			//并行处理过滤
 			ParallelFor([&](int t) {
 				for (int s = 0; s < w; ++s) {
 					//BOX过滤
-					_pyramid[i]->data[t*w + s] = 0.25*(Texel(i - 1, 2 * s, 2 * t) + Texel(i - 1, 2 * s + 1, 2 * t) + Texel(i - 1, 2 * s, 2 * t + 1) + Texel(i - 1, 2 * s + 1, 2 * t + 1));
+					(*_pyramid[i])(s,t) = 0.25*(Texel(i - 1, 2 * s, 2 * t) + Texel(i - 1, 2 * s + 1, 2 * t) + Texel(i - 1, 2 * s, 2 * t + 1) + Texel(i - 1, 2 * s + 1, 2 * t + 1));
 				}
 			}, h, 16);
         }
@@ -403,13 +378,12 @@ public:
 
 		for (int lv = 0; lv < _numLevel; ++lv) {
 			std::vector<uint8_t> image;
-			uint32_t w = _pyramid[lv]->width;
-			uint32_t h = _pyramid[lv]->height;
-			T* data = _pyramid[lv]->data.get();
+			uint32_t w = _pyramid[lv]->USize();
+			uint32_t h = _pyramid[lv]->VSize();
 			Float rgb[3];
 			for (int i = 0; i < w; ++i) {
 				for (int j = 0; j < h; ++j) {
-					T p = data[i*h + j];
+					T p = (*_pyramid[lv])(i,j);
 					p.ToRGB(rgb);
 					//进行sRGB空间下的gamma校验
 					rgb[0] = GammaCorrect(rgb[0]);

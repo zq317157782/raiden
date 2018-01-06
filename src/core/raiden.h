@@ -114,6 +114,10 @@ class PhaseFunction;
 struct Distribution1D;
 class MicrofacetDistribution;
 template<typename T> class MIPMap;
+//为啥这里默认要2呢？
+template <typename T, int logBlockSize = 2>
+class BlockedArray;
+
 
 struct Options {
 	int numThread = 0; //线程个数
