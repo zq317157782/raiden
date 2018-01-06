@@ -132,15 +132,15 @@ class BlockedArray{
 private:
 	T* _data;
 	int _uRes,_vRes;
-	int _allocSize;
-	int _uBlockNum;
+	int _nAlloc;
+	int _uBlocks;
 	int RoundUp(int v) const{
 		return (v+BlockSize()-1)&~(BlockSize()-1);
 	}
 public:
-	BlockedArray(int uRes,int vRes,T* raw=nullptr):_uRes(uRes),_vRes(vRes),_allocSize(RoundUp(uRes)*RoundUp(vRes)),_uBlockNum(RoundUp(uRes)>>logBlockSize){
-		_data=AllocAligned<T>(_allocSize);//分配空间
-		for(int i=0;i<_allocSize;++i){
+	BlockedArray(int uRes,int vRes,const T* raw=nullptr):_uRes(uRes),_vRes(vRes),_nAlloc(RoundUp(uRes)*RoundUp(vRes)),_uBlocks(RoundUp(uRes)>>logBlockSize){
+		_data=AllocAligned<T>(_nAlloc);//分配空间
+		for(int i=0;i<_nAlloc;++i){
 			//初始化数据
 			new (&_data[i]) T();
 		}
@@ -176,18 +176,18 @@ public:
 		int vOffset=Offset(v);
 
 		//block间的offset
-		int offset=(vBlock*_uBlockNum+uBlock)*BlockSize()*BlockSize();
+		int offset=(vBlock*_uBlocks+uBlock)*BlockSize()*BlockSize();
 		//block内的offset
 		offset=offset+vOffset*BlockSize()+uOffset;
 		
 		return _data[offset];
 	}
 
-	int URes() const{
+	int USize() const{
 		return _uRes;
 	}
-	
-	int VRes() const{
+
+	int VSize() const{
 		return _vRes;
 	}
 };
