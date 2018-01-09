@@ -24,12 +24,12 @@ set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLi
 #设置需要包含的头文件目录
 # OpenEXR
 set(OPENEXR_INCLUDE_DIRS 
-  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Imath
-  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Iex
-  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Half
-  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/OpenEXR/IlmImf
-  ${CMAKE_CURRENT_BINARY_DIR}/openexr/OpenEXR/config
-  ${CMAKE_CURRENT_BINARY_DIR}/openexr/IlmBase/config)
+  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Imath 
+  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Iex 
+  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Half 
+  ${CMAKE_CURRENT_SOURCE_DIR}/openexr/OpenEXR/IlmImf 
+  ${CMAKE_CURRENT_BINARY_DIR}/openexr/OpenEXR/config 
+  ${CMAKE_CURRENT_BINARY_DIR}/openexr/IlmBase/config )
 
 
 #暴露参数给父作用域

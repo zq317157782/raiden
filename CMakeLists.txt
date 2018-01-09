@@ -52,7 +52,7 @@ set(SOURCE_DIR src)
 #添加头文件路径和库路径
 include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)
-#include_directories(${OPENEXR_INCLUDE_DIRS})
+include_directories(${OPENEXR_INCLUDE_DIRS})
 message(STATUS "OpenEXR头文件路径: " ${OPENEXR_INCLUDE_DIRS})
 
 
