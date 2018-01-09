@@ -1,6 +1,6 @@
 #cmake 最低版本要求
 cmake_minimum_required(VERSION 2.8.0)
-message(STATUS "------------------------------------主体--------------------------------------")
+
 #项目名 (雷電　ライデン)
 set(RAIDEN raiden)
 PROJECT (${RAIDEN})
@@ -11,8 +11,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(CMAKE_BUILD_TYPE Release)
 #set(CMAKE_BUILD_TYPE Debug)
-  
 
+#加入依赖库
+add_subdirectory(external)
+
+message(STATUS "------------------------------------主体--------------------------------------")
 #根据操作系统配置不同的设置
 IF (WIN32)  
     MESSAGE(STATUS "在Windows操作系统下") 
@@ -43,12 +46,14 @@ if(MSVC)
     endforeach()    
 endif(MSVC)
 
-
+#设置源文件目录
 set(SOURCE_DIR src)
 
 #添加头文件路径和库路径
 include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)
+#include_directories(${OPENEXR_INCLUDE_DIRS})
+message(STATUS "OpenEXR头文件路径: " ${OPENEXR_INCLUDE_DIRS})
 
 
 #glog库
@@ -63,6 +68,10 @@ include_directories(${LUA_INCLUDE_DIR})
 message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIR})
 message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
 
+#build Zlib库
+if(WIN32)
+    
+endif()
 
 #设置源文件
 aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)
@@ -87,6 +96,7 @@ add_executable(${RAIDEN} ${SOURCE_FILE})
 #链接库
 target_link_libraries(${RAIDEN} ${GLOG_LIBRARY})
 target_link_libraries(${RAIDEN} ${LUA_LIBRARY})
+target_link_libraries(${RAIDEN} IlmImf)
 
 
 if (WIN32)
