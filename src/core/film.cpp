@@ -7,6 +7,9 @@
 #include "film.h"
 #include "lodepng.h"
 #include "paramset.h"
+#include "imageio.h"
+
+
 Film::Film(const Point2i& res/*分辨率*/, const Bound2f& cropped/*实际渲染窗口比例*/,
 		std::unique_ptr<Filter> filt, const std::string& fileName/*输出文件名*/,
 		Float maxSampleLuminance) :
@@ -45,7 +48,45 @@ void Film::SetImage(const Spectrum* img) {
 }
 
 void Film::WriteImage() {
-	std::vector<uint8_t> image;
+	//std::vector<uint8_t> image;
+	//for (int j = croppedPixelBound[0].y; j < croppedPixelBound[1].y; ++j) {
+	//		for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
+	//			Pixel p = GetPixel(Point2i(i, j));
+	//			Float rgb[3];
+	//			XYZToRGB(p.xyz, rgb);
+	//			Float invWeight = 1.0 / p.filterWeightSum;
+	//			rgb[0] *= invWeight;
+	//			rgb[1] *= invWeight;
+	//			rgb[2] *= invWeight;
+	//			//进行sRGB空间下的gamma校验
+	//			rgb[0]=GammaCorrect(rgb[0]);
+	//			rgb[1]=GammaCorrect(rgb[1]);
+	//			rgb[2]=GammaCorrect(rgb[2]);
+
+	//			//这里clmap了值在0~1LHR范围内
+	//			//这里只是暂时的代码，以后要换成HDR，做ToneMapping
+	//			rgb[0] = Clamp(rgb[0], 0, 1);
+	//			rgb[1] = Clamp(rgb[1], 0, 1);
+	//			rgb[2] = Clamp(rgb[2], 0, 1);
+
+	//			//Info("[ x:" << i << " y:" << j << "][" << rgb[0] * 255 << " " << rgb[1] * 255 << " " << rgb[2] * 255 << "]");
+	//			image.push_back(rgb[0]*255);//R
+	//			image.push_back(rgb[1]*255);//G
+	//			image.push_back(rgb[2]*255);//B
+	//			image.push_back(255);		//A
+	//		}
+	//	}
+	//Vector2i resolution=croppedPixelBound.Diagonal();
+	////Debug("[Film::WriteImage][name:" << fileName << "]");
+	//unsigned error = lodepng::encode(fileName, image, resolution.x,
+	//		resolution.y);
+	//if (error) {
+	//	Error("encoder error " << error << ": "
+	//		<< lodepng_error_text(error))
+	//}
+
+	//以下是使用OpenEXR方式输出
+	std::vector<IMF::Rgba> image;
 	for (int j = croppedPixelBound[0].y; j < croppedPixelBound[1].y; ++j) {
 			for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
 				Pixel p = GetPixel(Point2i(i, j));
@@ -55,32 +96,11 @@ void Film::WriteImage() {
 				rgb[0] *= invWeight;
 				rgb[1] *= invWeight;
 				rgb[2] *= invWeight;
-				//进行sRGB空间下的gamma校验
-				rgb[0]=GammaCorrect(rgb[0]);
-				rgb[1]=GammaCorrect(rgb[1]);
-				rgb[2]=GammaCorrect(rgb[2]);
-
-				//这里clmap了值在0~1LHR范围内
-				//这里只是暂时的代码，以后要换成HDR，做ToneMapping
-				rgb[0] = Clamp(rgb[0], 0, 1);
-				rgb[1] = Clamp(rgb[1], 0, 1);
-				rgb[2] = Clamp(rgb[2], 0, 1);
-
-				//Info("[ x:" << i << " y:" << j << "][" << rgb[0] * 255 << " " << rgb[1] * 255 << " " << rgb[2] * 255 << "]");
-				image.push_back(rgb[0]*255);//R
-				image.push_back(rgb[1]*255);//G
-				image.push_back(rgb[2]*255);//B
-				image.push_back(255);		//A
+				image.push_back(IMF::Rgba{ rgb[0] ,rgb[1] ,rgb[2] ,1});//R
 			}
 		}
 	Vector2i resolution=croppedPixelBound.Diagonal();
-	//Debug("[Film::WriteImage][name:" << fileName << "]");
-	unsigned error = lodepng::encode(fileName, image, resolution.x,
-			resolution.y);
-	if (error) {
-		Error("encoder error " << error << ": "
-			<< lodepng_error_text(error))
-	}
+	WriteOpenEXR(fileName.c_str(), &image[0], resolution.x, resolution.y);
 }
 
 void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight) {
