@@ -369,8 +369,9 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 std::shared_ptr<Medium> MakeMedium(const std::string &name,
 		const ParamSet &paramSet) {
 	//默认参数
-	Float sig_a_rgb[3] = { .0011f, .0024f, .014f }, sig_s_rgb[3] = { 2.55f,
-			3.21f, 3.77f };
+	//  Float sig_a_rgb[3] = { .0011f, .0024f, .014f }, sig_s_rgb[3] = { 2.55f,
+	//  		3.21f, 3.77f };
+	Float sig_a_rgb[3] = { .01f, .01f, .01f }, sig_s_rgb[3] = { 0.1f, .01f, .01f };
 	Spectrum sig_a = Spectrum::FromRGB(sig_a_rgb), sig_s = Spectrum::FromRGB(
 			sig_s_rgb);
 
@@ -672,37 +673,38 @@ graphicsState.areaLightParams = params;
 }
 
 void raidenShape(const std::string &name, const ParamSet &params) {
-VERIFY_WORLD("Shape");
-std::vector<std::shared_ptr<Primitive>> prims;
-std::vector<std::shared_ptr<AreaLight>> areaLights;
-if (!curTransform.IsAnimated()) {
-Transform *ObjToWorld, *WorldToObj;
-transformCache.Lookup(curTransform[0], &ObjToWorld, &WorldToObj);
-std::vector<std::shared_ptr<Shape>> shapes = MakeShapes(name, ObjToWorld,
-WorldToObj, graphicsState.reverseOrientation, params);
-if (shapes.size() == 0) {
-return;
-}
-std::shared_ptr<Material> mtl = graphicsState.CreateMaterial(params);
-for (auto s : shapes) {
-std::shared_ptr<AreaLight> area;
-if (graphicsState.areaLight != "") {
-area = MakeAreaLight(graphicsState.areaLight, graphicsState.areaLightParams,
-curTransform[0], s);
-if (area) {
-areaLights.push_back(area);
-}
-}
-prims.push_back(std::make_shared<GeomPrimitive>(s, mtl, area, nullptr));
-}
-}
-if (areaLights.size() > 0) {
-renderOptions->lights.insert(renderOptions->lights.end(), areaLights.begin(),
-areaLights.end());
-}
- //把创建的shape 插入到renderOption中的容器中
-renderOptions->primitives.insert(renderOptions->primitives.end(), prims.begin(),
-prims.end());
+	VERIFY_WORLD("Shape");
+	std::vector<std::shared_ptr<Primitive>> prims;
+	std::vector<std::shared_ptr<AreaLight>> areaLights;
+	if (!curTransform.IsAnimated()) {
+		Transform *ObjToWorld, *WorldToObj;
+		transformCache.Lookup(curTransform[0], &ObjToWorld, &WorldToObj);
+		std::vector<std::shared_ptr<Shape>> shapes = MakeShapes(name, ObjToWorld,
+		WorldToObj, graphicsState.reverseOrientation, params);
+		if (shapes.size() == 0) {
+			return;
+		}
+		std::shared_ptr<Material> mtl = graphicsState.CreateMaterial(params);
+		MediumInterface mi = graphicsState.CreateMediumInterface();
+		for (auto s : shapes) {
+			std::shared_ptr<AreaLight> area;
+			if (graphicsState.areaLight != "") {
+				area = MakeAreaLight(graphicsState.areaLight, graphicsState.areaLightParams,
+				curTransform[0], s);
+				if (area) {
+					areaLights.push_back(area);
+				}
+			}
+			prims.push_back(std::make_shared<GeomPrimitive>(s, mtl, area, mi));
+		}
+	}
+	if (areaLights.size() > 0) {
+		renderOptions->lights.insert(renderOptions->lights.end(), areaLights.begin(),
+		areaLights.end());
+	}
+	//把创建的shape 插入到renderOption中的容器中
+	renderOptions->primitives.insert(renderOptions->primitives.end(), prims.begin(),
+	prims.end());
 }
 
 void raidenWorldBegin() {
