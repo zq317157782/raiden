@@ -43,6 +43,19 @@ public:
 		bool isSpecularBounce=false;//最后一次反射是否是镜面反射
 		bool isHit=false;
 		int bounces;//反射的次数
+		
+		
+		//这里是PBRT第三版发布后加入的代码之一
+		//PBRT的解释也放在这了
+		// Added after book publication: etaScale tracks the accumulated effect
+		// of radiance scaling due to rays passing through refractive
+		// boundaries (see the derivation on p. 527 of the third edition). We
+		// track this value in order to remove it from beta when we apply
+		// Russian roulette; this is worthwhile, since it lets us sometimes
+		// avoid terminating refracted rays that are about to be refracted back
+		// out of a medium and thus have their beta value increased.
+		Float etaScale = 1;
+		
 		for (bounces = 0;; ++bounces) {
 			isHit = scene.Intersect(ray, &ref);
 
@@ -104,10 +117,19 @@ public:
 
 			beta = beta*(f*AbsDot(wi, ref.shading.n)/pdf);
 			Assert(beta.y() >= 0);
+		
+			if((flag&BSDF_SPECULAR)&&((flag&BSDF_TRANSMISSION))){
+				//拿到ior的比例
+				Float eta= ref.bsdf->eta;
+				etaScale=etaScale*(Dot(wo,ref.n)>0)?(eta*eta):(1/(eta*eta));
+			}
+		
 			//生成新射线
 			ray = ref.SpawnRay(wi);
-			if (beta.MaxComponentValue()<_rrThreshold&&bounces>3) {
-				Float q = std::max(0.05, 1.0 - beta.MaxComponentValue());
+			 // Factor out radiance scaling due to refraction in rrBeta.
+			Spectrum rrBeta=beta*etaScale;
+			if (rrBeta.MaxComponentValue()<_rrThreshold&&bounces>3) {
+				Float q = std::max(0.05, 1.0 - rrBeta.MaxComponentValue());
 				if (sampler.Get1DSample() < q) {
 					break;
 				}
