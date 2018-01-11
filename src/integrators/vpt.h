@@ -88,7 +88,9 @@ public:
 				Vector3f wo =-ray.d;
 				Vector3f wi;
 				mi.phase->Sample_p(wo, &wi, sampler.Get2DSample());
+				//这里我觉得应该还有个beta=beta*phase/phasePdf 但是因为phase/phasePdf==1 所以省略了
 				ray = mi.SpawnRay(wi);
+				isSpecularBounce=false;
 			}
 			//交点在表面
 			else {
