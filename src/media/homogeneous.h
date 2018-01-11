@@ -37,7 +37,7 @@ public:
 		int c = std::min(sampler.Get1DSample()*Spectrum::numSample,(Float)Spectrum::numSample - 1);
 		//根據選擇的分量，隨機采樣參數t 
 		Float dist= -std::log(1 - sampler.Get1DSample()) / _sigma_t[c];
-		Float t = std::min(dist*ray.d.Length(), ray.tMax);
+		Float t = std::min(dist/ray.d.Length(), ray.tMax);
 
 		//判斷采樣的是介質還是表面
 		bool isMedium = t < ray.tMax;
