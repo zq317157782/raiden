@@ -369,9 +369,9 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 std::shared_ptr<Medium> MakeMedium(const std::string &name,
 		const ParamSet &paramSet) {
 	//默认参数
-	//  Float sig_a_rgb[3] = { .0011f, .0024f, .014f }, sig_s_rgb[3] = { 2.55f,
-	//  		3.21f, 3.77f };
-	Float sig_a_rgb[3] = { .01f, .01f, .01f }, sig_s_rgb[3] = { 0.1f, .01f, .01f };
+	 Float sig_a_rgb[3] = { .0011f, .0024f, .014f }, sig_s_rgb[3] = { 2.55f,
+	 		3.21f, 3.77f };
+	// Float sig_a_rgb[3] = { .5f, .5f, .5f }, sig_s_rgb[3] = { 0.5f, .5f, .5f };
 	Spectrum sig_a = Spectrum::FromRGB(sig_a_rgb), sig_s = Spectrum::FromRGB(
 			sig_s_rgb);
 
