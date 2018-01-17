@@ -73,7 +73,7 @@ public:
 	Bound2i GetSampleBounds() const{
 		Point2f minP=Floor(Point2f(croppedPixelBound.minPoint)+Vector2f(0.5f,0.5f)-filter->radius);
 		Point2f maxP=Ceil(Point2f(croppedPixelBound.maxPoint)-Vector2f(0.5f,0.5f)+filter->radius);
-		return Bound2i(minP,maxP);
+		return Bound2i((Point2i)minP, (Point2i)maxP);
 	}
 	//直接设置image数据
 	void SetImage(const Spectrum* img);

@@ -49,6 +49,11 @@ public:
 		y = n.y;
 		z = n.z;
 	}
+
+	template <typename U>
+    explicit operator Vector3<U>() const {
+        return Vector3<U>(x, y, z);
+    }
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
 	template<typename U>
@@ -204,6 +209,12 @@ public:
 		x = p.x;
 		y = p.y;
 	}
+
+	template <typename U>
+    explicit operator Vector2<U>() const {
+        return Vector2<U>(x, y);
+    }
+
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
 	template<typename U>
@@ -347,6 +358,11 @@ public:
 		Assert(!HasNaNs());
 	}
 
+
+	template <typename U>
+    explicit operator Point3<U>() const {
+        return Point3<U>(x, y, z);
+    }
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
 	template<typename U>
@@ -490,6 +506,13 @@ public:
 			x(xx), y(yy) {
 		Assert(!HasNaNs());
 	}
+
+	template <typename U>
+    explicit operator Point2<U>() const {
+        return Point2<U>(x, y);
+    }
+
+	#ifdef DEBUG_BUILD
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 	template<typename U>
 	Point2(const Point2<U>& p) {
@@ -503,6 +526,8 @@ public:
 		y = p.y;
 		return *this;
 	}
+	#endif
+
 	Point2<T> operator+(const Point2<T>& p) const {
 		Assert(!p.HasNaNs());
 		return Point2<T>(x + p.x, y + p.y);
@@ -628,6 +653,11 @@ public:
 		Assert(!HasNaNs());
 	}
 
+
+	template <typename U>
+    explicit operator Normal3<U>() const {
+        return Normal3<U>(x, y ,z);
+    }
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef DEBUG_BUILD
 	Normal3(const Normal3& nl) {

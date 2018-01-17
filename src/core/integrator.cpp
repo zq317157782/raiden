@@ -163,7 +163,7 @@ void SamplerIntegrator::Render(const Scene& scene) {
 					if(rWeight>0.0f){
 						L=Li(ray,scene,*localSampler,arena);
 					}
-					filmTile->AddSample(pixel, L, rWeight);
+					filmTile->AddSample((Point2f)pixel, L, rWeight);
 					arena.Reset();
 				}while (localSampler->StartNextSample());
 			}
