@@ -5,7 +5,7 @@
 *      Author: zhuqian
 */
 
-
+#pragma once
 #include "raiden.h"
 #include "medium.h"
 #include "interaction.h"
@@ -64,7 +64,7 @@ private:
 	}
 
 public:
-    GridDensityMedium(const Spectrum& sigma_a,const Spectrum& sigma_s,Float g,int nx,int ny,int nz,Float* density):_sigma_a(sigma_a),_sigma_s(sigma_s),_g(g),_nx(nx),_ny(ny),_nz(nz),_density(new Float[nx*ny*nz]){
+    GridDensityMedium(const Spectrum& sigma_a,const Spectrum& sigma_s,Float g,int nx,int ny,int nz,const Transform& mediumToWorld,Float* density):_sigma_a(sigma_a),_sigma_s(sigma_s),_g(g),_nx(nx),_ny(ny),_nz(nz),_worldToMedium(Inverse(mediumToWorld)),_density(new Float[nx*ny*nz]){
 		//delta tracking默认所有的ext的通道都是一样的值(Uniform)
 		_sigma_t=(sigma_a+sigma_s)[0];
 		//复制一份密度数据

@@ -384,7 +384,11 @@ std::shared_ptr<Medium> MakeMedium(const std::string &name,
 	Medium* medium = nullptr;
 	if (name == "homogeneous") {
 		medium = new HomogeneousMedium(sig_a, sig_s, g);
-	} else {
+	} 
+	else if(name == "grid"||name=="heterogeneous"){
+		
+	}
+	else {
 		Warning("Medium \'" << name << "\'unknown.");
 	}
 	paramSet.ReportUnused();
