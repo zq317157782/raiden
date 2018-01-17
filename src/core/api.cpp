@@ -49,6 +49,8 @@
 #include "materials/metal.h"
 #include "materials/plastic.h"
 #include "media/homogeneous.h"
+#include "media/grid.h"
+
 //transform相关参数
 constexpr int MaxTransforms = 2;
 constexpr int StartTransformBits = 1 << 0;	//0x01
