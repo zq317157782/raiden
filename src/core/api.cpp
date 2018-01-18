@@ -414,8 +414,6 @@ std::shared_ptr<Medium> MakeMedium(const std::string &name,
 			return nullptr;
 		}
 
-
-
 		int nx = paramSet.FindOneInt("nx", 1);
 		int ny = paramSet.FindOneInt("ny", 1);
 		int nz = paramSet.FindOneInt("nz", 1);
@@ -427,7 +425,7 @@ std::shared_ptr<Medium> MakeMedium(const std::string &name,
 		Point3f p0 = paramSet.FindOnePoint3f("p0", Point3f(0, 0, 0));
 		Point3f p1 = paramSet.FindOnePoint3f("p1", Point3f(1, 1, 1));
 
-		Transform dataToMedium = Translate(Vector3f(p0))*Scale(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z);
+		const Transform dataToMedium = Translate(Vector3f(p0))*Scale(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z);
 
 		medium = new GridDensityMedium(sig_a, sig_s, g, nx, ny, nz, mediumToWorld*dataToMedium, data);
 	}

@@ -92,7 +92,7 @@ public:
 		Ray ray=_worldToMedium(Ray(rayW.o,Normalize(rayW.d),rayW.tMax*rayW.d.Length()));
 		
 		//判断射线是否在有效区域内
-		const Bound3f b(Point3f(0,0,0),Point3f(1,1,0));
+		const Bound3f b(Point3f(0,0,0),Point3f(1,1,1));
 		Float tMin,tMax;
 		if(!b.IntersectP(ray,&tMin,&tMax)){
 			//采样到表面
@@ -138,17 +138,16 @@ public:
 		MemoryArena &arena,
 		MediumInteraction *mi) const override {
 		//先获取Medium空间的射线
-		Ray ray=_worldToMedium(Ray(rayW.o,Normalize(rayW.d),rayW.tMax*rayW.d.Length()));
+		Ray ray= _worldToMedium(Ray(rayW.o,Normalize(rayW.d),rayW.tMax*rayW.d.Length()));
 		
 		//判断射线是否在有效区域内
-		const Bound3f b(Point3f(0,0,0),Point3f(1,1,0));
+		const Bound3f b(Point3f(0,0,0),Point3f(1,1,1));
 		Float tMin,tMax;
 		if(!b.IntersectP(ray,&tMin,&tMax)){
 			//采样到表面
 			//这里f(x)/pdf(x)正好等于1
 			return Spectrum(1.0);
 		}
-
 		//delta tracking算法
 		Float t=tMin;
 		while(true){
