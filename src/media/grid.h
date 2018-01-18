@@ -30,12 +30,11 @@ private:
 	//Float DiscreteDensity(const Point3i& p) const {
 	Float D(const Point3i& p) const {
 		//获得索引
-		int index = p.z*_nx*_ny + p.y*_nx + p.x;
-
-		if (index >= _nx*_ny*_nz) {
+		Bound3i sampleBounds(Point3i(0, 0, 0), Point3i(_nx, _ny, _nz));
+        if (!InsideExclusive(p, sampleBounds)){
 			return 0;
-		}
-
+		} 
+		int index = p.z*_nx*_ny + p.y*_nx + p.x;
 		return _density[index];
 	}
 
