@@ -3,7 +3,13 @@
  *
  *  Created on: 2016年11月9日
  *      Author: zhuqian
+ *
+ *
+ *
+ *
  */
+
+
 
 #ifndef SRC_CORE_GEOMETRY_H_
 #define SRC_CORE_GEOMETRY_H_
@@ -23,9 +29,9 @@ inline bool IsNaN(int n) {
 
 //三维向量
 template<typename T>
-class Vector3 {
+class alignas(16) Vector3 {
 public:
-	T x, y, z;
+	T x, y, z, w;
 public:
 	Vector3() {
 		x = y = z = 0;
@@ -191,7 +197,7 @@ typedef Vector3<int> Vector3i;
 
 //二维向量
 template<typename T>
-class Vector2 {
+class alignas(8) Vector2 {
 public:
 	T x, y;
 public:
@@ -345,9 +351,9 @@ typedef Vector2<Float> Vector2f;
 typedef Vector2<int> Vector2i;
 
 template<typename T>
-class Point3 {
+class alignas(16) Point3 {
 public:
-	T x, y, z;
+	T x, y, z ,w;
 public:
 	Point3() {
 		x = y = z = 0;
@@ -494,7 +500,7 @@ typedef Point3<Float> Point3f;
 typedef Point3<int> Point3i;
 
 template<typename T>
-class Point2 {
+class alignas(8) Point2 {
 public:
 	T x, y;
 public:
@@ -640,9 +646,9 @@ typedef Point2<int> Point2i;
 
 //三分量法线
 template<typename T>
-class Normal3 {
+class alignas(16) Normal3 {
 public:
-	T x, y, z;
+	T x, y, z, w;
 public:
 	Normal3() :
 			x(0), y(0), z(0) {
@@ -788,7 +794,7 @@ typedef Normal3<Float> Normal3f;
 
 //AABB盒
 template<typename T>
-class Bound3 {
+class  Bound3 {
 public:
 //AABB盒的最小顶点和最大顶点
 	Point3<T> minPoint, maxPoint;
