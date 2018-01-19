@@ -27,6 +27,7 @@
 #ifdef IS_WIN
 	#ifdef COMPILER_MS
 		#ifdef _M_IX86_FP 
+			#define SIMD_ENABLE
 			#ifdef __AVX__ 
 				#define SIMD_AVX
 			#elif __AVX2__
