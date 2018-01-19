@@ -14,8 +14,8 @@ void *AllocAligned(size_t size){
 		ptr=nullptr;
 	}
 	return ptr;
-#elif defined(IS_WIN)
-	//Windows操作系统下
+#elif defined(IS_WIN) && defined(COMPILER_MS)
+	//Windows操作系统下并且使用MSC
 	//Assert(false);
 	return _aligned_malloc(size, L1_CACHE_LINE_SIZE);
 #endif
@@ -28,7 +28,8 @@ void FreeAligned(void * ptr){
 	}
 #ifdef IS_OSX
 	free(ptr);
-#elif defined(IS_WIN)
+#elif defined(IS_WIN) && defined(COMPILER_MS)
+	//Windows操作系统下并且使用MSC
 	//Assert(false);
 	_aligned_free(ptr);
 #endif
