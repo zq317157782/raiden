@@ -50,8 +50,8 @@ public:
 	}
 	//给予空间点，生成射向目标点的射线
 	Ray SpawnRayTo(const Point3f& p2) const {
-		Vector3f d = p2 - p;
 		Point3f o = OffsetRayOrigin(p, pErr, n, d);
+		Vector3f d = p2 - o;
 		return Ray(o, d, 1 - ShadowEpsilon, time, GetMedium(d));
 	}
 
