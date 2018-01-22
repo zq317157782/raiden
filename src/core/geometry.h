@@ -1076,43 +1076,63 @@ inline Bound2iIterator end(const Bound2i &b) {
 //AABB和point之间的合并
 template<typename T>
 Bound3<T> Union(const Bound3<T>& b, const Point3<T> p) {
-	return Bound3<T>(
-			Point3<T>(std::min(b.minPoint.x, p.x), std::min(b.minPoint.y, p.y),
-					std::min(b.minPoint.z, p.z)),
-			Point3<T>(std::max(b.maxPoint.x, p.x), std::max(b.maxPoint.y, p.y),
-					std::max(b.maxPoint.z, p.z)));
+	// return Bound3<T>(
+	// 		Point3<T>(std::min(b.minPoint.x, p.x), std::min(b.minPoint.y, p.y),
+	// 				std::min(b.minPoint.z, p.z)),
+	// 		Point3<T>(std::max(b.maxPoint.x, p.x), std::max(b.maxPoint.y, p.y),
+	// 				std::max(b.maxPoint.z, p.z)));
+	Bound3<T> ret;
+	ret.minPoint=Min(b.minPoint,p);
+	ret.maxPoint=Max(b.maxPoint,p);
+	return ret;
 }
 //AABB和AABB之间的合并
 template<typename T>
 Bound3<T> Union(const Bound3<T>& b, const Bound3<T>& b2) {
-	return Bound3<T>(
-			Point3<T>(std::min(b.minPoint.x, b2.minPoint.x),
-					std::min(b.minPoint.y, b2.minPoint.y),
-					std::min(b.minPoint.z, b2.minPoint.z)),
-			Point3<T>(std::max(b.maxPoint.x, b2.maxPoint.x),
-					std::max(b.maxPoint.y, b2.maxPoint.y),
-					std::max(b.maxPoint.z, b2.maxPoint.z)));
+	// return Bound3<T>(
+	// 		Point3<T>(std::min(b.minPoint.x, b2.minPoint.x),
+	// 				std::min(b.minPoint.y, b2.minPoint.y),
+	// 				std::min(b.minPoint.z, b2.minPoint.z)),
+	// 		Point3<T>(std::max(b.maxPoint.x, b2.maxPoint.x),
+	// 				std::max(b.maxPoint.y, b2.maxPoint.y),
+	// 				std::max(b.maxPoint.z, b2.maxPoint.z)));
+	Bound3<T> ret;
+	ret.minPoint=Min(b.minPoint,b2.minPoint);
+	ret.maxPoint=Max(b.maxPoint,b2.maxPoint);
+	return ret;
 }
 
 //AABB盒之间的交集
 template<typename T>
 Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
-	return Bound3<T>(
-			Point3<T>(std::max(b.minPoint.x, b2.minPoint.x),
-					std::max(b.minPoint.y, b2.minPoint.y),
-					std::max(b.minPoint.z, b2.minPoint.z)),
-			Point3<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
-					std::min(b.maxPoint.y, b2.maxPoint.y),
-					std::min(b.maxPoint.z, b2.maxPoint.z)));
+	// return Bound3<T>(
+	// 		Point3<T>(std::max(b.minPoint.x, b2.minPoint.x),
+	// 				std::max(b.minPoint.y, b2.minPoint.y),
+	// 				std::max(b.minPoint.z, b2.minPoint.z)),
+	// 		Point3<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
+	// 				std::min(b.maxPoint.y, b2.maxPoint.y),
+	// 				std::min(b.maxPoint.z, b2.maxPoint.z)));
+	//这里要修正一个BUG，不能直接传到构造器中,因为构造器会自动判断两个参数的最大最小分量，并以此构造正确的Bound
+	//而我们这里需要非法的Bound
+	//具体细节查看Pbrt的git
+	Bound3<T> ret;
+	ret.maxPoint=Min(b.maxPoint,b2.maxPoint);
+	ret.minPoint=Max(b.minPoint,b2.minPoint);
+	return ret;
 }
 
 template<typename T>
 Bound2<T> Intersect(const Bound2<T>& b, const Bound2<T>& b2) {
-	return Bound2<T>(
-			Point2<T>(std::max(b.minPoint.x, b2.minPoint.x),
-					std::max(b.minPoint.y, b2.minPoint.y)),
-			Point2<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
-					std::min(b.maxPoint.y, b2.maxPoint.y)));
+	// return Bound2<T>(
+	// 		Point2<T>(std::max(b.minPoint.x, b2.minPoint.x),
+	// 				std::max(b.minPoint.y, b2.minPoint.y)),
+	// 		Point2<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
+	// 				std::min(b.maxPoint.y, b2.maxPoint.y)));
+
+	Bound2<T> ret;
+	ret.maxPoint=Min(b.maxPoint,b2.maxPoint);
+	ret.minPoint=Max(b.minPoint,b2.minPoint);
+	return ret;
 }
 
 //判断两个AABB盒是否重叠
