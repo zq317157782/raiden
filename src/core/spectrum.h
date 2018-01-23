@@ -177,6 +177,16 @@ public:
 		return ret;
 	}
 
+	//新加的Pow函数，还没测试
+	friend CoefficientSpectrum Pow(const CoefficientSpectrum &s,Float power){
+		CoefficientSpectrum ret;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			ret._c[i] = std::pow(s._c[i],power);
+		}
+		Assert(!ret.HasNaNs());
+		return ret;
+	}
+	
 	//判断光谱样本总是否包含nan
 	bool HasNaNs() const {
 		for (int i = 0; i < numSpectrumSample; ++i) {
@@ -195,6 +205,8 @@ public:
 	}
 
 };
+
+
 
 //采样的波长范围以及样本个数 400nm~700nm
 static constexpr int sampledLambdaStart = 400; //nm
@@ -372,5 +384,10 @@ public:
 		return s;
 	}
 };
+
+
+inline Spectrum Lerp(Float t, const Spectrum& s1, const Spectrum& s2) {
+	return (1 - t)*s1 + t*s2;
+}
 
 #endif /* SRC_CORE_SPECTRUM_H_ */

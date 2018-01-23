@@ -46,7 +46,7 @@ private:
 
 		//做Trilinear插值
 		//先考虑只插值X
-		Float d00 = Lerp(delta.x, D(iPoint),                    D(iPoint + Point3i(1,0,0)));
+		Float d00 = Lerp(delta.x, D(iPoint                   ), D(iPoint + Point3i(1, 0, 0)));
 		Float d01 = Lerp(delta.x, D(iPoint + Point3i(0, 1, 0)), D(iPoint + Point3i(1, 1, 0)));
 		Float d10 = Lerp(delta.x, D(iPoint + Point3i(0, 0, 1)), D(iPoint + Point3i(1, 0, 1)));
 		Float d11 = Lerp(delta.x, D(iPoint + Point3i(0, 1, 1)), D(iPoint + Point3i(1, 1, 1)));
@@ -66,6 +66,11 @@ public:
     GridDensityMedium(const Spectrum& sigma_a,const Spectrum& sigma_s,Float g,int nx,int ny,int nz,const Transform& mediumToWorld,const Float* density):_sigma_a(sigma_a),_sigma_s(sigma_s),_g(g),_nx(nx),_ny(ny),_nz(nz),_worldToMedium(Inverse(mediumToWorld)),_density(new Float[nx*ny*nz]){
 		//delta tracking默认所有的ext的通道都是一样的值(Uniform)
 		_sigma_t=(sigma_a+sigma_s)[0];
+		
+		// delta tracking和ratio tracking都需要SpectrallyUniform的sigma_t
+		if (Spectrum(_sigma_t) != (sigma_a + sigma_s)) {
+			LInfo << "GridDensityMedium requires a spectrally uniform attenuation coefficient!";
+		}
 		//复制一份密度数据
 		memcpy(_density, density, sizeof(Float)*nx*ny*nz);
 		//计算最大的密度的倒数
