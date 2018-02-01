@@ -182,7 +182,7 @@ private:
     }
 
 public:
-    MIPMap(const Point2i& resolution,T* data,WrapMode wm,bool doTrilinear,Float maxAnisotropy):_resolution(resolution),_wrapMode(wm),_doTrilinear(doTrilinear),_maxAnisotropy(maxAnisotropy){
+    MIPMap(const Point2i& resolution,T* data,WrapMode wm=WrapMode::Repeat,bool doTrilinear=false,Float maxAnisotropy=8.0):_resolution(resolution),_wrapMode(wm),_doTrilinear(doTrilinear),_maxAnisotropy(maxAnisotropy){
 
         //resample后的图像指针
         std::unique_ptr<T[]> resampledImage=nullptr;
@@ -298,7 +298,7 @@ public:
 				}
 			}, h, 16);
         }
-		WriteMIPMap("MIPMap");
+		//WriteMIPMap("MIPMap");
     }
 
 	
@@ -375,42 +375,42 @@ public:
 
 	
 
-	void WriteMIPMap(std::string name) {
+	//void WriteMIPMap(std::string name) {
 
-		for (int lv = 0; lv < _numLevel; ++lv) {
-			std::vector<uint8_t> image;
-			uint32_t w = _pyramid[lv]->USize();
-			uint32_t h = _pyramid[lv]->VSize();
-			Float rgb[3];
-			for (int i = 0; i < w; ++i) {
-				for (int j = 0; j < h; ++j) {
-					T p = (*_pyramid[lv])(i,j);
-					p.ToRGB(rgb);
-					//进行sRGB空间下的gamma校验
-					rgb[0] = GammaCorrect(rgb[0]);
-					rgb[1] = GammaCorrect(rgb[1]);
-					rgb[2] = GammaCorrect(rgb[2]);
+	//	for (int lv = 0; lv < _numLevel; ++lv) {
+	//		std::vector<uint8_t> image;
+	//		uint32_t w = _pyramid[lv]->USize();
+	//		uint32_t h = _pyramid[lv]->VSize();
+	//		Float rgb[3];
+	//		for (int i = 0; i < w; ++i) {
+	//			for (int j = 0; j < h; ++j) {
+	//				T p = (*_pyramid[lv])(i,j);
+	//				p.ToRGB(rgb);
+	//				//进行sRGB空间下的gamma校验
+	//				rgb[0] = GammaCorrect(rgb[0]);
+	//				rgb[1] = GammaCorrect(rgb[1]);
+	//				rgb[2] = GammaCorrect(rgb[2]);
 
-					//这里clmap了值在0~1LHR范围内
-					//这里只是暂时的代码，以后要换成HDR，做ToneMapping
-					rgb[0] = Clamp(rgb[0], 0, 1);
-					rgb[1] = Clamp(rgb[1], 0, 1);
-					rgb[2] = Clamp(rgb[2], 0, 1);
+	//				//这里clmap了值在0~1LHR范围内
+	//				//这里只是暂时的代码，以后要换成HDR，做ToneMapping
+	//				rgb[0] = Clamp(rgb[0], 0, 1);
+	//				rgb[1] = Clamp(rgb[1], 0, 1);
+	//				rgb[2] = Clamp(rgb[2], 0, 1);
 
-					//Info("[ x:" << i << " y:" << j << "][" << rgb[0] * 255 << " " << rgb[1] * 255 << " " << rgb[2] * 255 << "]");
-					image.push_back(rgb[0] * 255);//R
-					image.push_back(rgb[1] * 255);//G
-					image.push_back(rgb[2] * 255);//B
-					image.push_back(255);		//A
-				}
-			}
-			std::ostringstream stringStream;
-			stringStream << name << "_level_" << lv << ".png";
-			std::string copyOfStr = stringStream.str();
-			lodepng::encode(copyOfStr, image, w,
-				h);
-		}
+	//				//Info("[ x:" << i << " y:" << j << "][" << rgb[0] * 255 << " " << rgb[1] * 255 << " " << rgb[2] * 255 << "]");
+	//				image.push_back(rgb[0] * 255);//R
+	//				image.push_back(rgb[1] * 255);//G
+	//				image.push_back(rgb[2] * 255);//B
+	//				image.push_back(255);		//A
+	//			}
+	//		}
+	//		std::ostringstream stringStream;
+	//		stringStream << name << "_level_" << lv << ".png";
+	//		std::string copyOfStr = stringStream.str();
+	//		lodepng::encode(copyOfStr, image, w,
+	//			h);
+	//	}
 
 
-	}
+	//}
 };

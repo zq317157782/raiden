@@ -32,6 +32,7 @@
 #include "lights/distant.h"
 #include "lights/diffuse.h"
 #include "lights/spot.h"
+#include "lights/infinite.h"
 #include "integrators/normal.h"
 #include "integrators/depth.h"
 #include "integrators/whitted.h"
@@ -331,6 +332,9 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 	}
 	else if (name == "spot") {
 		light = CreateSpotLight(light2world, mediumInterface.outside, paramSet);
+	}
+	else if (name == "infinite") {
+		light = CreateInfiniteAreaLight(light2world,paramSet);
 	}
 	else {
 		Error("light \"" << name.c_str() << "\" unknown.");
