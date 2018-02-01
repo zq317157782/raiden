@@ -10,6 +10,7 @@
 #include "texture.h"
 #include "lodepng.h"
 #include "mipmap.h"
+#include "imageio.h"
 #include <map>
 //纹理的信息
 struct TexInfo{
@@ -108,15 +109,12 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 		return _textures[texInfo].get();
 	}
 
-	//读取PNG图片
-	std::vector<unsigned char> rawData;
-	uint32_t width, height;
-	uint32_t error = lodepng::decode(rawData, width, height, fileName);
+	Point2i res;
+	std::unique_ptr<RGBSpectrum[]> rawImage = ReadImage(fileName.c_str(), &res);
 	std::unique_ptr<Tmemory[]> image;
-	if (error) {
+	if (rawImage==nullptr) {
 		//载入图像失败
-		LError << "decoder error " << error << ": " << lodepng_error_text(error);
-		
+		LError << "Read Image Failed!!";
 		texInfo.fileName = "error";
 		texInfo.wrapMode = WrapMode::Repeat;
 		texInfo.doTrilinear = true;
@@ -136,29 +134,15 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 	else {
 		//成功载入图像
 		
-		//1. 首先转换到float 类型
-		std::unique_ptr<RGBSpectrum[]> rgbData(new Tmemory[width*height]);
-		uint32_t index = 0;
-		Float invDiv = 1.0 / 255.0;
-		for (int j = 0; j<height; ++j) {
-			for (int i = 0; i<width; ++i) {
-				int k = i*height + j;
-				rgbData[k][0] = rawData[0 + index] * invDiv;
-				rgbData[k][1] = rawData[1 + index] * invDiv;
-				rgbData[k][2] = rawData[2 + index] * invDiv;
-				index += 4;//递增4个字节，因为PNG是按照RGBA 4Byte*8Bit的方式组织的
-			}
-		}
-
-		//2. 转换PNG图片到Tmemory
+		//1.转换Raw到Tmemory
 		//根据分辨率分配空间
-		image.reset(new Tmemory[width*height]);
-		for (int i = 0; i<width*height; ++i) {
-			ConvertIn(rgbData[i], &(image[i]), scale, gamma);
+		image.reset(new Tmemory[res.x*res.y]);
+		for (int i = 0; i<res.x*res.y; ++i) {
+			ConvertIn(rawImage[i], &(image[i]), scale, gamma);
 		}
 
-		//3.创建MIPMap
-		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(width, height), image.get(), wrapMode,doTrilinear,maxAnisotropy));
+		//2.创建MIPMap
+		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(res.x, res.y), image.get(), wrapMode,doTrilinear,maxAnisotropy));
 		return _textures[texInfo].get();
 	}
 }

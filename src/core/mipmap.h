@@ -1,3 +1,4 @@
+#pragma once
 #include "raiden.h"
 #include "texture.h"
 #include "parallel.h"
