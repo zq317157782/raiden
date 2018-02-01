@@ -65,20 +65,21 @@ void Shuffle(T* samples, int count, int d, RNG& rng) {
 //1维分段函数分布，定义域为[0~1]
 struct Distribution1D {
 private:
-	std::vector<Float> _funcs;		//存放各个函数值
 	std::vector<Float> _cdfs;		//存放各个区间的cdf数
-	float _funcInt;		//函数在[0~1]区间之间的定积分值
+public:
+	std::vector<Float> funcs;		//存放各个函数值
+	float funcInt;		//函数在[0~1]区间之间的定积分值
 public:
 	//f是分段函数的值,n是值得个数
-	Distribution1D(Float* f, int n) :
-			_funcs(f, f + n), _cdfs(n + 1) {
+	Distribution1D(const Float* f, int n) :
+			funcs(f, f + n), _cdfs(n + 1) {
 		_cdfs[0] = 0;
 		for (int i = 1; i < n + 1; ++i) {
-			_cdfs[i] = _cdfs[i - 1] + _funcs[i - 1] / n;
+			_cdfs[i] = _cdfs[i - 1] + funcs[i - 1] / n;
 		}
-		_funcInt = _cdfs[n];		//获取积分值
+		funcInt = _cdfs[n];		//获取积分值
 		//标准化CDF
-		if (_funcInt == 0) {
+		if (funcInt == 0) {
 			//积分值为0的情况
 			for (int i = 1; i < n + 1; ++i) {
 				_cdfs[i] = Float(i) / Float(n);
@@ -86,14 +87,14 @@ public:
 		} else {
 			//积分值不为0的情况
 			for (int i = 1; i < n + 1; ++i) {
-				_cdfs[i] /= _funcInt;
+				_cdfs[i] /= funcInt;
 			}
 		}
 	}
 
 	//返回函数个数
 	int Count() const {
-		return _funcs.size();
+		return funcs.size();
 	}
 
 	//采样连续函数
@@ -117,11 +118,11 @@ public:
 
 		//pdf等于函数值除以积分值
 		if (pdf) {
-			if (_funcInt == 0) {
+			if (funcInt == 0) {
 				//定积分值为0的情况
 				*pdf = 0;
 			} else {
-				*pdf = _funcs[OFFSET] / _funcInt;
+				*pdf = funcs[OFFSET] / funcInt;
 			}
 		}
 		return (Float(OFFSET) + du) / Count();	//计算返回值
@@ -135,12 +136,12 @@ public:
 				[&](int index) {return _cdfs[index]<=u;});
 		//pdf等于函数值除以积分值
 		if (pdf) {
-			if (_funcInt == 0) {
+			if (funcInt == 0) {
 				//定积分值为0的情况
 				*pdf=0;
 			} else {
 				//这里要比连续版本多一个Count,因为要乘以区间delta
-				*pdf = _funcs[offset] / (_funcInt * Count());
+				*pdf = funcs[offset] / (funcInt * Count());
 			}
 		}
 		if (uRemapped) {
@@ -156,7 +157,60 @@ public:
 	int DiscretePDF(int index) const {
 		Assert(index >= 0);
 		Assert(index < Count());
-		return _funcs[index] / (_funcInt * Count());
+		return funcs[index] / (funcInt * Count());
+	}
+};
+
+
+//二维离散分布
+struct Distribution2D {
+private:
+	//用来存V条件下的U的PDF
+	std::vector<std::unique_ptr<Distribution1D>> _pdfConditionalV;
+	//用来存V的边缘PDF
+	std::unique_ptr<Distribution1D> _pdfMarginal;
+public:
+	Distribution2D(const Float* data,int nu,int nv){
+		//首先为存放条件概率的容器分配空间
+		_pdfConditionalV.reserve(nv);
+		for (int i = 0; i < nv; ++i) {
+			//初始化已经分配了的空间
+			//直接在相应位置new
+			_pdfConditionalV.emplace_back(new Distribution1D(&data[nu*i],nu));
+		}
+		//获取V的分布
+		std::vector<Float> marginal;
+		marginal.reserve(nv);
+		for (int i = 0; i < nv; ++i) {
+			//插入U分布的积分
+			marginal.push_back(_pdfConditionalV[i]->funcInt);
+		}
+		_pdfMarginal.reset(new Distribution1D(&marginal[0], nv));
+	}
+
+	//采样二维分段常数分布
+	Point2f SampleContinuous(const Point2f& uv, Float* pdf) const {
+		Float pdfs[2];
+		int v;
+		//先采样边缘PDF
+		Float d1=_pdfMarginal->SampleContinuous(uv[0], &pdfs[0], &v);
+		//再采样条件PDF
+		Float d2=_pdfConditionalV[v]->SampleContinuous(uv[1], &pdfs[1]);
+
+		*pdf = pdfs[0] * pdfs[1];
+		//返回边缘PDF分布下的值和条件PDF分布下的值
+		return Point2f(d1, d2);
+	}
+
+	//只返回PDF的函数
+	Float Pdf(const Point2f& sample) const {
+		//先判断使用哪个V
+		int v = Clamp(sample[0] * _pdfMarginal->Count(), 0, _pdfMarginal->Count() - 1);
+
+		int u = Clamp(sample[1] * _pdfConditionalV[v]->Count(), 0, _pdfConditionalV[v]->Count() - 1);
+		
+		//单个槽/整个2D分布的积分 == pdf
+		return _pdfConditionalV[v]->funcs[u] / _pdfMarginal->funcInt;
 	}
 };
 
