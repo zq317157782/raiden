@@ -130,7 +130,6 @@ public:
 	virtual Spectrum Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
 		Ray *ray, Normal3f *nLight, Float *pdfPos,
 		Float *pdfDir) const override {
-		return 0;
 	//先采样方向
 		Float pdf2D;
 		Point2f uv=_distribution->SampleContinuous(u1, &pdf2D);
@@ -166,8 +165,6 @@ public:
 	//返回从光源采样光线的pdf相关数据
 	virtual void Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
 		Float *pdfDir) const override {
-		*pdfPos = 0;
-		*pdfDir = 0;
 		Vector3f d = Normalize(-_worldToLight(ray.d));
 		Float theta = SphericalTheta(d);
 		Float phi = SphericalPhi(d);
