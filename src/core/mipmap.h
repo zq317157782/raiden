@@ -351,7 +351,7 @@ public:
 	}
 
 	//各项同性版本的Triangle过滤器Lookup
-    T Lookup(const Point2f &st,Float width) const{
+    T Lookup(const Point2f &st,Float width=0.0) const{
 		
 		// resolution = 2^(_numLevel-1-l)
 		// l=_numLevel-1-log2(width);
