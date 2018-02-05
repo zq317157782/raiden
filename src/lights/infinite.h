@@ -110,7 +110,7 @@ public:
 	}
 	//返回采样入射光线的pdf
 	virtual Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const override {
-		Vector3f w = Normalize(_worldToLight(wi));
+		Vector3f w = _worldToLight(wi);
 		Float phi = SphericalPhi(w);
 		Float theta = SphericalTheta(w);
 		Float sinTheta = std::sin(theta);

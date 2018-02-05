@@ -16,6 +16,17 @@ void WriteOpenEXR(const char fileName[], IMF::Rgba* pixels, int w, int h) {
 	file.writePixels(h);
 }
 
+void ReadOpenEXR(const char fileName[],std::vector<IMF::Rgba> &pixels,int &width,int &height)
+{
+	IMF::RgbaInputFile file(fileName);
+	Imath::Box2i dw = file.dataWindow();
+	width = dw.max.x - dw.min.x + 1;
+	height = dw.max.y - dw.min.y + 1;
+	pixels.reserve(height*width);
+	file.setFrameBuffer(&pixels[0] - dw.min.x - dw.min.y * width, 1, width);
+	file.readPixels(dw.min.y, dw.max.y);
+}
+
 
 void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 	const char* fileExt;
@@ -93,7 +104,28 @@ std::unique_ptr<RGBSpectrum[]> ReadImage(const char* fileName, Point2i* resoluti
 				index += 4;//递增4个字节，因为PNG是按照RGBA 4Byte*8Bit的方式组织的
 			}
 		}
-		*resolution = Point2i(width, height);
+		if (resolution) {
+			*resolution = Point2i(width, height);
+		}
+		return rgbData;
+	}
+	else if (0 == strcmp(fileExt, "exr") || 0 == strcmp(fileExt, "EXR")) {
+		std::vector<IMF::Rgba> rawData;
+		int width, height;
+		ReadOpenEXR(fileName,rawData,width,height);
+		std::unique_ptr<RGBSpectrum[]> rgbData(new RGBSpectrum[width*height]);
+		
+		for (int j = 0; j<height; ++j) {
+			for (int i = 0; i<width; ++i) {
+				int k = i+j*width;
+				rgbData[k][0] = rawData[k].r;
+				rgbData[k][1] = rawData[k].g;
+				rgbData[k][2] = rawData[k].b;
+			}
+		}
+		if (resolution) {
+			*resolution = Point2i(width, height);
+		}
 		return rgbData;
 	}
 

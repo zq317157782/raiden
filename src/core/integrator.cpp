@@ -305,7 +305,10 @@ Spectrum EstimateDirect(const Interaction &it, const Point2f &uScattering,
 		}
 	}
 
+
+
 	//采样BSDF MIS
+	Li = 0;
 	if (!IsDeltaLight(light.flags)) {
 		Spectrum f;
 		bool sampledSpecular=false;
