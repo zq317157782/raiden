@@ -3,7 +3,7 @@
 #include "texture.h"
 #include "parallel.h"
 #include "memory.h"
-
+//#include "lodepng.h"
 //提供三种包围模式[裁剪 重复 纯黑]
 enum class WrapMode{Clamp,Repeat,Black};
 
@@ -382,8 +382,8 @@ public:
 	//		uint32_t w = _pyramid[lv]->USize();
 	//		uint32_t h = _pyramid[lv]->VSize();
 	//		Float rgb[3];
-	//		for (int i = 0; i < w; ++i) {
-	//			for (int j = 0; j < h; ++j) {
+	//		for (int j = 0; j < h; ++j) {
+	//			for (int i = 0; i < w; ++i) {
 	//				T p = (*_pyramid[lv])(i,j);
 	//				p.ToRGB(rgb);
 	//				//进行sRGB空间下的gamma校验

@@ -25,7 +25,8 @@ void ReadOpenEXR(const char fileName[],std::vector<IMF::Rgba> &pixels,int &width
 	pixels.reserve(height*width);
 	file.setFrameBuffer(&pixels[0] - dw.min.x - dw.min.y * width, 1, width);
 	file.readPixels(dw.min.y, dw.max.y);
-}
+}
+
 
 
 void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
@@ -97,7 +98,7 @@ std::unique_ptr<RGBSpectrum[]> ReadImage(const char* fileName, Point2i* resoluti
 		Float invDiv = 1.0 / 255.0;
 		for (int j = 0; j<height; ++j) {
 			for (int i = 0; i<width; ++i) {
-				int k = i*height + j;
+				int k = i*height+j;
 				rgbData[k][0] = rawData[0 + index] * invDiv;
 				rgbData[k][1] = rawData[1 + index] * invDiv;
 				rgbData[k][2] = rawData[2 + index] * invDiv;
