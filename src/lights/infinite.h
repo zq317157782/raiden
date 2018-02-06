@@ -45,7 +45,7 @@ public:
 			Float sinTheta=std::sin((Float(j + 0.5)/res.y)*Pi);
 			Float v = (Float)j / res.y;
 			for (int i = 0; i < res.x; ++i) {
-				Float u = (Float)i / res.y;
+				Float u = (Float)i / res.x;
 				//把相应的RGB值转换成标量
 				img[j*res.x + i] = _Lmap->Lookup(Point2f(u,v),filterWidth).y();
 				//乘以防止2D到球面映射的扭曲的系数
@@ -67,11 +67,12 @@ public:
 		Vector3f dir=Normalize(_worldToLight(ray.d));
 		//把方向(立体角空间)转换到球面坐标
 		Float phi = SphericalPhi(dir);
-		Float theta = SphericalPhi(dir);
+		Float theta = SphericalTheta(dir);
 		//从球面坐标向[0~1]空间转换
 		Point2f uv;
 		uv[1] = theta*InvPi;
 		uv[0] = phi * Inv2Pi;
+		
 		//采样radiance
 		return Spectrum(_Lmap->Lookup(uv));
 	};
@@ -110,7 +111,7 @@ public:
 	}
 	//返回采样入射光线的pdf
 	virtual Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const override {
-		Vector3f w = _worldToLight(wi);
+		Vector3f w =Normalize( _worldToLight(wi));
 		Float phi = SphericalPhi(w);
 		Float theta = SphericalTheta(w);
 		Float sinTheta = std::sin(theta);
