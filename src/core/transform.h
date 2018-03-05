@@ -421,15 +421,46 @@ inline RayDifferential Transform::operator()(const RayDifferential& ray) const {
 //对AABB包围盒进行变换
 inline Bound3f Transform::operator()(const Bound3f& b) const {
 	const Transform& T = (*this); 
+	//-------PBRT原来的实现---------------
 	//对包围盒的8个顶点都进行变换，然后求合并
-	Bound3f ret(T(Point3f(b.minPoint.x, b.minPoint.y, b.minPoint.z)));
-	ret=Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.minPoint.z)));
-	ret = Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.minPoint.z)));
-	ret = Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.maxPoint.z)));
-	ret = Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.maxPoint.z)));
-	ret = Union(ret, T(Point3f(b.minPoint.x, b.minPoint.y, b.maxPoint.z)));
-	ret = Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.minPoint.z)));
-	ret = Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
+	// Bound3f ret(T(Point3f(b.minPoint.x, b.minPoint.y, b.minPoint.z)));
+	// ret=Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.minPoint.z)));
+	// ret = Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.minPoint.z)));
+	// ret = Union(ret, T(Point3f(b.maxPoint.x, b.maxPoint.y, b.maxPoint.z)));
+	// ret = Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.maxPoint.z)));
+	// ret = Union(ret, T(Point3f(b.minPoint.x, b.minPoint.y, b.maxPoint.z)));
+	// ret = Union(ret, T(Point3f(b.minPoint.x, b.maxPoint.y, b.minPoint.z)));
+	// ret = Union(ret, T(Point3f(b.maxPoint.x, b.minPoint.y, b.maxPoint.z)));
+	// return ret;
+	//-----------------------------------
+
+
+	//参考 Transforming Axis-Aligned Bounding Boxes
+	//by Jim Arvo
+	//from "Graphics Gems", Academic Press, 1990
+	const Matrix4x4& mat = T.GetMatrix();
+	Point3f minPoint = Point3f(mat.m[0][3], mat.m[1][3], mat.m[2][3]);
+	Point3f maxPoint = minPoint;
+
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3;++j) {
+			Float e = mat.m[i][j];
+			float p1 = e * b.minPoint[j];
+			float p2 = e * b.maxPoint[j];
+			if (p1 > p2) {
+				minPoint[i] += p2;
+				maxPoint[i] += p1;
+			}
+			else {
+				minPoint[i] += p1;
+				maxPoint[i] += p2;
+			}
+			
+		}
+	}
+	Bound3f ret;
+	ret.minPoint = minPoint;
+	ret.maxPoint = maxPoint;
 	return ret;
 }
 
