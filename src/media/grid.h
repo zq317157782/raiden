@@ -111,7 +111,8 @@ public:
 			//1.首先使用同质的方法来采样t
 			//PBRT这里是td::log(1-sampler.Get1DSample()),我简化了
 			//invert method
-			t-=std::log(sampler.Get1DSample())*_invMaxDensity/_sigma_t;
+			//t-=std::log(sampler.Get1DSample())*_invMaxDensity/_sigma_t;
+			t -= std::log(1.0-sampler.Get1DSample())*_invMaxDensity / _sigma_t;
 			if(t>=tMax){
 				break;
 			}

@@ -1616,7 +1616,7 @@ template<typename T>
 inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) const{
 	//通过和3个夹板进行求交,求参数
 	Float t0=0;
-	Float t1=INFINITY;
+	Float t1=ray.tMax;
 	for(int i=0;i<3;++i){
 		//通过简化求交方程式，可以得到t=(x-ox)/dx
 		Float invD=1.0/ray.d[i];
