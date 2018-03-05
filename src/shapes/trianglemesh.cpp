@@ -49,9 +49,10 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	const Point3f& v2 = _mesh->vertices[_vertexIndices[1]];
 	const Point3f& v3 = _mesh->vertices[_vertexIndices[2]];
 	//变换Ray的起始点到(0,0,0)
-	Point3f v1t = v1 - Vector3f(ray.o);
-	Point3f v2t = v2 - Vector3f(ray.o);
-	Point3f v3t = v3 - Vector3f(ray.o);
+	Vector3f origin = Vector3f(ray.o);
+	Point3f v1t = v1 - origin;
+	Point3f v2t = v2 - origin;
+	Point3f v3t = v3 - origin;
 
 	//重新排列ray的方向的x,y,z分量，保证z分量的绝对值最大(不为0)
 	//这里没用取余是为了避免浮点数的除法运算
@@ -140,12 +141,16 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 		return false;
 	}
 
-	Vector3f dpdu, dpdv;
 	Point2f uv[3];
 	GetUVs(uv);
+	Vector3f dp02 = v1 - v3, dp12 = v2 - v3;
+#ifdef TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
+	
+#else
+	Vector3f dpdu, dpdv;
 	//计算dpdu和dpdv
 	Vector2f duv02 = uv[0] - uv[2], duv12 = uv[1] - uv[2];
-	Vector3f dp02 = v1 - v3, dp12 = v2 - v3;
+	
 	//行列式
 	Float determinant = duv02[0] * duv12[1] - duv02[1] * duv12[0];
 	//是否是退化的UV坐标
@@ -159,6 +164,7 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	if (degenerateUV || Cross(dpdu, dpdv).LengthSquared() == 0) {
 		CoordinateSystem(Normalize(Cross(v3 - v1, v2 - v1)), &dpdu, &dpdv);
 	}
+#endif //TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
 
 	//计算误差
 	Float xAbsSum = (std::abs(b0 * v1.x) + std::abs(b1 * v2.x)
@@ -173,13 +179,23 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	Point3f pHit = v1 * b0 + v2 * b1 + v3 * b2;
 	Point2f uvHit = uv[0] * b0 + uv[1] * b1 + uv[2] * b2;
 
+
 	//填充SurfaceInteraction
+#ifdef TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
+	*surfaceIsect = SurfaceInteraction(pHit, pErr, uvHit, -ray.d, _dpdu, _dpdv,
+		Normal3f(0, 0, 0), Normal3f(0, 0, 0), ray.time, this);
+
+	surfaceIsect->n = surfaceIsect->shading.n = _normal;
+#else
 	*surfaceIsect = SurfaceInteraction(pHit, pErr, uvHit, -ray.d, dpdu, dpdv,
 			Normal3f(0, 0, 0), Normal3f(0, 0, 0), ray.time, this);
 
 	//使用两条边来计算法线
 	surfaceIsect->n = surfaceIsect->shading.n = Normal3f(
-			Normalize(Cross(dp02, dp12)));
+		Normalize(Cross(dp02, dp12)));
+#endif //TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
+
+	
 
 	//判断网格是否包含逐顶点法线和切线
 	//这里是根据mesh提供的数据，进行相应的法线，切线，次切线计算，并且在数据不合法的时候，进行一定的处理

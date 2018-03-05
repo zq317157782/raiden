@@ -32,12 +32,48 @@ class Triangle: public Shape {
 private:
 	std::shared_ptr<TriangleMesh> _mesh;
 	const int * _vertexIndices;
+
+#ifdef TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
+	Vector3f _dpdu, _dpdv;
+	Normal3f _normal;
+#endif//TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
+
 public:
 	Triangle(const Transform* ObjectToWorld, const Transform* WorldToObject,
 			bool reverseOrientation, std::shared_ptr<TriangleMesh>& mesh,
 			int triangleNumber) :
 			Shape(ObjectToWorld, WorldToObject, reverseOrientation), _mesh(mesh) {
 		_vertexIndices = &(_mesh->vertexIndices[triangleNumber * 3]);
+
+#ifdef TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
+		const Point3f& v1 = _mesh->vertices[_vertexIndices[0]];
+		const Point3f& v2 = _mesh->vertices[_vertexIndices[1]];
+		const Point3f& v3 = _mesh->vertices[_vertexIndices[2]];
+
+		Point2f uv[3];
+		GetUVs(uv);
+		Vector3f dp02 = v1 - v3, dp12 = v2 - v3;
+
+		//计算dpdu和dpdv
+		Vector2f duv02 = uv[0] - uv[2], duv12 = uv[1] - uv[2];
+
+		//行列式
+		Float determinant = duv02[0] * duv12[1] - duv02[1] * duv12[0];
+		//是否是退化的UV坐标
+		//这里不判断是否为0是为了避免浮点数产生的误差 (determinant==0)
+		bool degenerateUV = std::abs(determinant) < 1e-8;
+		if (!degenerateUV) {
+			Float invdet = 1 / determinant;
+			_dpdu = (duv12[1] * dp02 - duv02[1] * dp12) * invdet;
+			_dpdv = (-duv12[0] * dp02 + duv02[0] * dp12) * invdet;
+		}
+		if (degenerateUV || Cross(_dpdu, _dpdv).LengthSquared() == 0) {
+			CoordinateSystem(Normalize(Cross(v3 - v1, v2 - v1)), &_dpdu, &_dpdv);
+		}
+		//预计算法线
+		_normal=Normal3f(Normalize(Cross(dp02, dp12)));
+
+#endif//TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN
 	}
 	Bound3f ObjectBound() const override {
 		const Point3f& p0 = (*worldToObject)(

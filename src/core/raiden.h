@@ -37,8 +37,8 @@ static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
  #define  DEBUG
 #endif // !NDEBUG
 
-
-
+//三角面相关
+//#define TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN //预计算数据 比如dpdu,dpdv
 
 
 //断言宏
