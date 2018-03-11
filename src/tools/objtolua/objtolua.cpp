@@ -96,7 +96,8 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 	std::vector<Mesh> meshs(shapes.size());
 	//遍历所有的Shape
 	for (size_t s = 0; s < shapes.size(); s++) {
-
+		index_offset=0;
+		index=0;
 		//遍历当前Shape下的Face
 		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
 			
@@ -134,11 +135,11 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 				}
 				//创建一个顶点
 				Vertex vertex(idx,position,normal,uv);
-
+				
 				bool hasVertex = false;
 				int  hasVertexIndex = 0;
 				//判断顶点是否存在
-				for (auto v =0; v != meshs[s].verticesKeys.size(); ++v) {
+				for (auto v =0; v < meshs[s].verticesKeys.size(); ++v) {
 					if (meshs[s].verticesKeys[v]== vertex) {
 						hasVertex = true;
 						hasVertexIndex = meshs[s].verticesValues[v];
@@ -170,10 +171,8 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 		//PrintMesh(meshs[m]);
 		auto verticesKeys=meshs[m].verticesKeys;
 		auto verticesValues = meshs[m].verticesValues;
-
-
 		
-
+		
 		//排序整个顶点顺序
 		std::vector<Vertex> orderedVertices;
 
