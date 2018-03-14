@@ -80,7 +80,10 @@ public:
 private:
 	//一系列转换函数，从from类型转换到to类型，并且根据参数进行缩放和GAMMA校正
 	static void ConvertIn(const RGBSpectrum& from,RGBSpectrum* to,Float scale,bool gamma);
+	static void ConvertIn(const RGBSpectrum& from, Float *to, Float scale, bool gamma);
 	static void ConvertOut(const RGBSpectrum& from, RGBSpectrum* to);
+	static void ConvertOut(const Float& from, Float* to);
+	
 };
 
 template<typename Tmemory, typename Treturn>
@@ -93,6 +96,10 @@ void ImageTexture<Tmemory,Treturn>::ConvertIn(const RGBSpectrum& from,RGBSpectru
 		(*to)[i]=(gamma?InverseGammaCorrect(from[i]):from[i])*scale;
      }
 }
+template<typename Tmemory, typename Treturn>
+ void  ImageTexture<Tmemory, Treturn>::ConvertIn(const RGBSpectrum& from, Float *to, Float scale, bool gamma) {
+	(*to)= (gamma ? InverseGammaCorrect(from.y()) : from.y()) *scale;
+}
 
 template<typename Tmemory, typename Treturn>
 void ImageTexture<Tmemory, Treturn>::ConvertOut(const RGBSpectrum& from, RGBSpectrum* to) {
@@ -101,6 +108,10 @@ void ImageTexture<Tmemory, Treturn>::ConvertOut(const RGBSpectrum& from, RGBSpec
 	}
 }
 
+template<typename Tmemory, typename Treturn>
+void ImageTexture<Tmemory, Treturn>::ConvertOut(const Float& from, Float* to) {
+	(*to) = from;
+}
 
 template<typename Tmemory,typename Treturn> 
 MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileName,WrapMode wrapMode,bool doTrilinear,Float maxAnisotropy,Float scale,bool gamma){
@@ -124,10 +135,10 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 		if (_textures.find(texInfo) != _textures.end()) {
 			return _textures[texInfo].get();
 		}
-		RGBSpectrum errorRGB;
-		errorRGB[0] = 1;
+		Tmemory errorRGB=0.5;
+		/*errorRGB[0] = 1;
 		errorRGB[1] = 0.0196;
-		errorRGB[2] = 0.9529;
+		errorRGB[2] = 0.9529;*/
 		_textures[texInfo].reset(new MIPMap<Tmemory>(Point2i(1, 1), &errorRGB, WrapMode::Repeat,doTrilinear,maxAnisotropy));
 		return _textures[texInfo].get();
 	}
@@ -148,4 +159,7 @@ MIPMap<Tmemory>*  ImageTexture<Tmemory,Treturn>::GetTexture(std::string& fileNam
 }
 
 ImageTexture<RGBSpectrum,Spectrum> *CreateImageSpectrumTexture(const Transform &tex2world,
+	const TextureParams &tp);
+
+ImageTexture<Float, Float> *CreateImageFloatTexture(const Transform &tex2world,
 	const TextureParams &tp);

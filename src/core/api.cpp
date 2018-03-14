@@ -499,6 +499,9 @@ std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
 	else if (name == "checkerboard") {
 		tex = CreateCheckerboard2DFloatTexture(tex2world, tp);
 	}
+	else if (name == "imagemap") {
+		tex = CreateImageFloatTexture(tex2world, tp);
+	}
 	else {
 		Warning("Float texture \"" << name.c_str() << "\" unknown");
 	}
