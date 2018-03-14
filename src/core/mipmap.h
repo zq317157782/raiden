@@ -160,7 +160,7 @@ private:
         int t1 = std::floor(st[1] + 2 * invDet * vSqrt);
 
         Float sumWeight=0;
-        Spectrum sum(0);
+        T sum(0);
         //开始遍历包围盒，计算每个Texeld的贡献
         for(int it=t0;it<=t1;++it){
             Float tt=it-st[1];//转换到st为原点的空间
