@@ -20,6 +20,7 @@
 #include "lightdistrib.h"
 #include "parallel.h"
 #include "sampler.h"
+#include "memory.h"
 //代表lens上的或者光源上的一个点
 struct EndpointInteraction: public Interaction {
 public:
@@ -353,10 +354,11 @@ class BDPTIntegrator : public Integrator {
 private:
 	std::shared_ptr<const Camera> _camera;
 	std::shared_ptr<Sampler> _sampler;
+	const int _maxDepth;
 	const Bound2i _pixelBound;
 public:
-	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler, const Bound2i& pixelBound) :
-		_camera(camera), _sampler(sampler), _pixelBound(pixelBound) {
+	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler,int maxDepth,const Bound2i& pixelBound) :
+		_camera(camera), _sampler(sampler), _maxDepth(maxDepth), _pixelBound(pixelBound) {
 	}
 	virtual void Render(const Scene&) override {
 		//获得样本的范围
@@ -369,6 +371,7 @@ public:
 		//<并行循环体,循环tile>
 		//
 		ParallelFor2D([&](const Point2i& tile) {
+
 			//计算每个tile的seed
 			int seed = tile.x + tileNum.x*tile.y;
 			//根据seed,克隆Sampler
@@ -385,6 +388,8 @@ public:
 
 			//根据tileSampleBounds获得FilmTile
 			auto filmTile = _camera->film->GetFilmTile(tileSampleBounds);
+			MemoryArena arena;
+			
 			//<循环体,循环pixel>
 			for (auto pixel : tileSampleBounds) {
 				//针对每个像素做处理
@@ -405,6 +410,14 @@ public:
 				{
 					//当前的file样本点
 					auto filmSample = (Point2f)pixel + tileSampler->Get2DSample();
+
+					//分配两个数组，分别存放Camera subpath和Light subpath
+					//长度都是maxDepth+1,因为maxDepth代表边长，所以顶点要多一个，然后相机额外还要多一个存放和光源相交的顶点
+					Vertex* cameraVertices = arena.Alloc<Vertex>(_maxDepth + 2);
+					Vertex* lightVertices  = arena.Alloc<Vertex>(_maxDepth + 1);
+					
+					//重置当前路径样本所依赖的空间
+					arena.Reset();
 				} while (tileSampler->StartNextSample());
 			}
 
