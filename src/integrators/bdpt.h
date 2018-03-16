@@ -18,6 +18,8 @@
 #include "primitive.h"
 #include <unordered_map>
 #include "lightdistrib.h"
+#include "parallel.h"
+#include "sampler.h"
 //代表lens上的或者光源上的一个点
 struct EndpointInteraction: public Interaction {
 public:
@@ -50,23 +52,12 @@ public:
 	}
 };
 
-//详见Vech的论文[Robust Monte Carlo Methods for Light Transport],解释得非常到位
+//详见Veach的论文[Robust Monte Carlo Methods for Light Transport],解释得非常到位
 //只有的表面交点的情况下，才会出现这种情况
 Float CorrectShadingNormal(const SurfaceInteraction& ref, const Vector3f& wo,
 		const Vector3f& wi, TransportMode mode);
 
-//双向路径追踪
-class BDPTIntegrator: public Integrator {
-private:
-	std::shared_ptr<const Camera> _camera;
-public:
-	BDPTIntegrator(const std::shared_ptr<const Camera>& camera) :
-			_camera(camera) {
-	}
-	virtual void Render(const Scene&) override {
-		_camera->film->WriteImage();
-	}
-};
+
 
 //四种顶点类型
 enum class VertexType {
@@ -83,8 +74,8 @@ struct Vertex {
 		MediumInteraction mi;
 	};
 	bool delta = false;	//标识当前顶点是否包含Dirac分布
-	Float pdfFwd = 0;	//采样这个点的概率(立体角)
-	Float pdfRev = 0;	//逆向采样这个点的概率(立体角)
+	Float pdfFwd = 0;	//采样这个点的概率
+	Float pdfRev = 0;	//逆向采样这个点的概率
 
 	Vertex() :
 			ei()/*si;ei;*/{
@@ -177,7 +168,7 @@ struct Vertex {
 			break;
 
 		default: {
-			Warning("Unimplement for this type!");
+			LWarning<<"Unimplement for this type!";
 			return Spectrum(0);
 		}
 		}
@@ -192,6 +183,7 @@ struct Vertex {
 		} else if (type == VertexType::Medium) {
 			return true;
 		} else if (type == VertexType::Surface) {
+			//这里没有判断Specular成分是否存在
 			return si.bsdf->NumComponents(
 					BxDFType(
 							BxDFType::BSDF_REFLECTION
@@ -353,6 +345,75 @@ inline Vertex Vertex::CreateMedium(const MediumInteraction& mi,const Spectrum& b
 	v.pdfFwd=prev.ConvertDensity(pdf,v);
 	return v;
 }
+
+
+
+//双向路径追踪
+class BDPTIntegrator : public Integrator {
+private:
+	std::shared_ptr<const Camera> _camera;
+	std::shared_ptr<Sampler> _sampler;
+	const Bound2i _pixelBound;
+public:
+	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler, const Bound2i& pixelBound) :
+		_camera(camera), _sampler(sampler), _pixelBound(pixelBound) {
+	}
+	virtual void Render(const Scene&) override {
+		//获得样本的范围
+		auto sampleBounds = _camera->film->GetSampleBounds();
+		auto sampleExtent = sampleBounds.Diagonal();//获得宽高
+		int tileSize = 16;//tile的宽和高的大小
+		int nTileX = (sampleExtent.x + tileSize - 1) / tileSize;
+		int nTileY = (sampleExtent.y + tileSize - 1) / tileSize;
+		Point2i tileNum = Point2i(nTileX, nTileY);
+		//<并行循环体,循环tile>
+		//
+		ParallelFor2D([&](const Point2i& tile) {
+			//计算每个tile的seed
+			int seed = tile.x + tileNum.x*tile.y;
+			//根据seed,克隆Sampler
+			auto tileSampler = _sampler->Clone(seed);
+
+			//计算当前tile所覆盖的sampleBounds
+			int x0 = sampleBounds.minPoint.x + tile.x*tileSize;
+			int y0 = sampleBounds.minPoint.y + tile.y*tileSize;
+
+			int x1 = std::min(x0 + tileSize, sampleBounds.maxPoint.x);
+			int y1 = std::min(y0 + tileSize, sampleBounds.maxPoint.y);
+
+			Bound2i tileSampleBounds = Bound2i(Point2i(x0, y0), Point2i(x1, y1));
+
+			//根据tileSampleBounds获得FilmTile
+			auto filmTile = _camera->film->GetFilmTile(tileSampleBounds);
+			//<循环体,循环pixel>
+			for (auto pixel : tileSampleBounds) {
+				//针对每个像素做处理
+				tileSampler->StartPixel(pixel);
+
+				//检查像素是否在积分器负责的范围内
+				//这里把检查放在StartPixel后面v3有个解释：
+				// Do this check after the StartPixel() call; this keeps
+				// the usage of RNG values from (most) Samplers that use
+				// RNGs consistent, which improves reproducability /
+				// debugging.
+				if (!InsideExclusive(pixel, _pixelBound)) {
+					continue;
+				}
+
+				//<循环体,循环样本点>
+				do
+				{
+					//当前的file样本点
+					auto filmSample = (Point2f)pixel + tileSampler->Get2DSample();
+				} while (tileSampler->StartNextSample());
+			}
+
+		}, tileNum);
+
+		_camera->film->WriteImage();
+	}
+};
+
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
 		std::shared_ptr<Sampler> sampler, std::shared_ptr<const Camera> camera);
