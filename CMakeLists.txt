@@ -54,7 +54,8 @@ include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)
 include_directories(${OPENEXR_INCLUDE_DIRS})
 message(STATUS "OpenEXR头文件路径: " ${OPENEXR_INCLUDE_DIRS})
-
+include_directories(${LUA_INCLUDE_DIRS})
+message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIRS})
 
 #glog库
 find_package(glog REQUIRED)
@@ -63,15 +64,15 @@ message(STATUS "glog头文件路径: " ${GLOG_INCLUDE_PATH})
 message(STATUS "glog库文件路径: " ${GLOG_LIBRARY})
 
 #lua库
-find_package(Lua REQUIRED)
-include_directories(${LUA_INCLUDE_DIR})
-message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIR})
-message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
+# find_package(Lua REQUIRED)
+# include_directories(${LUA_INCLUDE_DIR})
+# message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIR})
+# message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
 
-#build Zlib库
-if(WIN32)
+# #build Zlib库
+# if(WIN32)
     
-endif()
+# endif()
 
 #设置源文件
 aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)
@@ -95,9 +96,8 @@ add_executable(${RAIDEN} ${SOURCE_FILE})
 
 #链接库
 target_link_libraries(${RAIDEN} ${GLOG_LIBRARY})
-target_link_libraries(${RAIDEN} ${LUA_LIBRARY})
+target_link_libraries(${RAIDEN} lua5.3.4)
 target_link_libraries(${RAIDEN} IlmImf)
-
 
 if (WIN32)
     set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
