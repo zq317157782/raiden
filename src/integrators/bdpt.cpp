@@ -87,5 +87,7 @@ BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
 			}
 		}
 	}
-	return new BDPTIntegrator(camera, sampler, pixelBounds);
+
+	int depth = params.FindOneInt("depth", 5);
+	return new BDPTIntegrator(camera, sampler,depth,pixelBounds);
 }
