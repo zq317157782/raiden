@@ -75,6 +75,7 @@ struct Vertex {
 		MediumInteraction mi;
 	};
 	bool delta = false;	//标识当前顶点是否包含Dirac分布
+	//area measure
 	Float pdfFwd = 0;	//采样这个点的概率
 	Float pdfRev = 0;	//逆向采样这个点的概率
 
@@ -231,9 +232,17 @@ struct Vertex {
 			return Spectrum(0);
 		}
 		w = Normalize(w);
-		//TODO 这里也有InfiniteLight相关
-		const AreaLight* light = si.primitive->GetAreaLight();
-		return light->L(si, w);
+		if (IsInfiniteLight()) {
+			Spectrum Le(0);
+			for (auto& light : scene.lights) {
+				Le = Le + light->Le(Ray(p(), -w));
+			}
+			return Le;
+		}
+		else {
+			const AreaLight* light = si.primitive->GetAreaLight();
+			return light->L(si, w);
+		}
 	}
 
 	//从立体角pdf转变到area pdf
