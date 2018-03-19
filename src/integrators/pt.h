@@ -59,7 +59,7 @@ public:
 		for (bounces = 0;; ++bounces) {
 			isHit = scene.Intersect(ray, &ref);
 
-			//如果是第一次反射，或者是镜面反射，需要计算自发光成分
+			//如果是没有反射，或者是镜面反射，需要计算自发光成分
 			if (bounces == 0 || isSpecularBounce) {
 				if (isHit) {
 					L+= beta*ref.Le(-ray.d);//考虑自发光

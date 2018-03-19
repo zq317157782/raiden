@@ -36,14 +36,14 @@ public:
 			Interaction(), light(nullptr) {
 	}
 	//初始化代表相机的点
-	EndpointInteraction(const Camera* cam, Ray& ray) :
+	EndpointInteraction(const Camera* cam, const Ray& ray) :
 			Interaction(ray.o, ray.time, ray.medium), camera(cam) {
 	}
 	EndpointInteraction(const Interaction& interaction, const Camera* cam) :
 			Interaction(interaction), camera(cam) {
 	}
 	//初始化代表光源的点
-	EndpointInteraction(const Light* _light, Ray& ray, Normal3f& normal) :
+	EndpointInteraction(const Light* _light, const Ray& ray, const Normal3f& normal) :
 			Interaction(ray.o, ray.time, ray.medium), light(_light) {
 		this->n = normal; //这里是离开光源的射线所在的点所在的表面的法线
 	}
@@ -97,7 +97,7 @@ struct Vertex {
 	Vertex(const MediumInteraction& mediumInteraction, const Spectrum& beta) :
 			type(VertexType::Medium), mi(mediumInteraction), beta(beta) {
 	}
-	static inline Vertex CreateMedium(const MediumInteraction& mi,const Spectrum& beta,Float pdf,const Vertex& prev);
+	
 	//这里保留了PBRT的解释
 	// Need to define these two to make compilers happy with the non-POD
 	// objects in the anonymous union above.
@@ -215,7 +215,10 @@ struct Vertex {
 		return false;
 	}
 
-	//TODO InfiniteLight相关
+	//判断是否是InfiniteLight
+	bool IsInfiniteLight() const {
+		return type == VertexType::Light && (ei.light == nullptr || (ei.light->flags&(int)LightFlags::Infinite) != 0);
+	}
 
 	//获取这个点的自发光能量
 	Spectrum Le(const Scene& scene, const Vertex& v) const {
@@ -337,6 +340,13 @@ struct Vertex {
 		//转换到area measurement
 		return ConvertDensity(pdf, next);
 	}
+
+	static inline Vertex CreateMedium(const MediumInteraction& mi, const Spectrum& beta, Float pdf, const Vertex& prev);
+	static inline Vertex CreateSurface(const SurfaceInteraction& si, const Spectrum& beta, Float pdf, const Vertex& prev);
+	static inline Vertex CreateLight(const EndpointInteraction& ei, const Spectrum& beta, Float pdf);
+	static inline Vertex CreateLight(const Light* light,const Ray& ray,const Normal3f& n, const Spectrum& Le, Float pdf);
+	static inline Vertex CreateCamera(const Camera* camera,const Ray& ray,const Spectrum& beta);
+	static inline Vertex CreateCamera(const Interaction& it, const Camera* camera, const Spectrum& beta);
 };
 
 //基于medium创建vertex
@@ -347,7 +357,32 @@ inline Vertex Vertex::CreateMedium(const MediumInteraction& mi,const Spectrum& b
 	return v;
 }
 
+//基于surface创建vertex
+inline Vertex Vertex::CreateSurface(const SurfaceInteraction& si, const Spectrum& beta, Float pdf, const Vertex& prev){
+	Vertex v(si, beta);
+	//转换立体角pdf到area pdf
+	v.pdfFwd = prev.ConvertDensity(pdf, v);
+	return v;
+}
 
+inline Vertex Vertex::CreateLight(const EndpointInteraction& ei,const Spectrum& beta, Float pdf) {
+	Vertex v(VertexType::Light,ei,beta);
+	v.pdfFwd = pdf;
+	return v;
+}
+
+inline Vertex CreateLight(const Light* light, const Ray& ray, const Normal3f& n, const Spectrum& Le, Float pdf) {
+	Vertex v(VertexType::Light, EndpointInteraction(light, ray,n), Le);
+}
+
+inline Vertex Vertex::CreateCamera(const Camera* camera, const Ray& ray, const Spectrum& beta){
+	
+	return Vertex(VertexType::Camera,EndpointInteraction(camera,ray), beta);
+}
+
+inline Vertex Vertex::CreateCamera(const Interaction& it, const Camera* camera, const Spectrum& beta){
+	return Vertex(VertexType::Camera, EndpointInteraction(it,camera), beta);
+};
 
 //双向路径追踪
 class BDPTIntegrator : public Integrator {
@@ -409,13 +444,33 @@ public:
 				do
 				{
 					//当前的file样本点
-					auto filmSample = (Point2f)pixel + tileSampler->Get2DSample();
+					auto filmPos = (Point2f)pixel + tileSampler->Get2DSample();
 
 					//分配两个数组，分别存放Camera subpath和Light subpath
 					//长度都是maxDepth+1,因为maxDepth代表边长，所以顶点要多一个，然后相机额外还要多一个存放和光源相交的顶点
 					Vertex* cameraVertices = arena.Alloc<Vertex>(_maxDepth + 2);
 					Vertex* lightVertices  = arena.Alloc<Vertex>(_maxDepth + 1);
 					
+					//生成两条subpath
+					int nCamera = 0;
+					int nLight = 0;
+
+					//遍历所有的SubPath顶点，并且计算相应的连接下的FullPath的贡献
+					//相机不需要考虑t==0的情况，因为不考虑LightPath的EndPoint是Lens的情况
+					Spectrum L(0);
+					for (int t = 1; t <= nCamera; ++t) {
+						for (int s = 0; s <= nLight; ++s) {
+							//TODO 和PT的Depth貌似有区别，需要再研究研究  
+							int depth = s + t - 2;
+							//跳过两个SubPath都只有一个顶点的情况，以及深度越界的情况
+							if ((s == 1 && t == 1) || depth<0 || depth>_maxDepth) {
+								continue;
+							}
+							//计算相应的FullPath的贡献，并且做记录
+						}
+					}
+					filmTile->AddSample(filmPos, L,1);
+						
 					//重置当前路径样本所依赖的空间
 					arena.Reset();
 				} while (tileSampler->StartNextSample());
