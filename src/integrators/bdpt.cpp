@@ -24,7 +24,7 @@ Float CorrectShadingNormal(const SurfaceInteraction& ref, const Vector3f& wo,
 int RandomWalk(const Scene&scene, RayDifferential ray, Sampler& sampler,
 		MemoryArena& arena, Spectrum beta, Float pdf, int maxDepth,
 		TransportMode mode, Vertex* path) {
-//如果最大深度为0，则不需要生成路径
+	//如果最大深度为0，则不需要生成路径
 	if (maxDepth == 0) {
 		return 0;
 	}
@@ -58,16 +58,72 @@ int RandomWalk(const Scene&scene, RayDifferential ray, Sampler& sampler,
 			}
 			Vector3f wi;
 			//采样新的方向，这里的pdf是立体角的pdf
-			pdfFwd = pdfRev = mi.phase->Sample_p(-ray.d, &wi,
+			pdfFwd = pdfRev = mi.phase->Sample_p(mi.wo, &wi,
 					sampler.Get2DSample());
 			//产生新的射线
 			ray=mi.SpawnRay(wi);
 		} else {
-
+			if (!isHit) {
+				//TODO InfiniteLight
+				return bounces;
+			}
+			//处理medium边界
+			si.ComputeScatteringFunctions(ray,arena,true,mode);
+			if (si.bsdf == nullptr) {
+				ray=si.SpawnRay(ray.d);
+				continue;
+			}
+			//生成顶点
+			vertex = Vertex::CreateSurface(si,beta,pdfFwd,preV);
+			++bounces;
+			if (bounces >= maxDepth) {
+				break;
+			}
+			//采样新的节点
+			Vector3f wi;
+			BxDFType flag;
+			auto f=si.bsdf->Sample_f(si.wo,&wi, sampler.Get2DSample(),&pdfFwd,BSDF_ALL,&flag);
+			if (f.IsBlack() || pdfFwd == 0) {
+				break;
+			}
+			//更新beta
+			beta = beta*f*AbsDot(si.shading.n, wi) / pdfFwd;
+			//计算revPdf
+			pdfRev = si.bsdf->Pdf(wi, si.wo, BSDF_ALL);
+			//判断当前顶点是否包含Dirac分布
+			if (flag&BSDF_SPECULAR) {
+				vertex.delta = true;
+				pdfFwd = pdfRev = 0;
+			}
+			//修正shading normal带来的不对称关系
+			beta = beta*CorrectShadingNormal(si,si.wo,wi,mode);
 		}
+		//转换pdf到area，并且赋值给前一个顶点
+		preV.pdfRev = vertex.ConvertDensity(pdfRev, preV);
 	}
 	//返回路径的长度
 	return bounces;
+}
+
+//生成相机SubPath
+int GenerateCameraSubPath(const Scene& scene,Sampler& sampler,MemoryArena& arena,const Camera& camera,int maxDepth,const Point2f& pFilm,Vertex* path) {
+	if (maxDepth == 0) {
+		return 0;
+	}
+
+	CameraSample sample;
+	sample.pFilm = pFilm;
+	sample.pLen = sampler.Get2DSample();
+	sample.time = sampler.Get1DSample();
+	//生成相机射线
+	RayDifferential ray;
+	Spectrum beta=camera.GenerateRayDifferential(sample, &ray);
+	ray.ScaleRayDifferential(1.0 / std::sqrt(sampler.samplesPerPixel));
+
+	Float dirPdf,posPdf;
+	camera.Pdf_We(ray, &posPdf, &dirPdf);
+
+	return RandomWalk(scene,ray,sampler,arena,beta,dirPdf, maxDepth-1,TransportMode::Radiance,path+1)+1;
 }
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,

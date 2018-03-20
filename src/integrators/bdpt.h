@@ -266,24 +266,30 @@ struct Vertex {
 		Vector3f w = v.p() - p();
 		Float invLengthSquared = 1.0 / w.LengthSquared();
 		w = w * std::sqrt(invLengthSquared);	//标准化
-		//TODO InfiniteLight 相关
-
-		Assert(IsLight());		//首先判断当前Vetex是否是光源
-		const Light* light = nullptr;		//初始化指向光源的指针
-		if (type == VertexType::Light) {
-			light = ei.light;
-		} else {
-			light = si.primitive->GetAreaLight();		//区域光情况
+		
+		if (IsInfiniteLight()) {
+			//TODO InfiniteLight 相关
+			return 0;
 		}
-		Assert(light != nullptr);		//判断光源不为空
-		Float pdfPos, pdfDir;		//(立体角)
-		light->Pdf_Le(Ray(p(), w, time()), ng(), &pdfPos, &pdfDir);
-		Float pdf = pdfDir * invLengthSquared;		//(立体角)
-		//转换到area度量
-		if (IsOnSurface()) {
-			pdf *= AbsDot(w, v.ng());		//回忆起几何衰减系数
+		else {
+			Assert(IsLight());		//首先判断当前Vetex是否是光源
+			const Light* light = nullptr;		//初始化指向光源的指针
+			if (type == VertexType::Light) {
+				light = ei.light;
+			}
+			else {
+				light = si.primitive->GetAreaLight();		//区域光情况
+			}
+			Assert(light != nullptr);		//判断光源不为空
+			Float pdfPos, pdfDir;		//(立体角)
+			light->Pdf_Le(Ray(p(), w, time()), ng(), &pdfPos, &pdfDir);
+			//转换到area度量
+			Float pdf = pdfDir * invLengthSquared;		//(area)
+			if (IsOnSurface()) {
+				pdf *= AbsDot(w, v.ng());		//回忆起几何衰减系数
+			}
+			return pdf;
 		}
-		return pdf;
 	}
 
 	Float PdfLightOrigin(const Scene& scene, const Vertex& v,
@@ -294,21 +300,27 @@ struct Vertex {
 			return 0;
 		}
 		w = Normalize(w);
-		//TODO InfiniteLight 相关
-		Assert(IsLight());		//首先判断当前Vetex是否是光源
-		const Light* light = nullptr;		//初始化指向光源的指针
-		if (type == VertexType::Light) {
-			light = ei.light;
-		} else {
-			light = si.primitive->GetAreaLight();		//区域光情况
+		if (IsInfiniteLight()) {
+			//TODO InfiniteLight 相关
 		}
-		Assert(light != nullptr);		//判断光源不为空
+		else {
+			Assert(IsLight());//首先判断当前Vetex是否是光源
+			const Light* light = nullptr;//初始化指向光源的指针
+			if (type == VertexType::Light) {
+				light = ei.light;
+			}
+			else {
+				light = si.primitive->GetAreaLight();//区域光情况
+			}
+			Assert(light != nullptr);		//判断光源不为空
 
-		int index=lightToDistrIndex.find(light)->second;
-		Float pdfChoice=distrib.DiscretePDF(index);//选中这个光源的概率
-		Float pdfPos,unused;
-		light->Pdf_Le(Ray(p(),w,time()),ng(),&pdfPos,&unused);
-		return pdfChoice*pdfPos;
+			int index = lightToDistrIndex.find(light)->second;
+			Float pdfChoice = distrib.DiscretePDF(index);//选中这个光源的概率
+			Float pdfPos, unused;
+			light->Pdf_Le(Ray(p(), w, time()), ng(), &pdfPos, &unused);
+			//这里只考虑位置，不考虑方向
+			return pdfChoice*pdfPos;
+		}
 	}
 
 	Float Pdf(const Scene& scene, const Vertex* pre, const Vertex& next) const {
