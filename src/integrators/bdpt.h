@@ -405,6 +405,8 @@ inline Vertex Vertex::CreateCamera(const Interaction& it, const Camera* camera, 
 	return Vertex(VertexType::Camera, EndpointInteraction(it,camera), beta);
 };
 
+int GenerateCameraSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Camera& camera, int maxDepth, const Point2f& pFilm, Vertex* path);
+
 //双向路径追踪
 class BDPTIntegrator : public Integrator {
 private:
@@ -416,7 +418,7 @@ public:
 	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler,int maxDepth,const Bound2i& pixelBound) :
 		_camera(camera), _sampler(sampler), _maxDepth(maxDepth), _pixelBound(pixelBound) {
 	}
-	virtual void Render(const Scene&) override {
+	virtual void Render(const Scene& scene) override {
 		//获得样本的范围
 		auto sampleBounds = _camera->film->GetSampleBounds();
 		auto sampleExtent = sampleBounds.Diagonal();//获得宽高
@@ -473,7 +475,7 @@ public:
 					Vertex* lightVertices  = arena.Alloc<Vertex>(_maxDepth + 1);
 					
 					//生成两条subpath
-					int nCamera = 0;
+					int nCamera = GenerateCameraSubPath(scene, *tileSampler,arena,*_camera, _maxDepth + 2,filmPos, cameraVertices);
 					int nLight = 0;
 
 					//遍历所有的SubPath顶点，并且计算相应的连接下的FullPath的贡献

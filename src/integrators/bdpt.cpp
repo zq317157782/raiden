@@ -123,6 +123,8 @@ int GenerateCameraSubPath(const Scene& scene,Sampler& sampler,MemoryArena& arena
 	Float dirPdf,posPdf;
 	camera.Pdf_We(ray, &posPdf, &dirPdf);
 
+	path[0] = Vertex::CreateCamera(&camera,ray,beta);
+
 	return RandomWalk(scene,ray,sampler,arena,beta,dirPdf, maxDepth-1,TransportMode::Radiance,path+1)+1;
 }
 
