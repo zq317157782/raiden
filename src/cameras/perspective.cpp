@@ -19,6 +19,14 @@ PerspectiveCamera::PerspectiveCamera(const Transform& c2w,
 			- _rasterToCamera(Point3f(0, 0, 0));
 	_dyCamera = _rasterToCamera(Point3f(0, 1, 0))
 			- _rasterToCamera(Point3f(0, 0, 0));
+
+	//计算相机空间下，Z=1的情况下的film的面积
+	const Point2i res = film->fullResolution;
+	Point3f minP=_rasterToCamera(Point3f(0,0,0));
+	Point3f maxP=_rasterToCamera(Point3f(res.x,res.y,0));
+	minP=minP/minP.z;
+	maxP=maxP/maxP.z;
+	_A=std::abs((maxP.x-minP.x)*(maxP.y-minP.y));
 }
 
 Float PerspectiveCamera::GenerateRay(const CameraSample &sample,

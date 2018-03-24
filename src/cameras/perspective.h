@@ -15,6 +15,8 @@ private:
 	//相机空间和光栅化空间的差分
 	Vector3f _dxCamera;
 	Vector3f _dyCamera;
+
+	Float _A;//相机的film在相机空间下的面积
 public:
 	PerspectiveCamera(const Transform& c2w, const Bound2f& screenWindow,Float shutterOpen,Float shutterEnd,Float lensr,
 			Float focald,Float fov,Film * f, const Medium* medium);
