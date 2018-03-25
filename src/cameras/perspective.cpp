@@ -96,6 +96,43 @@ Float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
 	return 1.0;
 }
 
+//计算射线ray所携带的importance值
+Spectrum PerspectiveCamera::We(const Ray& ray,Point2f* rasterPos) const{
+	//TODO 使用AnimaTransfoem
+	//首先判断射线时候和相机的朝向在同一个半球
+	Vector3f camDirWorld=cameraToWorld(Vector3f(0,0,1));
+	Float cosTheta=Dot(ray.d,camDirWorld);
+	if(cosTheta<=0){
+		return 0;
+	}
+	//再判断射线是否在film所在的bound中
+	//首先计算射线和焦平面的交点(所有从Film某个点出发的射线必定在焦平面相交于1点)
+	Float t=0;
+	if(_lensRadius>0){
+		t=_focalDistance/cosTheta;
+	}
+	else{
+		//pinhole
+		t=1.0/cosTheta;
+	}
+	Point3f posW=ray(t);//世界坐标系
+	Point3f posC=Inverse(cameraToWorld)(posW);//相机坐标系
+	Point3f posR=Inverse(_rasterToCamera)(posC);//光栅化坐标系
+	if(rasterPos!=nullptr){
+		*rasterPos=Point2f(posR.x,posR.y);
+	}
+	Bound2i bound=film->GetSampleBounds();
+	if(posR.x<bound.minPoint.x||posR.y<bound.minPoint.y||posR.x>=bound.maxPoint.x||posR.y>=bound.maxPoint.y){
+		return 0;
+	}
+	//计算importance
+	//areaPdf=1.0/_A  面积空间下的pdf
+	//d^2=1/cosTheta2 两种解释，第一种是直接根据COS的定义，第二种是cosTheta是向量的z分量
+	Float cosTheta2=cosTheta*cosTheta;
+	//lens的面积 pinhole的话面积为1，因为是Dirac Distribution
+	Float lensArea=_lensRadius>0?(Pi*_lensRadius*_lensRadius):1;
+	return 1.0/(_A*cosTheta2*cosTheta2*lensArea);//4个cos的几何意义不同 一个和转换到solid空间有关，一个为了cancel out ray-space中的cos,还有两个是距离平方和的一部分
+}
 
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,

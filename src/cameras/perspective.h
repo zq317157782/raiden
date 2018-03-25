@@ -24,6 +24,8 @@ public:
 	virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const override;
 	virtual Float GenerateRayDifferential(const CameraSample &sample,
 				RayDifferential *rd) const override;
+	
+	virtual Spectrum We(const Ray& ray,Point2f* rasterPos=nullptr) const;
 };
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,
