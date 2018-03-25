@@ -25,7 +25,8 @@ public:
 	virtual Float GenerateRayDifferential(const CameraSample &sample,
 				RayDifferential *rd) const override;
 	
-	virtual Spectrum We(const Ray& ray,Point2f* rasterPos=nullptr) const;
+	virtual Spectrum We(const Ray& ray,Point2f* rasterPos=nullptr) const override;
+	virtual void Pdf_We(const Ray& ray,Float* posPdf,Float* dirPdf) const override;
 };
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,

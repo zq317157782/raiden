@@ -134,6 +134,39 @@ Spectrum PerspectiveCamera::We(const Ray& ray,Point2f* rasterPos) const{
 	return 1.0/(_A*cosTheta2*cosTheta2*lensArea);//4个cos的几何意义不同 一个和转换到solid空间有关，一个为了cancel out ray-space中的cos,还有两个是距离平方和的一部分
 }
 
+void PerspectiveCamera::Pdf_We(const Ray& ray,Float* posPdf,Float* dirPdf) const{
+	//几乎和We函数相同
+	Vector3f camDirWorld=cameraToWorld(Vector3f(0,0,1));
+	Float cosTheta=Dot(ray.d,camDirWorld);
+	if(cosTheta<=0){
+		*posPdf=0;
+		*dirPdf=0;
+		return;
+	}
+
+	Float t=0;
+	if(_lensRadius>0){
+		t=_focalDistance/cosTheta;
+	}
+	else{
+		//pinhole
+		t=1.0/cosTheta;
+	}
+	Point3f posW=ray(t);//世界坐标系
+	Point3f posC=Inverse(cameraToWorld)(posW);//相机坐标系
+	Point3f posR=Inverse(_rasterToCamera)(posC);//光栅化坐标系
+	
+	Bound2i bound=film->GetSampleBounds();
+	if(posR.x<bound.minPoint.x||posR.y<bound.minPoint.y||posR.x>=bound.maxPoint.x||posR.y>=bound.maxPoint.y){
+		*posPdf=0;
+		*dirPdf=0;
+		return;
+	}
+	Float lensArea=_lensRadius>0?(Pi*_lensRadius*_lensRadius):1;
+	*posPdf = 1.0/lensArea;
+	*dirPdf = 1.0/((_A*cosTheta)*(cosTheta*cosTheta));
+}
+
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,
                                            Film *film, const Medium *medium) {
