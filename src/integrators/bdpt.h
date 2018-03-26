@@ -406,7 +406,7 @@ inline Vertex Vertex::CreateCamera(const Interaction& it, const Camera* camera, 
 };
 
 int GenerateCameraSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Camera& camera, int maxDepth, const Point2f& pFilm, Vertex* path);
-
+int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Distribution1D& lightDis, Float time, int maxDepth, Vertex* path);
 //双向路径追踪
 class BDPTIntegrator : public Integrator {
 private:
@@ -414,10 +414,18 @@ private:
 	std::shared_ptr<Sampler> _sampler;
 	const int _maxDepth;
 	const Bound2i _pixelBound;
+
+	std::string _lightStrategy;
+	std::unique_ptr<LightDistribution> _lightDistribution;//光源的分布
 public:
-	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler,int maxDepth,const Bound2i& pixelBound) :
-		_camera(camera), _sampler(sampler), _maxDepth(maxDepth), _pixelBound(pixelBound) {
+	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler,int maxDepth,const Bound2i& pixelBound, const std::string& lightStrategy = "uniform") :
+		_camera(camera), _sampler(sampler), _maxDepth(maxDepth), _pixelBound(pixelBound), _lightStrategy(lightStrategy) {
 	}
+
+	void Preprocess(const Scene& scene, Sampler& sampler){
+		_lightDistribution = ComputeLightSampleDistribution(_lightStrategy, scene);
+	}
+
 	virtual void Render(const Scene& scene) override {
 		//获得样本的范围
 		auto sampleBounds = _camera->film->GetSampleBounds();
@@ -466,7 +474,7 @@ public:
 				//<循环体,循环样本点>
 				do
 				{
-					//当前的file样本点
+					//当前的film样本点
 					auto filmPos = (Point2f)pixel + tileSampler->Get2DSample();
 
 					//分配两个数组，分别存放Camera subpath和Light subpath
@@ -476,7 +484,10 @@ public:
 					
 					//生成两条subpath
 					int nCamera = GenerateCameraSubPath(scene, *tileSampler,arena,*_camera, _maxDepth + 2,filmPos, cameraVertices);
-					int nLight = 0;
+					//PBRT这里使用了PowerDistribution
+					const Distribution1D *lightDistr =_lightDistribution->Lookup(cameraVertices[0].p());
+					
+					int nLight = GenerateLightSubPath(scene,*tileSampler,arena, *lightDistr, cameraVertices[0].time(), _maxDepth+1, lightVertices);
 
 					//遍历所有的SubPath顶点，并且计算相应的连接下的FullPath的贡献
 					//相机不需要考虑t==0的情况，因为不考虑LightPath的EndPoint是Lens的情况

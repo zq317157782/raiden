@@ -137,7 +137,7 @@ int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& aren
 	int index=lightDis.SampleDiscrete(sampler.Get1DSample(),&pdfChoice);
 	const std::shared_ptr<Light> light= scene.lights[index];
 	Spectrum Le= light->Sample_Le(sampler.Get2DSample(), sampler.Get2DSample(),time,&ray,&normal,&pdfPos,&pdfDir);
-	if (pdfChoice == 0 || pdfDir == 0 || pdfPos == 0 || Le == 0) {
+	if (pdfChoice == 0 || pdfDir == 0 || pdfPos == 0 || Le.IsBlack()) {
 		return 0;
 	}
 
@@ -145,8 +145,8 @@ int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& aren
 	//注意第一个节点的beta和pdf,以及传入RandomWalk中的beta和pdf
 	path[0] = Vertex::CreateLight(EndpointInteraction(light.get(),ray,normal), Le, pdfChoice*pdfPos);
 	auto beta = Le*AbsDot(ray.d, normal) / (pdfChoice*pdfDir*pdfPos);
-
 	int numVertices = RandomWalk(scene,ray,sampler,arena,beta,pdfDir, maxDepth-1,TransportMode::Importance,path+1);
+	//TODO InfiniteLight相关
 	return numVertices + 1;
 }
 
