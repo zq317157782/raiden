@@ -128,6 +128,28 @@ int GenerateCameraSubPath(const Scene& scene,Sampler& sampler,MemoryArena& arena
 	return RandomWalk(scene,ray,sampler,arena,beta,dirPdf, maxDepth-1,TransportMode::Radiance,path+1)+1;
 }
 
+//生成光源SubPath
+int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena,const Distribution1D& lightDis,Float time, int maxDepth, Vertex* path) {
+	//采样光源
+	Float pdfChoice,pdfDir, pdfPos;
+	RayDifferential ray;
+	Normal3f normal;
+	int index=lightDis.SampleDiscrete(sampler.Get1DSample(),&pdfChoice);
+	const std::shared_ptr<Light> light= scene.lights[index];
+	Spectrum Le= light->Sample_Le(sampler.Get2DSample(), sampler.Get2DSample(),time,&ray,&normal,&pdfPos,&pdfDir);
+	if (pdfChoice == 0 || pdfDir == 0 || pdfPos == 0 || Le == 0) {
+		return 0;
+	}
+
+	//生成节点，并且执行RandomWalk
+	//注意第一个节点的beta和pdf,以及传入RandomWalk中的beta和pdf
+	path[0] = Vertex::CreateLight(EndpointInteraction(light.get(),ray,normal), Le, pdfChoice*pdfPos);
+	auto beta = Le*AbsDot(ray.d, normal) / (pdfChoice*pdfDir*pdfPos);
+
+	int numVertices = RandomWalk(scene,ray,sampler,arena,beta,pdfDir, maxDepth-1,TransportMode::Importance,path+1);
+	return numVertices + 1;
+}
+
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
 		std::shared_ptr<Sampler> sampler,
 		std::shared_ptr<const Camera> camera) {
