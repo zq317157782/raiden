@@ -9,6 +9,9 @@
 #include "sampling.h"
 #include "paramset.h"
 #include "film.h"
+#include "interaction.h"
+#include "light.h"
+
 PerspectiveCamera::PerspectiveCamera(const Transform& c2w,
 		const Bound2f& screenWindow, Float shutterOpen, Float shutterEnd,
 		Float lensr, Float focald, Float fov,Film * f, const Medium* medium) :
@@ -165,6 +168,38 @@ void PerspectiveCamera::Pdf_We(const Ray& ray,Float* posPdf,Float* dirPdf) const
 	Float lensArea=_lensRadius>0?(Pi*_lensRadius*_lensRadius):1;
 	*posPdf = 1.0/lensArea;
 	*dirPdf = 1.0/((_A*cosTheta)*(cosTheta*cosTheta));
+}
+
+Spectrum PerspectiveCamera::Sample_Wi(const Interaction& p1, const Point2f&sample, Vector3f* wi, Float* pdf, Point2f* rasterPos, VisibilityTester* tester) const {
+	
+	//采样lens上的点
+	auto lensPosCamera = ConcentricSampleDisk(sample)*_lensRadius;
+	auto lensPosWorld=cameraToWorld(Point3f(lensPosCamera.x, lensPosCamera.y, 0));
+	//法线
+	auto normalWorld=Normal3f(cameraToWorld(Vector3f(0,0,1)));
+
+	*wi = lensPosWorld -p1.p;
+	Float dist = (*wi).Length();
+	*wi /= dist;//标准化
+
+	//计算pdf并且转换到solid空间
+	//lens的面积
+	Float lensArea = _lensRadius > 0?Pi*_lensRadius*_lensRadius:1;
+	/*Float pdfArea = 1.0 / lensArea;
+	Float cosTheta = AbsDot(normalWorld, -(*wi));
+	*pdf=pdfArea*(dist*dist / cosTheta);*/
+	//简化
+	*pdf = (dist*dist) / (AbsDot(normalWorld, -(*wi))*lensArea);
+	
+	//生成Interaction 
+	Interaction p0 = Interaction(lensPosWorld, p1.time,medium);
+	p0.n = normalWorld;
+	//设置VisibilityTester
+	*tester = VisibilityTester(p0,p1);
+	
+	//计算importance
+	return We(p0.SpawnRay(-(*wi)), rasterPos);
+	
 }
 
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,

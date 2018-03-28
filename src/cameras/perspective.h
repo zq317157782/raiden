@@ -27,6 +27,8 @@ public:
 	
 	virtual Spectrum We(const Ray& ray,Point2f* rasterPos=nullptr) const override;
 	virtual void Pdf_We(const Ray& ray,Float* posPdf,Float* dirPdf) const override;
+
+	virtual Spectrum Sample_Wi(const Interaction& ref, const Point2f&sample, Vector3f* wi, Float* pdf, Point2f* rasterPos, VisibilityTester* tester) const override;
 };
 PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
                                            const Transform &cam2world,
