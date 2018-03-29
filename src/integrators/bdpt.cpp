@@ -150,6 +150,21 @@ int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& aren
 	return numVertices + 1;
 }
 
+//几何因子函数
+Spectrum  G(const Scene& scene, Sampler& sampler,const Vertex& v1,const Vertex& v2){
+	auto d=v1.p()-v2.p();
+	Float g=1.0/d.LengthSquared();
+	d*=g;//标准化
+	if(v1.IsOnSurface()){
+		g*=AbsDot(v1.ns(),d);
+	}
+	if(v2.IsOnSurface()){
+		g*=AbsDot(v2.ns(),d);
+	}
+	VisibilityTester tester=VisibilityTester(v1.GetInteraction(),v2.GetInteraction());
+	return g*tester.Tr(scene,sampler);
+}
+
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
 		std::shared_ptr<Sampler> sampler,
 		std::shared_ptr<const Camera> camera) {
