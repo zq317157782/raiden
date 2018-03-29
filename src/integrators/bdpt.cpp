@@ -12,8 +12,14 @@ Float CorrectShadingNormal(const SurfaceInteraction& ref, const Vector3f& wo,
 		const Vector3f& wi, TransportMode mode) {
 	if (mode == TransportMode::Importance) {
 		//向前传播
-		return (AbsDot(ref.shading.n, wo) * AbsDot(ref.n, wi))
-				/ (AbsDot(ref.n, wo) * AbsDot(ref.shading.n, wi));
+		auto a=(AbsDot(ref.shading.n, wo) * AbsDot(ref.n, wi));
+		auto b=(AbsDot(ref.n, wo) * AbsDot(ref.shading.n, wi));
+		auto correct=a/b; 
+		if(b==0){
+			return 0;
+		}
+		assert(!std::isnan(correct));
+		return correct;
 	} else {
 		//向后传播
 		return 1.0;
@@ -163,6 +169,24 @@ Spectrum  G(const Scene& scene, Sampler& sampler,const Vertex& v1,const Vertex& 
 	}
 	VisibilityTester tester=VisibilityTester(v1.GetInteraction(),v2.GetInteraction());
 	return g*tester.Tr(scene,sampler);
+}
+
+//链接两个子路径并且计算能量
+Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler){
+	Vertex& lp=lightVertices[s-1];
+	Vertex& cp=cameraVertices[t-1];
+	Spectrum L;
+	if(s>1&&t>1){
+		if(lp.IsConnectable()&&cp.IsConnectable()){
+			L=lp.beta*lp.f(cp,TransportMode::Importance)*cp.f(lp,TransportMode::Radiance)*cp.beta;
+			if(!L.IsBlack()){
+				L=L*G(scene,sampler,lp,cp);
+			}
+		}
+	}else{
+		
+	}
+	return L;
 }
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,

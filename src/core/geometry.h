@@ -31,7 +31,7 @@ inline bool IsNaN(int n) {
 template<typename T>
 class alignas(16) Vector3 {
 public:
-	T x, y, z, w;
+	T x, y, z;
 public:
 	Vector3() {
 		x = y = z = 0;
@@ -353,7 +353,7 @@ typedef Vector2<int> Vector2i;
 template<typename T>
 class alignas(16) Point3 {
 public:
-	T x, y, z ,w;
+	T x, y, z;
 public:
 	Point3() {
 		x = y = z = 0;
@@ -648,7 +648,7 @@ typedef Point2<int> Point2i;
 template<typename T>
 class alignas(16) Normal3 {
 public:
-	T x, y, z, w;
+	T x, y, z;
 public:
 	Normal3() :
 			x(0), y(0), z(0) {

@@ -21,6 +21,7 @@
 #include "parallel.h"
 #include "sampler.h"
 #include "memory.h"
+#include "progressreporter.h"
 //代表lens上的或者光源上的一个点
 struct EndpointInteraction: public Interaction {
 public:
@@ -159,8 +160,9 @@ struct Vertex {
 		switch (type) {
 		case VertexType::Surface: {
 			//这里要修正shading normal带来的不对称性
-			return si.bsdf->f(si.wo, wi)
-					* CorrectShadingNormal(si, si.wo, wi, mode);
+			auto f=si.bsdf->f(si.wo, wi);
+			auto correct=CorrectShadingNormal(si, si.wo, wi, mode);
+			return f*correct;
 		}
 			break;
 		case VertexType::Medium: {
@@ -407,6 +409,7 @@ inline Vertex Vertex::CreateCamera(const Interaction& it, const Camera* camera, 
 
 int GenerateCameraSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Camera& camera, int maxDepth, const Point2f& pFilm, Vertex* path);
 int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Distribution1D& lightDis, Float time, int maxDepth, Vertex* path);
+Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler);
 //双向路径追踪
 class BDPTIntegrator : public Integrator {
 private:
@@ -422,11 +425,10 @@ public:
 		_camera(camera), _sampler(sampler), _maxDepth(maxDepth), _pixelBound(pixelBound), _lightStrategy(lightStrategy) {
 	}
 
-	void Preprocess(const Scene& scene, Sampler& sampler){
-		_lightDistribution = ComputeLightSampleDistribution(_lightStrategy, scene);
-	}
-
 	virtual void Render(const Scene& scene) override {
+		//初始化光源分布
+		_lightDistribution = ComputeLightSampleDistribution(_lightStrategy, scene);
+
 		//获得样本的范围
 		auto sampleBounds = _camera->film->GetSampleBounds();
 		auto sampleExtent = sampleBounds.Diagonal();//获得宽高
@@ -434,6 +436,7 @@ public:
 		int nTileX = (sampleExtent.x + tileSize - 1) / tileSize;
 		int nTileY = (sampleExtent.y + tileSize - 1) / tileSize;
 		Point2i tileNum = Point2i(nTileX, nTileY);
+		ProgressReporter reporter(tileNum.x*tileNum.y,"Rendering");
 		//<并行循环体,循环tile>
 		//
 		ParallelFor2D([&](const Point2i& tile) {
@@ -501,17 +504,19 @@ public:
 								continue;
 							}
 							//计算相应的FullPath的贡献，并且做记录
+							L+=ConnectBDPT(scene,lightVertices,cameraVertices,nLight,nCamera,*tileSampler);
 						}
 					}
 					filmTile->AddSample(filmPos, L,1);
-						
 					//重置当前路径样本所依赖的空间
 					arena.Reset();
 				} while (tileSampler->StartNextSample());
 			}
-
+			//合并filmTile
+			_camera->film->MergeFilmTile(std::move(filmTile));
+			reporter.Update();
 		}, tileNum);
-
+		reporter.Done();
 		_camera->film->WriteImage();
 	}
 };
