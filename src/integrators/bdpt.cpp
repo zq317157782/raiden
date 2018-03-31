@@ -103,6 +103,7 @@ int RandomWalk(const Scene&scene, RayDifferential ray, Sampler& sampler,
 			}
 			//修正shading normal带来的不对称关系
 			beta = beta*CorrectShadingNormal(si,si.wo,wi,mode);
+			ray=si.SpawnRay(wi);
 		}
 		//转换pdf到area，并且赋值给前一个顶点
 		preV.pdfRev = vertex.ConvertDensity(pdfRev, preV);
@@ -172,11 +173,48 @@ Spectrum  G(const Scene& scene, Sampler& sampler,const Vertex& v1,const Vertex& 
 }
 
 //链接两个子路径并且计算能量
-Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler){
-	Vertex& lp=lightVertices[s-1];
-	Vertex& cp=cameraVertices[t-1];
+Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler,const Distribution1D& lightDistri,const std::unordered_map<const Light *, size_t>& lightToIndex){
+	
+	Vertex sampled;//额外采样的vertex
 	Spectrum L;
-	if(s>1&&t>1){
+	//一条完整的路径的情况
+	if(s==0){
+		Vertex& cp=cameraVertices[t-1];
+		if(cp.IsLight()){
+			L=cp.Le(scene,cameraVertices[t-2])*cp.beta;
+		}
+	}
+	//有一个光源的情况
+	// direct情况
+	else if(s==1){
+		Vertex& cp=cameraVertices[t-1];
+		if(cp.IsConnectable()){
+			Float lightPdf;
+			int index=lightDistri.SampleDiscrete(sampler.Get1DSample(),&lightPdf);
+			auto light=scene.lights[index];
+			Vector3f wi;
+			Float pdf;
+			VisibilityTester vis;
+			auto Le=light->Sample_Li(cp.GetInteraction(),sampler.Get2DSample(),&wi,&pdf,&vis);
+			if(pdf>0&&!Le.IsBlack()){
+				EndpointInteraction lp=EndpointInteraction(vis.P1(),light.get());
+				sampled=Vertex::CreateLight(lp,Le/(lightPdf*pdf),0);
+				sampled.pdfFwd=sampled.PdfLightOrigin(scene,cp,lightDistri,lightToIndex);
+				L=cp.beta*cp.f(sampled,TransportMode::Radiance)*sampled.beta;
+				if(cp.IsOnSurface()){
+					L=L*AbsDot(wi,cp.ns());
+				}
+				if(!L.IsBlack()){
+					//只有当camera subpath和light都提供能量的时候，再判断是否遮挡
+					L=L*vis.Tr(scene,sampler);
+				}
+			}
+			
+		}
+	}
+	else if(s>1&&t>1){
+		Vertex& lp=lightVertices[s-1];
+		Vertex& cp=cameraVertices[t-1];
 		if(lp.IsConnectable()&&cp.IsConnectable()){
 			L=lp.beta*lp.f(cp,TransportMode::Importance)*cp.f(lp,TransportMode::Radiance)*cp.beta;
 			if(!L.IsBlack()){

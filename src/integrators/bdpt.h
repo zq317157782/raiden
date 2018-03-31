@@ -409,7 +409,7 @@ inline Vertex Vertex::CreateCamera(const Interaction& it, const Camera* camera, 
 
 int GenerateCameraSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Camera& camera, int maxDepth, const Point2f& pFilm, Vertex* path);
 int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Distribution1D& lightDis, Float time, int maxDepth, Vertex* path);
-Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler);
+Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler,const Distribution1D& lightDistri,const std::unordered_map<const Light *, size_t>& lightToIndex);
 //双向路径追踪
 class BDPTIntegrator : public Integrator {
 private:
@@ -428,7 +428,12 @@ public:
 	virtual void Render(const Scene& scene) override {
 		//初始化光源分布
 		_lightDistribution = ComputeLightSampleDistribution(_lightStrategy, scene);
-
+		//从Light指针到index的映射
+		std::unordered_map<const Light *, size_t> lightToIndex;
+    	for (size_t i = 0; i < scene.lights.size(); ++i){
+ 			lightToIndex[scene.lights[i].get()] = i;
+		}
+       
 		//获得样本的范围
 		auto sampleBounds = _camera->film->GetSampleBounds();
 		auto sampleExtent = sampleBounds.Diagonal();//获得宽高
@@ -504,7 +509,7 @@ public:
 								continue;
 							}
 							//计算相应的FullPath的贡献，并且做记录
-							L+=ConnectBDPT(scene,lightVertices,cameraVertices,nLight,nCamera,*tileSampler);
+							L+=ConnectBDPT(scene,lightVertices,cameraVertices,s,t,*tileSampler,*lightDistr,lightToIndex);
 						}
 					}
 					filmTile->AddSample(filmPos, L,1);
