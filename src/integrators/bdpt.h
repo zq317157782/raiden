@@ -510,7 +510,14 @@ public:
 								continue;
 							}
 							//计算相应的FullPath的贡献，并且做记录
-							L+=ConnectBDPT(scene,lightVertices,cameraVertices,s,t,*tileSampler,*lightDistr,lightToIndex,*_camera,&raster);
+							if (t == 1) {
+								//只包含1个相机点
+								
+							}
+							else {
+								L += ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
+							}
+							
 						}
 					}
 					filmTile->AddSample(filmPos, L,1);

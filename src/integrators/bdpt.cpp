@@ -184,34 +184,6 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 			L=cp.Le(scene,cameraVertices[t-2])*cp.beta;
 		}
 	}
-	//有一个光源的情况
-	// direct情况
-	else if(s==1){
-		Vertex& cp=cameraVertices[t-1];
-		if(cp.IsConnectable()){
-			Float lightPdf;
-			int index=lightDistri.SampleDiscrete(sampler.Get1DSample(),&lightPdf);
-			auto light=scene.lights[index];
-			Vector3f wi;
-			Float pdf;
-			VisibilityTester vis;
-			auto Le=light->Sample_Li(cp.GetInteraction(),sampler.Get2DSample(),&wi,&pdf,&vis);
-			if(pdf>0&&!Le.IsBlack()){
-				EndpointInteraction lp=EndpointInteraction(vis.P1(),light.get());
-				sampled=Vertex::CreateLight(lp,Le/(lightPdf*pdf),0);
-				sampled.pdfFwd=sampled.PdfLightOrigin(scene,cp,lightDistri,lightToIndex);
-				L=cp.beta*cp.f(sampled,TransportMode::Radiance)*sampled.beta;
-				if(cp.IsOnSurface()){
-					L=L*AbsDot(wi,cp.ns());
-				}
-				if(!L.IsBlack()){
-					//只有当camera subpath和light都提供能量的时候，再判断是否遮挡
-					L=L*vis.Tr(scene,sampler);
-				}
-			}
-			
-		}
-	}
 	//Camera SubPath只包含一个顶点
 	else if(t == 1){
 		Vertex& lp = lightVertices[s - 1];
@@ -233,6 +205,34 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 					L = L*vis.Tr(scene, sampler);
 				}
 			}
+		}
+	}
+	//有一个光源的情况
+	// direct情况
+	else if (s == 1) {
+		Vertex& cp = cameraVertices[t - 1];
+		if (cp.IsConnectable()) {
+			Float lightPdf;
+			int index = lightDistri.SampleDiscrete(sampler.Get1DSample(), &lightPdf);
+			auto light = scene.lights[index];
+			Vector3f wi;
+			Float pdf;
+			VisibilityTester vis;
+			auto Le = light->Sample_Li(cp.GetInteraction(), sampler.Get2DSample(), &wi, &pdf, &vis);
+			if (pdf>0 && !Le.IsBlack()) {
+				EndpointInteraction lp = EndpointInteraction(vis.P1(), light.get());
+				sampled = Vertex::CreateLight(lp, Le / (lightPdf*pdf), 0);
+				sampled.pdfFwd = sampled.PdfLightOrigin(scene, cp, lightDistri, lightToIndex);
+				L = cp.beta*cp.f(sampled, TransportMode::Radiance)*sampled.beta;
+				if (cp.IsOnSurface()) {
+					L = L*AbsDot(wi, cp.ns());
+				}
+				if (!L.IsBlack()) {
+					//只有当camera subpath和light都提供能量的时候，再判断是否遮挡
+					L = L*vis.Tr(scene, sampler);
+				}
+			}
+
 		}
 	}
 	else if(s>1&&t>1){
