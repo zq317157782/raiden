@@ -173,7 +173,7 @@ Spectrum  G(const Scene& scene, Sampler& sampler,const Vertex& v1,const Vertex& 
 }
 
 //链接两个子路径并且计算能量
-Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler,const Distribution1D& lightDistri,const std::unordered_map<const Light *, size_t>& lightToIndex){
+Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler,const Distribution1D& lightDistri,const std::unordered_map<const Light *, size_t>& lightToIndex, const Camera& camera, Point2f*raster){
 	
 	Vertex sampled;//额外采样的vertex
 	Spectrum L;
@@ -212,6 +212,29 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 			
 		}
 	}
+	//Camera SubPath只包含一个顶点
+	else if(t == 1){
+		Vertex& lp = lightVertices[s - 1];
+		if (lp.IsConnectable()) {
+			Vector3f wi;
+			Float pdf;
+			VisibilityTester vis;
+			auto we=camera.Sample_Wi(lp.GetInteraction(),sampler.Get2DSample(),&wi,&pdf, raster,&vis);
+			if (pdf != 0 && !we.IsBlack()) {
+				//生成相应的相机点，并且计算相应的贡献
+				//这里要注意相应的beta的计算
+				EndpointInteraction ep = EndpointInteraction(vis.P1(),&camera);
+				sampled = Vertex::CreateCamera(ep, &camera,we/ pdf);
+				L = lp.beta*lp.f(sampled,TransportMode::Importance)*sampled.beta;
+				if (lp.IsOnSurface()) {
+					L = L*AbsDot(wi, lp.ns());
+				}
+				if (!L.IsBlack()) {
+					L = L*vis.Tr(scene, sampler);
+				}
+			}
+		}
+	}
 	else if(s>1&&t>1){
 		Vertex& lp=lightVertices[s-1];
 		Vertex& cp=cameraVertices[t-1];
@@ -221,9 +244,8 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 				L=L*G(scene,sampler,lp,cp);
 			}
 		}
-	}else{
-		
 	}
+
 	return L;
 }
 

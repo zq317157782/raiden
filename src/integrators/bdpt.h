@@ -409,7 +409,7 @@ inline Vertex Vertex::CreateCamera(const Interaction& it, const Camera* camera, 
 
 int GenerateCameraSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Camera& camera, int maxDepth, const Point2f& pFilm, Vertex* path);
 int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& arena, const Distribution1D& lightDis, Float time, int maxDepth, Vertex* path);
-Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler,const Distribution1D& lightDistri,const std::unordered_map<const Light *, size_t>& lightToIndex);
+Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVertices,int s,int t,Sampler& sampler,const Distribution1D& lightDistri,const std::unordered_map<const Light *, size_t>& lightToIndex,const Camera& camera,Point2f*raster);
 //双向路径追踪
 class BDPTIntegrator : public Integrator {
 private:
@@ -500,6 +500,7 @@ public:
 					//遍历所有的SubPath顶点，并且计算相应的连接下的FullPath的贡献
 					//相机不需要考虑t==0的情况，因为不考虑LightPath的EndPoint是Lens的情况
 					Spectrum L(0);
+					Point2f raster;
 					for (int t = 1; t <= nCamera; ++t) {
 						for (int s = 0; s <= nLight; ++s) {
 							//TODO 和PT的Depth貌似有区别，需要再研究研究  
@@ -509,7 +510,7 @@ public:
 								continue;
 							}
 							//计算相应的FullPath的贡献，并且做记录
-							L+=ConnectBDPT(scene,lightVertices,cameraVertices,s,t,*tileSampler,*lightDistr,lightToIndex);
+							L+=ConnectBDPT(scene,lightVertices,cameraVertices,s,t,*tileSampler,*lightDistr,lightToIndex,*_camera,&raster);
 						}
 					}
 					filmTile->AddSample(filmPos, L,1);
