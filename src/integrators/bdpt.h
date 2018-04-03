@@ -421,7 +421,7 @@ private:
 	std::string _lightStrategy;
 	std::unique_ptr<LightDistribution> _lightDistribution;//光源的分布
 public:
-	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler,int maxDepth,const Bound2i& pixelBound, const std::string& lightStrategy = "uniform") :
+	BDPTIntegrator(const std::shared_ptr<const Camera>& camera, std::shared_ptr<Sampler>& sampler,int maxDepth,const Bound2i& pixelBound, const std::string& lightStrategy = "power") :
 		_camera(camera), _sampler(sampler), _maxDepth(maxDepth), _pixelBound(pixelBound), _lightStrategy(lightStrategy) {
 	}
 
