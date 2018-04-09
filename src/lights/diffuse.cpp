@@ -51,6 +51,12 @@ Spectrum DiffuseAreaLight::Sample_Le(const Point2f &u1, const Point2f &u2, Float
 	*ray=ref.SpawnRay(w);
 	return L(ref,w);
 }
+void DiffuseAreaLight::Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
+	Float *pdfDir) const {
+	auto ref = Interaction(ray.o, nLight,Vector3f(),Vector3f(nLight),ray.time,mediumInterface);
+	*pdfPos=_shape->Pdf(ref);//计算posPdf
+	*pdfDir = CosineHemispherePdf(Dot(ray.d,nLight));
+}
 
 std::shared_ptr<AreaLight> CreateDiffuseAreaLight(const Transform &light2world,
 		const ParamSet &paramSet, const std::shared_ptr<Shape> &shape) {
