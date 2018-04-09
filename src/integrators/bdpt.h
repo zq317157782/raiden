@@ -256,7 +256,7 @@ struct Vertex {
 		}
 		Float invRadius2 = 1.0 / (w.LengthSquared());
 		if (next.IsOnSurface()) {
-			pdf = pdf * Dot(w * std::sqrt(invRadius2), next.ng());
+			pdf = pdf * AbsDot(w * std::sqrt(invRadius2), next.ng());
 		}
 		return pdf * invRadius2;
 	}
@@ -304,6 +304,7 @@ struct Vertex {
 		w = Normalize(w);
 		if (IsInfiniteLight()) {
 			//TODO InfiniteLight 相关
+			return 0;
 		}
 		else {
 			Assert(IsLight());//首先判断当前Vetex是否是光源
