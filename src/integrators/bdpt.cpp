@@ -8,6 +8,37 @@
 #include "geometry.h"
 #include "sampler.h"
 #include "paramset.h"
+
+
+//临时修改某个指针内的值的Helper类
+template<typename type>
+class ScopedAssignment {
+private:
+	type* _target; //目标指针
+	type _backup;  //备份
+public:
+	ScopedAssignment(type* target, type value = type()):_target(target){
+		if (target) {
+			_backup = (*target);
+			*_target = value;
+		}
+	}
+
+	~ScopedAssignment() {
+		if (target) {
+			*_target = _backup;
+		}
+	}
+	ScopedAssignment(const ScopedAssignment&) = delete;
+	ScopedAssignment& operator=(const ScopedAssignment&) = delete;
+	ScopedAssignment& operator=(const ScopedAssignment&& right) {
+		_target = right._target;
+		_backup = right._backup;
+		right._target = nullptr;
+		return (*this);
+	}
+};
+
 Float CorrectShadingNormal(const SurfaceInteraction& ref, const Vector3f& wo,
 		const Vector3f& wi, TransportMode mode) {
 	if (mode == TransportMode::Importance) {
