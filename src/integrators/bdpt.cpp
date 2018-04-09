@@ -138,6 +138,7 @@ int RandomWalk(const Scene&scene, RayDifferential ray, Sampler& sampler,
 		}
 		//转换pdf到area，并且赋值给前一个顶点
 		preV.pdfRev = vertex.ConvertDensity(pdfRev, preV);
+		//LInfo << preV.pdfRev<<" "<< pdfRev;
 	}
 	//返回路径的长度
 	return bounces;
@@ -182,6 +183,7 @@ int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& aren
 	//生成节点，并且执行RandomWalk
 	//注意第一个节点的beta和pdf,以及传入RandomWalk中的beta和pdf
 	path[0] = Vertex::CreateLight(EndpointInteraction(light.get(),ray,normal), Le, pdfChoice*pdfPos);
+
 	auto beta = Le*AbsDot(ray.d, normal) / (pdfChoice*pdfDir*pdfPos);
 	int numVertices = RandomWalk(scene,ray,sampler,arena,beta,pdfDir, maxDepth-1,TransportMode::Importance,path+1);
 	//TODO InfiniteLight相关
@@ -207,7 +209,7 @@ Spectrum  G(const Scene& scene, Sampler& sampler,const Vertex& v1,const Vertex& 
 //使用的是Balance启发
 Float MISWeight(const Scene&scene, Vertex* lightVertices, Vertex* cameraVertices, int s, int t,Vertex& sampled, const Distribution1D& lightDistri, const std::unordered_map<const Light *, size_t>& lightToIndex) {
 	//各只有一个顶点的情况下，就只有一种策略
-	if (s == 1 && t == 1) {
+	if (s + t == 2) {
 		return 1;
 	}
 
@@ -256,7 +258,7 @@ Float MISWeight(const Scene&scene, Vertex* lightVertices, Vertex* cameraVertices
 	Float sumRi = 0;
 	auto remap0 = [](Float f)->Float {return f == 0 ? 1 : f; };
 	Float ri = 1;
-	for (int i = s-1; s >= 0; --s) {
+	for (int i = s-1; i >= 0; --i) {
 		ri *= remap0(lightVertices[i].pdfRev) / remap0(lightVertices[i].pdfFwd);
 		bool deltaLightVertex = i > 0 ? lightVertices[i - 1].delta : lightVertices[0].IsDeltaLight();
 		if (!lightVertices[i].delta && !deltaLightVertex) {
@@ -264,7 +266,7 @@ Float MISWeight(const Scene&scene, Vertex* lightVertices, Vertex* cameraVertices
 		}
 	}
 	ri = 1;
-	for (int i = t - 1; t > 0; --t) {
+	for (int i = t - 1; i > 0; --i) {
 		ri *= remap0(cameraVertices[i].pdfRev) / remap0(cameraVertices[i].pdfFwd);
 		if (!cameraVertices[i].delta && !cameraVertices[i - 1].delta) {
 			sumRi += ri;
@@ -346,6 +348,12 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 				L=L*G(scene,sampler,lp,cp);
 			}
 		}
+	}
+	
+	if (!L.IsBlack()) {
+		Float mis=MISWeight(scene, lightVertices, cameraVertices,s,t,sampled,lightDistri,lightToIndex);
+		assert(!IsNaN(mis));
+		L = L*mis;
 	}
 
 	return L;
