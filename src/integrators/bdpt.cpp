@@ -17,7 +17,7 @@ private:
 	type* _target; //目标指针
 	type _backup;  //备份
 public:
-	ScopedAssignment(type* target, type value = type()):_target(target){
+	ScopedAssignment(type* target=nullptr, type value = type()):_target(target){
 		if (target) {
 			_backup = (*target);
 			*_target = value;
@@ -25,13 +25,13 @@ public:
 	}
 
 	~ScopedAssignment() {
-		if (target) {
+		if (_target) {
 			*_target = _backup;
 		}
 	}
 	ScopedAssignment(const ScopedAssignment&) = delete;
 	ScopedAssignment& operator=(const ScopedAssignment&) = delete;
-	ScopedAssignment& operator=(const ScopedAssignment&& right) {
+	ScopedAssignment& operator=(ScopedAssignment&& right) {
 		_target = right._target;
 		_backup = right._backup;
 		right._target = nullptr;
@@ -201,6 +201,77 @@ Spectrum  G(const Scene& scene, Sampler& sampler,const Vertex& v1,const Vertex& 
 	}
 	VisibilityTester tester=VisibilityTester(v1.GetInteraction(),v2.GetInteraction());
 	return g*tester.Tr(scene,sampler);
+}
+
+//计算相应的MIS系数的函数
+//使用的是Balance启发
+Float MISWeight(const Scene&scene, Vertex* lightVertices, Vertex* cameraVertices, int s, int t,Vertex& sampled, const Distribution1D& lightDistri, const std::unordered_map<const Light *, size_t>& lightToIndex) {
+	//各只有一个顶点的情况下，就只有一种策略
+	if (s == 1 && t == 1) {
+		return 1;
+	}
+
+	//获取相应的顶点，以及前面的顶点
+	Vertex* lp = s > 0 ? &lightVertices[s - 1] : nullptr;
+	Vertex* cp = t > 0 ? &cameraVertices[t - 1] : nullptr;
+	Vertex* lpPre = s > 1 ? &lightVertices[s - 2] : nullptr;
+	Vertex* cpPre = t > 1 ? &cameraVertices[t - 2] : nullptr;
+
+	//先判断是否需要使用重新采样的顶点来代替原来的顶点
+	//只发生在s==1或者t==1的情况下
+	ScopedAssignment<Vertex> a1;
+	if (s == 1) {
+		a1 = { lp,sampled };
+	}
+	else if (t == 1) {
+		a1 = { cp,sampled };
+	}
+
+
+	ScopedAssignment<bool> a2,a3;
+	if (lp) {
+		a2 = { &lp->delta,false };
+	}
+	if (cp) {
+		a3 = { &cp->delta,false };
+	}
+	
+	ScopedAssignment<Float> a4,a5;
+	//开始修正相应的pdf
+	if (lp) {
+		//这里不可能出现t==0的情况，所以不需要考虑
+		a4 = { &lp->pdfRev,cp->Pdf(scene,cpPre,*lp) };
+	}
+	if (lpPre) {
+		a5 = { &lpPre->pdfRev,lp->Pdf(scene,cp,*lpPre) };
+	}
+	ScopedAssignment<Float> a6, a7;
+	if (cp) {
+		a6 = { &cp->pdfRev,s > 0 ? lp->Pdf(scene,lpPre,*cp) : cp->PdfLightOrigin(scene,*cpPre,lightDistri,lightToIndex) };
+	}
+	if (cpPre) {
+		a7 = { &cpPre->pdfRev,s > 0 ? cp->Pdf(scene,lp,*cpPre) : cp->PdfLight(scene,*cpPre) };
+	}
+	//开始使用简化后的公式，计算mis系数
+	Float sumRi = 0;
+	auto remap0 = [](Float f)->Float {return f == 0 ? 1 : f; };
+	Float ri = 1;
+	for (int i = s-1; s >= 0; --s) {
+		ri *= remap0(lightVertices[i].pdfRev) / remap0(lightVertices[i].pdfFwd);
+		bool deltaLightVertex = i > 0 ? lightVertices[i - 1].delta : lightVertices[0].IsDeltaLight();
+		if (!lightVertices[i].delta && !deltaLightVertex) {
+			sumRi += ri;
+		}
+	}
+	ri = 1;
+	for (int i = t - 1; t > 0; --t) {
+		ri *= remap0(cameraVertices[i].pdfRev) / remap0(cameraVertices[i].pdfFwd);
+		if (!cameraVertices[i].delta && !cameraVertices[i - 1].delta) {
+			sumRi += ri;
+		}
+	}
+
+	return 1 / (sumRi + 1);
 }
 
 //链接两个子路径并且计算能量
