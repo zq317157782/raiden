@@ -46,11 +46,11 @@ void Film::SetImage(const Spectrum* img) {
 	}
 }
 
-void Film::WriteImage() {
+void Film::WriteImage(Float splatScale) {
 	std::vector<Float> image;
 	for (int j = croppedPixelBound[0].y; j < croppedPixelBound[1].y; ++j) {
 			for (int i = croppedPixelBound[0].x; i < croppedPixelBound[1].x; ++i) {
-				Pixel p = GetPixel(Point2i(i, j));
+				Pixel &p = GetPixel(Point2i(i, j));
 				Float rgb[3];
 				XYZToRGB(p.xyz, rgb);
 				Float invWeight = 1.0 / p.filterWeightSum;
@@ -58,6 +58,15 @@ void Film::WriteImage() {
 				rgb[1] *= invWeight;
 				rgb[2] *= invWeight;
 				
+				//添加splatXYZ内的能量
+				Float splatRGB[3];
+				Float splatXYZ[3]={p.splatXYZ[0],p.splatXYZ[1] ,p.splatXYZ[2] };
+				XYZToRGB(splatXYZ, splatRGB);
+
+				rgb[0] += splatRGB[0] * splatScale;
+				rgb[1] += splatRGB[1] * splatScale;
+				rgb[2] += splatRGB[2] * splatScale;
+
 				image.push_back(rgb[0]);
 				image.push_back(rgb[1]);
 				image.push_back(rgb[2]);
@@ -65,6 +74,36 @@ void Film::WriteImage() {
 		}
 	Vector2i resolution=croppedPixelBound.Diagonal();
 	WriteImageToFile(fileName.c_str(), &image[0], resolution.x, resolution.y);
+}
+
+void Film::AddSplat(const Point2f& p, Spectrum L) {
+	if (L.HasNaNs()) {
+		LWarning << "Ignoring splatted spectrum with NaN values at (" << p.x << "," << p.y << ")";
+		return;
+	}
+	else if (L.y() < 0) {
+		LWarning<<"Ignoring splatted spectrum with negative luminance"<<L.y()<<"at (" << p.x << "," << p.y << ")";
+		return;
+	}
+	else if (std::isinf(L.y())) {
+		LWarning << "Ignoring splatted spectrum with infinite luminance at (" << p.x << "," << p.y << ")";
+		return;
+	}
+
+	if(!InsideExclusive((Point2i)p, croppedPixelBound)) {
+		return;
+	}
+
+	if (L.y() > _maxSampleLuminance){
+		L = (_maxSampleLuminance / L.y())*L;
+	}
+
+	auto& pixel=GetPixel((Point2i)p);
+	Float xyz[3];
+	L.ToXYZ(xyz);
+	for (int i = 0; i < 3; ++i) {
+		pixel.splatXYZ[i].Add(xyz[i]);
+	}
 }
 
 void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight) {

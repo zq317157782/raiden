@@ -11,6 +11,7 @@
 #include "geometry.h"
 #include "filter.h"
 #include "spectrum.h"
+#include "parallel.h"
 #include <mutex>
 class Film {
 public:
@@ -25,7 +26,7 @@ private:
 	struct Pixel {
 		Float xyz[3]; //这里使用的是xyz，xyz和显示器的色彩曲线无关
 		Float filterWeightSum; //所有样本的filter权重之和
-		Float splatXYZ[3]; //不经过filter
+		AtomicFloat splatXYZ[3]; //不经过filter
 		//到这里是 (float)3*4字节+4字节+3*4字节==28个字节/(double)3*8字节+8字节+3*8字节==56个字节
 		Float pad; //用来补充(float)4个字节/(double)8个字节
 		//到这里是(float)32字节/(double)64字节
@@ -39,6 +40,16 @@ private:
 			splatXYZ[1] = 0.0;
 			splatXYZ[2] = 0.0;
 		}
+
+		/*Pixel(const Pixel& p) {
+			xyz[0] = p.xyz[0];
+			xyz[1] = p.xyz[1];
+			xyz[2] = p.xyz[2];
+			filterWeightSum = p.filterWeightSum;
+			splatXYZ[0] = (float)p.splatXYZ[0];
+			splatXYZ[1] = (float)p.splatXYZ[1];
+			splatXYZ[2] = (float)p.splatXYZ[2];
+		}*/
 	};
 	std::unique_ptr<Pixel[]> _pixels;		//像素值数组，最终要写入image
 	const Float _maxSampleLuminance;		//最大的样本能量值
@@ -63,7 +74,7 @@ public:
 			std::unique_ptr<Filter> filter,
 			const std::string& fileName/*输出文件名*/, Float maxSampleLuminance =
 					Infinity);
-	void WriteImage();
+	void WriteImage(Float splatScale=1.0);
 	//获取一个tile
 	std::unique_ptr<FilmTile> GetFilmTile(const Bound2i &sampleBounds);
 	//合并1个tile
@@ -77,6 +88,9 @@ public:
 	}
 	//直接设置image数据
 	void SetImage(const Spectrum* img);
+
+	//向raster直接写入能量
+	void AddSplat(const Point2f& p, Spectrum L);
 };
 
 struct FilmTilePixel {
