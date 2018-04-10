@@ -299,7 +299,7 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 			if (pdf != 0 && !we.IsBlack()) {
 				//生成相应的相机点，并且计算相应的贡献
 				//这里要注意相应的beta的计算
-				EndpointInteraction ep = EndpointInteraction(vis.P1(),&camera);
+				EndpointInteraction ep = EndpointInteraction(vis.P0(),&camera);
 				sampled = Vertex::CreateCamera(ep, &camera,we/ pdf);
 				L = lp.beta*lp.f(sampled,TransportMode::Importance)*sampled.beta;
 				if (lp.IsOnSurface()) {

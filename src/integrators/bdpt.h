@@ -511,12 +511,13 @@ public:
 								continue;
 							}
 							//计算相应的FullPath的贡献，并且做记录
+							auto radiance=ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
 							if (t == 1) {
 								//只包含1个相机点
-								
+								_camera->film->AddSplat(raster, radiance);
 							}
 							else {
-								L += ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
+								L += radiance;
 							}
 							
 						}
