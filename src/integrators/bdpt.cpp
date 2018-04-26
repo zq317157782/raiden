@@ -101,8 +101,11 @@ int RandomWalk(const Scene&scene, RayDifferential ray, Sampler& sampler,
 			ray=mi.SpawnRay(wi);
 		} else {
 			if (!isHit) {
-				//TODO InfiniteLight
-				return bounces;
+				if(mode==TransportMode::Radiance){
+					vertex=Vertex::CreateLight(EndpointInteraction(ray),beta,pdfFwd);
+					++bounces;
+				}
+				break;
 			}
 			//处理medium边界
 			si.ComputeScatteringFunctions(ray,arena,true,mode);
@@ -281,6 +284,12 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 	
 	Vertex sampled;//额外采样的vertex
 	Spectrum L;
+
+	//额外判断t是Infinite光源的情况
+	if (t > 1 && s != 0 && cameraVertices[t - 1].type == VertexType::Light) {
+		return 0;
+	}
+
 	//一条完整的路径的情况
 	if(s==0){
 		Vertex& cp=cameraVertices[t-1];

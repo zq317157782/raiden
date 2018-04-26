@@ -52,6 +52,11 @@ public:
 	EndpointInteraction(const Interaction& interaction, const Light* _light) :
 			Interaction(interaction), light(_light) {
 	}
+	
+	//这个是给InfiniteLight使用的
+	EndpointInteraction(const Ray& ray):Interaction(ray(1),ray.time,ray.medium),light(nullptr){
+		n = Normal3f(-ray.d);
+	}
 };
 
 //详见Veach的论文[Robust Monte Carlo Methods for Light Transport],解释得非常到位
@@ -249,6 +254,9 @@ struct Vertex {
 
 	//从立体角pdf转变到area pdf
 	Float ConvertDensity(Float pdf, const Vertex& next) const {
+		if (next.IsInfiniteLight()) {
+			return pdf;
+		}
 		//TODO InfiniteLight 相关
 		Vector3f w = p() - next.p();
 		if (w.LengthSquared() == 0) {
