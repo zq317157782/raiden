@@ -190,6 +190,20 @@ int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& aren
 	auto beta = Le*AbsDot(ray.d, normal) / (pdfChoice*pdfDir*pdfPos);
 	int numVertices = RandomWalk(scene,ray,sampler,arena,beta,pdfDir, maxDepth-1,TransportMode::Importance,path+1);
 	//TODO InfiniteLight相关
+	
+	if (path[0].IsInfiniteLight()) {
+		//除了path[0]外还有其他的LightSubpath顶点
+		if (numVertices > 0) {
+			//更新Path[1]的fwdPdf
+			path[1].pdfFwd = pdfPos;
+			//做投影衰减
+			if (path[1].IsOnSurface()) {
+				//这里为啥不是ns呢，需要考虑下
+				path[1].pdfFwd *= AbsDot(ray.d, path[1].ng());
+			}
+		}
+	}
+
 	return numVertices + 1;
 }
 
