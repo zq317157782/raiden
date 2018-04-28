@@ -65,6 +65,19 @@ Float CorrectShadingNormal(const SurfaceInteraction& ref, const Vector3f& wo,
 		const Vector3f& wi, TransportMode mode);
 
 
+//返回InfiniteLight的pdf
+//这里考虑了所有InfiniteLight的pdf
+inline Float InfiniteLightDensity(const Scene& scene,const Distribution1D& lightDist,const Vector3f& w) {
+	Float pdf = 0;
+	for (int i = 0; i < scene.lights.size(); ++i) {
+		if ((scene.lights[i]->flags&(int)LightFlags::Infinite)!= 0) {
+			//InfiniteLight 忽略interaction
+			pdf += scene.lights[i]->Pdf_Li(Interaction(),-w)*lightDist.funcs[i];
+		}
+	}
+	pdf = pdf / (lightDist.funcInt*lightDist.Count());
+	return pdf;
+}
 
 //四种顶点类型
 enum class VertexType {
@@ -257,7 +270,6 @@ struct Vertex {
 		if (next.IsInfiniteLight()) {
 			return pdf;
 		}
-		//TODO InfiniteLight 相关
 		Vector3f w = p() - next.p();
 		if (w.LengthSquared() == 0) {
 			return 0;
@@ -276,10 +288,13 @@ struct Vertex {
 		Vector3f w = v.p() - p();
 		Float invLengthSquared = 1.0 / w.LengthSquared();
 		w = w * std::sqrt(invLengthSquared);	//标准化
-		
+		Float pdf = 0;
 		if (IsInfiniteLight()) {
-			//TODO InfiniteLight 相关
-			return 0;
+			//获得半径，计算disk面积，并且计算pdf
+			Point3f center;
+			Float radius;
+			scene.WorldBound().BoundingSphere(&center,&radius);
+			pdf = 1 / (Pi*radius*radius);
 		}
 		else {
 			Assert(IsLight());		//首先判断当前Vetex是否是光源
@@ -294,12 +309,12 @@ struct Vertex {
 			Float pdfPos, pdfDir;		//(立体角)
 			light->Pdf_Le(Ray(p(), w, time()), ng(), &pdfPos, &pdfDir);
 			//转换到area度量
-			Float pdf = pdfDir * invLengthSquared;		//(area)
-			if (IsOnSurface()) {
-				pdf *= AbsDot(w, v.ng());		//回忆起几何衰减系数
-			}
-			return pdf;
+			pdf = pdfDir * invLengthSquared;		//(area)
 		}
+		if (IsOnSurface()) {
+			pdf *= AbsDot(w, v.ng());		//回忆起几何衰减系数
+		}
+		return pdf;
 	}
 
 	Float PdfLightOrigin(const Scene& scene, const Vertex& v,
@@ -311,8 +326,7 @@ struct Vertex {
 		}
 		w = Normalize(w);
 		if (IsInfiniteLight()) {
-			//TODO InfiniteLight 相关
-			return 0;
+			return InfiniteLightDensity(scene, distrib, w);
 		}
 		else {
 			Assert(IsLight());//首先判断当前Vetex是否是光源
@@ -522,7 +536,7 @@ public:
 							auto radiance=ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
 							if (t == 1) {
 								//只包含1个相机点
-								_camera->film->AddSplat(raster, radiance);
+								//_camera->film->AddSplat(raster, radiance);
 							}
 							else {
 								L += radiance;

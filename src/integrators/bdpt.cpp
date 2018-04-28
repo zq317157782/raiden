@@ -202,6 +202,8 @@ int GenerateLightSubPath(const Scene& scene, Sampler& sampler, MemoryArena& aren
 				path[1].pdfFwd *= AbsDot(ray.d, path[1].ng());
 			}
 		}
+
+		path[0].pdfFwd = InfiniteLightDensity(scene, lightDis, ray.d);
 	}
 
 	return numVertices + 1;
