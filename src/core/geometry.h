@@ -29,7 +29,7 @@ inline bool IsNaN(int n) {
 
 //三维向量
 template<typename T>
-class alignas(16) Vector3 {
+class Vector3 {
 public:
 	T x, y, z;
 public:
@@ -197,7 +197,7 @@ typedef Vector3<int> Vector3i;
 
 //二维向量
 template<typename T>
-class alignas(8) Vector2 {
+class  Vector2 {
 public:
 	T x, y;
 public:
@@ -351,7 +351,7 @@ typedef Vector2<Float> Vector2f;
 typedef Vector2<int> Vector2i;
 
 template<typename T>
-class alignas(16) Point3 {
+class  Point3 {
 public:
 	T x, y, z;
 public:
@@ -500,7 +500,7 @@ typedef Point3<Float> Point3f;
 typedef Point3<int> Point3i;
 
 template<typename T>
-class alignas(8) Point2 {
+class  Point2 {
 public:
 	T x, y;
 public:
@@ -646,7 +646,7 @@ typedef Point2<int> Point2i;
 
 //三分量法线
 template<typename T>
-class alignas(16) Normal3 {
+class  Normal3 {
 public:
 	T x, y, z;
 public:
