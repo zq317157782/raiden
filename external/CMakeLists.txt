@@ -26,6 +26,9 @@ add_subdirectory(lua)
 #编译glog
 add_subdirectory(glog)
 
+#编译lodepng
+add_subdirectory(lodepng)
+
 #设置需要包含的头文件目录
 # OpenEXR
 set(OPENEXR_INCLUDE_DIRS 
@@ -37,10 +40,11 @@ set(OPENEXR_INCLUDE_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}/openexr/IlmBase/config )
 set(LUA_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
 set(GLOG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glog/src/glog)
+set(LODEPNG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lodepng)
 
 
 #暴露参数给父作用域
-set(CompilerFlags OPENEXR_INCLUDE_DIRS LUA_INCLUDE_DIRS GLOG_INCLUDE_DIRS)
+set(CompilerFlags OPENEXR_INCLUDE_DIRS LUA_INCLUDE_DIRS GLOG_INCLUDE_DIRS LODEPNG_INCLUDE_DIRS)
 foreach(CompilerFlag ${CompilerFlags})
   set(${CompilerFlag} "${${CompilerFlag}}" PARENT_SCOPE)
 endforeach()

@@ -58,6 +58,8 @@ include_directories(${LUA_INCLUDE_DIRS})
 message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIRS})
 include_directories(${GLOG_INCLUDE_DIRS})
 message(STATUS "glog头文件路径: " ${GLOG_INCLUDE_DIRS})
+include_directories(${LODEPNG_INCLUDE_DIRS})
+message(STATUS "lodepng头文件路径: " ${LODEPNG_INCLUDE_DIRS})
 
 # #glog库
 # find_package(glog REQUIRED)
@@ -100,6 +102,7 @@ add_executable(${RAIDEN} ${SOURCE_FILE})
 target_link_libraries(${RAIDEN} glog)
 target_link_libraries(${RAIDEN} lua5.3.4)
 target_link_libraries(${RAIDEN} IlmImf)
+target_link_libraries(${RAIDEN} lodepng)
 
 if (WIN32)
     set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
@@ -107,10 +110,8 @@ if (WIN32)
     target_link_libraries(${RAIDEN} ${GETOPT_LIB})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/getopt)
 endif()
-message(STATUS "配置raiden完成")
-message(STATUS "------------------------------------工具--------------------------------------")
-#工具们
 
+#工具们
 #objtolua
 aux_source_directory(${SOURCE_DIR}/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
 set(OBJ_TO_LUA obj2lua)
@@ -118,4 +119,3 @@ add_executable(${OBJ_TO_LUA} ${RAIDEN_SRC_OBJ_TO_LUA})
 if (WIN32)
     set_target_properties(${OBJ_TO_LUA} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
 endif()
-message(STATUS "配置objtolua完成")
