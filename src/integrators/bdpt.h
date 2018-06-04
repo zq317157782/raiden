@@ -536,7 +536,7 @@ public:
 							auto radiance=ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
 							if (t == 1) {
 								//只包含1个相机点
-								//_camera->film->AddSplat(raster, radiance);
+								_camera->film->AddSplat(raster, radiance);
 							}
 							else {
 								L += radiance;
@@ -554,7 +554,8 @@ public:
 			reporter.Update();
 		}, tileNum);
 		reporter.Done();
-		_camera->film->WriteImage();
+		//这里需要传入采样率，来调整splat进去的能量的权重
+		_camera->film->WriteImage(1.0/_sampler->samplesPerPixel);
 	}
 };
 
