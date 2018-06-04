@@ -19,7 +19,7 @@ void raidenTransform(Float tr[16]);
 void raidenConcatTransform(Float tr[16]);
 void raidenRotate(Float angle, Float dx, Float dy, Float dz);
 void raidenScale(Float sx, Float sy, Float sz);
-//void raidenLookAt(Float ex, Float ey, Float ez, Float lx, Float ly, Float lz,Float ux, Float uy, Float uz);
+void raidenLookAt(Float ex, Float ey, Float ez, Float lx, Float ly, Float lz,Float ux, Float uy, Float uz);
 void raidenCoordinateSystem(const std::string &name);
 void raidenCoordSysTransform(const std::string &name);
 void raidenActiveTransformAll();

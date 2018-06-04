@@ -111,6 +111,13 @@ if (WIN32)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/getopt)
 endif()
 
+#复制必要的文件到必要的目录
+#add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/raiden.lua COMMAND ${CMAKE_COMMAND} -E copy ${RAIDEN_SRC_WRAPPER}/raiden.lua ${CMAKE_CURRENT_BINARY_DIR}/raiden.lua  DEPENDS ${RAIDEN_SRC_WRAPPER}/raiden.lua)
+
+add_custom_command(TARGET ${RAIDEN} POST_BUILD
+                  COMMAND ${CMAKE_COMMAND} -E copy
+                  "${CMAKE_CURRENT_SOURCE_DIR}/src/wrapper/raiden.lua"
+                  "${CMAKE_CURRENT_BINARY_DIR}/raiden.lua")
 #工具们
 #objtolua
 aux_source_directory(${SOURCE_DIR}/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
