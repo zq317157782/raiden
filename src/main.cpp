@@ -61,7 +61,7 @@ static void Trim(char * str)
 }
 
 static void PrintHelp(){
-     std::cout<<"*** Physically Based Renderer Raiden[雷電] ***"<<std::endl;
+     std::cout<<"*** Physically Based Renderer <Raiden[雷電 らいでん]> ***"<<std::endl;
      std::cout<<"   -h help."<<std::endl;
      std::cout<<"   -i [string] : input a scene file."<<std::endl;
      std::cout<<"   -o [string] : output image name."<<std::endl;
