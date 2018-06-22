@@ -5,9 +5,7 @@ cmake_minimum_required(VERSION 2.8.0)
 set(RAIDEN raiden)
 PROJECT (${RAIDEN})
 
-
-set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_BUILD_TYPE Debug)
+MESSAGE(STATUS "CMAKE_BUILD_TYPE = " ${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -38,10 +36,8 @@ configure_file (
 
 #设置源文件目录
 set(SOURCE_DIR src)
-
 #加入依赖库
 add_subdirectory(external)
-
 #添加头文件路径和库路径
 include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)

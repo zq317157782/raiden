@@ -19,7 +19,7 @@
 static std::vector<std::unique_ptr<APIWrapper>> wrappers;
 
 //初始化所有的Wrapper
-void InitWrappers(){
+static void InitWrappers(){
     wrappers.push_back(std::unique_ptr<APIWrapper>(new LuaWrapper()));
     for(int i=0;i<wrappers.size();++i){
         wrappers[i]->Init();
@@ -27,7 +27,7 @@ void InitWrappers(){
 }
 
 //执行脚本
-void ExecScript(const char* src){
+static void ExecScript(const char* src){
     for(int i=0;i<wrappers.size();++i){
         if(wrappers[i]->IsSupportedScript(src)){
             wrappers[i]->ExecScript(src);
@@ -37,7 +37,7 @@ void ExecScript(const char* src){
 }
 
 
-void Trim(char * str)
+static void Trim(char * str)
 {
     int i , len ;
 
@@ -60,18 +60,28 @@ void Trim(char * str)
     return ;
 }
 
+static void PrintHelp(){
+     std::cout<<"*** Physically Based Renderer Raiden[雷電] ***"<<std::endl;
+     std::cout<<"   -h help."<<std::endl;
+     std::cout<<"   -i [string] : input a scene file."<<std::endl;
+     std::cout<<"   -o [string] : output image name."<<std::endl;
+     std::cout<<"   -t [num] : core num for rendering."<<std::endl;
+     
+}
+
 int main(int argc, char* argv[]) {
 	
 	FLAGS_logtostderr = 1;
 	google::InitGoogleLogging(argv[0]);
+	
+    InitWrappers();
 
-	InitWrappers();
     int result;
 	char *scriptName=nullptr;
     Options options;
     options.numThread=0;
     options.imageFile="raiden.png";
-    while((result = getopt(argc,argv,"i:t:o:")) != -1) {
+    while((result = getopt(argc,argv,"i:t:o:h")) != -1) {
         switch(result){
             case 'i':{ 
                // strcpy(scriptName,optarg);
@@ -84,8 +94,17 @@ int main(int argc, char* argv[]) {
 			case 'o':{ 
 				options.imageFile=optarg;
 			}
+            case 'h':
+            default:
+            {
+                PrintHelp();
+                return 0;
+            }
             break;
         }
+    } 
+    if(argc==1){ 
+        PrintHelp();
     }
 
 	raidenInit(options);
