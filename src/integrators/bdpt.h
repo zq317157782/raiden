@@ -201,7 +201,7 @@ struct Vertex {
 		if (type == VertexType::Camera) {
 			return true;
 		} else if (type == VertexType::Light) {
-			return ei.light->flags & (int) LightFlags::DeltaDirection == 0;
+			return (ei.light->flags & (int) LightFlags::DeltaDirection) == 0;
 		} else if (type == VertexType::Medium) {
 			return true;
 		} else if (type == VertexType::Surface) {
@@ -419,6 +419,8 @@ inline Vertex Vertex::CreateLight(const EndpointInteraction& ei,const Spectrum& 
 
 inline Vertex CreateLight(const Light* light, const Ray& ray, const Normal3f& n, const Spectrum& Le, Float pdf) {
 	Vertex v(VertexType::Light, EndpointInteraction(light, ray,n), Le);
+	v.pdfFwd = pdf;
+	return v;
 }
 
 inline Vertex Vertex::CreateCamera(const Camera* camera, const Ray& ray, const Spectrum& beta){

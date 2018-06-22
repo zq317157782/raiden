@@ -36,11 +36,11 @@
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
-
+ 
 #ifndef NDEBUG
 	#define  RAIDEN_DEBUG
 #endif // !NDEBUG
-
+ 
 //三角面相关
 //#define TRIANGLE_MESH_PRECOMPUTE_DATA_IF_CAN //预计算数据 比如dpdu,dpdv
 

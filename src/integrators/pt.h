@@ -121,7 +121,7 @@ public:
 			if((flag&BSDF_SPECULAR)&&((flag&BSDF_TRANSMISSION))){
 				//拿到ior的比例
 				Float eta= ref.bsdf->eta;
-				etaScale=etaScale*(Dot(wo,ref.n)>0)?(eta*eta):(1/(eta*eta));
+				etaScale=etaScale*((Dot(wo,ref.n)>0)?(eta*eta):(1/(eta*eta)));
 			}
 		
 			//生成新射线

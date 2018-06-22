@@ -7,7 +7,4 @@
 #include "raiden.h"
 #include "stats.h"
 
-static int test() {
-	Error("test");
-}
 

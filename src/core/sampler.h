@@ -10,7 +10,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "camera.h"
-#include "RNG.h"
+#include "rng.h"
 //采样器
 // sample[x,y,t,u,v,[array],[array],[array],...]
 class Sampler {

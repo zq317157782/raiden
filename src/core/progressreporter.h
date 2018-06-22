@@ -29,7 +29,7 @@ private:
 		for(int i=0;i<88;++i){
 			buf[i]=' ';
 		}
-		snprintf(buf,_title.size()+1,_title.c_str());
+		snprintf(buf,_title.size()+1,"%s",_title.c_str());
 		buf[_title.size()]='[';
 		char* barStart=buf+_title.size()+1;
 		barStart[50]=']';

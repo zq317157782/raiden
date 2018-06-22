@@ -9,7 +9,7 @@
 #define SRC_CORE_SAMPLING_H_
 #include "raiden.h"
 #include "geometry.h"
-#include "RNG.h"
+#include "rng.h"
 //1维分层采样
 void StratifiedSample1D(Float *samples, int nsamples, RNG &rand, bool jitter =
 		true);

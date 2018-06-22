@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 	
 #ifdef RAIDEN_UNITTEST
     testing::InitGoogleTest(&argc,argv);
-    RUN_ALL_TESTS();
+    float ret=RUN_ALL_TESTS();
 #endif//RAIDEN_UNITTEST
 
 	FLAGS_logtostderr = 1;

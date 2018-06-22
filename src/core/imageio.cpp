@@ -32,13 +32,13 @@ void ReadOpenEXR(const char fileName[],std::vector<IMF::Rgba> &pixels,int &width
 void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 	const char* fileExt;
 	const char *ptr, c = '.';
-	//×îºóÒ»¸ö³öÏÖcµÄÎ»ÖÃ
+	//ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½cï¿½ï¿½Î»ï¿½ï¿½
 	ptr = strrchr(fileName, c);
-	//ÓÃÖ¸ÕëÏà¼õ ÇóµÃË÷Òý 
+	//ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	int pos = ptr - fileName;
-	//»ñÈ¡ºó×º
+	//ï¿½ï¿½È¡ï¿½ï¿½×º
 	fileExt = &fileName[pos + 1];
-	//ÅÐ¶Ïºó×ºÊÇ·ñÏàÍ¬
+	//ï¿½Ð¶Ïºï¿½×ºï¿½Ç·ï¿½ï¿½ï¿½Í¬
 	if (0 == strcmp(fileExt, "png") || 0 == strcmp(fileExt, "PNG")) {
 		std::vector<uint8_t> image;
 		for (int i = 0; i<w*h; ++i) {
@@ -78,13 +78,13 @@ void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 std::unique_ptr<RGBSpectrum[]> ReadImage(const char* fileName, Point2i* resolution) {
 	const char* fileExt;
 	const char *ptr, c = '.';
-	//×îºóÒ»¸ö³öÏÖcµÄÎ»ÖÃ
+	//ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½cï¿½ï¿½Î»ï¿½ï¿½
 	ptr = strrchr(fileName, c);
-	//ÓÃÖ¸ÕëÏà¼õ ÇóµÃË÷Òý 
+	//ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	int pos = ptr - fileName;
-	//»ñÈ¡ºó×º
+	//ï¿½ï¿½È¡ï¿½ï¿½×º
 	fileExt = &fileName[pos + 1];
-	//ÅÐ¶Ïºó×ºÊÇ·ñÏàÍ¬
+	//ï¿½Ð¶Ïºï¿½×ºï¿½Ç·ï¿½ï¿½ï¿½Í¬
 	if (0 == strcmp(fileExt, "png") || 0 == strcmp(fileExt, "PNG")) {
 		std::vector<unsigned char> rawData;
 		uint32_t width, height;
@@ -102,7 +102,7 @@ std::unique_ptr<RGBSpectrum[]> ReadImage(const char* fileName, Point2i* resoluti
 				rgbData[k][0] = rawData[0 + index] * invDiv;
 				rgbData[k][1] = rawData[1 + index] * invDiv;
 				rgbData[k][2] = rawData[2 + index] * invDiv;
-				index += 4;//µÝÔö4¸ö×Ö½Ú£¬ÒòÎªPNGÊÇ°´ÕÕRGBA 4Byte*8BitµÄ·½Ê½×éÖ¯µÄ
+				index += 4;//ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½ÎªPNGï¿½Ç°ï¿½ï¿½ï¿½RGBA 4Byte*8Bitï¿½Ä·ï¿½Ê½ï¿½ï¿½Ö¯ï¿½ï¿½
 			}
 		}
 		if (resolution) {
@@ -130,5 +130,6 @@ std::unique_ptr<RGBSpectrum[]> ReadImage(const char* fileName, Point2i* resoluti
 		return rgbData;
 	}
 
+	return nullptr;
 
 }
