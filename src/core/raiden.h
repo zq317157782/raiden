@@ -38,7 +38,7 @@ static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 
 #ifndef NDEBUG
- #define  DEBUG
+	#define  RAIDEN_DEBUG
 #endif // !NDEBUG
 
 //三角面相关
