@@ -1,0 +1,2 @@
+#cmakedefine RAIDEN_DOUBLE_PRECISION
+#cmakedefine RAIDEN_FLOAT_PRECISION

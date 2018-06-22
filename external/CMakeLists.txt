@@ -24,6 +24,7 @@ set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLi
 add_subdirectory(lua)
 
 #编译glog
+set(WITH_GFLAGS OFF)
 add_subdirectory(glog)
 
 #编译lodepng

@@ -5,32 +5,12 @@ cmake_minimum_required(VERSION 2.8.0)
 set(RAIDEN raiden)
 PROJECT (${RAIDEN})
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(CMAKE_BUILD_TYPE Release)
 #set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
-#加入依赖库
-add_subdirectory(external)
-
-message(STATUS "------------------------------------主体--------------------------------------")
-#根据操作系统配置不同的设置
-IF (WIN32)  
-    MESSAGE(STATUS "在Windows操作系统下") 
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")	
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-ELSEIF (APPLE)  
-    MESSAGE(STATUS "在MACOSX操作系统下") 
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/")
-ELSEIF (UNIX)  
-    MESSAGE(STATUS "在类UNIX操作系统下")  
-ENDIF ()  
-message(STATUS "当前Cmake根目录:" ${CMAKE_ROOT})
-message(STATUS "当前CMAKE_MODULE_PATH:" ${CMAKE_MODULE_PATH})
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #使用MSVC的编译器的时候需要设置下
 if(MSVC)     
     # Use the static C library for all build types
@@ -46,37 +26,31 @@ if(MSVC)
     endforeach()    
 endif(MSVC)
 
+
+#设置的参数
+option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
+option (RAIDEN_FLOAT_PRECISION "Use float precision float number" ON)
+# 加入一个配置头文件，用于处理 CMake 对源码的设置
+configure_file (
+  "${PROJECT_SOURCE_DIR}/config.h.in"
+  "${PROJECT_BINARY_DIR}/config.h"
+)
+
 #设置源文件目录
 set(SOURCE_DIR src)
+
+#加入依赖库
+add_subdirectory(external)
 
 #添加头文件路径和库路径
 include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/core)
 include_directories(${OPENEXR_INCLUDE_DIRS})
-message(STATUS "OpenEXR头文件路径: " ${OPENEXR_INCLUDE_DIRS})
 include_directories(${LUA_INCLUDE_DIRS})
-message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIRS})
 include_directories(${GLOG_INCLUDE_DIRS})
-message(STATUS "glog头文件路径: " ${GLOG_INCLUDE_DIRS})
 include_directories(${LODEPNG_INCLUDE_DIRS})
-message(STATUS "lodepng头文件路径: " ${LODEPNG_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# #glog库
-# find_package(glog REQUIRED)
-# include_directories(${GLOG_INCLUDE_PATH})
-# message(STATUS "glog头文件路径: " ${GLOG_INCLUDE_PATH})
-# message(STATUS "glog库文件路径: " ${GLOG_LIBRARY})
-
-#lua库
-# find_package(Lua REQUIRED)
-# include_directories(${LUA_INCLUDE_DIR})
-# message(STATUS "Lua头文件路径: " ${LUA_INCLUDE_DIR})
-# message(STATUS "Lua库文件路径: " ${LUA_LIBRARY})
-
-# #build Zlib库
-# if(WIN32)
-    
-# endif()
 
 #设置源文件
 aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)

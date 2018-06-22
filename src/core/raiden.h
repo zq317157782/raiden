@@ -19,15 +19,19 @@
 
 #include "glog/logging.h"
 
+#include "config.h"
+
 #ifdef _WIN32
 	#include <intrin.h>
 #endif
 
 //定义一个Float宏 可能指向float可能指向double
-#ifdef FLOAT_IS_DOUBLE
-typedef double Float;
+#ifdef RAIDEN_DOUBLE_PRECISION
+	typedef double Float;
+#elif  defined(RAIDEN_FLOAT_PRECISION)
+	typedef float Float;
 #else
-typedef float Float;
+	#error undefined float precision
 #endif
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
