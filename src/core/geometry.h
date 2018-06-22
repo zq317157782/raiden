@@ -33,23 +33,23 @@ class Vector3 {
 public:
 	T x, y, z;
 public:
-	Vector3() {
+	inline Vector3() {
 		x = y = z = 0;
 	}
-	Vector3(T xx, T yy, T zz) :
+	inline Vector3(T xx, T yy, T zz) :
 			x(xx), y(yy), z(zz) {
 		//只有为每个分量单独赋值的时候才需要下NaN的断言
 		Assert(!HasNaNs());
 	}
 
-	explicit Vector3(const Point3<T>& p) {
+	inline explicit Vector3(const Point3<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
 		y = p.y;
 		z = p.z;
 	}
 
-	explicit Vector3(const Normal3<T>& n) {
+	inline explicit Vector3(const Normal3<T>& n) {
 		Assert(!n.HasNaNs());
 		x = n.x;
 		y = n.y;
@@ -57,32 +57,32 @@ public:
 	}
 
 	template <typename U>
-    explicit operator Vector3<U>() const {
+    inline explicit operator Vector3<U>() const {
         return Vector3<U>(x, y, z);
     }
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
-#ifdef DEBUG_BUILD
+#ifdef RAIDEN_DEBUG
 	template<typename U>
-	Vector3(const Vector3<U>& v) {
+	inline Vector3(const Vector3<U>& v) {
 		Assert(!v.HasNaNs());
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
 	template<typename U>
-	Vector3<T>& operator=(const Vector3<U>& v) {
+	inline Vector3<T>& operator=(const Vector3<U>& v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
 		return *this;
 	}
 #endif
-	Vector3<T> operator+(const Vector3<T>& v) const {
+	inline Vector3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x + v.x, y + v.y, z + v.z);
 	}
 
-	Vector3<T>& operator+=(const Vector3<T>& v) {
+	inline Vector3<T>& operator+=(const Vector3<T>& v) {
 		Assert(!v.HasNaNs());
 		x += v.x;
 		y += v.y;
@@ -90,12 +90,12 @@ public:
 		return *this;
 	}
 
-	Vector3<T> operator-(const Vector3<T>& v) const {
+	inline Vector3<T> operator-(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x - v.x, y - v.y, z - v.z);
 	}
 
-	Vector3<T>& operator-=(const Vector3<T>& v) {
+	inline Vector3<T>& operator-=(const Vector3<T>& v) {
 		Assert(!v.HasNaNs());
 		x -= v.x;
 		y -= v.y;
@@ -104,13 +104,13 @@ public:
 	}
 
 	template<typename U>
-	Vector3<T> operator*(U n) const {
+	inline Vector3<T> operator*(U n) const {
 		Assert(!IsNaN(n));
 		return Vector3<T>(x * n, y * n, z * n);
 	}
 
 	template<typename U>
-	Vector3<T>& operator*=(U n) {
+	inline Vector3<T>& operator*=(U n) {
 		Assert(!IsNaN(n));
 		x *= n;
 		y *= n;
@@ -119,7 +119,7 @@ public:
 	}
 
 	template<typename U>
-	Vector3<T> operator/(U n) const {
+	inline Vector3<T> operator/(U n) const {
 		Assert(!IsNaN(n));
 		Assert(n != 0);
 		T f = (Float) 1 / n;
@@ -127,7 +127,7 @@ public:
 	}
 
 	template<typename U>
-	Vector3<T>& operator/=(U n) {
+	inline Vector3<T>& operator/=(U n) {
 		Assert(!IsNaN(n));
 		Assert(n != 0);
 		T f = (Float) 1 / n;
@@ -137,57 +137,57 @@ public:
 		return *this;
 	}
 
-	Vector3<T> operator-() const {
+	inline Vector3<T> operator-() const {
 		return Vector3<T>(-x, -y, -z);
 	}
 
-	bool operator==(const Vector3<T>& v) const {
+	inline bool operator==(const Vector3<T>& v) const {
 		if (x == v.x && y == v.y && z == v.z)
 			return true;
 		return false;
 	}
 
-	bool operator!=(const Vector3<T>& v) const {
+	inline bool operator!=(const Vector3<T>& v) const {
 		if (x != v.x || y != v.y || z != v.z)
 			return true;
 		return false;
 	}
 
 	//返回向量的数量级的平方
-	T MagnitudeSquared() const {
+	inline T MagnitudeSquared() const {
 		return x * x + y * y + z * z;
 	}
 
-	T LengthSquared() const {
+	inline T LengthSquared() const {
 		return x * x + y * y + z * z;
 	}
 
 	//返回向量的数量级 有开根操作
-	T Magnitude() const {
+	inline T Magnitude() const {
 		return std::sqrt(x * x + y * y + z * z);
 	}
 
-	T Length() const {
+	inline T Length() const {
 		return std::sqrt(x * x + y * y + z * z);
 	}
 
-	T operator[](int index) const {
+	inline T operator[](int index) const {
 		Assert(index >= 0 && index < 3);
 		return (&x)[index];
 	}
 
-	T& operator[](int index) {
+	inline T& operator[](int index) {
 		Assert(index >= 0 && index < 3);
 		return (&x)[index];
 	}
 
 	//重构ostream方法
-	friend std::ostream &operator<<(std::ostream &os, const Vector3<T> &v) {
+	inline friend std::ostream &operator<<(std::ostream &os, const Vector3<T> &v) {
 		os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
 		return os;
 	}
 	//判断三个分量中有没有NaN的变量
-	bool HasNaNs() const {
+	inline bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y) || ::IsNaN(z);
 	}
 };
@@ -222,7 +222,7 @@ public:
     }
 
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
-#ifdef DEBUG_BUILD
+#ifdef RAIDEN_DEBUG
 	template<typename U>
 	Vector2(const Vector2<U>& v) {
 		Assert(!v.HasNaNs());
@@ -370,7 +370,7 @@ public:
         return Point3<U>(x, y, z);
     }
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
-#ifdef DEBUG_BUILD
+#ifdef RAIDEN_DEBUG
 	template<typename U>
 	Point3(const Point3<U>& p) {
 		Assert(!p.HasNaNs());
@@ -518,7 +518,7 @@ public:
         return Point2<U>(x, y);
     }
 
-	#ifdef DEBUG_BUILD
+	#ifdef RAIDEN_DEBUG
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 	template<typename U>
 	Point2(const Point2<U>& p) {
@@ -665,7 +665,7 @@ public:
         return Normal3<U>(x, y ,z);
     }
 	//这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
-#ifdef DEBUG_BUILD
+#ifdef RAIDEN_DEBUG
 	Normal3(const Normal3& nl) {
 		Assert(!nl.HasNaNs());
 		x = nl.x;
