@@ -1,0 +1,2 @@
+/Users/zhuqian/Documents/code/googletest/googletest/CMakeFiles/gtest.dir
+/Users/zhuqian/Documents/code/googletest/googletest/CMakeFiles/gtest_main.dir

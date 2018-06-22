@@ -1,0 +1,4 @@
+/Users/zhuqian/Documents/code/TinyGraphicBox/external/googletest/googletest/googlemock/gtest/CMakeFiles/gtest.dir
+/Users/zhuqian/Documents/code/TinyGraphicBox/external/googletest/googletest/googlemock/CMakeFiles/gmock.dir
+/Users/zhuqian/Documents/code/TinyGraphicBox/external/googletest/googletest/googlemock/gtest/CMakeFiles/gtest_main.dir
+/Users/zhuqian/Documents/code/TinyGraphicBox/external/googletest/googletest/googlemock/CMakeFiles/gmock_main.dir

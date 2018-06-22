@@ -5,6 +5,7 @@
  *      Author: zhuqian
  */
 
+#include "config.h"
 #ifdef WIN32
   #include "getopt.h"
   #define GOOGLE_GLOG_DLL_DECL           // 使用静态glog库用这个
@@ -13,6 +14,9 @@
   #include <unistd.h>
 #endif
 
+#ifdef RAIDEN_UNITTEST
+    #include "gtest.h"
+#endif//RAIDEN_UNITTEST
 
 #include "api.h"
 #include "wrapper/luawrapper.h"
@@ -71,6 +75,11 @@ static void PrintHelp(){
 
 int main(int argc, char* argv[]) {
 	
+#ifdef RAIDEN_UNITTEST
+    testing::InitGoogleTest(&argc,argv);
+    RUN_ALL_TESTS();
+#endif//RAIDEN_UNITTEST
+
 	FLAGS_logtostderr = 1;
 	google::InitGoogleLogging(argv[0]);
 	

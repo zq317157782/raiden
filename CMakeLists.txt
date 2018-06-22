@@ -28,6 +28,7 @@ endif(MSVC)
 #设置的参数
 option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
 option (RAIDEN_FLOAT_PRECISION "Use float precision float number" ON)
+option (RAIDEN_UNITTEST "Run unittest cases" ON)
 # 加入一个配置头文件，用于处理 CMake 对源码的设置
 configure_file (
   "${PROJECT_SOURCE_DIR}/config.h.in"
@@ -46,6 +47,8 @@ include_directories(${LUA_INCLUDE_DIRS})
 include_directories(${GLOG_INCLUDE_DIRS})
 include_directories(${LODEPNG_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+
 
 
 #设置源文件
@@ -73,6 +76,10 @@ target_link_libraries(${RAIDEN} glog)
 target_link_libraries(${RAIDEN} lua5.3.4)
 target_link_libraries(${RAIDEN} IlmImf)
 target_link_libraries(${RAIDEN} lodepng)
+if(RAIDEN_UNITTEST)
+  include_directories(${GTEST_INCLUDE_DIRS})
+  target_link_libraries(${RAIDEN} gtest)
+endif(RAIDEN_UNITTEST)
 
 if (WIN32)
     set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
