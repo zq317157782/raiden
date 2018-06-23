@@ -7,7 +7,7 @@
  */
 #pragma once
 #include "api.h"
-class APIWrapper{
+class APIBinder{
 private:
 
 public:

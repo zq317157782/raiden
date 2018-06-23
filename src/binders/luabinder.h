@@ -7,14 +7,14 @@
  */
 #pragma once
 
-#include "apiwrapper.h"
+#include "apibinder.h"
 extern "C" {
     #include "lua.h"
     #include "lualib.h"
     #include "lauxlib.h"
 }
 
-class LuaWrapper : public APIWrapper{
+class LuaBinder : public APIBinder{
 private:
     lua_State * _L;
     const std::string _postFix=".lua";

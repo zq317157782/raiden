@@ -1,4 +1,4 @@
-#include "luawrapper.h"
+#include "luabinder.h"
 #include "geometry.h"
 #include "paramset.h"
 
@@ -593,7 +593,7 @@ static int ReverseOrientation() {
 	return LUA_OK;
 }
 
-void LuaWrapper::Init(){
+void LuaBinder::Init(){
     //初始化Lua
     _L=luaL_newstate();
     luaL_openlibs(_L);
@@ -633,12 +633,12 @@ void LuaWrapper::Init(){
 	lua_register(_L, "ReverseOrientation", (lua_CFunction)ReverseOrientation);
 }
 
-void LuaWrapper::Release(){
+void LuaBinder::Release(){
     
 }
 
 
-void LuaWrapper::ExecScript(const char*  fileName){
+void LuaBinder::ExecScript(const char*  fileName){
     int ret = luaL_dofile(_L, fileName);
 	if (ret != LUA_OK) {
 		lua_error(_L);

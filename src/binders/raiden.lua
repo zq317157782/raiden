@@ -13,3 +13,9 @@ function float_array( ... )
     arg = select("1",temp) 
     return {type="float[]",value=arg} 
 end
+
+function int_array( ... )
+    temp = { ... }  
+    arg = select("1",temp) 
+    return {type="int[]",value=arg} 
+end
