@@ -74,10 +74,10 @@ static void PrintHelp(){
 }
 
 int main(int argc, char* argv[]) {
-	
+	float ret=0;
 #ifdef RAIDEN_UNITTEST
     testing::InitGoogleTest(&argc,argv);
-    float ret=RUN_ALL_TESTS();
+    ret= RUN_ALL_TESTS();
 #endif//RAIDEN_UNITTEST
 
 	FLAGS_logtostderr = 1;
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
             default:
             {
                 PrintHelp();
-                return 0;
+                goto MAIN_RET;
             }
             break;
         }
@@ -123,5 +123,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	raidenCleanup();
+MAIN_RET:
+    return ret;
 }
 

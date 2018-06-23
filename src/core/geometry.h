@@ -27,7 +27,11 @@ inline bool IsNaN(int n) {
 	return false; //这是使用标准库的判断方法
 }
 
-//三维向量
+
+/*
+* 通用的空间三维向量类型,包含(x,y,z)三个分量
+* 因为是通用的三维向量，所以这里的实现方式没有使用SSE2或者DoD，因为某些通用应用场合，并无法从SSE或者DoD获益
+*/
 template<typename T>
 class Vector3 {
 public:
@@ -41,7 +45,11 @@ public:
 		//只有为每个分量单独赋值的时候才需要下NaN的断言
 		Assert(!HasNaNs());
 	}
-
+	inline Vector3(T v) :
+			x(v), y(v), z(v) {
+		//只有为每个分量单独赋值的时候才需要下NaN的断言
+		Assert(!HasNaNs());
+	}
 	inline explicit Vector3(const Point3<T>& p) {
 		Assert(!p.HasNaNs());
 		x = p.x;
