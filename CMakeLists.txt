@@ -93,7 +93,7 @@ endif()
 
 add_custom_command(TARGET ${RAIDEN} POST_BUILD
                   COMMAND ${CMAKE_COMMAND} -E copy
-                  "${CMAKE_CURRENT_SOURCE_DIR}/src/binders/raiden.lua"
+                  "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/raiden.lua"
                   "${CMAKE_CURRENT_BINARY_DIR}/raiden.lua")
 #工具们
 #objtolua
