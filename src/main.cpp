@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 			}break;
 			case 'o':{ 
 				options.imageFile=optarg;
-			}
+			}break;
             case 'h':
             default:
             {
