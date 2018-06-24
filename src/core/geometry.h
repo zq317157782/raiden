@@ -51,51 +51,42 @@ public:
 		Assert(!HasNaNs());
 	}
 
-	template <typename U>
-	inline explicit Vector3(const Vector3<U>& v):x(v.x),y(v.y),z(v.z){
-		Assert(!n.HasNaNs());
+	inline explicit Vector3(const Point3<T>& p):x(p.x),y(p.y),z(p.z){
+		Assert(!HasNaNs());
 	}
 
-	template <typename U>
-	inline explicit Vector3(const Point3<U>& p):x(p.x),y(p.y),z(p.z){
-		Assert(!p.HasNaNs());
+	inline explicit Vector3(const Normal3<T>& n):x(n.x),y(n.y),z(n.z) {
+		Assert(!HasNaNs());
 	}
 
-	template <typename U>
-	inline explicit Vector3(const Normal3<U>& n):x(n.x),y(n.y),z(n.z) {
-		Assert(!n.HasNaNs());
-	}
+	// //强制转换到Point3类型
+	// template <typename U>
+    // inline explicit operator Point3<U>() const {
+    //     return Point3<U>(x, y, z);
+    // }
 
-	//强制转换到Point3类型
-	template <typename U>
-    inline explicit operator Point3<U>() const {
-        return Point3<U>(x, y, z);
-    }
-
-	//强制转换到Normal3类型
-	template <typename U>
-    inline explicit operator Normal3<U>() const {
-        return Normal3<U>(x, y, z);
-    }
+	// //强制转换到Normal3类型
+	// template <typename U>
+    // inline explicit operator Normal3<U>() const {
+    //     return Normal3<U>(x, y, z);
+    // }
 
 	
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef RAIDEN_DEBUG
-	template<typename U>
-	inline Vector3(const Vector3<U>& v) {
-		Assert(!v.HasNaNs());
-		x = v.x;
-		y = v.y;
-		z = v.z;
+	inline Vector3(const Vector3<T>& v):x(v.x),y(v.y),z(v.z){
+		Assert(!HasNaNs());
 	}
-	template<typename U>
-	inline Vector3<T>& operator=(const Vector3<U>& v) {
+
+	inline Vector3<T>& operator=(const Vector3<T>& v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
+		Assert(!HasNaNs());
 		return *this;
 	}
 #endif
+
 	inline Vector3<T> operator+(const Vector3<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector3<T>(x + v.x, y + v.y, z + v.z);
@@ -195,7 +186,7 @@ public:
 
 	//重构ostream方法
 	inline friend std::ostream &operator<<(std::ostream &os, const Vector3<T> &v) {
-		os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
+		os << "[ " << v.x << " , " << v.y << " , " << v.z << " ]";
 		return os;
 	}
 	//判断三个分量中有没有NaN的变量
@@ -213,60 +204,55 @@ class  Vector2 {
 public:
 	T x, y;
 public:
-	Vector2() {
-		x = y = 0;
+	inline Vector2():x(0),y(0){
 	}
-	Vector2(T xx, T yy) :
-			x(xx), y(yy) {
+	inline Vector2(T xx, T yy):x(xx), y(yy) {
 		//只有为每个分量单独赋值的时候才需要下NaN的断言
 		Assert(!HasNaNs());
 	}
 
-	explicit Vector2(const Point2<T> p) {
-		Assert(!p.HasNaNs());
-		x = p.x;
-		y = p.y;
+	inline Vector2(T v):x(v),y(v){
+		Assert(!HasNaNs());
 	}
 
-	template <typename U>
-    explicit operator Vector2<U>() const {
-        return Vector2<U>(x, y);
-    }
+	inline explicit Vector2(const Point2<T>& p):x(p.x),y(p.y){
+		Assert(!HasNaNs());
+	}
 
+	inline explicit Vector2(const Vector3<T>& v):x(v.x),y(v.y){
+		Assert(!HasNaNs());
+	}
+	
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef RAIDEN_DEBUG
-	template<typename U>
-	Vector2(const Vector2<U>& v) {
-		Assert(!v.HasNaNs());
-		x = v.x;
-		y = v.y;
+	inline Vector2(const Vector2<T>& v):x(v.x),y(v.y){
+		Assert(!HasNaNs());
 	}
-	template<typename U>
-	Vector2<T>& operator=(const Vector2<U>& v) {
-		Assert(!v.HasNaNs());
+	inline Vector2<T>& operator=(const Vector2<T>& v) {
 		x = v.x;
 		y = v.y;
+		Assert(!HasNaNs());
 		return *this;
 	}
 #endif
-	Vector2<T> operator+(const Vector2<T>& v) const {
+	inline Vector2<T> operator+(const Vector2<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector2<T>(x + v.x, y + v.y);
 	}
 
-	Vector2<T>& operator+=(const Vector2<T>& v) {
+	inline Vector2<T>& operator+=(const Vector2<T>& v) {
 		Assert(!v.HasNaNs());
 		x += v.x;
 		y += v.y;
 		return *this;
 	}
 
-	Vector2<T> operator-(const Vector2<T>& v) const {
+	inline Vector2<T> operator-(const Vector2<T>& v) const {
 		Assert(!v.HasNaNs());
 		return Vector2<T>(x - v.x, y - v.y);
 	}
 
-	Vector2<T>& operator-=(const Vector2<T>& v) {
+	inline Vector2<T>& operator-=(const Vector2<T>& v) {
 		Assert(!v.HasNaNs());
 		x -= v.x;
 		y -= v.y;
@@ -274,13 +260,13 @@ public:
 	}
 
 	template<typename U>
-	Vector2<T> operator*(U n) const {
+	inline Vector2<T> operator*(U n) const {
 		Assert(!IsNaN(n));
 		return Vector2<T>(x * n, y * n);
 	}
 
 	template<typename U>
-	Vector2<T>& operator*=(U n) {
+	inline Vector2<T>& operator*=(U n) {
 		Assert(!IsNaN(n));
 		x *= n;
 		y *= n;
@@ -288,7 +274,7 @@ public:
 	}
 
 	template<typename U>
-	Vector2<T> operator/(U n) const {
+	inline Vector2<T> operator/(U n) const {
 		Assert(!IsNaN(n));
 		Assert(n != 0);
 		T f = (Float) 1 / n;
@@ -296,7 +282,7 @@ public:
 	}
 
 	template<typename U>
-	Vector2<T>& operator/=(U n) {
+	inline Vector2<T>& operator/=(U n) {
 		Assert(!IsNaN(n));
 		Assert(n != 0);
 		T f = (Float) 1 / n;
@@ -305,57 +291,49 @@ public:
 		return *this;
 	}
 
-	Vector2<T> operator-() const {
+	inline Vector2<T> operator-() const {
 		return Vector2<T>(-x, -y);
 	}
 
-	bool operator==(const Vector2<T>& v) const {
+	inline bool operator==(const Vector2<T>& v) const {
 		if (x == v.x && y == v.y)
 			return true;
 		return false;
 	}
 
-	bool operator!=(const Vector2<T>& v) const {
+	inline bool operator!=(const Vector2<T>& v) const {
 		if (x != v.x || y != v.y)
 			return true;
 		return false;
 	}
 
 	//返回向量的数量级的平方
-	T MagnitudeSquared() const {
+	inline T LengthSquared() const {
 		return x * x + y * y;
 	}
 
-	T LengthSquared() const {
-		return MagnitudeSquared();
-	}
-
 	//返回向量的数量级 有开根操作
-	T Magnitude() const {
+	inline T Length() const {
 		return std::sqrt(x * x + y * y);
 	}
 
-	T Length() const {
-		return Magnitude();
-	}
-
-	T operator[](int index) const {
+	inline T operator[](int index) const {
 		Assert(index >= 0 && index < 2);
 		return (&x)[index];
 	}
 
-	T& operator[](int index) {
+	inline T& operator[](int index) {
 		Assert(index >= 0 && index < 2);
 		return (&x)[index];
 	}
 
 	//重构ostream方法
-	friend std::ostream &operator<<(std::ostream &os, const Vector2<T> &v) {
+	inline friend std::ostream &operator<<(std::ostream &os, const Vector2<T> &v) {
 		os << "[" << v.x << ", " << v.y << "]";
 		return os;
 	}
 	//判断分量中有没有NaN的变量
-	bool HasNaNs() const {
+	inline bool HasNaNs() const {
 		return ::IsNaN(x) || ::IsNaN(y);
 	}
 };
@@ -367,20 +345,26 @@ class  Point3 {
 public:
 	T x, y, z;
 public:
-	Point3() {
-		x = y = z = 0;
+	Point3():x(0),y(0),z(0){
 	}
-
 	Point3(T xx, T yy, T zz) :
 			x(xx), y(yy), z(zz) {
 		Assert(!HasNaNs());
 	}
-
+	Point3(T v):x(v),y(v),z(v){
+		Assert(!HasNaNs());
+	}
 
 	template <typename U>
-    explicit operator Point3<U>() const {
-        return Point3<U>(x, y, z);
+    explicit Point3(const Point3<U>& p):x(p.x),y(p.y),z(p.z){
+        Assert(!HasNaNs());
     }
+
+	template <typename U>
+    explicit Point3(const Vector3<U>& v):x(v.x),y(v.y),z(v.z){
+        Assert(!HasNaNs());
+    }
+
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef RAIDEN_DEBUG
 	template<typename U>
