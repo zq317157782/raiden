@@ -24,7 +24,7 @@ public:
 		                        int depth = 0) const override{
 		SurfaceInteraction ref;//和表面的交互点
 		if (scene.Intersect(ray, &ref)) {
-			Float distance=(ref.p-ray.o).Magnitude()*_invFar;
+			Float distance=(ref.p-ray.o).Length()*_invFar;
 			return Spectrum(distance);
 		}
 		return 1.0f;

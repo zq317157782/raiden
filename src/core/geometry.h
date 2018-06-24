@@ -21,10 +21,10 @@ inline bool IsNaN(T n) {
 	//return !(n==n);//使用自己和自己比较的方式 如果一个数是NaN的话，它和任意数比较都为false,但是编译器可能会进行优化，导致失效
 	return std::isnan(n); //这是使用标准库的判断方法
 }
+
 template<>
 inline bool IsNaN(int n) {
-	//return !(n==n);//使用自己和自己比较的方式 如果一个数是NaN的话，它和任意数比较都为false,但是编译器可能会进行优化，导致失效
-	return false; //这是使用标准库的判断方法
+	return false; 
 }
 
 
@@ -50,24 +50,35 @@ public:
 		//只有为每个分量单独赋值的时候才需要下NaN的断言
 		Assert(!HasNaNs());
 	}
-	inline explicit Vector3(const Point3<T>& p) {
-		Assert(!p.HasNaNs());
-		x = p.x;
-		y = p.y;
-		z = p.z;
-	}
 
-	inline explicit Vector3(const Normal3<T>& n) {
+	template <typename U>
+	inline explicit Vector3(const Vector3<U>& v):x(v.x),y(v.y),z(v.z){
 		Assert(!n.HasNaNs());
-		x = n.x;
-		y = n.y;
-		z = n.z;
 	}
 
 	template <typename U>
-    inline explicit operator Vector3<U>() const {
-        return Vector3<U>(x, y, z);
+	inline explicit Vector3(const Point3<U>& p):x(p.x),y(p.y),z(p.z){
+		Assert(!p.HasNaNs());
+	}
+
+	template <typename U>
+	inline explicit Vector3(const Normal3<U>& n):x(n.x),y(n.y),z(n.z) {
+		Assert(!n.HasNaNs());
+	}
+
+	//强制转换到Point3类型
+	template <typename U>
+    inline explicit operator Point3<U>() const {
+        return Point3<U>(x, y, z);
     }
+
+	//强制转换到Normal3类型
+	template <typename U>
+    inline explicit operator Normal3<U>() const {
+        return Normal3<U>(x, y, z);
+    }
+
+	
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef RAIDEN_DEBUG
 	template<typename U>
@@ -150,30 +161,23 @@ public:
 	}
 
 	inline bool operator==(const Vector3<T>& v) const {
-		if (x == v.x && y == v.y && z == v.z)
+		if (x == v.x && y == v.y && z == v.z){
 			return true;
+		}	
 		return false;
 	}
 
 	inline bool operator!=(const Vector3<T>& v) const {
-		if (x != v.x || y != v.y || z != v.z)
+		if (x != v.x || y != v.y || z != v.z){
 			return true;
+		}
 		return false;
-	}
-
-	//返回向量的数量级的平方
-	inline T MagnitudeSquared() const {
-		return x * x + y * y + z * z;
 	}
 
 	inline T LengthSquared() const {
 		return x * x + y * y + z * z;
 	}
 
-	//返回向量的数量级 有开根操作
-	inline T Magnitude() const {
-		return std::sqrt(x * x + y * y + z * z);
-	}
 
 	inline T Length() const {
 		return std::sqrt(x * x + y * y + z * z);
@@ -1346,11 +1350,11 @@ inline Vector3<T> Cross(const Vector3<T>& v1, const Normal3<T>& v2) {
 //标准化
 template<typename T>
 inline Vector3<T> Normalize(const Vector3<T>& v) {
-	return v / v.Magnitude();
+	return v / v.Length();
 }
 template<typename T>
 inline Vector2<T> Normalize(const Vector2<T>& v) {
-	return v / v.Magnitude();
+	return v / v.Length();
 }
 template<typename T>
 inline Normal3<T> Normalize(const Normal3<T>& n) {
@@ -1395,7 +1399,7 @@ inline Vector3<T> Faceforward(const Vector3<T> &n, const Normal3<T> &v) {
 template<typename T>
 inline Float DistanceSquared(const Point3<T>& p1, const Point3<T>& p2) {
 	Assert(!p1.HasNaNs() && !p2.HasNaNs());
-	return (p1 - p2).MagnitudeSquared();
+	return (p1 - p2).LengthSquared();
 }
 template<typename T>
 inline Float Distance(const Point3<T>& p1, const Point3<T>& p2) {
@@ -1404,7 +1408,7 @@ inline Float Distance(const Point3<T>& p1, const Point3<T>& p2) {
 template<typename T>
 inline Float DistanceSquared(const Point2<T>& p1, const Point2<T>& p2) {
 	Assert(!p1.HasNaNs() && !p2.HasNaNs());
-	return (p1 - p2).MagnitudeSquared();
+	return (p1 - p2).LengthSquared();
 }
 template<typename T>
 inline Float Distance(const Point2<T>& p1, const Point2<T>& p2) {
