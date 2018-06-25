@@ -7,7 +7,7 @@ if(WIN32)
 
   set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH " " FORCE)
   set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/${CMAKE_BUILD_TYPE}/zlibstatic.lib" CACHE FILEPATH " " FORCE)
-
+  #MESSAGE(${CMAKE_BUILD_TYPE})
   set_property(TARGET zlibstatic PROPERTY FOLDER "dependencies")
   include_directories(${ZLIB_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/zlib")
 endif()
@@ -30,8 +30,10 @@ add_subdirectory(glog)
 #编译lodepng
 add_subdirectory(lodepng)
 
-#编译gtest
-add_subdirectory(googletest)
+if(RAIDEN_UNITTEST)
+  #编译gtest
+  add_subdirectory(googletest)
+endif(RAIDEN_UNITTEST)
 
 #设置需要包含的头文件目录
 # OpenEXR
@@ -45,8 +47,9 @@ set(OPENEXR_INCLUDE_DIRS
 set(LUA_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
 set(GLOG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glog/src/glog)
 set(LODEPNG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lodepng)
-set(GTEST_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include/gtest)
-
+if(RAIDEN_UNITTEST)
+  set(GTEST_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include/gtest)
+endif(RAIDEN_UNITTEST)
 
 #暴露参数给父作用域
 set(CompilerFlags OPENEXR_INCLUDE_DIRS LUA_INCLUDE_DIRS GLOG_INCLUDE_DIRS LODEPNG_INCLUDE_DIRS GTEST_INCLUDE_DIRS)

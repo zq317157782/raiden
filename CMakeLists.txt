@@ -5,6 +5,11 @@ cmake_minimum_required(VERSION 2.8.0)
 set(RAIDEN raiden)
 PROJECT (${RAIDEN})
 
+#Window下默认这个变量没有赋值，所以这里默认赋值成release
+if (WIN32)
+    SET(CMAKE_BUILD_TYPE release)
+endif()
+
 MESSAGE(STATUS "CMAKE_BUILD_TYPE = " ${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
@@ -28,7 +33,7 @@ endif(MSVC)
 #设置的参数
 option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
 option (RAIDEN_FLOAT_PRECISION "Use float precision float number" ON)
-option (RAIDEN_UNITTEST "Run unittest cases" ON)
+option (RAIDEN_UNITTEST "Run unittest cases" OFF)
 # 加入一个配置头文件，用于处理 CMake 对源码的设置
 configure_file (
   "${PROJECT_SOURCE_DIR}/config.h.in"
