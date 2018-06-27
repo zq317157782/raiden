@@ -8,6 +8,7 @@
 #include "geometry.h"
 #include "sampler.h"
 #include "paramset.h"
+#include "filters/box.h"
 
 
 //临时修改某个指针内的值的Helper类
@@ -385,6 +386,11 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 }
 
 
+inline int BufferIndex(int s, int t) {
+	int above = s + t - 2;
+	return s + above * (5 + above) / 2;
+}
+
 void BDPTIntegrator::Render(const Scene& scene){
 	//初始化光源分布
 	_lightDistribution = ComputeLightSampleDistribution(_lightStrategy, scene);
@@ -402,6 +408,33 @@ void BDPTIntegrator::Render(const Scene& scene){
 	int nTileY = (sampleExtent.y + tileSize - 1) / tileSize;
 	Point2i tileNum = Point2i(nTileX, nTileY);
 	ProgressReporter reporter(tileNum.x*tileNum.y, "Rendering");
+	
+	
+	//生成调试用的Films
+	//这个count是怎么计算出来的还得研究研究
+	const int bufferCount = (1 + _maxDepth)*(6 + _maxDepth) / 2;
+	std::vector<std::unique_ptr<Film>> weightFilms(bufferCount);
+	//Debug代码
+	{
+		for (int depth = 0; depth <= _maxDepth; ++depth) {
+			for (int s = 0; s <= depth + 2; ++s) {
+				int t = depth + 2 - s;
+				if (t == 0 || (s == 1 && t == 1)) {
+					continue;
+				}
+
+				std::ostringstream stringStream;
+				stringStream << "bdpt_d" << depth << "_s" << s << "_t" << t << ".png";
+				std::string filename = stringStream.str();
+
+				weightFilms[BufferIndex(s, t)] = std::unique_ptr<Film>(new Film(
+					_camera->film->fullResolution,
+					Bound2f(Point2f(0, 0), Point2f(1, 1)),
+					std::unique_ptr<Filter>(CreateBoxFilter(ParamSet())), filename, 1.0f));
+			}
+		}
+	}
+
 	//<并行循环体,循环tile>
 	//
 	ParallelFor2D([&](const Point2i& tile) {
@@ -471,6 +504,14 @@ void BDPTIntegrator::Render(const Scene& scene){
 						}
 						//计算相应的FullPath的贡献，并且做记录
 						auto radiance = ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
+						
+						//Debug代码
+						{
+							Spectrum value = radiance;
+							
+							weightFilms[BufferIndex(s, t)]->AddSplat(raster,value);
+						}
+						
 						if (t == 1) {
 							//只包含1个相机点
 							_camera->film->AddSplat(raster, radiance);
@@ -493,6 +534,16 @@ void BDPTIntegrator::Render(const Scene& scene){
 	reporter.Done();
 	//这里需要传入采样率，来调整splat进去的能量的权重
 	_camera->film->WriteImage(1.0 / _sampler->samplesPerPixel);
+
+	//DEBUG代码
+	{
+		const Float invSampleCount = 1.0f / _sampler->samplesPerPixel;
+		for (size_t i = 0; i < weightFilms.size(); ++i) {
+			if (weightFilms[i]) {
+				weightFilms[i]->WriteImage(invSampleCount);
+			}
+		}
+	}
 }
 
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
