@@ -384,6 +384,117 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 	return L;
 }
 
+
+void BDPTIntegrator::Render(const Scene& scene){
+	//初始化光源分布
+	_lightDistribution = ComputeLightSampleDistribution(_lightStrategy, scene);
+	//从Light指针到index的映射
+	std::unordered_map<const Light *, size_t> lightToIndex;
+	for (size_t i = 0; i < scene.lights.size(); ++i) {
+		lightToIndex[scene.lights[i].get()] = i;
+	}
+
+	//获得样本的范围
+	auto sampleBounds = _camera->film->GetSampleBounds();
+	auto sampleExtent = sampleBounds.Diagonal();//获得宽高
+	int tileSize = 16;//tile的宽和高的大小
+	int nTileX = (sampleExtent.x + tileSize - 1) / tileSize;
+	int nTileY = (sampleExtent.y + tileSize - 1) / tileSize;
+	Point2i tileNum = Point2i(nTileX, nTileY);
+	ProgressReporter reporter(tileNum.x*tileNum.y, "Rendering");
+	//<并行循环体,循环tile>
+	//
+	ParallelFor2D([&](const Point2i& tile) {
+
+		//计算每个tile的seed
+		int seed = tile.x + tileNum.x*tile.y;
+		//根据seed,克隆Sampler
+		auto tileSampler = _sampler->Clone(seed);
+
+		//计算当前tile所覆盖的sampleBounds
+		int x0 = sampleBounds.minPoint.x + tile.x*tileSize;
+		int y0 = sampleBounds.minPoint.y + tile.y*tileSize;
+
+		int x1 = std::min(x0 + tileSize, sampleBounds.maxPoint.x);
+		int y1 = std::min(y0 + tileSize, sampleBounds.maxPoint.y);
+
+		Bound2i tileSampleBounds = Bound2i(Point2i(x0, y0), Point2i(x1, y1));
+
+		//根据tileSampleBounds获得FilmTile
+		auto filmTile = _camera->film->GetFilmTile(tileSampleBounds);
+		MemoryArena arena;
+
+		//<循环体,循环pixel>
+		for (auto pixel : tileSampleBounds) {
+			//针对每个像素做处理
+			tileSampler->StartPixel(pixel);
+
+			//检查像素是否在积分器负责的范围内
+			//这里把检查放在StartPixel后面v3有个解释：
+			// Do this check after the StartPixel() call; this keeps
+			// the usage of RNG values from (most) Samplers that use
+			// RNGs consistent, which improves reproducability /
+			// debugging.
+			if (!InsideExclusive(pixel, _pixelBound)) {
+				continue;
+			}
+
+			//<循环体,循环样本点>
+			do
+			{
+				//当前的film样本点
+				auto filmPos = (Point2f)pixel + tileSampler->Get2DSample();
+
+				//分配两个数组，分别存放Camera subpath和Light subpath
+				//长度都是maxDepth+1,因为maxDepth代表边长，所以顶点要多一个，然后相机额外还要多一个存放和光源相交的顶点
+				Vertex* cameraVertices = arena.Alloc<Vertex>(_maxDepth + 2);
+				Vertex* lightVertices = arena.Alloc<Vertex>(_maxDepth + 1);
+
+				//生成两条subpath
+				int nCamera = GenerateCameraSubPath(scene, *tileSampler, arena, *_camera, _maxDepth + 2, filmPos, cameraVertices);
+				//PBRT这里使用了PowerDistribution
+				const Distribution1D *lightDistr = _lightDistribution->Lookup(cameraVertices[0].p());
+
+				int nLight = GenerateLightSubPath(scene, *tileSampler, arena, *lightDistr, cameraVertices[0].time(), _maxDepth + 1, lightVertices);
+
+				//遍历所有的SubPath顶点，并且计算相应的连接下的FullPath的贡献
+				//相机不需要考虑t==0的情况，因为不考虑LightPath的EndPoint是Lens的情况
+				Spectrum L(0);
+				Point2f raster;
+				for (int t = 1; t <= nCamera; ++t) {
+					for (int s = 0; s <= nLight; ++s) {
+						//TODO 和PT的Depth貌似有区别，需要再研究研究  
+						int depth = s + t - 2;
+						//跳过两个SubPath都只有一个顶点的情况，以及深度越界的情况
+						if ((s == 1 && t == 1) || depth<0 || depth>_maxDepth) {
+							continue;
+						}
+						//计算相应的FullPath的贡献，并且做记录
+						auto radiance = ConnectBDPT(scene, lightVertices, cameraVertices, s, t, *tileSampler, *lightDistr, lightToIndex, *_camera, &raster);
+						if (t == 1) {
+							//只包含1个相机点
+							_camera->film->AddSplat(raster, radiance);
+						}
+						else {
+							L += radiance;
+						}
+
+					}
+				}
+				filmTile->AddSample(filmPos, L, 1);
+				//重置当前路径样本所依赖的空间
+				arena.Reset();
+			} while (tileSampler->StartNextSample());
+		}
+		//合并filmTile
+		_camera->film->MergeFilmTile(std::move(filmTile));
+		reporter.Update();
+	}, tileNum);
+	reporter.Done();
+	//这里需要传入采样率，来调整splat进去的能量的权重
+	_camera->film->WriteImage(1.0 / _sampler->samplesPerPixel);
+}
+
 BDPTIntegrator *CreateBDPTIntegrator(const ParamSet &params,
 		std::shared_ptr<Sampler> sampler,
 		std::shared_ptr<const Camera> camera) {
