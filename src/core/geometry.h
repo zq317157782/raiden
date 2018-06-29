@@ -507,6 +507,10 @@ public:
 		Assert(!HasNaNs());
 	}
 	
+	inline explicit Point2(const Vector2<T>& v):x(v.x),y(v.y){
+		Assert(!HasNaNs());
+	}
+
 	template <typename U>
     inline explicit operator Point2<U>() const {
         return Point2<U>(x, y);
