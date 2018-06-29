@@ -1354,22 +1354,22 @@ inline Normal3<T> operator*(U n, const Normal3<T>& v) {
 //4系列
 template<typename T>
 inline Normal3<T> Faceforward(const Normal3<T> &n, const Vector3<T> &v) {
-	return (Dot(n, v) < 0.f) ? -n : n;
+	return (Dot(n, v) < 0.0) ? -n : n;
 }
 
 template<typename T>
 inline Normal3<T> Faceforward(const Normal3<T> &n, const Normal3<T> &v) {
-	return (Dot(n, v) < 0.f) ? -n : n;
+	return (Dot(n, v) < 0.0) ? -n : n;
 }
 
 template<typename T>
 inline Vector3<T> Faceforward(const Vector3<T> &n, const Vector3<T> &v) {
-	return (Dot(n, v) < 0.f) ? -n : n;
+	return (Dot(n, v) < 0.0) ? -n : n;
 }
 
 template<typename T>
 inline Vector3<T> Faceforward(const Vector3<T> &n, const Normal3<T> &v) {
-	return (Dot(n, v) < 0.f) ? -n : n;
+	return (Dot(n, v) < 0.0) ? -n : n;
 }
 
 //距离相关

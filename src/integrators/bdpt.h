@@ -418,7 +418,7 @@ inline Vertex Vertex::CreateLight(const EndpointInteraction& ei,const Spectrum& 
 	return v;
 }
 
-inline Vertex CreateLight(const Light* light, const Ray& ray, const Normal3f& n, const Spectrum& Le, Float pdf) {
+inline Vertex Vertex::CreateLight(const Light* light, const Ray& ray, const Normal3f& n, const Spectrum& Le, Float pdf) {
 	Vertex v(VertexType::Light, EndpointInteraction(light, ray,n), Le);
 	v.pdfFwd = pdf;
 	return v;
