@@ -53,10 +53,13 @@ void Film::WriteImage(Float splatScale) {
 				Pixel &p = GetPixel(Point2i(i, j));
 				Float rgb[3];
 				XYZToRGB(p.xyz, rgb);
-				Float invWeight = 1.0 / p.filterWeightSum;
-				rgb[0] *= invWeight;
-				rgb[1] *= invWeight;
-				rgb[2] *= invWeight;
+				if(p.filterWeightSum!=0){
+					Float invWeight = 1.0 / p.filterWeightSum;
+					rgb[0] *= invWeight;
+					rgb[1] *= invWeight;
+					rgb[2] *= invWeight;
+				}
+				
 				
 				//添加splatXYZ内的能量
 				Float splatRGB[3];
