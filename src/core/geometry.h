@@ -791,36 +791,43 @@ public:
 //AABB盒的最小顶点和最大顶点
 	Point3<T> minPoint, maxPoint;
 public:
-	Bound3() {
+	inline Bound3() {
 		//默认构造函数最小点取最大值，最大点取最小值
 		//PBRT_V2中是取了float的两个无限值
-		T mreciprocalalue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
+		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
 		T maxValue = std::numeric_limits<T>::max();
 		minPoint = Point3<T>(maxValue, maxValue, maxValue);
-		maxPoint = Point3<T>(mreciprocalalue, mreciprocalalue, mreciprocalalue);
+		maxPoint = Point3<T>(minValue, minValue, minValue);
 	}
-	Bound3(const Point3<T>& p) :
+	inline Bound3(const Point3<T>& p) :
 			minPoint(p), maxPoint(p) {
 	}
-	Bound3(const Point3<T>& p1, const Point3<T>& p2) :
+	inline Bound3(const Point3<T>& p1, const Point3<T>& p2) :
 			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
 					std::min(p1.z, p2.z)), maxPoint(std::max(p1.x, p2.x),
 					std::max(p1.y, p2.y), std::max(p1.z, p2.z)) {
 	}
+
+	//强制转换到其他类型的Bound3
+	template<typename T1>
+	inline explicit operator Bound3<T1>() const {
+		return Bound3<T1>((Point3<T1>) minPoint, (Point3<T1>) maxPoint);
+	}
+
 	//这里通过索引来访问minPoint和maxPoint属性
 	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
-	const Point3<T>& operator[](int index) const {
-		Assert(index >= 0 && index < 3);
+	inline const Point3<T>& operator[](int index) const {
+		Assert(index >= 0 && index < 2);
 		return (&minPoint)[index];
 	}
 
-	Point3<T>& operator[](int index) {
-		Assert(index >= 0 && index < 3);
+	inline Point3<T>& operator[](int index) {
+		Assert(index >= 0 && index < 2);
 		return (&minPoint)[index];
 	}
 
 	//顺序0~7: 前：左下，右下，左上，右上，后：左下，右下，左上，右上
-	Point3<T> Corner(int index) const {
+	inline Point3<T> Corner(int index) const {
 		Assert(index >= 0 && index < 8);
 		T x = (*this)[index & 1].x;	//偶数取minPoint.x 奇数取maxPoint.x;
 		T y = (*this)[index & 2 ? 1 : 0].y;	//index第二位是0取minPoint.y,否则取maxPoint.y;
@@ -829,34 +836,37 @@ public:
 	}
 
 	//返回对角线向量
-	Vector3<T> Diagonal() const {
+	inline Vector3<T> Diagonal() const {
 		return (maxPoint - minPoint);
 	}
 
 	//求面积
-	T SurfaceArea() const {
+	inline T SurfaceArea() const {
 		Vector3<T> d = Diagonal();
-		return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.0f;
+		return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.0;
 	}
 
 	//求体积
-	T Volume() const {
+	inline T Volume() const {
 		Vector3<T> d = Diagonal();
 		return d.x * d.y * d.z;
 	}
 
 	//获取最大的边界
-	int MaximumExtent() const {
+	inline int MaximumExtent() const {
 		Vector3<T> diag = Diagonal();
-		if (diag.x > diag.y && diag.x > diag.z)
+		if (diag.x > diag.y && diag.x > diag.z){
 			return 0;
-		else if (diag.y > diag.z)
+		}
+		else if (diag.y > diag.z){
 			return 1;
-		else
+		}
+		else{
 			return 2;
+		}	
 	}
 
-	bool operator==(const Bound3<T>& b) const {
+	inline bool operator==(const Bound3<T>& b) const {
 		if (minPoint == b.minPoint && maxPoint == b.maxPoint) {
 			return true;
 		}
@@ -870,8 +880,8 @@ public:
 		return false;
 	}
 
-	//获得包围球
-	void BoundingSphere(Point3<T>*c, Float* r) const {
+	//获得外接包围球
+	inline void BoundingSphere(Point3<T>*c, Float* r) const {
 		*c = (minPoint + maxPoint) / 2;
 		if (Inside(*c, *this)) {
 			*r = Distance(*c, maxPoint);
@@ -880,7 +890,7 @@ public:
 		}
 	}
 	//计算点在碰撞盒中的偏移量
-	Vector3<T> Offset(const Point3<T> &p) const {
+	inline Vector3<T> Offset(const Point3<T> &p) const {
 		Vector3<T> o = p - minPoint;
 		if (maxPoint.x > minPoint.x){
 			o.x /= (maxPoint.x - minPoint.x);
@@ -895,19 +905,16 @@ public:
 	}
 
 	//射线求角
-	bool IntersectP(const Ray& ray,Float* tHit1=nullptr,Float *tHit2=nullptr) const;
+	inline bool IntersectP(const Ray& ray,Float* tHit1=nullptr,Float *tHit2=nullptr) const;
 
 	inline bool IntersectP(const Ray& ray, const Vector3f& reciprocalDir, const int isNeg[3]) const;
 	//重构ostream方法
-	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
-		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
+	inline friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
+		os << "< " << n.minPoint << " , " << n.maxPoint << " >";
 		return os;
 	}
 
 };
-
-
-
 typedef Bound3<Float> Bound3f;
 typedef Bound3<int> Bound3i;
 
@@ -917,45 +924,40 @@ class Bound2 {
 public:
 	Point2<T> minPoint, maxPoint;
 public:
-	Bound2() {
+	inline Bound2() {
 		//默认构造函数最小点取最大值，最大点取最小值
 		//PBRT_V2中是取了float的两个无限值
-		T mreciprocalalue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
+		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
 		T maxValue = std::numeric_limits<T>::max();
 		minPoint = Point2<T>(maxValue, maxValue);
-		maxPoint = Point2<T>(mreciprocalalue, mreciprocalalue);
+		maxPoint = Point2<T>(minValue, minValue);
 	}
-	Bound2(const Point2<T>& p) :
+	inline Bound2(const Point2<T>& p) :
 			minPoint(p), maxPoint(p) {
 	}
-	Bound2(const Point2<T>& p1, const Point2<T>& p2) :
+	inline Bound2(const Point2<T>& p1, const Point2<T>& p2) :
 			minPoint(std::min(p1.x, p2.x), std::min(p1.y, p2.y)), maxPoint(
 					std::max(p1.x, p2.x), std::max(p1.y, p2.y)) {
 	}
 
-	template<typename U>
-	explicit operator Bound2<U>() const {
-		return Bound2<U>((Point2<U> ) minPoint, (Point2<U> ) maxPoint);
+	template<typename T1>
+	inline explicit operator Bound2<T1>() const {
+		return Bound2<T1>((Point2<T1>) minPoint, (Point2<T1>) maxPoint);
 	}
-//	Bound2<T>& operator=(const Bound2<T>& b){
-//		minPoint=b.minPoint;
-//		maxPoint=b.maxPoint;
-//		return *this;
-//	}
 
 	//这里通过索引来访问minPoint和maxPoint属性
 	//这里用const ref提高访问class对象的速度，但是同时不能修改值，因为是引用
-	const Point2<T>& operator[](int index) const {
+	inline const Point2<T>& operator[](int index) const {
 		Assert(index >= 0 && index < 2);
 		return (&minPoint)[index];
 	}
 
-	Point2<T>& operator[](int index) {
+	inline Point2<T>& operator[](int index) {
 		Assert(index >= 0 && index < 2);
 		return (&minPoint)[index];
 	}
 
-	Point2<T> Corner(int index) const {
+	inline Point2<T> Corner(int index) const {
 		Assert(index >= 0 && index < 4);
 		T x = (*this)[index & 1].x;	//偶数取minPoint.x 奇数取maxPoint.x;
 		T y = (*this)[index & 2 ? 1 : 0].y;	//index第二位是0取minPoint.y,否则取maxPoint.y;
@@ -963,18 +965,18 @@ public:
 	}
 
 	//返回对角线向量
-	Vector2<T> Diagonal() const {
+	inline Vector2<T> Diagonal() const {
 		return (maxPoint - minPoint);
 	}
 
 	//求面积
-	T Area() const {
+	inline T Area() const {
 		Vector2<T> d = Diagonal();
 		return d.x * d.y;
 	}
 
 	//获取最大的边界
-	int MaximumExtent() const {
+	inline int MaximumExtent() const {
 		Vector2<T> diag = Diagonal();
 		if (diag.x > diag.y)
 			return 0;
@@ -982,14 +984,14 @@ public:
 			return 1;
 	}
 
-	bool operator==(const Bound2<T>& b) const {
+	inline bool operator==(const Bound2<T>& b) const {
 		if (minPoint == b.minPoint && maxPoint == b.maxPoint) {
 			return true;
 		}
 		return false;
 	}
 
-	bool operator!=(const Bound2<T>& b) const {
+	inline bool operator!=(const Bound2<T>& b) const {
 		if (minPoint != b.minPoint || maxPoint != b.maxPoint) {
 			return true;
 		}
@@ -997,7 +999,7 @@ public:
 	}
 
 	//获得包围圆
-	void BoundingSphere(Point2<T>*c, Float* r) const {
+	inline void BoundingSphere(Point2<T>*c, Float* r) const {
 		*c = (minPoint + maxPoint) / 2;
 		if (Inside(*c, *this)) {
 			*r = Distance(*c, maxPoint);
@@ -1007,8 +1009,8 @@ public:
 	}
 
 	//重构ostream方法
-	friend std::ostream &operator<<(std::ostream &os, const Bound2<T> &n) {
-		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
+	inline friend std::ostream &operator<<(std::ostream &os, const Bound2<T> &n) {
+		os << "< " << n.minPoint << " , " << n.maxPoint << " >";
 		return os;
 	}
 
@@ -1016,42 +1018,43 @@ public:
 typedef Bound2<Float> Bound2f;
 typedef Bound2<int> Bound2i;
 
+//Bound2i的向前迭代器
 #include <iterator>
 class Bound2iIterator: public std::forward_iterator_tag {
 public:
-	Bound2iIterator(const Bound2i &b, const Point2i &pt) :
-			p(pt), bounds(&b) {
+	inline Bound2iIterator(const Bound2i &b, const Point2i &pt) :
+			_p(pt), _bounds(&b) {
 	}
-	Bound2iIterator operator++() {
+	inline Bound2iIterator operator++() {
 		advance();
 		return *this;
 	}
-	Bound2iIterator operator++(int) {
+	inline Bound2iIterator operator++(int) {
 		Bound2iIterator old = *this;
 		advance();
 		return old;
 	}
-	bool operator==(const Bound2iIterator &bi) const {
-		return p == bi.p && bounds == bi.bounds;
+	inline bool operator==(const Bound2iIterator &bi) const {
+		return _p == bi._p && _bounds == bi._bounds;
 	}
-	bool operator!=(const Bound2iIterator &bi) const {
-		return p != bi.p || bounds != bi.bounds;
+	inline bool operator!=(const Bound2iIterator &bi) const {
+		return _p != bi._p || _bounds != bi._bounds;
 	}
 
-	Point2i operator*() const {
-		return p;
+	inline Point2i operator*() const {
+		return _p;
 	}
 
 private:
-	void advance() {
-		++p.x;
-		if (p.x == bounds->maxPoint.x) {
-			p.x = bounds->minPoint.x;
-			++p.y;
+	inline void advance() {
+		++_p.x;
+		if (_p.x == _bounds->maxPoint.x) {
+			_p.x = _bounds->minPoint.x;
+			++_p.y;
 		}
 	}
-	Point2i p;
-	const Bound2i *bounds;
+	Point2i _p;
+	const Bound2i *_bounds;
 };
 
 inline Bound2iIterator begin(const Bound2i &b) {
@@ -1067,7 +1070,7 @@ inline Bound2iIterator end(const Bound2i &b) {
 
 //AABB和point之间的合并
 template<typename T>
-Bound3<T> Union(const Bound3<T>& b, const Point3<T> p) {
+inline Bound3<T> Union(const Bound3<T>& b, const Point3<T> p) {
 	// return Bound3<T>(
 	// 		Point3<T>(std::min(b.minPoint.x, p.x), std::min(b.minPoint.y, p.y),
 	// 				std::min(b.minPoint.z, p.z)),
@@ -1080,7 +1083,7 @@ Bound3<T> Union(const Bound3<T>& b, const Point3<T> p) {
 }
 //AABB和AABB之间的合并
 template<typename T>
-Bound3<T> Union(const Bound3<T>& b, const Bound3<T>& b2) {
+inline Bound3<T> Union(const Bound3<T>& b, const Bound3<T>& b2) {
 	// return Bound3<T>(
 	// 		Point3<T>(std::min(b.minPoint.x, b2.minPoint.x),
 	// 				std::min(b.minPoint.y, b2.minPoint.y),
@@ -1096,7 +1099,7 @@ Bound3<T> Union(const Bound3<T>& b, const Bound3<T>& b2) {
 
 //AABB盒之间的交集
 template<typename T>
-Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
+inline Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
 	// return Bound3<T>(
 	// 		Point3<T>(std::max(b.minPoint.x, b2.minPoint.x),
 	// 				std::max(b.minPoint.y, b2.minPoint.y),
@@ -1105,7 +1108,7 @@ Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
 	// 				std::min(b.maxPoint.y, b2.maxPoint.y),
 	// 				std::min(b.maxPoint.z, b2.maxPoint.z)));
 	//这里要修正一个BUG，不能直接传到构造器中,因为构造器会自动判断两个参数的最大最小分量，并以此构造正确的Bound
-	//而我们这里需要非法的Bound
+	//而我们这里需要"非法"的Bound
 	//具体细节查看Pbrt的git
 	Bound3<T> ret;
 	ret.maxPoint=Min(b.maxPoint,b2.maxPoint);
@@ -1114,13 +1117,15 @@ Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
 }
 
 template<typename T>
-Bound2<T> Intersect(const Bound2<T>& b, const Bound2<T>& b2) {
+inline Bound2<T> Intersect(const Bound2<T>& b, const Bound2<T>& b2) {
 	// return Bound2<T>(
 	// 		Point2<T>(std::max(b.minPoint.x, b2.minPoint.x),
 	// 				std::max(b.minPoint.y, b2.minPoint.y)),
 	// 		Point2<T>(std::min(b.maxPoint.x, b2.maxPoint.x),
 	// 				std::min(b.maxPoint.y, b2.maxPoint.y)));
-
+	//这里要修正一个BUG，不能直接传到构造器中,因为构造器会自动判断两个参数的最大最小分量，并以此构造正确的Bound
+	//而我们这里需要"非法"的Bound
+	//具体细节查看Pbrt的git
 	Bound2<T> ret;
 	ret.maxPoint=Min(b.maxPoint,b2.maxPoint);
 	ret.minPoint=Max(b.minPoint,b2.minPoint);
@@ -1129,7 +1134,7 @@ Bound2<T> Intersect(const Bound2<T>& b, const Bound2<T>& b2) {
 
 //判断两个AABB盒是否重叠
 template<typename T>
-bool Overlap(const Bound3<T> &b1, const Bound3<T> &b2) {
+inline bool Overlap(const Bound3<T> &b1, const Bound3<T> &b2) {
 	bool x = (b1.maxPoint.x >= b2.minPoint.x)
 			&& (b1.minPoint.x <= b2.maxPoint.x);
 	bool y = (b1.maxPoint.y >= b2.minPoint.y)
@@ -1141,7 +1146,7 @@ bool Overlap(const Bound3<T> &b1, const Bound3<T> &b2) {
 
 //判断一个点是否在AABB中
 template<typename T>
-bool Inside(const Point3<T>& p, const Bound3<T> &b) {
+inline bool Inside(const Point3<T>& p, const Bound3<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x <= b.maxPoint.x;
 	bool y = p.y >= b.minPoint.y && p.y <= b.maxPoint.y;
 	bool z = p.z >= b.minPoint.z && p.z <= b.maxPoint.z;
@@ -1150,7 +1155,7 @@ bool Inside(const Point3<T>& p, const Bound3<T> &b) {
 
 //判断一个点是否在AABB中,不包括上边界
 template<typename T>
-bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
+inline bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x < b.maxPoint.x;
 	bool y = p.y >= b.minPoint.y && p.x < b.maxPoint.y;
 	bool z = p.z >= b.minPoint.z && p.z < b.maxPoint.z;
@@ -1159,7 +1164,7 @@ bool InsideExclusive(const Point3<T>& p, const Bound3<T> &b) {
 
 //判断一个点是否在RECT中
 template<typename T>
-bool Inside(const Point2<T>& p, const Bound2<T> &b) {
+inline bool Inside(const Point2<T>& p, const Bound2<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x <= b.maxPoint.x;
 	bool y = p.y >= b.minPoint.y && p.y <= b.maxPoint.y;
 	return (x && y);
@@ -1167,7 +1172,7 @@ bool Inside(const Point2<T>& p, const Bound2<T> &b) {
 
 //判断一个点是否在RECT中,不包括上边界
 template<typename T>
-bool InsideExclusive(const Point2<T>& p, const Bound2<T> &b) {
+inline bool InsideExclusive(const Point2<T>& p, const Bound2<T> &b) {
 	bool x = p.x >= b.minPoint.x && p.x < b.maxPoint.x;
 	bool y = p.y >= b.minPoint.y && p.y < b.maxPoint.y;
 	return (x && y);
@@ -1175,7 +1180,7 @@ bool InsideExclusive(const Point2<T>& p, const Bound2<T> &b) {
 
 //扩充AABB,各个维都扩充delta分量
 template<typename T>
-Bound3<T> Expand(const Bound3<T>& b, T delta) {
+inline Bound3<T> Expand(const Bound3<T>& b, T delta) {
 	Bound3<T> result;
 	result.minPoint = b.minPoint + Vector3<T>(-delta, -delta, -delta);
 	result.maxPoint = b.maxPoint + Vector3<T>(delta, delta, delta);
