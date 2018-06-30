@@ -51,27 +51,20 @@ public:
 		Assert(!HasNaNs());
 	}
 
-	inline explicit Vector3(const Point3<T>& p):x(p.x),y(p.y),z(p.z){
+	template<typename T1>
+	inline explicit Vector3(const Point3<T1>& p):x(p.x),y(p.y),z(p.z){
 		Assert(!HasNaNs());
 	}
 
-	inline explicit Vector3(const Normal3<T>& n):x(n.x),y(n.y),z(n.z) {
+	template<typename T1>
+	inline explicit Vector3(const Normal3<T1>& n):x(n.x),y(n.y),z(n.z) {
 		Assert(!HasNaNs());
+	}	
+
+	template<typename T1> 
+	inline explicit operator Vector3<T1>() const{
+		return Vector3<T1>(x,y,z);
 	}
-
-	// //强制转换到Point3类型
-	// template <typename U>
-    // inline explicit operator Point3<U>() const {
-    //     return Point3<U>(x, y, z);
-    // }
-
-	// //强制转换到Normal3类型
-	// template <typename U>
-    // inline explicit operator Normal3<U>() const {
-    //     return Normal3<U>(x, y, z);
-    // }
-
-	
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
 #ifdef RAIDEN_DEBUG
 	inline Vector3(const Vector3<T>& v):x(v.x),y(v.y),z(v.z){
@@ -215,12 +208,19 @@ public:
 		Assert(!HasNaNs());
 	}
 
-	inline explicit Vector2(const Point2<T>& p):x(p.x),y(p.y){
+	template<typename T1>
+	inline explicit Vector2(const Point2<T1>& p):x(p.x),y(p.y){
 		Assert(!HasNaNs());
 	}
 
-	inline explicit Vector2(const Vector3<T>& v):x(v.x),y(v.y){
+	template<typename T1>
+	inline explicit Vector2(const Vector3<T1>& v):x(v.x),y(v.y){
 		Assert(!HasNaNs());
+	}
+
+	template<typename T1> 
+	inline explicit operator Vector2<T1>() const{
+		return Vector2<T1>(x,y);
 	}
 	
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
@@ -355,16 +355,14 @@ public:
 		Assert(!HasNaNs());
 	}
 
-    inline explicit Point3(const Vector3<T>& v):x(v.x),y(v.y),z(v.z){
+	template<typename T1>
+    inline explicit Point3(const Vector3<T1>& v):x(v.x),y(v.y),z(v.z){
         Assert(!HasNaNs());
     }
 
-	template<typename U> inline explicit operator Vector3<U>() const{
-		return Vector3<U>(x,y,z);
-	}
-
-	template<typename U> inline explicit operator Point3<U>() const{
-		return Point3<U>(x,y,z);
+	template<typename T1> 
+	inline explicit operator Point3<T1>() const{
+		return Point3<T1>(x,y,z);
 	}
 
 //这里默认的赋值函数和复制函数都不错，所以只在DEBUG模式下才需要自己定义，并且下断言来调试
@@ -507,18 +505,19 @@ public:
 		Assert(!HasNaNs());
 	}
 	
-	inline explicit Point2(const Vector2<T>& v):x(v.x),y(v.y){
+	template<typename T1>
+	inline explicit Point2(const Vector2<T1>& v):x(v.x),y(v.y){
 		Assert(!HasNaNs());
 	}
 
-	template <typename U>
-    inline explicit operator Point2<U>() const {
-        return Point2<U>(x, y);
-    }
+	template<typename T1>
+	inline explicit Point2(const Point3<T1>& v):x(v.x),y(v.y){
+		Assert(!HasNaNs());
+	}
 
-	template <typename U>
-    inline explicit operator Vector2<U>() const {
-        return Vector2<U>(x, y);
+	template <typename T1>
+    inline explicit operator Point2<T1>() const {
+        return Point2<T1>(x, y);
     }
 
 	#ifdef RAIDEN_DEBUG
@@ -658,24 +657,24 @@ public:
 		Assert(!HasNaNs());
 	}
 
-
-	inline explicit Normal3<T>(const Vector3<T>& v) :
+	template<typename T1>
+	inline explicit Normal3<T>(const Vector3<T1>& v) :
 			x(v.x), y(v.y), z(v.z) {
 		Assert(!HasNaNs());
 	}
 
 #ifdef RAIDEN_DEBUG
 	inline Normal3(const Normal3& nl) {
-		Assert(!nl.HasNaNs());
 		x = nl.x;
 		y = nl.y;
 		z = nl.z;
+		Assert(!HasNaNs());
 	}
 	inline Normal3<T>& operator=(const Normal3& nl) {
-		Assert(!nl.HasNaNs());
 		x = nl.x;
 		y = nl.y;
 		z = nl.z;
+		Assert(!HasNaNs());
 		return *this;
 	}
 #endif
@@ -688,10 +687,10 @@ public:
 	}
 
 	inline Normal3<T>& operator+=(const Normal3<T>& nl) {
-		Assert(!nl.HasNaNs());
 		x += nl.x;
 		y += nl.y;
 		z += nl.z;
+		Assert(!HasNaNs());
 		return *this;
 	}
 	inline Normal3<T> operator-(const Normal3<T>& n) const {
@@ -700,10 +699,10 @@ public:
 	}
 
 	inline Normal3<T> operator-=(const Normal3<T>& n) {
-		Assert(!n.HasNaNs());
 		x -= n.x;
 		y -= n.y;
 		z -= n.z;
+		Assert(!HasNaNs());
 		return *this;
 	}
 
@@ -725,18 +724,18 @@ public:
 	inline Normal3<T> operator/(U f) const {
 		Assert(!IsNaN(f));
 		Assert(f != 0);
-		float inv = 1.0f / f;
-		return Normal3<T>(x * inv, y * inv, z * inv);
+		float reciprocal = 1.0f / f;
+		return Normal3<T>(x * reciprocal, y * reciprocal, z * reciprocal);
 	}
 
 	template<typename U>
 	inline Normal3<T>& operator/=(U f) {
 		Assert(!IsNaN(f));
 		Assert(f != 0);
-		float inv = 1.0f / f;
-		x *= inv;
-		y *= inv;
-		z *= inv;
+		float reciprocal = 1.0f / f;
+		x *= reciprocal;
+		y *= reciprocal;
+		z *= reciprocal;
 		return *this;
 	}
 
@@ -795,10 +794,10 @@ public:
 	Bound3() {
 		//默认构造函数最小点取最大值，最大点取最小值
 		//PBRT_V2中是取了float的两个无限值
-		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
+		T mreciprocalalue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
 		T maxValue = std::numeric_limits<T>::max();
 		minPoint = Point3<T>(maxValue, maxValue, maxValue);
-		maxPoint = Point3<T>(minValue, minValue, minValue);
+		maxPoint = Point3<T>(mreciprocalalue, mreciprocalalue, mreciprocalalue);
 	}
 	Bound3(const Point3<T>& p) :
 			minPoint(p), maxPoint(p) {
@@ -898,7 +897,7 @@ public:
 	//射线求角
 	bool IntersectP(const Ray& ray,Float* tHit1=nullptr,Float *tHit2=nullptr) const;
 
-	inline bool IntersectP(const Ray& ray, const Vector3f& invDir, const int isNeg[3]) const;
+	inline bool IntersectP(const Ray& ray, const Vector3f& reciprocalDir, const int isNeg[3]) const;
 	//重构ostream方法
 	friend std::ostream &operator<<(std::ostream &os, const Bound3<T> &n) {
 		os << "[" << n.minPoint << " , " << n.maxPoint << "]";
@@ -921,10 +920,10 @@ public:
 	Bound2() {
 		//默认构造函数最小点取最大值，最大点取最小值
 		//PBRT_V2中是取了float的两个无限值
-		T minValue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
+		T mreciprocalalue = std::numeric_limits<T>::lowest();//lowest是带符号最小的浮点数 min是不带符号最小的浮点数，不包括0
 		T maxValue = std::numeric_limits<T>::max();
 		minPoint = Point2<T>(maxValue, maxValue);
-		maxPoint = Point2<T>(minValue, minValue);
+		maxPoint = Point2<T>(mreciprocalalue, mreciprocalalue);
 	}
 	Bound2(const Point2<T>& p) :
 			minPoint(p), maxPoint(p) {
@@ -1404,11 +1403,11 @@ template<typename T>
 inline void CoordinateSystem(const Vector3<T>& V, Vector3<T>* VT,
 		Vector3<T>* VB) {
 	if (std::abs(V.x) > std::abs(V.y)) {
-		Float inv = 1.0f / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
-		(*VT) = Vector3<T>(-V.z * inv, 0, V.x * inv);
+		Float reciprocal = 1.0f / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
+		(*VT) = Vector3<T>(-V.z * reciprocal, 0, V.x * reciprocal);
 	} else {
-		Float inv = 1.0f / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
-		(*VT) = Vector3<T>(0, -V.z * inv, V.y * inv);
+		Float reciprocal = 1.0f / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
+		(*VT) = Vector3<T>(0, -V.z * reciprocal, V.y * reciprocal);
 	}
 	(*VB) = Cross(V, *VT);
 }
@@ -1612,9 +1611,9 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) cons
 	Float t1=ray.tMax;
 	for(int i=0;i<3;++i){
 		//通过简化求交方程式，可以得到t=(x-ox)/dx
-		Float invD=1.0/ray.d[i];
-		Float tNear=(minPoint[i]-ray.o[i])*invD;
-		Float tFar=(maxPoint[i]-ray.o[i])*invD;
+		Float reciprocalD=1.0/ray.d[i];
+		Float tNear=(minPoint[i]-ray.o[i])*reciprocalD;
+		Float tFar=(maxPoint[i]-ray.o[i])*reciprocalD;
 		if(tNear>tFar){
 			std::swap(tNear,tFar);
 		}
@@ -1646,14 +1645,14 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) cons
 
 
 template<typename T>
-inline bool Bound3<T>::IntersectP(const Ray& ray,const Vector3f& invDir,const int isNeg[3]) const {
+inline bool Bound3<T>::IntersectP(const Ray& ray,const Vector3f& reciprocalDir,const int isNeg[3]) const {
 	const Bound3<T>& b = *this;
 	//求与yz平面的交点参数
-	Float tMinX= (b[isNeg[0]].x - ray.o.x)*invDir.x;
-	Float tMaxX= (b[1-isNeg[0]].x - ray.o.x)*invDir.x;
+	Float tMinX= (b[isNeg[0]].x - ray.o.x)*reciprocalDir.x;
+	Float tMaxX= (b[1-isNeg[0]].x - ray.o.x)*reciprocalDir.x;
 	//求与xz平面的交点参数
-	Float tMinY = (b[isNeg[1]].y - ray.o.y)*invDir.y;
-	Float tMaxY = (b[1 - isNeg[1]].y - ray.o.y)*invDir.y;
+	Float tMinY = (b[isNeg[1]].y - ray.o.y)*reciprocalDir.y;
+	Float tMaxY = (b[1 - isNeg[1]].y - ray.o.y)*reciprocalDir.y;
 
 	//误差
 	tMaxX = tMaxX*(1 + 2 * gamma(3));
@@ -1671,8 +1670,8 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,const Vector3f& invDir,const in
 	}
 
 	//求与xy平面的交点参数
-	Float tMinZ = (b[isNeg[2]].z - ray.o.z)*invDir.z;
-	Float tMaxZ = (b[1 - isNeg[2]].z - ray.o.z)*invDir.z;
+	Float tMinZ = (b[isNeg[2]].z - ray.o.z)*reciprocalDir.z;
+	Float tMaxZ = (b[1 - isNeg[2]].z - ray.o.z)*reciprocalDir.z;
 
 	//误差
 	tMaxZ = tMaxZ*(1 + 2 * gamma(3));
