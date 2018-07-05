@@ -378,7 +378,7 @@ Spectrum ConnectBDPT(const Scene& scene,Vertex* lightVertices,Vertex* cameraVert
 	
 	if (!L.IsBlack()) {
 		Float mis=MISWeight(scene, lightVertices, cameraVertices,s,t,sampled,lightDistri,lightToIndex);
-		assert(!IsNaN(mis));
+		Assert(!IsNaN(mis));
 		L = L*mis;
 	}
 
@@ -493,7 +493,7 @@ void BDPTIntegrator::Render(const Scene& scene){
 				//遍历所有的SubPath顶点，并且计算相应的连接下的FullPath的贡献
 				//相机不需要考虑t==0的情况，因为不考虑LightPath的EndPoint是Lens的情况
 				Spectrum L(0);
-				Point2f raster;
+				Point2f raster=filmPos;
 				for (int t = 1; t <= nCamera; ++t) {
 					for (int s = 0; s <= nLight; ++s) {
 						//TODO 和PT的Depth貌似有区别，需要再研究研究  
