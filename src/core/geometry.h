@@ -724,7 +724,7 @@ public:
 	inline Normal3<T> operator/(U f) const {
 		Assert(!IsNaN(f));
 		Assert(f != 0);
-		float reciprocal = 1.0f / f;
+		Float reciprocal = 1.0 / f;
 		return Normal3<T>(x * reciprocal, y * reciprocal, z * reciprocal);
 	}
 
@@ -732,7 +732,7 @@ public:
 	inline Normal3<T>& operator/=(U f) {
 		Assert(!IsNaN(f));
 		Assert(f != 0);
-		float reciprocal = 1.0f / f;
+		Float reciprocal = 1.0 / f;
 		x *= reciprocal;
 		y *= reciprocal;
 		z *= reciprocal;
@@ -1196,8 +1196,8 @@ public:
 	Float time; //曝光时间相关
 	const Medium* medium;//射线所在的介质
 public:
-	Ray(const Point3f& oo, const Vector3f& dd, float tmax = Infinity, Float t =
-			0.0f,const Medium* medium=nullptr) :
+	Ray(const Point3f& oo, const Vector3f& dd, Float tmax = Infinity, Float t =
+			0.0,const Medium* medium=nullptr) :
 			o(oo), d(dd), tMax(tmax), time(t), medium(medium){
 		Assert(!HasNaNs());
 	}
@@ -1232,7 +1232,7 @@ public:
 		hasDifferential = false;	//默认没有微分信息
 	}
 	RayDifferential(const Point3f& oo, const Vector3f& dd,
-			float tmax = Infinity, Float t = 0.0f, const Medium* medium = nullptr) :
+			Float tmax = Infinity, Float t = 0.0, const Medium* medium = nullptr) :
 			Ray(oo, dd, tmax, t, medium) {
 		Assert(!HasNaNs());
 		hasDifferential = false;
@@ -1408,10 +1408,10 @@ template<typename T>
 inline void CoordinateSystem(const Vector3<T>& V, Vector3<T>* VT,
 		Vector3<T>* VB) {
 	if (std::abs(V.x) > std::abs(V.y)) {
-		Float reciprocal = 1.0f / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
+		Float reciprocal = 1.0 / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
 		(*VT) = Vector3<T>(-V.z * reciprocal, 0, V.x * reciprocal);
 	} else {
-		Float reciprocal = 1.0f / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
+		Float reciprocal = 1.0 / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
 		(*VT) = Vector3<T>(0, -V.z * reciprocal, V.y * reciprocal);
 	}
 	(*VB) = Cross(V, *VT);
