@@ -82,6 +82,11 @@ static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 #define LInfo LOG(INFO)
 #define LDebug DLOG(INFO)
 
+//命名空间
+#define RAIDEN_NAMESPACE_BEGIN namespace raiden{
+#define RAIDEN_NAMESPACE_END   };	
+
+
 static constexpr Float Pi = 3.14159265358979323846;
 static constexpr Float InvPi = 0.31830988618379067154;
 static constexpr Float Inv2Pi = 0.15915494309189533577;
@@ -378,6 +383,6 @@ inline int Log2Int(uint32_t v) {
 	return 31 - __builtin_clz(v);
 #endif
 }
-	
+
 
 #endif /* SRC_CORE_RAIDEN_H_ */
