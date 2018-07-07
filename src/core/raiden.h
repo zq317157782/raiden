@@ -40,15 +40,10 @@ SOFTWARE.
 #include <string>
 #include <assert.h>
 #include <thread>
-#include "port.h"
-
+#include "platform.h"
 #include "glog/logging.h"
 
 #include "config.h"
-
-#ifdef _WIN32
-	#include <intrin.h>
-#endif
 
 //定义一个Float宏 可能指向float可能指向double
 #ifdef RAIDEN_DOUBLE_PRECISION

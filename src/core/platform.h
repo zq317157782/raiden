@@ -1,12 +1,13 @@
+
 /*
  * port.h
  *
- *  Created on: 2016年12月14日
+ *  Created on: 2018年7月7日
  *      Author: zhuqian
  */
 
-#ifndef SRC_CORE_PORT_H_
-#define SRC_CORE_PORT_H_
+#ifndef SRC_CORE_PLATFORM_H_
+#define SRC_CORE_PLATFORM_H_
 
 #if defined(__APPLE__)
 	#define IS_OSX  //是OSX操作系统
@@ -44,9 +45,8 @@
 	#endif // COMPILER_MS
 #endif // IS_WIN
 
+#ifdef _WIN32
+	#include <intrin.h>
+#endif
 
-
-
-
-
-#endif /* SRC_CORE_PORT_H_ */
+#endif /* SRC_CORE_PLATFORM_H_ */
