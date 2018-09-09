@@ -4,7 +4,7 @@
  *  Created on: 2016年12月16日
  *      Author: zhuqian
  */
-#include <materials/glass.h>
+
 #include "api.h"
 #include <map>
 #include "transform.h"
@@ -45,6 +45,7 @@
 #include "textures/imagemap.h"
 #include "textures/uv.h"
 #include "materials/lambertian.h"
+#include "materials/glass.h"
 #include "materials/mirror.h"
 #include "materials/matte.h"
 #include "materials/metal.h"
