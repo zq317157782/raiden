@@ -102,4 +102,19 @@ inline Quaternion Normalize(const Quaternion& p){
 	return p/std::sqrt(Dot(p,p));
 }
 
+//Spherical Linear Interpolate
+Quaternion Slerp(Float t,const Quaternion& q1,const Quaternion& q2){
+	//1.首先求两个四元数之间的cos值
+	Float cosTheta=Clamp(Dot(q1,q2),-1,1);//保证数值在[-1~1]之间
+	//2.如果两个四元数之间几乎平行，则采用线性插值
+	if(cosTheta>0.9995f){
+		return (1-t)*q1+t*q2;
+	}else{
+		//3.不然得话，使用Slerp
+		Float theta=std::acos(cosTheta);
+		theta=t*theta;
+		Quaternion qperp=Normalize(q2-cosTheta*q1);//求q2的垂直分量向量
+		return q1*std::cos(theta)+qperp*std::sin(theta);
+	}
+}
 #endif//SRC_CORE_QUATERNION_H_

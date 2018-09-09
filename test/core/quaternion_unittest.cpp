@@ -60,3 +60,12 @@ TEST(Quaternion,Normalize){
   auto q2=Normalize(q1);
   EXPECT_EQ(q2,Quaternion(0.5,0.5,0.5,0.5));
 }
+
+TEST(Quaternion,Slerp){
+  Quaternion q1(0,0,0,1);//绕x轴旋转0度
+  Quaternion q2(1,0,0,0);//绕x轴旋转180度
+  auto q3=Slerp(0.5,q1,q2);//绕x轴旋转90度
+  
+
+  EXPECT_EQ(q3,Quaternion(std::sin(Pi/4)*Vector3f(1,0,0),std::cos(Pi/4)));
+}
