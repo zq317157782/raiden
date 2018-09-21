@@ -112,7 +112,9 @@ public:
 		m[3][2] = 0;
 		m[3][3] = 1;
 
-		Transform tran(m);
+		//上述计算的是右手坐标系下的矩阵，我们需要转换到左手坐标系
+		//有因为矩阵是正交矩阵，逆等于转置
+		Transform tran(Transpose(m),m);
 		return m;
 
 	}
