@@ -1,5 +1,6 @@
 #include "raiden.h"
 #include "quaternion.h"
+#include "transform.h"
 #include "gtest.h"
 
 TEST(Quaternion,Plus){
@@ -68,4 +69,14 @@ TEST(Quaternion,Slerp){
   
 
   EXPECT_EQ(q3,Quaternion(std::sin(Pi/4)*Vector3f(1,0,0),std::cos(Pi/4)));
+}
+
+TEST(Quaternion, ToTransform) {
+	Quaternion q1(1, 0, 0, 0);//绕x轴旋转180度
+	Transform t = q1.ToTransform();
+	Matrix4x4 mat = t.GetMatrix();
+	EXPECT_EQ(mat.m[1][1], -1);
+	EXPECT_EQ(mat.m[1][2], 0);
+	EXPECT_EQ(mat.m[2][1], 0);
+	EXPECT_EQ(mat.m[2][2], -1);
 }

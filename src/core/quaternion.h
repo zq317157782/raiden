@@ -4,7 +4,7 @@
 
 #include "raiden.h"
 #include "geometry.h"
-
+#include "transform.h"
 //4元数
 class Quaternion{
 public:
@@ -86,6 +86,35 @@ public:
 	inline friend std::ostream &operator<<(std::ostream &os, const Quaternion &q) {
 		os << "[ " << q.v.x << " , " << q.v.y << " , " << q.v.z <<" , " <<q.w<<" ]";
 		return os;
+	}
+
+	//从四元数到Transform的转换
+	Transform ToTransform() const{
+		Float m[4][4];
+		
+		m[0][0] = 1 - 2 * (v.y*v.y+ v.z*v.z);
+		m[0][1] = 2 * (v.x*v.y + v.z*w);
+		m[0][2] = 2 * (v.x*v.z - v.y*w);
+		m[0][3] = 0;
+
+		m[1][0] = 2 * (v.x*v.y - v.z*w);
+		m[1][1] = 1 - 2 * (v.x*v.x + v.z*v.z);
+		m[1][2] = 2 * (v.y*v.z + v.x*w);
+		m[1][3] = 0;
+
+		m[2][0] = 2 * (v.x*v.z + v.y*w);
+		m[2][1] = 2 * (v.y*v.z + v.x*w);
+		m[2][2] = 1 - 2 * (v.x*v.x + v.y*v.y);
+		m[2][3] = 1;
+
+		m[3][0] = 0;
+		m[3][1] = 0;
+		m[3][2] = 0;
+		m[3][3] = 1;
+
+		Transform tran(m);
+		return m;
+
 	}
 };
 
