@@ -32,6 +32,9 @@ add_subdirectory(lodepng)
 
 if(RAIDEN_UNITTEST)
   #编译gtest
+  set(gtest_force_shared_crt ON)
+  set(BUILD_GMOCK OFF)
+  set(BUILD_GTEST ON)
   add_subdirectory(googletest)
 endif(RAIDEN_UNITTEST)
 
