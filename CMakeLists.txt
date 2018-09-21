@@ -15,25 +15,27 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #使用MSVC的编译器的时候需要设置下
-if(MSVC)     
-    # Use the static C library for all build types
-    foreach(var 
-        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
-      )
-      if(${var} MATCHES "/MDd")
-        string(REGEX REPLACE "/MDd" "/MD" ${var} "${${var}}")
-      endif()
-    endforeach()    
-endif(MSVC)
+#if(MSVC)     
+#    # Use the static C library for all build types
+#    foreach(var 
+#        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+#        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+#        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+#        CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+#      )
+#      if(${var} MATCHES "/MDd")
+#        string(REGEX REPLACE "/MDd" "/MD" ${var} "${${var}}")
+#      endif()
+#    endforeach()    
+#endif(MSVC)
 
 
 #设置的参数
 option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
 option (RAIDEN_FLOAT_PRECISION "Use float precision float number" ON)
-option (RAIDEN_UNITTEST "Run unittest cases" OFF)
+option (RAIDEN_UNITTEST "Run unittest cases" ON)
+MESSAGE(STATUS "Unit Test:" ${RAIDEN_UNITTEST})
+
 # 加入一个配置头文件，用于处理 CMake 对源码的设置
 configure_file (
   "${PROJECT_SOURCE_DIR}/config.h.in"
@@ -89,7 +91,7 @@ if(RAIDEN_UNITTEST)
 endif(RAIDEN_UNITTEST)
 
 if (WIN32)
-    set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
+    #set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
     set(GETOPT_LIB ${CMAKE_CURRENT_SOURCE_DIR}/external/getopt/wingetopt.lib)
     target_link_libraries(${RAIDEN} ${GETOPT_LIB})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/getopt)
