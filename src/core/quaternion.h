@@ -90,35 +90,31 @@ public:
 
 	//从四元数到Transform的转换
 	Transform ToTransform() const{
-
 		
+		Matrix4x4 m;		
+		m.m[0][0] = 1 - 2 * (v.y*v.y+ v.z*v.z);
+		m.m[0][1] = 2 * (v.x*v.y + v.z*w);
+		m.m[0][2] = 2 * (v.x*v.z - v.y*w);
+		m.m[0][3] = 0;
 
-		Float m[4][4];
+		m.m[1][0] = 2 * (v.x*v.y - v.z*w);
+		m.m[1][1] = 1 - 2 * (v.x*v.x + v.z*v.z);
+		m.m[1][2] = 2 * (v.y*v.z + v.x*w);
+		m.m[1][3] = 0;
+
+		m.m[2][0] = 2 * (v.x*v.z + v.y*w);
+		m.m[2][1] = 2 * (v.y*v.z + v.x*w);
+		m.m[2][2] = 1 - 2 * (v.x*v.x + v.y*v.y);
+		m.m[2][3] = 1;
+
+		m.m[3][0] = 0;
+		m.m[3][1] = 0;
+		m.m[3][2] = 0;
+		m.m[3][3] = 1;
 		
-		m[0][0] = 1 - 2 * (v.y*v.y+ v.z*v.z);
-		m[0][1] = 2 * (v.x*v.y + v.z*w);
-		m[0][2] = 2 * (v.x*v.z - v.y*w);
-		m[0][3] = 0;
-
-		m[1][0] = 2 * (v.x*v.y - v.z*w);
-		m[1][1] = 1 - 2 * (v.x*v.x + v.z*v.z);
-		m[1][2] = 2 * (v.y*v.z + v.x*w);
-		m[1][3] = 0;
-
-		m[2][0] = 2 * (v.x*v.z + v.y*w);
-		m[2][1] = 2 * (v.y*v.z + v.x*w);
-		m[2][2] = 1 - 2 * (v.x*v.x + v.y*v.y);
-		m[2][3] = 1;
-
-		m[3][0] = 0;
-		m[3][1] = 0;
-		m[3][2] = 0;
-		m[3][3] = 1;
-		
-		Matrix4x4 mat(m);
 		//上述计算的是右手坐标系下的矩阵，我们需要转换到左手坐标系
 		//有因为矩阵是正交矩阵，逆等于转置
-		Transform tran(Transpose(mat),mat);
+		Transform tran(Transpose(m),m);
 		return tran;
 	}
 };
