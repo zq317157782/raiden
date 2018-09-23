@@ -90,6 +90,9 @@ public:
 
 	//从四元数到Transform的转换
 	Transform ToTransform() const{
+
+		
+
 		Float m[4][4];
 		
 		m[0][0] = 1 - 2 * (v.y*v.y+ v.z*v.z);
@@ -111,12 +114,12 @@ public:
 		m[3][1] = 0;
 		m[3][2] = 0;
 		m[3][3] = 1;
-
+		
+		Matrix4x4 mat(m);
 		//上述计算的是右手坐标系下的矩阵，我们需要转换到左手坐标系
 		//有因为矩阵是正交矩阵，逆等于转置
-		Transform tran(Transpose(m),m);
-		return m;
-
+		Transform tran(Transpose(mat),mat);
+		return tran;
 	}
 };
 
