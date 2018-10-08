@@ -58,11 +58,7 @@ class IsotropyBeckmannDistribution:public MicrofacetDistribution{
 		IsotropyBeckmannDistribution(Float alpha):_alpha(alpha){}
 		Float D(const Vector3f &wh) const override;
 
-		Float Lambda(const Vector3f &w) const override{
-			LError << "IsotropyBeckmannDistribution::Lambda is not implemented!!!";
-			exit(-1);
-			return 0;
-		}
+		Float Lambda(const Vector3f &w) const override;
 		//采样GGX的半角向量
 		Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override;
 };

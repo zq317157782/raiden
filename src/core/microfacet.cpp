@@ -32,6 +32,20 @@ Float IsotropyBeckmannDistribution::D(const Vector3f &wh) const{
 	return std::exp((cosTheta2 - 1) / (alpha2*cosTheta2)) / (Pi*alpha2*cosTheta2*cosTheta2);
 }
 
+Float IsotropyBeckmannDistribution::Lambda(const Vector3f &w) const{
+	//这种东西真的是要靠科学家来推导出来，厉害厉害
+    Float absTanTheta=std::abs(TanTheta(w));
+    if(std::isinf(absTanTheta)){
+        return 0;
+    }
+    Float a=1/(_alpha*absTanTheta);
+    if(a>1.6){
+        return 0;
+    }
+    else{
+        return (1-1.259*a+0.396*a*a)/(3.535*a+2.181*a*a);
+    }
+}
 
 Vector3f IsotropyBeckmannDistribution::Sample_wh(const Vector3f &wo, const Point2f &u) const {
     
