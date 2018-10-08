@@ -10,6 +10,39 @@ Float GGXRoughnessToAlpha(Float roughness) {
 		0.000640711f * x * x * x * x;
 }
 
+Float IsotropyBeckmannDistribution::D(const Vector3f &wh) const{
+	//计算tan(theta)^2
+	Float tanTheta2=TanTheta2(wh);
+	//graze angle
+	if (std::isinf(tanTheta2)) {
+		return 0;
+	}
+	//代入公式
+	Float alpha2 = _alpha*_alpha;
+	Float cosTheta2 = CosTheta2(wh);
+	return std::exp(-tanTheta2 / alpha2) / (Pi*alpha2*cosTheta2*cosTheta2);
+}
+
+
+Vector3f IsotropyBeckmannDistribution::Sample_wh(const Vector3f &wo, const Point2f &u) const {
+    
+	Float logSample=std::log(u[0]);
+	if (std::isinf(logSample)) {
+		logSample = 0;
+	}
+	Float tanTheta2 = -(_alpha*_alpha)*logSample;
+	Float cosTheta = 1 / (std::sqrt(tanTheta2 + 1));
+	Float sinTheta = std::sqrt(std::max((Float)0.0, 1 - cosTheta*cosTheta));
+
+    Float phi=2*Pi*u[1];
+	Vector3f wh= SphericalDirection(sinTheta,cosTheta,phi);
+	//保证在同一个半球
+	if (!SameHemisphere(wo, wh)) {
+		wh = -wh;
+	}
+    return wh;
+}
+
 Float AnisotropyGGXDistribution::D(const Vector3f &wh) const {
     
     Float cosTheta=AbsCosTheta(wh);
@@ -94,6 +127,6 @@ Float IsotropyGGXDistribution::Lambda(const Vector3f &w) const {
  //这个是各项同性版本
  //PDF = D * COS(wh)
  //返回的是半角向量空间的
- Float IsotropyGGXDistribution::Pdf(const Vector3f &wo, const Vector3f &wh) const {
+ Float MicrofacetDistribution::Pdf(const Vector3f &wo, const Vector3f &wh) const {
 	 return D(wh)*AbsCosTheta(wh);
  }

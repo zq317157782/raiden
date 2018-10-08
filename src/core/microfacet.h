@@ -42,13 +42,30 @@ public:
 	
 	//根据样本点 采样半角向量
 	virtual Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const = 0;
-	virtual Float Pdf(const Vector3f &wo, const Vector3f &wh) const=0;
+	Float Pdf(const Vector3f &wo, const Vector3f &wh) const;
 	//virtual std::string ToString() const = 0;
 };
 
 
 //从粗糙度到alpha参数的转换的工具函数
 Float GGXRoughnessToAlpha(Float roughness);
+
+//Isotropy Beckmann
+class IsotropyBeckmannDistribution:public MicrofacetDistribution{
+	private:
+		Float _alpha;
+	public:
+		IsotropyBeckmannDistribution(Float alpha):_alpha(alpha){}
+		Float D(const Vector3f &wh) const override;
+
+		Float Lambda(const Vector3f &w) const override{
+			LError << "IsotropyBeckmannDistribution::Lambda is not implemented!!!";
+			exit(-1);
+			return 0;
+		}
+		//采样GGX的半角向量
+		Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override;
+};
 
 //GGX的各项异性版本
 class AnisotropyGGXDistribution:public MicrofacetDistribution{
@@ -62,16 +79,16 @@ public:
 	
 	//采样GGX的半角向量
 	Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override{
-		LError << "AnisotropyGGXDistribution::Sample_wh is implemented!!!";
+		LError << "AnisotropyGGXDistribution::Sample_wh is not implemented!!!";
 		exit(-1);
 		return Vector3f(0,0,0);
 	}
 
-	Float Pdf(const Vector3f &wo, const Vector3f &wh) const override {
-		LError << "AnisotropyGGXDistribution::Sample_wh is implemented!!!";
-		exit(-1);
-		return 0;
-	}
+	// Float Pdf(const Vector3f &wo, const Vector3f &wh) const override {
+	// 	LError << "AnisotropyGGXDistribution::Pdf is not implemented!!!";
+	// 	exit(-1);
+	// 	return 0;
+	// }
 };
 
 
@@ -85,7 +102,7 @@ public:
 	Float D(const Vector3f &wh) const override;
 	//采样GGX的半角向量
 	Vector3f Sample_wh(const Vector3f &wo, const Point2f &u) const override;
-	Float Pdf(const Vector3f &wo, const Vector3f &wh) const override;
+	//Float Pdf(const Vector3f &wo, const Vector3f &wh) const override;
 };
 
 
