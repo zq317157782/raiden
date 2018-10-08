@@ -11,16 +11,25 @@ Float GGXRoughnessToAlpha(Float roughness) {
 }
 
 Float IsotropyBeckmannDistribution::D(const Vector3f &wh) const{
-	//计算tan(theta)^2
-	Float tanTheta2=TanTheta2(wh);
-	//graze angle
-	if (std::isinf(tanTheta2)) {
+	//1.原始公式
+	////计算tan(theta)^2
+	//Float tanTheta2=TanTheta2(wh);
+	////graze angle
+	//if (std::isinf(tanTheta2)) {
+	//	return 0;
+	//}
+	////代入公式
+	//Float alpha2 = _alpha*_alpha;
+	//Float cosTheta2 = CosTheta2(wh);
+	//return std::exp(-tanTheta2 / alpha2) / (Pi*alpha2*cosTheta2*cosTheta2);
+
+	//2.简化公式
+	Float cosTheta2 = CosTheta2(wh);
+	if (cosTheta2 == 0) {
 		return 0;
 	}
-	//代入公式
 	Float alpha2 = _alpha*_alpha;
-	Float cosTheta2 = CosTheta2(wh);
-	return std::exp(-tanTheta2 / alpha2) / (Pi*alpha2*cosTheta2*cosTheta2);
+	return std::exp((cosTheta2 - 1) / (alpha2*cosTheta2)) / (Pi*alpha2*cosTheta2*cosTheta2);
 }
 
 
