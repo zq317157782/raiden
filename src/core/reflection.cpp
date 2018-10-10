@@ -71,7 +71,7 @@ Spectrum FrConductor(Float cosThetaI, const Spectrum &etai,
     Spectrum t0 = eta2 - etak2 - sinThetaI2;
     Spectrum a2plusb2 = Sqrt(t0 * t0 + 4 * eta2 * etak2);
     Spectrum t1 = a2plusb2 + cosThetaI2;
-    Spectrum a = Sqrt(0.5f * (a2plusb2 + t0));
+    Spectrum a = Sqrt(0.5 * (a2plusb2 + t0));
     Spectrum t2 = (Float)2 * cosThetaI * a;
     Spectrum Rs = (t1 - t2) / (t1 + t2);
 
@@ -79,7 +79,7 @@ Spectrum FrConductor(Float cosThetaI, const Spectrum &etai,
     Spectrum t4 = t2 * sinThetaI2;
     Spectrum Rp = Rs * (t3 - t4) / (t3 + t4);
 
-    return 0.5f * (Rp + Rs);
+    return 0.5 * (Rp + Rs);
 }
 
 Spectrum BxDF::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f &sample,
