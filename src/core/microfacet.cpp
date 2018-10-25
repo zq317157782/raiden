@@ -151,5 +151,6 @@ Float IsotropyGGXDistribution::Lambda(const Vector3f &w) const {
  //PDF = D * COS(wh)
  //返回的是半角向量空间的
  Float MicrofacetDistribution::Pdf(const Vector3f &wo, const Vector3f &wh) const {
+	 //其实这里就是可见法线分布函数,可以查阅Heiz的GREAT论文！
 	 return D(wh)*AbsCosTheta(wh);
  }
