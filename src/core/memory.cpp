@@ -18,6 +18,12 @@ void *AllocAligned(size_t size){
 	//Windows操作系统下并且使用MSC
 	//Assert(false);
 	return _aligned_malloc(size, L1_CACHE_LINE_SIZE);
+#else
+	void* ptr;
+	if(posix_memalign(&ptr,L1_CACHE_LINE_SIZE,size)!=0){
+		ptr=nullptr;
+	}
+	return ptr;
 #endif
 }
 
@@ -32,5 +38,7 @@ void FreeAligned(void * ptr){
 	//Windows操作系统下并且使用MSC
 	//Assert(false);
 	_aligned_free(ptr);
+#else
+	free(ptr);
 #endif
 }
