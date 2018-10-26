@@ -7,6 +7,7 @@
 #include "parallel.h"
 #include "geometry.h"
 #include "stats.h"
+#include <condition_variable>
 static std::vector<std::thread> threads; //线程池,存放工作线程
 static bool shutdownThreads = false;
 class ParallelForLoop;

@@ -38,6 +38,7 @@ SOFTWARE.
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <assert.h>
 #include <thread>
 #include "platform.h"
