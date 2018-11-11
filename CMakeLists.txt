@@ -1,9 +1,8 @@
-#cmake 最低版本要求
-cmake_minimum_required(VERSION 2.8.0)
+cmake_minimum_required(VERSION 3.0.0)
+project(raiden VERSION 0.1.0)
 
-#项目名 (雷電　ライデン)
-set(RAIDEN raiden)
-PROJECT (${RAIDEN})
+include(CTest)
+enable_testing()
 
 #Window下默认这个变量没有赋值，所以这里默认赋值成release
 if (WIN32)
@@ -11,29 +10,10 @@ if (WIN32)
 endif()
 
 MESSAGE(STATUS "CMAKE_BUILD_TYPE = " ${CMAKE_BUILD_TYPE})
+#设置输出目录
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
-
+#使用C++11的语言特征
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#使用MSVC的编译器的时候需要设置下
-#if(MSVC)     
-#    # Use the static C library for all build types
-#    foreach(var 
-#        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-#        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-#        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-#        CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
-#      )
-#      if(${var} MATCHES "/MDd")
-#        string(REGEX REPLACE "/MDd" "/MD" ${var} "${${var}}")
-#      endif()
-#    endforeach()    
-#endif(MSVC)
-
-
-if(MSVC) 
-    #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-    #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-endif(MSVC)
 
 #设置的参数
 option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
@@ -47,73 +27,131 @@ configure_file (
   "${PROJECT_BINARY_DIR}/config.h"
 )
 
-#设置源文件目录
-set(SOURCE_DIR src)
-#加入依赖库
-add_subdirectory(external)
-#添加头文件路径和库路径
-include_directories(${SOURCE_DIR})
-include_directories(${SOURCE_DIR}/core)
-include_directories(${OPENEXR_INCLUDE_DIRS})
-include_directories(${LUA_INCLUDE_DIRS})
-include_directories(${GLOG_INCLUDE_DIRS})
-include_directories(${LODEPNG_INCLUDE_DIRS})
+####依赖库的设置
+if(WIN32)
+  # 编译zlib (only on Windows)
+  # 需要给OpenEXR使用
+  set(ZLIB_BUILD_STATIC_LIBS ON CACHE BOOL " " FORCE)
+  set(ZLIB_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+  add_subdirectory(external/zlib)
+
+  set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH " " FORCE)
+  set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/${CMAKE_BUILD_TYPE}/zlibstatic.lib" CACHE FILEPATH " " FORCE)
+  #MESSAGE(${CMAKE_BUILD_TYPE})
+  set_property(TARGET zlibstatic PROPERTY FOLDER "dependencies")
+  include_directories(${ZLIB_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+endif()
+
+
+#编译OpenEXR 使用了Nori内的版本
+set(ILMBASE_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+set(OPENEXR_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+set(ILMBASE_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
+set(OPENEXR_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
+add_subdirectory(external/openexr)
+set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLibs IlmThread Half Iex Imath IlmImf PROPERTY FOLDER "dependencies")
+
+#编译Lua
+add_subdirectory(external/lua)
+
+#编译glog
+set(WITH_GFLAGS OFF)
+add_subdirectory(external/glog)
+
+#编译lodepng
+add_subdirectory(external/lodepng)
+
+if(RAIDEN_UNITTEST)
+  #编译gtest
+  set(gtest_force_shared_crt ON)
+  set(BUILD_GMOCK OFF)
+  set(BUILD_GTEST ON)
+  add_subdirectory(external/googletest)
+endif(RAIDEN_UNITTEST)
+
+
+#####包含头文件
+include_directories(src)
+include_directories(src/core)
+set(OPENEXR_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr/IlmBase/Imath 
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr/IlmBase/Iex 
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr/IlmBase/Half 
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr/OpenEXR/IlmImf 
+  ${CMAKE_CURRENT_BINARY_DIR}/external/openexr/OpenEXR/config 
+  ${CMAKE_CURRENT_BINARY_DIR}/external/openexr/IlmBase/config )
+include_directories(${OPENEXR_INCLUDE_DIRS})#openexr
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/lua/src)#lua
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/glog/src/glog)#glog
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng)#lodepng
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-
-
+if(RAIDEN_UNITTEST)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//googletest/googletest/include/gtest)
+endif(RAIDEN_UNITTEST)
 
 #设置源文件
-aux_source_directory(${SOURCE_DIR} RAIDEN_SRC)
-aux_source_directory(${SOURCE_DIR}/core RAIDEN_SRC_CORE)
-aux_source_directory(${SOURCE_DIR}/accelerators RAIDEN_SRC_ACCE)
-aux_source_directory(${SOURCE_DIR}/cameras RAIDEN_SRC_CAMERA)
-aux_source_directory(${SOURCE_DIR}/filters RAIDEN_SRC_FILTER)
-aux_source_directory(${SOURCE_DIR}/integrators RAIDEN_SRC_INTEGRATOR)
-aux_source_directory(${SOURCE_DIR}/lights RAIDEN_SRC_LIGHT)
-aux_source_directory(${SOURCE_DIR}/materials RAIDEN_SRC_MATERIAL)
-aux_source_directory(${SOURCE_DIR}/media RAIDEN_SRC_MEDIA)
-aux_source_directory(${SOURCE_DIR}/samplers RAIDEN_SRC_SAMPLER)
-aux_source_directory(${SOURCE_DIR}/shapes RAIDEN_SRC_SHAPE)
-aux_source_directory(${SOURCE_DIR}/textures RAIDEN_SRC_TEXTURE)
-aux_source_directory(${SOURCE_DIR}/binders RAIDEN_SRC_BINDER)
+aux_source_directory(src/core RAIDEN_SRC_CORE)
+aux_source_directory(src/accelerators RAIDEN_SRC_ACCE)
+aux_source_directory(src/cameras RAIDEN_SRC_CAMERA)
+aux_source_directory(src/filters RAIDEN_SRC_FILTER)
+aux_source_directory(src/integrators RAIDEN_SRC_INTEGRATOR)
+aux_source_directory(src/lights RAIDEN_SRC_LIGHT)
+aux_source_directory(src/materials RAIDEN_SRC_MATERIAL)
+aux_source_directory(src/media RAIDEN_SRC_MEDIA)
+aux_source_directory(src/samplers RAIDEN_SRC_SAMPLER)
+aux_source_directory(src/shapes RAIDEN_SRC_SHAPE)
+aux_source_directory(src/textures RAIDEN_SRC_TEXTURE)
+aux_source_directory(src/binders RAIDEN_SRC_BINDER)
 if(RAIDEN_UNITTEST)
     aux_source_directory(test/core RAIDEN_TEST_CORE)
 endif(RAIDEN_UNITTEST)
 
-set(SOURCE_FILE ${RAIDEN_SRC} ${RAIDEN_SRC_BINDER} ${RAIDEN_SRC_CORE} ${RAIDEN_SRC_ACCE} ${RAIDEN_SRC_CAMERA} ${RAIDEN_SRC_FILTER} ${RAIDEN_SRC_INTEGRATOR} ${RAIDEN_SRC_LIGHT} ${RAIDEN_SRC_MATERIAL} ${RAIDEN_SRC_MEDIA} ${RAIDEN_SRC_SAMPLER} ${RAIDEN_SRC_SHAPE} ${RAIDEN_SRC_TEXTURE} ${RAIDEN_TEST_CORE})
-#MESSAGE(STATUS ${SOURCE_FILE})
-add_executable(${RAIDEN} ${SOURCE_FILE})
+add_executable(raiden src/main.cpp 
+${RAIDEN_SRC_BINDER} 
+${RAIDEN_SRC_CORE} 
+${RAIDEN_SRC_ACCE} 
+${RAIDEN_SRC_CAMERA} 
+${RAIDEN_SRC_FILTER} 
+${RAIDEN_SRC_INTEGRATOR} 
+${RAIDEN_SRC_LIGHT} 
+${RAIDEN_SRC_MATERIAL} 
+${RAIDEN_SRC_MEDIA} 
+${RAIDEN_SRC_SAMPLER} 
+${RAIDEN_SRC_SHAPE} 
+${RAIDEN_SRC_TEXTURE} 
+${RAIDEN_TEST_CORE})
 
 #链接库
-target_link_libraries(${RAIDEN} glog)
-target_link_libraries(${RAIDEN} lua5.3.4)
-target_link_libraries(${RAIDEN} IlmImf)
-target_link_libraries(${RAIDEN} lodepng)
+target_link_libraries(raiden glog)
+target_link_libraries(raiden lua5.3.4)
+target_link_libraries(raiden IlmImf)
+target_link_libraries(raiden lodepng)
 if(RAIDEN_UNITTEST)
-  include_directories(${GTEST_INCLUDE_DIRS})
-  target_link_libraries(${RAIDEN} gtest)
+  target_link_libraries(raiden gtest)
 endif(RAIDEN_UNITTEST)
 
 if (WIN32)
     #set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
     set(GETOPT_LIB ${CMAKE_CURRENT_SOURCE_DIR}/external/getopt/wingetopt.lib)
-    target_link_libraries(${RAIDEN} ${GETOPT_LIB})
+    target_link_libraries(raiden ${GETOPT_LIB})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/getopt)
 endif()
 
-#复制必要的文件到必要的目录
-#add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/raiden.lua COMMAND ${CMAKE_COMMAND} -E copy ${RAIDEN_SRC_WRAPPER}/raiden.lua ${CMAKE_CURRENT_BINARY_DIR}/raiden.lua  DEPENDS ${RAIDEN_SRC_WRAPPER}/raiden.lua)
-
-add_custom_command(TARGET ${RAIDEN} POST_BUILD
+add_custom_command(TARGET raiden POST_BUILD
                   COMMAND ${CMAKE_COMMAND} -E copy
                   "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/raiden.lua"
                   "${CMAKE_CURRENT_BINARY_DIR}/raiden.lua")
-#工具们
+
 #objtolua
-aux_source_directory(${SOURCE_DIR}/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
+aux_source_directory(src/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
 set(OBJ_TO_LUA obj2lua)
-add_executable(${OBJ_TO_LUA} ${RAIDEN_SRC_OBJ_TO_LUA})
-if (WIN32)
-    set_target_properties(${OBJ_TO_LUA} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
-endif()
+add_executable(obj2lua ${RAIDEN_SRC_OBJ_TO_LUA})
+# if (WIN32)
+#     set_target_properties(obj2lua PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
+# endif()
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
+
+
