@@ -12,7 +12,7 @@ public:
 	Float    w;
 public:
 	Quaternion(Float i, Float j, Float k, Float ww):v(i,j,k),w(ww){
-
+		
 	}
 
 	Quaternion(const Vector3f& vv, Float ww) :v(vv), w(ww) {
@@ -91,6 +91,7 @@ public:
 	//从四元数到Transform的转换
 	Transform ToTransform() const{
 		
+		//基于RHS计算
 		Matrix4x4 m;		
 		m.m[0][0] = 1 - 2 * (v.y*v.y+ v.z*v.z);
 		m.m[0][1] = 2 * (v.x*v.y + v.z*w);
