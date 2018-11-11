@@ -86,7 +86,7 @@ void ConvertToLuaFile(const std::string& filename,const tinyobj::attrib_t& attri
 	std::string luaName = filename.substr(0, filename.size() - 4) + ".lua";
 	std::cout << "Convert "<< filename << " to " << luaName << std::endl;
 	//设置lua文件的输出流以及相应的设置
-	std::ofstream lua(luaName);
+	std::ofstream lua(luaName.c_str());
 	lua.setf(std::iostream::fixed, std::iostream::floatfield);
 	//这个变量是记录真正的Index的
 	uint32_t index = 0;
