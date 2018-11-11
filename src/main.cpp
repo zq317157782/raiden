@@ -20,11 +20,13 @@
 
 #include "api.h"
 #include "binders/luabinder.h"
+#include "binders/xmlbinder.h"
 static std::vector<std::unique_ptr<APIBinder>> binders;
 
 //初始化所有的binder
 static void Initbinders(){
     binders.push_back(std::unique_ptr<APIBinder>(new LuaBinder()));
+    binders.push_back(std::unique_ptr<APIBinder>(new XMLBinder()));
     for(int i=0;i<binders.size();++i){
         binders[i]->Init();
     }

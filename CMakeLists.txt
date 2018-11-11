@@ -84,6 +84,7 @@ include_directories(${OPENEXR_INCLUDE_DIRS})#openexr
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/lua/src)#lua
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/glog/src/glog)#glog
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng)#lodepng
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/pugixml)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if(RAIDEN_UNITTEST)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//googletest/googletest/include/gtest)
@@ -119,7 +120,8 @@ ${RAIDEN_SRC_MEDIA}
 ${RAIDEN_SRC_SAMPLER} 
 ${RAIDEN_SRC_SHAPE} 
 ${RAIDEN_SRC_TEXTURE} 
-${RAIDEN_TEST_CORE})
+${RAIDEN_TEST_CORE} 
+external/pugixml/pugixml.cpp)
 
 #链接库
 target_link_libraries(raiden glog)
