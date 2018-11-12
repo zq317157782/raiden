@@ -44,7 +44,7 @@ SOFTWARE.
 		"that you actually want a type with an extended alignment, or "
 		"(2) _DISABLE_EXTENDED_ALIGNED_STORAGE to silence this message and get the old non-conformant "
 		"behavior."*/
-#if defined(_WIN32)
+#if defined(_MSC_VER)
     #define _ENABLE_EXTENDED_ALIGNED_STORAGE
 #endif
 
