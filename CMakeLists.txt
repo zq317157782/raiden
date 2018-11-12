@@ -28,6 +28,7 @@ configure_file (
 )
 
 ####依赖库的设置
+#FIND_PACKAGE (ZLIB)
 if(WIN32)
   # 编译zlib (only on Windows)
   # 需要给OpenEXR使用
@@ -35,13 +36,14 @@ if(WIN32)
   set(ZLIB_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
   add_subdirectory(external/zlib)
 
-  set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH " " FORCE)
-  set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/${CMAKE_BUILD_TYPE}/zlibstatic.lib" CACHE FILEPATH " " FORCE)
+  set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/zlib" CACHE PATH " " FORCE)
+  
+  set(ZLIB_LIBRARY zlibstatic)
   #MESSAGE(${CMAKE_BUILD_TYPE})
-  set_property(TARGET zlibstatic PROPERTY FOLDER "dependencies")
-  include_directories(${ZLIB_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+  set_property(TARGET zlibstatic PROPERTY FOLDER "external")
+  include_directories(${ZLIB_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/external/zlib")
 endif()
-
+#message("+++" ${ZLIB_LIBRARY})
 
 #编译OpenEXR 使用了Nori内的版本
 set(ILMBASE_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
@@ -49,7 +51,7 @@ set(OPENEXR_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
 set(ILMBASE_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
 set(OPENEXR_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
 add_subdirectory(external/openexr)
-set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLibs IlmThread Half Iex Imath IlmImf PROPERTY FOLDER "dependencies")
+set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups  IlmThread Half Iex Imath IlmImf PROPERTY FOLDER "external")
 
 #编译Lua
 add_subdirectory(external/lua)
@@ -73,6 +75,7 @@ endif(RAIDEN_UNITTEST)
 #####包含头文件
 include_directories(src)
 include_directories(src/core)
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
 set(OPENEXR_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr/IlmBase/Imath 
   ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr/IlmBase/Iex 
@@ -126,7 +129,12 @@ external/pugixml/pugixml.cpp)
 #链接库
 target_link_libraries(raiden glog)
 target_link_libraries(raiden lua5.3.4)
-target_link_libraries(raiden IlmImf)
+IF(WIN32)
+  SET(OPENEXR_LIBS IlmImf Imath Half ${ZLIB_LIBRARY})
+ELSE()
+  SET(OPENEXR_LIBS IlmImf Imath Half)
+ENDIF()
+target_link_libraries(raiden ${OPENEXR_LIBS})
 target_link_libraries(raiden lodepng)
 if(RAIDEN_UNITTEST)
   target_link_libraries(raiden gtest)

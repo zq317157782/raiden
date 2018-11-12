@@ -26,22 +26,22 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/config
 )
 
-add_custom_target(CopyIlmBaseLibs
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/Half/${CMAKE_BUILD_TYPE}
-  ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/IlmThread/${CMAKE_BUILD_TYPE}
-  ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/Iex/${CMAKE_BUILD_TYPE}
-  ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/Imath/${CMAKE_BUILD_TYPE}
-  ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
-)
-add_dependencies(CopyIlmBaseLibs Iex Imath IlmThread Half)
+# add_custom_target(CopyIlmBaseLibs
+#   COMMAND ${CMAKE_COMMAND} -E copy_directory
+#   ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/Half/${CMAKE_BUILD_TYPE}
+#   ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
+#   COMMAND ${CMAKE_COMMAND} -E copy_directory
+#   ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/IlmThread/${CMAKE_BUILD_TYPE}
+#   ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
+#   COMMAND ${CMAKE_COMMAND} -E copy_directory
+#   ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/Iex/${CMAKE_BUILD_TYPE}
+#   ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
+#   COMMAND ${CMAKE_COMMAND} -E copy_directory
+#   ${CMAKE_CURRENT_BINARY_DIR}/IlmBase/Imath/${CMAKE_BUILD_TYPE}
+#   ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/IlmImf/${CMAKE_BUILD_TYPE}
+# )
+# add_dependencies(CopyIlmBaseLibs Iex Imath IlmThread Half)
 
 add_subdirectory(OpenEXR OpenEXR)
-add_dependencies(b44ExpLogTable CopyIlmBaseLibs)
-add_dependencies(dwaLookups CopyIlmBaseLibs)
+# add_dependencies(b44ExpLogTable CopyIlmBaseLibs)
+# add_dependencies(dwaLookups CopyIlmBaseLibs)

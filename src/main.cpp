@@ -6,6 +6,7 @@
  */
 
 #include "config.h"
+
 #ifdef WIN32
   #include "getopt.h"
   #define GOOGLE_GLOG_DLL_DECL           // 使用静态glog库用这个
