@@ -22,6 +22,8 @@ private:
         }
         return false;
     }
+
+    ParamSet PharseParamSet(const pugi::xml_node& node) const;
 public:
      void Init() override;
      void Release() override;
