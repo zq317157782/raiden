@@ -1,6 +1,7 @@
 #include "xmlbinder.h"
 #include "raiden.h"
 #include "paramset.h"
+#include <string>
 void XMLBinder::Init(){
 }
 
@@ -13,7 +14,6 @@ ParamSet XMLBinder::PharseParamSet(const pugi::xml_node& root) const{
     for (pugi::xml_node node = root.first_child(); node; node = node.next_sibling())
     {       
         const char* name=node.name();
-       
         if(strcmp(name,"integer")==0){
             //单个整数
             const char* v_name=node.attribute("name").as_string();
@@ -84,7 +84,38 @@ ParamSet XMLBinder::PharseParamSet(const pugi::xml_node& root) const{
         else if(strcmp(name,"integer_array")==0){
             const char* v_name=node.attribute("name").as_string();
             const char* v_value=node.child_value();
-            
+            char* t_value=(char*)malloc(strlen(v_value));
+            memcpy(t_value,v_value,strlen(v_value));
+            std::vector<int> splits;
+            char* p=strtok(t_value,",");
+            while(p!=nullptr){
+                splits.push_back(atoi(p));
+                p=strtok(nullptr,",");
+            }
+            std::unique_ptr<int[]> ints(new int[splits.size()]);
+            for(uint32_t i=0;i<splits.size();++i){
+                ints[i]=splits[i];
+            }
+            set.AddInt(v_value,std::move(ints),splits.size());
+            LInfo<<"--->int[] name:"<<v_name<<" value:["<<v_value<<"]";
+        }
+        else if(strcmp(name,"float_array")==0){
+            const char* v_name=node.attribute("name").as_string();
+            const char* v_value=node.child_value();
+            char* t_value=(char*)malloc(strlen(v_value));
+            memcpy(t_value,v_value,strlen(v_value));
+            std::vector<float> splits;
+            char* p=strtok(t_value,",");
+            while(p!=nullptr){
+                splits.push_back(atof(p));
+                p=strtok(nullptr,",");
+            }
+            std::unique_ptr<float[]> floats(new float[splits.size()]);
+            for(uint32_t i=0;i<splits.size();++i){
+                floats[i]=splits[i];
+            }
+            set.AddFloat(v_value,std::move(floats),splits.size());
+            LInfo<<"--->float[] name:"<<v_name<<" value:["<<v_value<<"]";
         }
         else if(strcmp(name,"string")==0){
             //字符串
