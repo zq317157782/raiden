@@ -117,6 +117,11 @@ ParamSet XMLBinder::PharseParamSet(const pugi::xml_node& root) const{
             set.AddFloat(v_value,std::move(floats),splits.size());
             LInfo<<"--->float[] name:"<<v_name<<" value:["<<v_value<<"]";
         }
+        else if(strcmp(name,"texture")==0){
+            const char* v_name=node.attribute("name").as_string();
+            set.AddTexture(name,v_name);
+            LInfo<<"--->texture name:"<<v_name;
+        }
         else if(strcmp(name,"string")==0){
             //字符串
         }
