@@ -227,12 +227,12 @@ void XMLBinder::ExecScript(const char *fileName)
         for (pugi::xml_node node = root.first_child(); node; node = node.next_sibling())
         {
             const char *name = node.name();
-            if (strcmp(name, "begin") == 0)
+            if (strcmp(name, "world_begin") == 0)
             {
                 LInfo << "-->world begin node";
                 raidenWorldBegin();
             }
-            else if (strcmp(name, "end") == 0)
+            else if (strcmp(name, "world_end") == 0)
             {
                 LInfo << "-->world end node";
                 raidenWorldEnd();
@@ -265,28 +265,37 @@ void XMLBinder::ExecScript(const char *fileName)
             else if (strcmp(name, "save_frame") == 0)
             {
                 ParamSet params;
-                PushString(params, node, "name");
-                auto sys_name = params.FindOneString("name", "world");
-                params.EraseString("name");
-                raidenCoordinateSystem(sys_name);
-                LInfo << "-->save_frame:" << sys_name;
+                auto frame_name=node.attribute("name").as_string();
+                raidenCoordinateSystem(frame_name);
+                LInfo << "-->save_frame:" << frame_name;
             }
             else if (strcmp(name, "load_frame") == 0)
             {
                 ParamSet params;
-                PushString(params, node, "name");
-                auto sys_name = params.FindOneString("name", "world");
-                params.EraseString("name");
-                raidenCoordSysTransform(sys_name);
-                LInfo << "-->load_frame:" << sys_name;
+                auto frame_name=node.attribute("name").as_string();
+                raidenCoordSysTransform(frame_name);
+                LInfo << "-->load_frame:" << frame_name;
+            }
+            //TODO 和时间有关的API还没有绑定
+            else if(strcmp(name,"filter")==0){
+                LInfo << "-->filter node";
+                ParamSet params;
+                auto type=node.attribute("type").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenPixelFilter(type,params);
+            }
+            else if(strcmp(name,"accelerator")==0){
+                LInfo << "-->accelerator node";
+                ParamSet params;
+                auto type=node.attribute("type").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenAccelerator(type,params);
             }
             else if (strcmp(name, "integrator") == 0)
             {
                 LInfo << "-->integrator node";
                 ParamSet params;
-                PushString(params, node, "type");
-                auto type = params.FindOneString("type", "path");
-                params.EraseString("type");
+                auto type=node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenIntegrator(type, params);
             }
@@ -294,9 +303,7 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->camera node";
                 ParamSet params;
-                PushString(params, node, "type");
-                auto type = params.FindOneString("type", "pinhole");
-                params.EraseString("type");
+                auto type=node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenCamera(type, params);
             }
@@ -304,9 +311,7 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->film node";
                 ParamSet params;
-                PushString(params, node, "type");
-                auto type = params.FindOneString("type", "image");
-                params.EraseString("type");
+                auto type=node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenFilm(type, params);
             }
@@ -314,11 +319,45 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->sampler node";
                 ParamSet params;
-                PushString(params, node, "type");
-                auto type = params.FindOneString("type", "stratified");
-                params.EraseString("type");
+                auto type=node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenSampler(type, params);
+            }
+            else if(strcmp(name, "shape") == 0){
+                LInfo << "-->shape node";
+                ParamSet params;
+                auto type=node.attribute("type").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenShape(type,params);
+            }
+            else if(strcmp(name, "texture") == 0){
+                LInfo << "-->texture node";
+                ParamSet params;
+                auto t_name=node.attribute("name").as_string();
+                auto type=node.attribute("type").as_string();
+                auto src=node.attribute("source").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenTexture(t_name,type,src,params);
+            }
+            else if(strcmp(name, "material") == 0){
+                LInfo << "-->material node";
+                ParamSet params;
+                auto t_name=node.attribute("name").as_string();
+                PushString(params,node,"type");
+                PharseChildNodeParamSet(params, node);
+                raidenMakeNamedMaterial(t_name,params);
+            }
+            else if(strcmp(name, "material_tmp") == 0){
+                LInfo << "-->temporary material node";
+                ParamSet params;
+                auto type=node.attribute("type").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenMaterial(type,params);
+            }
+            else if(strcmp(name, "material_ref") == 0){   
+                LInfo << "-->reference material node";
+                auto t_name=node.attribute("name").as_string();
+                raidenNamedMaterial(t_name);
             }
         }
     }
