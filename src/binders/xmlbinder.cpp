@@ -143,7 +143,8 @@ void PushTexture(ParamSet &set, const pugi::xml_node &node, const char *name = "
     LInfo << "--->texture name:" << v_name;
 }
 
-void PushString(ParamSet &set, const pugi::xml_node &node, const char *name = "name"){
+void PushString(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
+{
     const char *v_name = node.attribute(name).as_string();
     set.AddString(name, std::unique_ptr<std::string[]>(new std::string[1]{v_name}), 1);
     LInfo << "--->string name:" << v_name;
@@ -204,12 +205,12 @@ void XMLBinder::PharseChildNodeParamSet(ParamSet &set, const pugi::xml_node &roo
         }
         else if (strcmp(name, "texture") == 0)
         {
-            PushTexture(set,node);
+            PushTexture(set, node);
         }
-        else if (strcmp(name, "string") == 0 )
+        else if (strcmp(name, "string") == 0)
         {
             //字符串
-            PushString(set,node);
+            PushString(set, node);
         }
     }
 }
@@ -259,25 +260,42 @@ void XMLBinder::ExecScript(const char *fileName)
                 float dy = node.attribute("y").as_float();
                 float dz = node.attribute("z").as_float();
                 LInfo << "-->scale node:[" << dx << " ," << dy << " ," << dz << "]";
-                raidenScale(dx,dy,dz);
+                raidenScale(dx, dy, dz);
+            }
+            else if (strcmp(name, "save_frame") == 0)
+            {
+                ParamSet params;
+                PushString(params, node, "name");
+                auto sys_name = params.FindOneString("name", "world");
+                params.EraseString("name");
+                raidenCoordinateSystem(sys_name);
+                LInfo << "-->save_frame:" << sys_name;
+            }
+            else if (strcmp(name, "load_frame") == 0)
+            {
+                ParamSet params;
+                PushString(params, node, "name");
+                auto sys_name = params.FindOneString("name", "world");
+                params.EraseString("name");
+                raidenCoordSysTransform(sys_name);
+                LInfo << "-->load_frame:" << sys_name;
             }
             else if (strcmp(name, "integrator") == 0)
             {
                 LInfo << "-->integrator node";
                 ParamSet params;
-                PushString(params,node,"type");
-                auto type=params.FindOneString("type","path");
+                PushString(params, node, "type");
+                auto type = params.FindOneString("type", "path");
                 params.EraseString("type");
                 PharseChildNodeParamSet(params, node);
-                raidenIntegrator(type,params);
-                
+                raidenIntegrator(type, params);
             }
             else if (strcmp(name, "camera") == 0)
             {
                 LInfo << "-->camera node";
                 ParamSet params;
-                PushString(params,node,"type");
-                auto type=params.FindOneString("type","pinhole");
+                PushString(params, node, "type");
+                auto type = params.FindOneString("type", "pinhole");
                 params.EraseString("type");
                 PharseChildNodeParamSet(params, node);
                 raidenCamera(type, params);
@@ -286,8 +304,8 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->film node";
                 ParamSet params;
-                PushString(params,node,"type");
-                auto type=params.FindOneString("type","image");
+                PushString(params, node, "type");
+                auto type = params.FindOneString("type", "image");
                 params.EraseString("type");
                 PharseChildNodeParamSet(params, node);
                 raidenFilm(type, params);
@@ -296,8 +314,8 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->sampler node";
                 ParamSet params;
-                PushString(params,node,"type");
-                auto type=params.FindOneString("type","stratified");
+                PushString(params, node, "type");
+                auto type = params.FindOneString("type", "stratified");
                 params.EraseString("type");
                 PharseChildNodeParamSet(params, node);
                 raidenSampler(type, params);
