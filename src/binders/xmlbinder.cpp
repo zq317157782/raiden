@@ -262,40 +262,42 @@ void XMLBinder::ExecScript(const char *fileName)
                 LInfo << "-->scale node:[" << dx << " ," << dy << " ," << dz << "]";
                 raidenScale(dx, dy, dz);
             }
-            else if (strcmp(name, "save_frame") == 0)
+            else if (strcmp(name, "frame_save") == 0)
             {
                 ParamSet params;
-                auto frame_name=node.attribute("name").as_string();
+                auto frame_name = node.attribute("name").as_string();
                 raidenCoordinateSystem(frame_name);
                 LInfo << "-->save_frame:" << frame_name;
             }
-            else if (strcmp(name, "load_frame") == 0)
+            else if (strcmp(name, "frame_load") == 0)
             {
                 ParamSet params;
-                auto frame_name=node.attribute("name").as_string();
+                auto frame_name = node.attribute("name").as_string();
                 raidenCoordSysTransform(frame_name);
                 LInfo << "-->load_frame:" << frame_name;
             }
             //TODO 和时间有关的API还没有绑定
-            else if(strcmp(name,"filter")==0){
+            else if (strcmp(name, "filter") == 0)
+            {
                 LInfo << "-->filter node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
-                raidenPixelFilter(type,params);
+                raidenPixelFilter(type, params);
             }
-            else if(strcmp(name,"accelerator")==0){
+            else if (strcmp(name, "accelerator") == 0)
+            {
                 LInfo << "-->accelerator node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
-                raidenAccelerator(type,params);
+                raidenAccelerator(type, params);
             }
             else if (strcmp(name, "integrator") == 0)
             {
                 LInfo << "-->integrator node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenIntegrator(type, params);
             }
@@ -303,7 +305,7 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->camera node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenCamera(type, params);
             }
@@ -311,7 +313,7 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->film node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenFilm(type, params);
             }
@@ -319,45 +321,74 @@ void XMLBinder::ExecScript(const char *fileName)
             {
                 LInfo << "-->sampler node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenSampler(type, params);
             }
-            else if(strcmp(name, "shape") == 0){
+            else if (strcmp(name, "shape") == 0)
+            {
                 LInfo << "-->shape node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
-                raidenShape(type,params);
+                raidenShape(type, params);
             }
-            else if(strcmp(name, "texture") == 0){
+            else if (strcmp(name, "texture") == 0)
+            {
                 LInfo << "-->texture node";
                 ParamSet params;
-                auto t_name=node.attribute("name").as_string();
-                auto type=node.attribute("type").as_string();
-                auto src=node.attribute("source").as_string();
+                auto t_name = node.attribute("name").as_string();
+                auto type = node.attribute("type").as_string();
+                auto src = node.attribute("source").as_string();
                 PharseChildNodeParamSet(params, node);
-                raidenTexture(t_name,type,src,params);
+                raidenTexture(t_name, type, src, params);
             }
-            else if(strcmp(name, "material") == 0){
+            else if (strcmp(name, "material") == 0)
+            {
                 LInfo << "-->material node";
                 ParamSet params;
-                auto t_name=node.attribute("name").as_string();
-                PushString(params,node,"type");
+                auto t_name = node.attribute("name").as_string();
+                PushString(params, node, "type");
                 PharseChildNodeParamSet(params, node);
-                raidenMakeNamedMaterial(t_name,params);
+                raidenMakeNamedMaterial(t_name, params);
             }
-            else if(strcmp(name, "material_tmp") == 0){
+            else if (strcmp(name, "material_tmp") == 0)
+            {
                 LInfo << "-->temporary material node";
                 ParamSet params;
-                auto type=node.attribute("type").as_string();
+                auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
-                raidenMaterial(type,params);
+                raidenMaterial(type, params);
             }
-            else if(strcmp(name, "material_ref") == 0){   
+            else if (strcmp(name, "material_ref") == 0)
+            {
                 LInfo << "-->reference material node";
-                auto t_name=node.attribute("name").as_string();
+                auto t_name = node.attribute("name").as_string();
                 raidenNamedMaterial(t_name);
+            }
+            else if (strcmp(name, "transform_begin") == 0)
+            {
+                LInfo << "-->transfrom begin node";
+                raidenTransformBegin();
+            }
+            else if (strcmp(name, "transform_end") == 0)
+            {
+                LInfo << "-->transfrom end node";
+                raidenTransformEnd();
+            }
+            else if (strcmp(name, "light") == 0)
+            {
+                ParamSet params;
+                auto type = node.attribute("type").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenLightSource(type, params);
+            }
+            else if (strcmp(name, "area_light") == 0)
+            {
+                ParamSet params;
+                auto type = node.attribute("type").as_string();
+                PharseChildNodeParamSet(params, node);
+                raidenAreaLightSource(type,params);
             }
         }
     }
