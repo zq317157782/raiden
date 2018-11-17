@@ -253,6 +253,14 @@ void XMLBinder::ExecScript(const char *fileName)
                 LInfo << "-->rotate node:[" << angle << "|" << dx << " ," << dy << " ," << dz << "]";
                 raidenRotate(angle, dx, dy, dz);
             }
+            else if (strcmp(name, "scale") == 0)
+            {
+                float dx = node.attribute("x").as_float();
+                float dy = node.attribute("y").as_float();
+                float dz = node.attribute("z").as_float();
+                LInfo << "-->scale node:[" << dx << " ," << dy << " ," << dz << "]";
+                raidenScale(dx,dy,dz);
+            }
             else if (strcmp(name, "integrator") == 0)
             {
                 LInfo << "-->integrator node";
