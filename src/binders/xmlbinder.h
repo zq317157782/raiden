@@ -23,7 +23,7 @@ private:
         return false;
     }
 
-    ParamSet PharseParamSet(const pugi::xml_node& node) const;
+    void PharseChildNodeParamSet(ParamSet& set,const pugi::xml_node& node) const;
 public:
      void Init() override;
      void Release() override;
