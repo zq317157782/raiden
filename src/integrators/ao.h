@@ -4,7 +4,7 @@
  *  Created on: 2017年5月10日
  *      Author: zhuqian
  */
-
+#pragma once
 #ifndef SRC_INTEGRATORS_AO_H_
 #define SRC_INTEGRATORS_AO_H_
 #include "raiden.h"
@@ -12,66 +12,76 @@
 #include "sampler.h"
 #include "film.h"
 #include "scene.h"
-//烘焙AO贴图的积分器
-class AOIntegrator: public Integrator {
-private:
-	std::shared_ptr<Sampler> _sampler; //采样器
-	Film* _film; //AO贴图
-public:
-	AOIntegrator(const std::shared_ptr<Sampler>& sampler, Film* film) :
-			_sampler(sampler), _film(film) {
-	}
-	virtual void Render(const Scene&scene) override {
-			//首先计算需要的tile数
-			Bound2i filmBound = _film->GetSampleBounds();
-			Vector2i filmExtent = filmBound.Diagonal();
-			const int tileSize = 16; //默认是16*16为1个tile
-			int numTileX = (filmExtent.x + tileSize - 1) / tileSize;
-			int numTileY = (filmExtent.y + tileSize - 1) / tileSize;
-			Point2i numTile(numTileX, numTileY);
-			ProgressReporter reporter(numTile.x*numTile.y,"Rendering");
-			//开始并行处理每个tile
-			ParallelFor2D([&](Point2i tile) {
-		//<<并行循环体开始>>
-					MemoryArena arena;
-					int seed=tile.y*numTile.x+tile.x;//计算种子数据
-					std::unique_ptr<Sampler> localSampler=_sampler->Clone(seed);
-					//计算这个tile覆盖的像素范围
-					int x0=filmBound.minPoint.x+tile.x*tileSize;
-					int y0=filmBound.minPoint.y+tile.y*tileSize;
-					int x1=std::min(x0+tileSize,filmBound.maxPoint.x);
-					int y1=std::min(y0+tileSize,filmBound.maxPoint.y);
-					Bound2i tileBound(Point2i(x0,y0),Point2i(x1,y1));
-					//获取tile
-					std::unique_ptr<FilmTile> filmTile=_film->GetFilmTile(tileBound);
-					//遍历tile
-					for(Point2i pixel:tileBound) {
-						localSampler->StartPixel(pixel); //开始一个像素
-						do {
-							//计算样本点对应的UV坐标
-							Point2f uv=pixel+localSampler->Get2DSample();
-							uv.x/=filmExtent.x;
-							uv.y/=filmExtent.y;
+#include "sampling.h"
+//计算AO信息
+class AOIntegrator : public SamplerIntegrator
+{
+  private:
+	uint32_t _sampleNum;
 
-							//通过uv坐标找到相应的local point
-
-							//生成射线
-							RayDifferential ray;
-							//根据每个像素中包含的样本数，缩放射线微分值
-							ray.ScaleRayDifferential(1.0f/std::sqrt((Float)localSampler->samplesPerPixel));
-							Spectrum L(0.0f);//总共的radiance之和
-							filmTile->AddSample(pixel, L, 1);
-							arena.Reset();
-						}while (localSampler->StartNextSample());
-					}
-					//合并tile
-					_film->MergeFilmTile(std::move(filmTile));
-					reporter.Update();
-		//<<并行循环体结束>>
-				}, numTile);
-				reporter.Done();
-				_film->WriteImage();
+  public:
+	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
+	{
+		//申请相应的样本空间
+		sampler->Request2DArray(sampleNum);
 	}
+
+	virtual Spectrum Li(const RayDifferential &r, const Scene &scene,
+						Sampler &sampler, MemoryArena &arena, int depth = 0) const
+		override
+	{
+		Float L(0);
+		RayDifferential ray(r);
+		SurfaceInteraction ref; //和表面的交互点
+
+	//这个goto是为了如果交点是PM的话，需要继续延申射线
+	retry:
+		bool isHit = scene.Intersect(ray, &ref);
+		if (isHit)
+		{
+			//计算相应的BSDF
+			ref.ComputeScatteringFunctions(ray, arena, false);
+			//射到PM了
+			if (!ref.bsdf)
+			{
+				ray = ref.SpawnRay(ray.d);
+				goto retry;
+			}
+
+			//计算从切线坐标系到世界坐标系的FRAME
+			//这里使用的是几何法线
+			auto n=Faceforward(ref.n,-ray.d);
+			auto t=Normalize(ref.dpdu);
+			auto b=Cross(n,t);
+
+			//到这里的话，已经和surface相交了
+			auto samples = sampler.Get2DArray(_sampleNum);
+			for(uint32_t i=0;i<_sampleNum;++i)
+			{
+				auto sample=samples[i];
+				//采样样本
+				//切线空间
+				auto wi = UniformSampleHemisphere(sample);
+				auto pdf = UniformHemispherePdf();
+				//转换到世界坐标系
+				auto cosTheta=std::abs(wi.z);
+				wi=Vector3f(
+					t.x*wi.x+b.x*wi.y+n.x*wi.z,
+					t.y*wi.x+b.y*wi.y+n.y*wi.z,
+					t.z*wi.x+b.z*wi.y+n.z*wi.z
+				);
+
+				auto rr = ref.SpawnRay(wi);
+				if (!scene.IntersectP(rr))
+				{
+					L += (Dot(wi,n) / (pdf*_sampleNum));
+				}
+			}
+		}
+		return L;
+	};
 };
 
+AOIntegrator *CreateAOIntegrator(const ParamSet &params,
+	std::shared_ptr<Sampler> sampler, std::shared_ptr<const Camera> camera);
 #endif /* SRC_INTEGRATORS_AO_H_ */

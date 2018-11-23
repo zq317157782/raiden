@@ -40,6 +40,7 @@
 #include "integrators/vpt.h"
 #include "integrators/sppm.h"
 #include "integrators/bdpt.h"
+#include "integrators/ao.h"
 #include "textures/constant.h"
 #include "textures/checkerboard2d.h"
 #include "textures/imagemap.h"
@@ -875,6 +876,9 @@ Integrator *RenderOptions::MakeIntegrator() const {
 	}
 	else if (IntegratorName == "volpath") {
 		integrator = CreateVolPathIntegrator(IntegratorParams, sampler, camera);
+	}
+	else if (IntegratorName == "ao") {
+		integrator = CreateAOIntegrator(IntegratorParams, sampler, camera);
 	}
 	else {
 		Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");
