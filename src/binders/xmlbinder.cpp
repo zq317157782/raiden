@@ -358,6 +358,16 @@ void XMLBinder::ExecScript(const char *fileName)
                 PharseChildNodeParamSet(params, node);
                 raidenAreaLightSource(type,params);
             }
+            else if (strcmp(name, "AttributeBegin") == 0)
+            {
+              
+                raidenAttributeBegin();
+            }
+             else if (strcmp(name, "AttributeEnd") == 0)
+            {
+              
+                raidenAttributeEnd();
+            }
         }
     }
     else
