@@ -15,7 +15,6 @@ void PushInteger(ParamSet &set, const pugi::xml_node &node, const char *name = "
     const char *v_name = node.attribute(name).as_string();
     auto v = node.attribute("value").as_int();
     set.AddInt(v_name, std::unique_ptr<int[]>(new int[1]{v}), 1);
-    LInfo << "--->integer name:" << v_name << " value:" << v;
 }
 
 void PushFloat(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -23,7 +22,6 @@ void PushFloat(ParamSet &set, const pugi::xml_node &node, const char *name = "na
     const char *v_name = node.attribute(name).as_string();
     auto v = node.attribute("value").as_float();
     set.AddFloat(v_name, std::unique_ptr<float[]>(new float[1]{v}), 1);
-    LInfo << "--->float name:" << v_name << " value:" << v;
 }
 
 void PushBool(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -31,7 +29,6 @@ void PushBool(ParamSet &set, const pugi::xml_node &node, const char *name = "nam
     const char *v_name = node.attribute(name).as_string();
     auto v = node.attribute("value").as_bool();
     set.AddBool(v_name, std::unique_ptr<bool[]>(new bool[1]{v}), 1);
-    LInfo << "--->bool name:" << v_name << " value:" << v;
 }
 
 void PushRGB(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -41,7 +38,6 @@ void PushRGB(ParamSet &set, const pugi::xml_node &node, const char *name = "name
     float g = node.attribute("g").as_float();
     float b = node.attribute("b").as_float();
     set.AddRGBSpectrum(v_name, std::unique_ptr<float[]>(new float[3]{r, g, b}), 3);
-    LInfo << "--->rgb name:" << v_name << " value:[" << r << "," << g << "," << b << "]";
 }
 
 void PushPoint2f(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -50,7 +46,6 @@ void PushPoint2f(ParamSet &set, const pugi::xml_node &node, const char *name = "
     float x = node.attribute("x").as_float();
     float y = node.attribute("y").as_float();
     set.AddPoint2f(v_name, std::unique_ptr<Point2f[]>(new Point2f[1]{Point2f(x, y)}), 1);
-    LInfo << "--->point2f name:" << v_name << " value:[" << x << "," << y << "]";
 }
 
 void PushPoint3f(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -60,7 +55,6 @@ void PushPoint3f(ParamSet &set, const pugi::xml_node &node, const char *name = "
     float y = node.attribute("y").as_float();
     float z = node.attribute("z").as_float();
     set.AddPoint3f(v_name, std::unique_ptr<Point3f[]>(new Point3f[1]{Point3f(x, y, z)}), 1);
-    LInfo << "--->point3f name:" << v_name << " value:[" << x << "," << y << "," << z << "]";
 }
 
 void PushVector2f(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -69,7 +63,6 @@ void PushVector2f(ParamSet &set, const pugi::xml_node &node, const char *name = 
     float x = node.attribute("x").as_float();
     float y = node.attribute("y").as_float();
     set.AddVector2f(v_name, std::unique_ptr<Vector2f[]>(new Vector2f[1]{Vector2f(x, y)}), 1);
-    LInfo << "--->vector2f name:" << v_name << " value:[" << x << "," << y << "]";
 }
 
 void PushVector3f(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -79,7 +72,6 @@ void PushVector3f(ParamSet &set, const pugi::xml_node &node, const char *name = 
     float y = node.attribute("y").as_float();
     float z = node.attribute("z").as_float();
     set.AddVector3f(v_name, std::unique_ptr<Vector3f[]>(new Vector3f[1]{Vector3f(x, y, z)}), 1);
-    LInfo << "--->vector3f name:" << v_name << " value:[" << x << "," << y << "," << z << "]";
 }
 
 void PushNormal3f(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -89,7 +81,6 @@ void PushNormal3f(ParamSet &set, const pugi::xml_node &node, const char *name = 
     float y = node.attribute("y").as_float();
     float z = node.attribute("z").as_float();
     set.AddNormal3f(v_name, std::unique_ptr<Normal3f[]>(new Normal3f[1]{Normal3f(x, y, z)}), 1);
-    LInfo << "--->normal3f name:" << v_name << " value:[" << x << "," << y << "," << z << "]";
 }
 
 void PushIntegetArray(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -111,7 +102,6 @@ void PushIntegetArray(ParamSet &set, const pugi::xml_node &node, const char *nam
         ints[i] = splits[i];
     }
     set.AddInt(v_value, std::move(ints), splits.size());
-    LInfo << "--->int[] name:" << v_name << " value:[" << v_value << "]";
 }
 
 void PushFloatArray(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -133,21 +123,18 @@ void PushFloatArray(ParamSet &set, const pugi::xml_node &node, const char *name 
         floats[i] = splits[i];
     }
     set.AddFloat(v_value, std::move(floats), splits.size());
-    LInfo << "--->float[] name:" << v_name << " value:[" << v_value << "]";
 }
 
 void PushTexture(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
 {
     const char *v_name = node.attribute(name).as_string();
     set.AddTexture(name, v_name);
-    LInfo << "--->texture name:" << v_name;
 }
 
 void PushString(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
 {
     const char *v_name = node.attribute(name).as_string();
     set.AddString(name, std::unique_ptr<std::string[]>(new std::string[1]{v_name}), 1);
-    LInfo << "--->string name:" << v_name;
 }
 
 void XMLBinder::PharseChildNodeParamSet(ParamSet &set, const pugi::xml_node &root) const
@@ -220,80 +207,71 @@ void XMLBinder::ExecScript(const char *fileName)
     pugi::xml_parse_result result = _doc.load_file(fileName);
     LInfo << "Loading XML state:" << result.description();
     auto root = _doc.first_child();
-    if (strcmp(root.name(), "scene") == 0)
+    if (strcmp(root.name(), "Scene") == 0)
     {
         //开始解析scene层
         LInfo << "->scene node";
         for (pugi::xml_node node = root.first_child(); node; node = node.next_sibling())
         {
             const char *name = node.name();
-            if (strcmp(name, "world_begin") == 0)
+            if (strcmp(name, "WorldBegin") == 0)
             {
-                LInfo << "-->world begin node";
                 raidenWorldBegin();
             }
-            else if (strcmp(name, "world_end") == 0)
+            else if (strcmp(name, "WorldEnd") == 0)
             {
-                LInfo << "-->world end node";
                 raidenWorldEnd();
             }
-            else if (strcmp(name, "translate") == 0)
+            else if (strcmp(name, "Translate") == 0)
             {
                 float dx = node.attribute("x").as_float();
                 float dy = node.attribute("y").as_float();
                 float dz = node.attribute("z").as_float();
-                LInfo << "-->translate node:[" << dx << " ," << dy << " ," << dz << "]";
                 raidenTranslate(dx, dy, dz);
             }
-            else if (strcmp(name, "rotate") == 0)
+            else if (strcmp(name, "Rotate") == 0)
             {
                 float angle = node.attribute("angle").as_float();
                 float dx = node.attribute("x").as_float();
                 float dy = node.attribute("y").as_float();
                 float dz = node.attribute("z").as_float();
-                LInfo << "-->rotate node:[" << angle << "|" << dx << " ," << dy << " ," << dz << "]";
                 raidenRotate(angle, dx, dy, dz);
             }
-            else if (strcmp(name, "scale") == 0)
+            else if (strcmp(name, "Scale") == 0)
             {
                 float dx = node.attribute("x").as_float();
                 float dy = node.attribute("y").as_float();
                 float dz = node.attribute("z").as_float();
-                LInfo << "-->scale node:[" << dx << " ," << dy << " ," << dz << "]";
                 raidenScale(dx, dy, dz);
             }
-            else if (strcmp(name, "frame_save") == 0)
+            else if (strcmp(name, "CoordinateSystem") == 0)
             {
                 ParamSet params;
                 auto frame_name = node.attribute("name").as_string();
                 raidenCoordinateSystem(frame_name);
-                LInfo << "-->save_frame:" << frame_name;
             }
-            else if (strcmp(name, "frame_load") == 0)
+            else if (strcmp(name, "CoordSysTransform") == 0)
             {
                 ParamSet params;
                 auto frame_name = node.attribute("name").as_string();
                 raidenCoordSysTransform(frame_name);
-                LInfo << "-->load_frame:" << frame_name;
             }
             //TODO 和时间有关的API还没有绑定
-            else if (strcmp(name, "filter") == 0)
+            else if (strcmp(name, "PixelFilter") == 0)
             {
-                LInfo << "-->filter node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenPixelFilter(type, params);
             }
-            else if (strcmp(name, "accelerator") == 0)
+            else if (strcmp(name, "Accelerator") == 0)
             {
-                LInfo << "-->accelerator node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenAccelerator(type, params);
             }
-            else if (strcmp(name, "integrator") == 0)
+            else if (strcmp(name, "Integrator") == 0)
             {
                 LInfo << "-->integrator node";
                 ParamSet params;
@@ -301,41 +279,36 @@ void XMLBinder::ExecScript(const char *fileName)
                 PharseChildNodeParamSet(params, node);
                 raidenIntegrator(type, params);
             }
-            else if (strcmp(name, "camera") == 0)
+            else if (strcmp(name, "Camera") == 0)
             {
-                LInfo << "-->camera node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenCamera(type, params);
             }
-            else if (strcmp(name, "film") == 0)
+            else if (strcmp(name, "Film") == 0)
             {
-                LInfo << "-->film node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenFilm(type, params);
             }
-            else if (strcmp(name, "sampler") == 0)
+            else if (strcmp(name, "Sampler") == 0)
             {
-                LInfo << "-->sampler node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenSampler(type, params);
             }
-            else if (strcmp(name, "shape") == 0)
+            else if (strcmp(name, "Shape") == 0)
             {
-                LInfo << "-->shape node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenShape(type, params);
             }
-            else if (strcmp(name, "texture") == 0)
+            else if (strcmp(name, "Texture") == 0)
             {
-                LInfo << "-->texture node";
                 ParamSet params;
                 auto t_name = node.attribute("name").as_string();
                 auto type = node.attribute("type").as_string();
@@ -343,47 +316,42 @@ void XMLBinder::ExecScript(const char *fileName)
                 PharseChildNodeParamSet(params, node);
                 raidenTexture(t_name, type, src, params);
             }
-            else if (strcmp(name, "material") == 0)
+            else if (strcmp(name, "MakeNamedMaterial") == 0)
             {
-                LInfo << "-->material node";
                 ParamSet params;
                 auto t_name = node.attribute("name").as_string();
                 PushString(params, node, "type");
                 PharseChildNodeParamSet(params, node);
                 raidenMakeNamedMaterial(t_name, params);
             }
-            else if (strcmp(name, "material_tmp") == 0)
+            else if (strcmp(name, "Material") == 0)
             {
-                LInfo << "-->temporary material node";
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenMaterial(type, params);
             }
-            else if (strcmp(name, "material_ref") == 0)
+            else if (strcmp(name, "NamedMaterial") == 0)
             {
-                LInfo << "-->reference material node";
                 auto t_name = node.attribute("name").as_string();
                 raidenNamedMaterial(t_name);
             }
-            else if (strcmp(name, "transform_begin") == 0)
+            else if (strcmp(name, "TransformBegin") == 0)
             {
-                LInfo << "-->transfrom begin node";
                 raidenTransformBegin();
             }
-            else if (strcmp(name, "transform_end") == 0)
+            else if (strcmp(name, "TransformEnd") == 0)
             {
-                LInfo << "-->transfrom end node";
                 raidenTransformEnd();
             }
-            else if (strcmp(name, "light") == 0)
+            else if (strcmp(name, "LightSource") == 0)
             {
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
                 PharseChildNodeParamSet(params, node);
                 raidenLightSource(type, params);
             }
-            else if (strcmp(name, "area_light") == 0)
+            else if (strcmp(name, "AreaLightSource") == 0)
             {
                 ParamSet params;
                 auto type = node.attribute("type").as_string();
