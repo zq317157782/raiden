@@ -32,7 +32,8 @@ public:
 	UniformLightDistribution(const Scene& scene) {
 		std::vector<Float> weights(scene.lights.size(), 1.0f);
 		//std::unique_ptr要用reset,记住！！！
-		_distribution.reset(new Distribution1D(&weights[0], weights.size()));
+		//_distribution.reset(new Distribution1D(&weights[0], weights.size()));
+		_distribution.reset(new Distribution1D(weights.data(), weights.size()));
 	}
 
 	virtual const Distribution1D* Lookup(const Point3f& p) const override {
