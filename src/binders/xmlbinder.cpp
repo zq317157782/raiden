@@ -205,7 +205,11 @@ void XMLBinder::PharseChildNodeParamSet(ParamSet &set, const pugi::xml_node &roo
 void XMLBinder::ExecScript(const char *fileName)
 {
     pugi::xml_parse_result result = _doc.load_file(fileName);
-    LInfo << "Loading XML state:" << result.description();
+    if(!result){
+        LInfo << "XML Error:" << result.description()<<" at position ["<<fileName<<":"<<result.offset<<"].";
+    }
+   
+  
     auto root = _doc.first_child();
     if (strcmp(root.name(), "Scene") == 0)
     {
