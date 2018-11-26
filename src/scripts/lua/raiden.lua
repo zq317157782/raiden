@@ -4,6 +4,10 @@ function rgb(r,g,b)
     return {type="rgb",value={r,g,b}}
 end
 
+function point3f(x,y,z)
+    return {type="point3f",value={x,y,z}}
+end
+
 function texture(name)
     return {type="texture",value=name}
 end
