@@ -98,7 +98,8 @@ std::unique_ptr<RGBSpectrum[]> ReadImage(const char* fileName, Point2i* resoluti
 		Float invDiv = 1.0 / 255.0;
 		for (int j = 0; j<height; ++j) {
 			for (int i = 0; i<width; ++i) {
-				int k = i*height+j;
+				int k = i*height+(height-1-j);
+				//nt k=width*j+i;
 				rgbData[k][0] = rawData[0 + index] * invDiv;
 				rgbData[k][1] = rawData[1 + index] * invDiv;
 				rgbData[k][2] = rawData[2 + index] * invDiv;
