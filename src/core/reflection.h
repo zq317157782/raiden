@@ -121,6 +121,23 @@ class Fresnel
 	virtual Spectrum Evaluate(Float cosI) const = 0;
 };
 
+class FresnelSchlick : public Fresnel
+{
+  private:
+	Spectrum _F0;
+
+  public:
+	FresnelSchlick(const Spectrum &F0):_F0(F0)
+	{
+
+	}
+
+	virtual Spectrum Evaluate(Float cosI) const override
+	{
+		return SchlickFresnel(_F0,cosI);
+	}
+};
+
 //关于导电体相关的FRESNEL操作
 class FresnelConductor : public Fresnel
 {
@@ -603,11 +620,11 @@ class ScaledBxDF : public BxDF
 	virtual Spectrum rho(int nSamples, const Point2f *samples1,
 						 const Point2f *samples2) const override
 	{
-		return _scale* _bxdf->rho(nSamples, samples1, samples2);
+		return _scale * _bxdf->rho(nSamples, samples1, samples2);
 	}
 	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override
 	{
-		return _bxdf->Pdf(wo,wi);
+		return _bxdf->Pdf(wo, wi);
 	}
 };
 

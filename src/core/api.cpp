@@ -51,6 +51,7 @@
 #include "materials/matte.h"
 #include "materials/metal.h"
 #include "materials/plastic.h"
+#include "materials/unity.h"
 #include "media/homogeneous.h"
 #include "media/grid.h"
 
@@ -383,6 +384,9 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 	}
 	else if (name == "plastic") {
 		material = CreatePlasticMaterial(mp);
+	}
+	else if (name == "unity") {
+		material = CreateUnityMaterial(mp);
 	}
 	else {
 		Warning("Material \'" << name << "\'unknown. Using \'lambertian\'");
