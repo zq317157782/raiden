@@ -12,7 +12,7 @@ static void LuaTestTable(lua_State *L) {
     lua_gettable(L,-2);
     EXPECT_TRUE(lua_isstring(L,-1)==true);
     EXPECT_STREQ(lua_tostring(L,-1),"float");
-    LInfo<<lua_tostring(L,-1);
+    //LInfo<<lua_tostring(L,-1);
     lua_pop(L,1);
     EXPECT_TRUE(lua_istable(L,-1)==true);
 }
