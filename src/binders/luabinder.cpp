@@ -308,7 +308,10 @@ static void ParseIntArray(lua_State *L,ParamSet& set, const std::string& name) {
 static ParamSet GetParamSet(lua_State* L, int index) {
 	ParamSet set;
 	int t = index;
-	if (!lua_istable(L, t)) {
+	if(lua_gettop(L)<=index){
+		return set;
+	}
+	else if (!lua_istable(L, t)) {
 		PARAM_TYPR_WRONG("paramset must be a table");
 	}
 	lua_pushnil(L); //push 第一个key
@@ -345,13 +348,64 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 			break;
 
 			//处理类型为表的情况，比较复杂
+		// case LUA_TTABLE: {
+		// 	lua_getfield(L, t, key.c_str());	//把子table压入栈顶!
+		// 	lua_getfield(L, -1, "type");	//type入栈
+		// 	std::string type = lua_tostring(L, -1);
+		// 	lua_pop(L, 1);	//type出栈
+		// 	lua_getfield(L, -1, "value"); //value入栈
+		// 	if (type == "point2f") {
+		// 		ParsePoint2f(L,set, key);
+		// 	} else if (type == "point3f") {
+		// 		ParsePoint3f(L, set, key);
+		// 	} else if (type == "vector2f") {
+		// 		ParseVector2f(L, set, key);
+		// 	} else if (type == "vector3f") {
+		// 		ParseVector3f(L, set, key);
+		// 	} else if (type == "normal3f") {
+		// 		ParseNormal3f(L, set, key);
+		// 	} else if (type == "string") {
+		// 		ParseString(L, set, key);
+		// 	} else if (type == "rgb") {
+		// 		ParseRGB(L, set, key);
+		// 	} else if (type == "float[]") {
+		// 		ParseFloatArray(L, set, key);
+		// 	} else if (type == "int[]") {
+		// 		ParseIntArray(L, set, key);
+		// 	} else if (type=="texture"){
+		// 		ParseTexture(L, set, key);
+		// 	} 
+		// 	else {
+		// 		PARAM_TYPR_WRONG("unknow type");
+		// 	}
+		// 	lua_pop(L, 1); //value 出站
+		// 	lua_pop(L, 1); //把子table出栈!
+		// }
 		case LUA_TTABLE: {
-			lua_getfield(L, t, key.c_str());	//把子table压入栈顶!
-			lua_getfield(L, -1, "type");	//type入栈
-			std::string type = lua_tostring(L, -1);
-			lua_pop(L, 1);	//type出栈
-			lua_getfield(L, -1, "value"); //value入栈
-			if (type == "point2f") {
+			//获得第一个元素
+			lua_pushnumber(L,1);//push key
+    		lua_gettable(L,-2);//pop key,and push value
+			if(!lua_isstring(L,-1)){
+				PARAM_TYPR_WRONG("first element must be a string descriptionfor the type");
+			}
+			auto type=static_cast<std::string>(lua_tostring(L,-1));
+			lua_pop(L, 1);//pop value
+			lua_pushnumber(L,2);
+    		lua_gettable(L,-2);
+			if(type=="int"){
+				int v = lua_tointeger(L, -1);
+				set.AddInt(key, std::unique_ptr<int[]>(new int[1] { v }), 1);
+			}
+			else if(type=="float"){
+				Float v = lua_tonumber(L, -1);
+				set.AddFloat(key, std::unique_ptr<Float[]>(new Float[1] { v }),
+						1);
+			}
+			else if(type=="bool"){
+				bool v = lua_toboolean(L, -1);
+				set.AddBool(key, std::unique_ptr<bool[]>(new bool[1] { v }), 1);
+			}
+			else if (type == "point2f") {
 				ParsePoint2f(L,set, key);
 			} else if (type == "point3f") {
 				ParsePoint3f(L, set, key);
@@ -375,8 +429,7 @@ static ParamSet GetParamSet(lua_State* L, int index) {
 			else {
 				PARAM_TYPR_WRONG("unknow type");
 			}
-			lua_pop(L, 1); //value 出站
-			lua_pop(L, 1); //把子table出栈!
+			lua_pop(L, 1);//pop value
 		}
 			break;
 		}

@@ -110,6 +110,7 @@ aux_source_directory(src/textures RAIDEN_SRC_TEXTURE)
 aux_source_directory(src/binders RAIDEN_SRC_BINDER)
 if(RAIDEN_UNITTEST)
     aux_source_directory(test/core RAIDEN_TEST_CORE)
+    aux_source_directory(test/binders RAIDEN_TEST_BINDERS)
 endif(RAIDEN_UNITTEST)
 
 add_executable(raiden src/main.cpp 
@@ -126,6 +127,7 @@ ${RAIDEN_SRC_SAMPLER}
 ${RAIDEN_SRC_SHAPE} 
 ${RAIDEN_SRC_TEXTURE} 
 ${RAIDEN_TEST_CORE} 
+${RAIDEN_TEST_BINDERS}
 external/pugixml/pugixml.cpp)
 
 #链接库
