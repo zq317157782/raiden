@@ -13,7 +13,7 @@
 
 #include "raiden.h"
 
-class ErrFloat {
+class EFloat {
 private:
 	float _value; //浮点数round后的值
 	//float _error;//浮点数的绝对误差(real值减去round值)
@@ -23,17 +23,17 @@ private:
 	long double _highPrecisionValue;	//调试模式下需要计算的高精度的值
 #endif
 public:
-	ErrFloat() {
+	EFloat() {
 	}
-	ErrFloat(float, float err = 0.0f);
-	ErrFloat(const ErrFloat&);
-	ErrFloat& operator=(const ErrFloat&);
-	ErrFloat operator+(ErrFloat) const;
-	ErrFloat operator-(ErrFloat) const;
-	ErrFloat operator*(ErrFloat) const;
-	ErrFloat operator/(ErrFloat) const;
-	ErrFloat operator-() const;
-	bool operator==(ErrFloat) const;
+	EFloat(float, float err = 0.0f);
+	EFloat(const EFloat&);
+	EFloat& operator=(const EFloat&);
+	EFloat operator+(EFloat) const;
+	EFloat operator-(EFloat) const;
+	EFloat operator*(EFloat) const;
+	EFloat operator/(EFloat) const;
+	EFloat operator-() const;
+	bool operator==(EFloat) const;
 
 	//强制转换成float
 	explicit operator float() const {
@@ -60,26 +60,26 @@ public:
 	}
 
 	//几个求RAY-SHAPE相交测试用的到的友元函数
-	friend ErrFloat Sqrt(ErrFloat f);
-	friend ErrFloat Abs(ErrFloat f);
-	friend bool Quadratic(ErrFloat A,ErrFloat B,ErrFloat C,ErrFloat* t0,ErrFloat* t1);//求解二次多项式
+	friend EFloat Sqrt(EFloat f);
+	friend EFloat Abs(EFloat f);
+	friend bool Quadratic(EFloat A,EFloat B,EFloat C,EFloat* t0,EFloat* t1);//求解二次多项式
 };
 //一些float类型和ErrFloat的混合操作
-inline ErrFloat operator+(float f, ErrFloat ef) {
-	return ErrFloat(f) + ef;
+inline EFloat operator+(float f, EFloat ef) {
+	return EFloat(f) + ef;
 }
-inline ErrFloat operator-(float f, ErrFloat ef) {
-	return ErrFloat(f) - ef;
+inline EFloat operator-(float f, EFloat ef) {
+	return EFloat(f) - ef;
 }
-inline ErrFloat operator*(float f, ErrFloat ef) {
-	return ErrFloat(f) * ef;
+inline EFloat operator*(float f, EFloat ef) {
+	return EFloat(f) * ef;
 }
-inline ErrFloat operator/(float f, ErrFloat ef) {
-	return ErrFloat(f) / ef;
+inline EFloat operator/(float f, EFloat ef) {
+	return EFloat(f) / ef;
 }
 
-inline ErrFloat Sqrt(ErrFloat f) {
-	ErrFloat ret;
+inline EFloat Sqrt(EFloat f) {
+	EFloat ret;
 	ret._value = std::sqrt(f._value);
 #ifdef DEBUG_BUILD
 	ret._highPrecisionValue = std::sqrt(f._highPrecisionValue);
@@ -90,13 +90,13 @@ inline ErrFloat Sqrt(ErrFloat f) {
 	return ret;
 }
 
-inline ErrFloat Abs(ErrFloat f) {
+inline EFloat Abs(EFloat f) {
 	//如果f的low大于0，无需任何操作
 	if (f._low > 0) {
 		return f;
 	} else if (f._high < 0) {
 		//负数的情况
-		ErrFloat ret;
+		EFloat ret;
 		ret._value = -f._value;
 #ifdef DEBUG_BUILD
 		ret._highPrecisionValue = -f._highPrecisionValue;
@@ -107,7 +107,7 @@ inline ErrFloat Abs(ErrFloat f) {
 		return ret;
 	} else {
 		//介于负数和正数这尴尬的情况
-		ErrFloat ret;
+		EFloat ret;
 		ret._value = std::abs(f._value);
 #ifdef DEBUG_BUILD
 		ret._highPrecisionValue = std::abs(f._highPrecisionValue);
@@ -120,14 +120,14 @@ inline ErrFloat Abs(ErrFloat f) {
 }
 
 //这样子求解二次多项式，我高中没学过啊！
-inline bool Quadratic(ErrFloat A,ErrFloat B,ErrFloat C,ErrFloat* t0,ErrFloat* t1){
+inline bool Quadratic(EFloat A,EFloat B,EFloat C,EFloat* t0,EFloat* t1){
 	//delta=B^2-4AC
 	double delta=(double)B._value*(double)B._value-4*(double)A._value*(double)C._value;
 	if(delta<0.0f) return false;
 	double rootDelta=std::sqrt(delta);
-	ErrFloat errRootDelta(rootDelta,MachineEpsion*rootDelta);
+	EFloat errRootDelta(rootDelta,MachineEpsion*rootDelta);
 
-	ErrFloat q;
+	EFloat q;
 	if((float)B<0.0f){
 		q=-0.5f*(B-errRootDelta);
 	}

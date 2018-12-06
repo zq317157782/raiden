@@ -125,7 +125,7 @@ class RayDifferential;
 struct Matrix4x4;
 class Transform;
 class Quaternion;
-class ErrFloat;
+class EFloat;
 //计算累积误差的浮点数实现
 class Interaction;
 class SurfaceInteraction;

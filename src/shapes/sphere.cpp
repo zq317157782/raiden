@@ -23,20 +23,20 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 	Vector3f oErr, dErr;
 	Ray oRay = (*worldToObject)(ray, &oErr, &dErr); //把射线转换到球体局部空间,并且计算转换过程中的浮点数误差
 	//带误差的Ray原点
-	ErrFloat ox(oRay.o.x, oErr.x);
-	ErrFloat oy(oRay.o.y, oErr.y);
-	ErrFloat oz(oRay.o.z, oErr.z);
+	EFloat ox(oRay.o.x, oErr.x);
+	EFloat oy(oRay.o.y, oErr.y);
+	EFloat oz(oRay.o.z, oErr.z);
 	//带误差的Ray方向
-	ErrFloat dx(oRay.d.x, dErr.x);
-	ErrFloat dy(oRay.d.y, dErr.y);
-	ErrFloat dz(oRay.d.z, dErr.z);
+	EFloat dx(oRay.d.x, dErr.x);
+	EFloat dy(oRay.d.y, dErr.y);
+	EFloat dz(oRay.d.z, dErr.z);
 	//通过把射线的参数方程代入到球体的隐式解析方程中，得到二次多项式的A,B,C参数
-	ErrFloat A = dx * dx + dy * dy + dz * dz;
-	ErrFloat B = 2 * (dx * ox + dy * oy + dz * oz);
-	ErrFloat C = ox * ox + oy * oy + oz * oz
-			- ErrFloat(_radius) * ErrFloat(_radius);
+	EFloat A = dx * dx + dy * dy + dz * dz;
+	EFloat B = 2 * (dx * ox + dy * oy + dz * oz);
+	EFloat C = ox * ox + oy * oy + oz * oz
+			- EFloat(_radius) * EFloat(_radius);
 	//求解二次多项式
-	ErrFloat t0, t1;
+	EFloat t0, t1;
 	if (!Quadratic(A, B, C, &t0, &t1)) {
 		//无法求解的话，说明没有相交,直接返回
 		return false;
@@ -47,7 +47,7 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 	}
 
 	//开始比较是取t0还是t1
-	ErrFloat tShapeHit = t0;
+	EFloat tShapeHit = t0;
 
 	if (tShapeHit.LowerBound() <= 0) {	//误差边界已经小于等于0了，不能用
 		tShapeHit = t1;
@@ -136,20 +136,20 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 	Vector3f oErr, dErr;
 	Ray oRay = (*worldToObject)(ray, &oErr, &dErr); //把射线转换到球体局部空间,并且计算转换过程中的浮点数误差
 	//带误差的Ray原点
-	ErrFloat ox(oRay.o.x, oErr.x);
-	ErrFloat oy(oRay.o.y, oErr.y);
-	ErrFloat oz(oRay.o.z, oErr.z);
+	EFloat ox(oRay.o.x, oErr.x);
+	EFloat oy(oRay.o.y, oErr.y);
+	EFloat oz(oRay.o.z, oErr.z);
 	//带误差的Ray方向
-	ErrFloat dx(oRay.d.x, dErr.x);
-	ErrFloat dy(oRay.d.y, dErr.y);
-	ErrFloat dz(oRay.d.z, dErr.z);
+	EFloat dx(oRay.d.x, dErr.x);
+	EFloat dy(oRay.d.y, dErr.y);
+	EFloat dz(oRay.d.z, dErr.z);
 	//通过把射线的参数方程代入到球体的隐式解析方程中，得到二次多项式的A,B,C参数
-	ErrFloat A = dx * dx + dy * dy + dz * dz;
-	ErrFloat B = 2 * (dx * ox + dy * oy + dz * oz);
-	ErrFloat C = ox * ox + oy * oy + oz * oz
-			- ErrFloat(_radius) * ErrFloat(_radius);
+	EFloat A = dx * dx + dy * dy + dz * dz;
+	EFloat B = 2 * (dx * ox + dy * oy + dz * oz);
+	EFloat C = ox * ox + oy * oy + oz * oz
+			- EFloat(_radius) * EFloat(_radius);
 	//求解二次多项式
-	ErrFloat t0, t1;
+	EFloat t0, t1;
 	if (!Quadratic(A, B, C, &t0, &t1)) {
 		//无法求解的话，说明没有相交,直接返回
 		return false;
@@ -159,7 +159,7 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 		return false;
 	}
 	//开始比较是取t0还是t1
-	ErrFloat tShapeHit = t0;
+	EFloat tShapeHit = t0;
 
 	if (tShapeHit.LowerBound() <= 0) {	//误差边界已经小于等于0了，不能用
 		tShapeHit = t1;

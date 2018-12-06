@@ -7,7 +7,7 @@
 
 #include "errfloat.h"
 
-ErrFloat::ErrFloat(float v, float err) :
+EFloat::EFloat(float v, float err) :
 		_value(v) {
 	Assert(!std::isnan(v));
 	Assert(!std::isnan(err));
@@ -24,8 +24,8 @@ ErrFloat::ErrFloat(float v, float err) :
 #endif
 }
 
-ErrFloat ErrFloat::operator+(ErrFloat f) const {
-	ErrFloat result;
+EFloat EFloat::operator+(EFloat f) const {
+	EFloat result;
 	result._value = _value + f._value;
 #ifdef DEBUG
 	result._highPrecisionValue = _highPrecisionValue + f._highPrecisionValue;
@@ -37,8 +37,8 @@ ErrFloat ErrFloat::operator+(ErrFloat f) const {
 	return result;
 }
 
-ErrFloat ErrFloat::operator-(ErrFloat f) const {
-	ErrFloat result;
+EFloat EFloat::operator-(EFloat f) const {
+	EFloat result;
 	result._value = _value - f._value;
 #ifdef DEBUG
 	result._highPrecisionValue = _highPrecisionValue - f._highPrecisionValue;
@@ -50,8 +50,8 @@ ErrFloat ErrFloat::operator-(ErrFloat f) const {
 	return result;
 }
 
-ErrFloat ErrFloat::operator*(ErrFloat f) const {
-	ErrFloat result;
+EFloat EFloat::operator*(EFloat f) const {
+	EFloat result;
 	result._value = _value * f._value;
 #ifdef DEBUG
 	result._highPrecisionValue = _highPrecisionValue * f._highPrecisionValue;
@@ -67,8 +67,8 @@ ErrFloat ErrFloat::operator*(ErrFloat f) const {
 	return result;
 }
 
-ErrFloat ErrFloat::operator/(ErrFloat f) const {
-	ErrFloat result;
+EFloat EFloat::operator/(EFloat f) const {
+	EFloat result;
 	result._value = _value / f._value;
 #ifdef DEBUG
 	result._highPrecisionValue = _highPrecisionValue / f._highPrecisionValue;
@@ -91,8 +91,8 @@ ErrFloat ErrFloat::operator/(ErrFloat f) const {
 	return result;
 }
 
-ErrFloat ErrFloat::operator-() const{
-	ErrFloat result;
+EFloat EFloat::operator-() const{
+	EFloat result;
 	result._value=-_value;
 #ifdef DEBUG
 	result._highPrecisionValue = -_highPrecisionValue;
@@ -103,11 +103,11 @@ ErrFloat ErrFloat::operator-() const{
 	return result;
 }
 
-bool ErrFloat::operator==(ErrFloat f) const{
+bool EFloat::operator==(EFloat f) const{
 	return _value==f._value;
 }
 
-ErrFloat::ErrFloat(const ErrFloat&f){
+EFloat::EFloat(const EFloat&f){
 	_value=f._value;
 #ifdef DEBUG
 	_highPrecisionValue =f._highPrecisionValue;
@@ -116,7 +116,7 @@ ErrFloat::ErrFloat(const ErrFloat&f){
 	_high=f._high;
 	Check();
 }
-ErrFloat& ErrFloat::operator=(const ErrFloat&f){
+EFloat& EFloat::operator=(const EFloat&f){
 	_value=f._value;
 	#ifdef DEBUG
 		_highPrecisionValue =f._highPrecisionValue;
