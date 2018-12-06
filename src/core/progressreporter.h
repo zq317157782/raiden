@@ -24,16 +24,19 @@ private:
 	void PrintBar(){
 		//线程的睡眠时间
 		std::chrono::milliseconds sleepDuration(500);
-		const int totalLength=88;
-		char buf[totalLength];
-		for(int i=0;i<88;++i){
+		char buf[128];
+		char buf2[128];
+		for(int i=0;i<128;++i){
 			buf[i]=' ';
+			buf2[i]='\b';
 		}
-		snprintf(buf,_title.size()+1,"%s",_title.c_str());
+
+		int titleSize=_title.size()+1;
+		snprintf(buf,titleSize,"%s",_title.c_str());
 		buf[_title.size()]='[';
-		char* barStart=buf+_title.size()+1;
-		barStart[50]=']';
-		buf[87]='\0';
+		buf[_title.size()+51]=']';
+		//到这里已经写了titleSize+52个字符了
+		char* barStart=&buf[_title.size()+1];
 		int it = 0;
 		while(!_threadExit){
 			if (it == 100) {
@@ -43,7 +46,7 @@ private:
 			/*for(int i=0;i<89;++i){
 				printf("\b");
 			}*/
-			printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			//printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			std::this_thread::sleep_for(sleepDuration);
 			Float percent=(Float)(_doneNum)/(_totalNum);
 			Float num=50*percent;
@@ -54,10 +57,20 @@ private:
 			//统计剩余时间
 			 std::chrono::system_clock::time_point now =std::chrono::system_clock::now();
 			 long long ep= std::chrono::duration_cast<std::chrono::milliseconds>(now-_startTime).count();
-			 Float seconds=ep/1000.0f;//已经经过的时间
-			 Float nokotaSeconds=seconds/percent-seconds;//剩余的时间
+			 int seconds=ep/1000;//已经经过的时间
+			 int s=seconds%3600;
+			 int m=seconds/60%60;
+			 int h=seconds/3600;
+		
+			 int nokotaSeconds=seconds/percent-seconds;//剩余的时间
+			 int ns=nokotaSeconds%3600;
+			 int nm=nokotaSeconds/60%60;
+			 int nh=nokotaSeconds/3600;
 
-			 snprintf(buf+52+_title.size(),24,"(s:%.1f|es:%.1f)              ",seconds,nokotaSeconds);
+			 snprintf(buf+52+_title.size(),34+6,"[percent:%.1f|%2d:%2d:%2d=>%2d:%2d:%2d]",percent,nh,nm,ns,h,m,s);//seconds,nokotaSeconds);
+			 buf[_title.size()+51+34+6+1]='\0';
+			 buf2[_title.size()+51+34+6+1]='\0';
+			 printf(buf2);
 			 fputs(buf, stdout);
 			 fflush(stdout);
 			 it++;
