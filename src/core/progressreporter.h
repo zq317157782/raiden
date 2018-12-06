@@ -57,15 +57,15 @@ private:
 			//统计剩余时间
 			 std::chrono::system_clock::time_point now =std::chrono::system_clock::now();
 			 long long ep= std::chrono::duration_cast<std::chrono::milliseconds>(now-_startTime).count();
-			 int seconds=ep/1000;//已经经过的时间
-			 int s=seconds%3600;
-			 int m=seconds/60%60;
-			 int h=seconds/3600;
+			 unsigned int seconds=ep/1000;//已经经过的时间
+			 unsigned int s=seconds%60;
+			 unsigned int m=seconds/60%60;
+			 unsigned int h=seconds/3600;
 		
-			 int nokotaSeconds=seconds/percent-seconds;//剩余的时间
-			 int ns=nokotaSeconds%3600;
-			 int nm=nokotaSeconds/60%60;
-			 int nh=nokotaSeconds/3600;
+			 unsigned int nokotaSeconds=seconds/percent-seconds;//剩余的时间
+			 unsigned int ns=nokotaSeconds%60;
+			 unsigned int nm=nokotaSeconds/60%60;
+			 unsigned int nh=nokotaSeconds/3600;
 
 			 snprintf(buf+52+_title.size(),34+6,"[percent:%.1f|%2d:%2d:%2d=>%2d:%2d:%2d]",percent,nh,nm,ns,h,m,s);//seconds,nokotaSeconds);
 			 buf[_title.size()+51+34+6+1]='\0';
