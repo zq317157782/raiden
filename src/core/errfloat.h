@@ -53,9 +53,16 @@ public:
 	}
 	//Check函数是内敛函数，然后内部的实现只在DEBUG_BUILD模式有用
 	//所以编译后如果不是DB模式，不会产生额外的代码
-	inline void Check() const {
+	inline void Check() const {	
 #ifdef DEBUG_BUILD
-		//todo 对数据的检查
+		if(!std::isinf(_low)&&!std::isinf(_high)&&!std::isnan(_low)&&!std::isnan(_high)){
+			Assert(_low<_high);
+		}
+
+		if(!std::isinf(_value)&&!std::isnan(_value)){
+			Assert(LowerBound()<_highPrecisionValue);
+			Assert(_highPrecisionValue<UpperBound());
+		}
 #endif
 	}
 
