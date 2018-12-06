@@ -51,8 +51,11 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 
 	if (tShapeHit.LowerBound() <= 0) {	//误差边界已经小于等于0了，不能用
 		tShapeHit = t1;
-		if (tShapeHit.UpperBound() > oRay.tMax)
+		if (tShapeHit.UpperBound() > oRay.tMax){
+			//射线在t0和t1之间，意味着整个射线都在圆内
 			return false;	//两个变量都不满足射线的有效范围，返回fasle
+		}
+			
 	}
 
 	Point3f pHit = oRay((Float) tShapeHit);	//获得相交点空间位置数据
@@ -61,8 +64,10 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 		pHit.x = 1e-5f * _radius;	//防止0/0产生NaN这样悲催的事情发生
 	}
 	Float phi = std::atan2(pHit.y, pHit.x);
-	if (phi < 0)
+	if (phi < 0){
 		phi += 2 * Pi;	//保证phi在0~2Pi范围之内
+	}
+		
 
 	//下面是比较交点和球体参数之间的关系
 	if ((_zMin > -_radius && _zMin > pHit.z)
@@ -83,8 +88,9 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 			pHit.x = 1e-5f * _radius;	//防止0/0产生NaN这样悲催的事情发生
 		}
 		phi = std::atan2(pHit.y, pHit.x);
-		if (phi < 0)
+		if (phi < 0){
 			phi += 2 * Pi;	//保证phi在0~2Pi范围之内
+		}
 		//然后以t1的身份再比较一次
 		if ((_zMin > -_radius && _zMin > pHit.z)
 				|| (_zMax < _radius && _zMax < pHit.z) || (phi > _phiMax)) {
@@ -98,7 +104,7 @@ bool Sphere::Intersect(const Ray& ray, Float* tHit,
 	Vector3f dpdu(-_phiMax * pHit.y, _phiMax * pHit.x, 0);
 	//三角函数关系计算cosPhi和sinPhi
 	Float phiEdge = std::sqrt(pHit.x * pHit.x + pHit.y * pHit.y);
-	Float invPhiEdge = 1.0f / phiEdge;
+	Float invPhiEdge = 1.0 / phiEdge;
 	Float cosPhi = pHit.x * invPhiEdge;
 	Float sinPhi = pHit.y * invPhiEdge;
 	Vector3f dpdv = Vector3f(pHit.z * cosPhi, pHit.z * sinPhi,
@@ -163,8 +169,9 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 
 	if (tShapeHit.LowerBound() <= 0) {	//误差边界已经小于等于0了，不能用
 		tShapeHit = t1;
-		if (tShapeHit.UpperBound() > oRay.tMax)
+		if (tShapeHit.UpperBound() > oRay.tMax){
 			return false;	//两个变量都不满足射线的有效范围，返回fasle
+		}
 	}
 	Point3f pHit = oRay((Float) tShapeHit);	//获得相交点空间位置数据
 	pHit = pHit * (_radius / Distance(pHit, Point3f(0, 0, 0)));	//refine?为啥?这么保守?
@@ -172,8 +179,9 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 		pHit.x = 1e-5f * _radius;	//防止0/0产生NaN这样悲催的事情发生
 	}
 	Float phi = std::atan2(pHit.y, pHit.x);
-	if (phi < 0)
+	if (phi < 0){
 		phi += 2 * Pi;	//保证phi在0~2Pi范围之内
+	}
 
 	//下面是比较交点和球体参数之间的关系
 	if ((_zMin > -_radius && _zMin > pHit.z)
@@ -194,8 +202,9 @@ bool Sphere::IntersectP(const Ray& ray, bool testAlpha) const {
 			pHit.x = 1e-5f * _radius;	//防止0/0产生NaN这样悲催的事情发生
 		}
 		phi = std::atan2(pHit.y, pHit.x);
-		if (phi < 0)
+		if (phi < 0){
 			phi += 2 * Pi;	//保证phi在0~2Pi范围之内
+		}
 		//然后以t1的身份再比较一次
 		if ((_zMin > -_radius && _zMin > pHit.z)
 				|| (_zMax < _radius && _zMax < pHit.z) || (phi > _phiMax)) {
