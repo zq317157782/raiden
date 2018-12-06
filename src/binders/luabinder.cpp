@@ -308,7 +308,8 @@ static void ParseIntArray(lua_State *L,ParamSet& set, const std::string& name) {
 static ParamSet GetParamSet(lua_State* L, int index) {
 	ParamSet set;
 	int t = index;
-	if(lua_gettop(L)<=index){
+	
+	if(lua_gettop(L)<index){
 		return set;
 	}
 	else if (!lua_istable(L, t)) {
