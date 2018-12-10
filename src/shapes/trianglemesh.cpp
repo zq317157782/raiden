@@ -99,7 +99,7 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 		return false;
 	}
 	Float det = e0 + e1 + e2;
-	//两条向量共边了,那就不是三角形了
+	//两条向量共边了,那就不是三角形了《==这个注释是错误的
 	if (det == 0) {
 		return false;
 	}
