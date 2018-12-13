@@ -393,7 +393,7 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 		material = CreateUnityMaterial(mp);
 	}
 	else {
-		Warning("Material \'" << name << "\'unknown. Using \'lambertian\'");
+		LWarning<<"Material \'" << name << "\'unknown. Using \'lambertian\'";
 		material = CreateLambertianMaterial(mp);
 	}
 	if (!material) {
@@ -513,7 +513,7 @@ std::shared_ptr<Texture<Float>> MakeFloatTexture(const std::string &name,
 		tex = CreateImageFloatTexture(tex2world, tp);
 	}
 	else {
-		Warning("Float texture \"" << name.c_str() << "\" unknown");
+		LWarning<<"Float texture \"" << name.c_str() << "\" unknown";
 	}
 	tp.ReportUnused();
 	return std::shared_ptr<Texture<Float>>(tex);
@@ -535,7 +535,7 @@ std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
 		tex = CreateUVTexture(tex2world, tp);
 	}
 	else {
-		Warning("Spectrum texture \"" << name.c_str() << "\" unknown");
+		LWarning<<"Spectrum texture \"" << name.c_str() << "\" unknown";
 	}
 	tp.ReportUnused();
 	return std::shared_ptr<Texture<Spectrum>>(tex);
@@ -898,12 +898,12 @@ Integrator *RenderOptions::MakeIntegrator() const {
 void raidenWorldEnd() {
 	VERIFY_WORLD("WorldEnd");
 	while (pushedGraphicsStates.size()) {
-		Warning("raidenAttributeEnd() miss match. try to fix it auto");
+		LWarning<<"raidenAttributeEnd() miss match. try to fix it auto";
 		pushedGraphicsStates.pop_back();
 		pushedTransforms.pop_back();
 	}
 	while (pushedTransforms.size()) {
-		Warning("raidenTransformEnd() miss match. try to fix it auto");
+		LWarning<<"raidenTransformEnd() miss match. try to fix it auto";
 		pushedTransforms.pop_back();
 	}
 
@@ -935,7 +935,7 @@ void raidenTexture(const std::string &name, const std::string &type,
 	if (type == "float") {
 		if (graphicsState.floatTextures.find(name)
 			!= graphicsState.floatTextures.end()) {
-			Warning("texture \'" << name << "\' being redifined.");
+			LWarning<<"texture \'" << name << "\' being redifined.";
 		}
 		std::shared_ptr<Texture<Float>> floatTex = MakeFloatTexture(texname,
 			curTransform[0], tp);
@@ -946,7 +946,7 @@ void raidenTexture(const std::string &name, const std::string &type,
 	else if (type == "spectrum" || type == "color") {
 		if (graphicsState.spectrumTextures.find(name)
 			!= graphicsState.spectrumTextures.end()) {
-			Warning("texture \'" << name << "\' being redifined.");
+			LWarning<<"texture \'" << name << "\' being redifined.";
 		}
 		std::shared_ptr<Texture<Spectrum>> spectrumTex = MakeSpectrumTexture(texname,
 			curTransform[0], tp);
@@ -985,7 +985,7 @@ void raidenMakeNamedMaterial(const std::string& name, const ParamSet& params) {
 	std::shared_ptr<Material> mtl = MakeMaterial(matName, mp);
 	if (graphicsState.namedMaterials.find(name)
 		!= graphicsState.namedMaterials.end()) {
-		Warning("Named material \"" << name << "\" redefined");
+		LWarning<<"Named material \"" << name << "\" redefined";
 	}
 	graphicsState.namedMaterials[name] = mtl;
 }

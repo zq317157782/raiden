@@ -68,19 +68,19 @@ class Aggregate: public Primitive {
 	virtual void ComputeScatteringFunctions(SurfaceInteraction *isect,
 			MemoryArena &arena, TransportMode mode,
 			bool allowMultipleLobes) const override {
-		Warning("Aggregate::ComputeScatteringFunctions () method "
-				"called; should have gone to GeometricPrimitive");
+		LWarning<<"Aggregate::ComputeScatteringFunctions () method "
+				"called; should have gone to GeometricPrimitive";
 	}
 
 	virtual const AreaLight *GetAreaLight() const override {
-		Warning("Aggregate::GetAreaLight() method "
-				"called; should have gone to GeometricPrimitive");
+		LWarning<<"Aggregate::GetAreaLight() method "
+				"called; should have gone to GeometricPrimitive";
 		return nullptr;
 	}
 
 	virtual const Material *GetMaterial() const override {
-		Warning("Aggregate::GetMaterial() method "
-			"called; should have gone to GeometricPrimitive");
+		LWarning<<"Aggregate::GetMaterial() method "
+			"called; should have gone to GeometricPrimitive";
 		return nullptr;
 	}
 };

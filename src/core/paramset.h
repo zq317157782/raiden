@@ -100,7 +100,7 @@ public:
 
 	//报告为使用的参数
 	void ReportUnused() const{
-#define CHECK_UNUSED(v) for(i=0;i<(v).size();++i){if(!(v)[i]->lookUp){ Warning("Parameter:\'"<<(v)[i]->name<<"\' not used"); }}
+#define CHECK_UNUSED(v) for(i=0;i<(v).size();++i){if(!(v)[i]->lookUp){ LWarning<<"Parameter:\'"<<(v)[i]->name<<"\' not used"; }}
 		size_t i = 0;
 		CHECK_UNUSED(_bools);
 		CHECK_UNUSED(_ints);

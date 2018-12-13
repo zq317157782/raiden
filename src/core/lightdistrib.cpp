@@ -15,7 +15,7 @@ std::unique_ptr<LightDistribution> ComputeLightSampleDistribution(
 		return std::unique_ptr<PowerLightDistribution>(
 				new PowerLightDistribution(scene));
 	} else {
-		Warning("LightStrategy "<<lightStrategy<<" is unknown,use uniform");
+		LWarning<<"LightStrategy "<<lightStrategy<<" is unknown,use uniform";
 		return std::unique_ptr<UniformLightDistribution>(
 				new UniformLightDistribution(scene));
 	}

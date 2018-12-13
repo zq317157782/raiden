@@ -24,7 +24,7 @@ std::shared_ptr<BVHAccelerator> CreateBVHAccelerator(
 	}
 	else {
 		splitMethod = BVHAccelerator::SplitMethod::SAH;
-		Warning("SplitMethod:" << splitMethodName << " is unknown, using SAH Method.");
+		LWarning<<"SplitMethod:" << splitMethodName << " is unknown, using SAH Method.";
 	}
 	Debug("[CreateBVHAccelerator][SplitMethod:"<< splitMethodName <<"]");
 	return std::make_shared<BVHAccelerator>(prims, splitMethod);

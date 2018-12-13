@@ -183,7 +183,7 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
     std::string filename = params.FindOneString("filename", "");
     if (RaidenOptions.imageFile != "") {
         if (filename != "") {
-        	Warning("ingore commandline filename:"<<RaidenOptions.imageFile.c_str()<<",use descriptionfile filename:"<<filename.c_str())
+        	LWarning<<"ingore commandline filename:"<<RaidenOptions.imageFile.c_str()<<",use descriptionfile filename:"<<filename.c_str();
         } else{
             filename = RaidenOptions.imageFile;
         }

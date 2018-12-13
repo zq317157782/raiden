@@ -417,9 +417,9 @@ std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
 			uvs = nullptr;
 		}
 		else if (nuvi > npi) {
-			Warning(
+			LWarning<<
 				"More \"uv\"s provided than will be used for triangle "
-				"mesh.  (" << npi << " expcted, " << nuvi << " found)");
+				"mesh.  (" << npi << " expcted, " << nuvi << " found)";
 		}
 	}
 	if (!vi) {

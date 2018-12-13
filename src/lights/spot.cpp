@@ -33,14 +33,14 @@ Spectrum SpotLight::Power() const {
 
 Spectrum SpotLight::Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
 	Ray *ray, Normal3f *nLight, Float *pdfPos, Float *pdfDir) const {
-	Warning("SpotLight::Sample_Le invalid");
+	LWarning<<"SpotLight::Sample_Le invalid";
 	Assert(false);
 	return 0;
 }
 
 void SpotLight::Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
 	Float *pdfDir) const {
-	Warning("SpotLight::Pdf_Le invalid");
+	LWarning<<"SpotLight::Pdf_Le invalid";
 	Assert(false);
 }
 
