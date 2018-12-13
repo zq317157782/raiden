@@ -89,10 +89,10 @@ static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 #define ALLOCA(TYPE, COUNT) (TYPE *) alloca((COUNT) * sizeof(TYPE))
 
 //打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
-#define Error(x) LOG(ERROR)<<x;
-#define Warning(x) LOG(WARNING)<<x;
-#define Info(x) LOG(INFO)<<x;
-#define Debug(x) DLOG(INFO)<<x;
+// #define Error(x) LOG(ERROR)<<x;
+ #define Warning(x) LOG(WARNING)<<x;
+ #define Info(x) LOG(INFO)<<x;
+ #define Debug(x) DLOG(INFO)<<x;
 
 #define LError LOG(ERROR)
 #define LWarning LOG(WARNING)

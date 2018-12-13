@@ -19,7 +19,7 @@ AOIntegrator *CreateAOIntegrator(
 		else {
 			pixelBounds = Intersect(pixelBounds, Bound2i{ { pb[0], pb[2] },{ pb[1], pb[3] } });
 			if (pixelBounds.Area() == 0) {
-				Error("\"pixelbounds\"is a tuihua bound.");
+				LError<<"\"pixelbounds\"is a tuihua bound.";
 			}
 		}
 	}

@@ -114,7 +114,7 @@ OrthoCamera *CreateOrthoCamera(const ParamSet &params,
 			screen.minPoint.y = sw[2];
 			screen.maxPoint.y = sw[3];
 		} else
-			Error("\"screenwindow\" should have four values");
+			LError<<"\"screenwindow\" should have four values";
 	}
 	Debug("[make OrthoCamera lensradius:"<<lensradius<<" focaldistance:"<<focaldistance<<"]");
 	return new OrthoCamera(cam2world, screen, shutteropen, shutterclose,

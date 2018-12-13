@@ -351,8 +351,8 @@ std::shared_ptr<Texture<Spectrum>> TextureParams::GetSpectrumTexture(
 			return _spectrumTextures[name];
 		}
 		else{
-			Error("Couldn't find spectrum texture named \""<<name<<"\""
-	                "for parameter \""<<n<<"\"");
+			LError<<"Couldn't find spectrum texture named \""<<name<<"\""
+	                "for parameter \""<<n<<"\"";
 		}
 	}
 	Spectrum value=_materialParams.FindOneSpectrum(n,def);
@@ -372,8 +372,8 @@ std::shared_ptr<Texture<Float>> TextureParams::GetFloatTexture(
 			return _floatTextures[name];
 		}
 		else {
-			Error("Couldn't find float texture named \"" << name << "\""
-				"for parameter \"" << n << "\"");
+			LError<<"Couldn't find float texture named \"" << name << "\""
+				"for parameter \"" << n << "\"";
 		}
 	}
 	Float value = _materialParams.FindOneFloat(n, def);

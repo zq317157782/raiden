@@ -59,7 +59,7 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 							icol = k;
 						}
 					} else if (ipiv[k] > 1)
-						Error("Singular matrix in MatrixInvert");
+						LError<<"Singular matrix in MatrixInvert";
 				}
 			}
 		}
@@ -72,7 +72,7 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 		indxr[i] = irow;
 		indxc[i] = icol;
 		if (minv[icol][icol] == 0.f)
-			Error("Singular matrix in MatrixInvert");
+			LError<<"Singular matrix in MatrixInvert";
 
 		// Set $m[icol][icol]$ to one by scaling row _icol_ appropriately
 		Float pivinv = 1. / minv[icol][icol];

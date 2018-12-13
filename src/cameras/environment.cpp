@@ -33,7 +33,7 @@ EnvironmentCamera *CreateEnvironmentCamera(const ParamSet &params,
 			screen.maxPoint.y = sw[3];
 		}
 		else
-			Error("\"screenwindow\" should have four values");
+			LError<<"\"screenwindow\" should have four values";
 	}
 	return new EnvironmentCamera(cam2world, shutteropen, shutterclose, film, medium);
 }

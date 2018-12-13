@@ -6,8 +6,8 @@
 #define PARAM_TYPR_WRONG(x) lua_getglobal(L, "debug");\
 							lua_getfield(L, -1, "traceback");\
 int iError = lua_pcall( L,0,1,0);\
-Error("[wrong param]"<<x);\
-Error(lua_tostring(L, -1));\
+LError<<"[wrong param]"<<x;\
+LError<<lua_tostring(L, -1);\
 exit(1);
 
 //static void Init(lua_State *L) {

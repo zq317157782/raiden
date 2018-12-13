@@ -235,7 +235,7 @@ PerspectiveCamera *CreatePerspectiveCamera(const ParamSet &params,
     			screen.minPoint.y = sw[2];
     			screen.maxPoint.y = sw[3];
     		} else
-    			Error("\"screenwindow\" should have four values");
+    			LError<<"\"screenwindow\" should have four values";
     	}
     Float fov = params.FindOneFloat("fov", 90.0);
     Float halffov = params.FindOneFloat("halffov", -1.0f);

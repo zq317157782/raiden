@@ -382,7 +382,7 @@ struct Vertex {
 		} else if (type == VertexType::Medium) {
 			pdf = mi.phase->P(wp, wn);
 		} else {
-			Error("Unimplemented in Vertex::Pdf!");
+			LError<<"Unimplemented in Vertex::Pdf!";
 		}
 		//转换到area measurement
 		return ConvertDensity(pdf, next);

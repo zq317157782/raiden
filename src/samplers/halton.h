@@ -85,7 +85,7 @@ public:
 
 	const uint16_t *PermutationForDimension(int dim) const {
 		if (dim >= PrimeTableSize) {
-			Error("HaltonSampler can only sample " << PrimeTableSize << " " "dimensions.");
+			LError<<"HaltonSampler can only sample " << PrimeTableSize << " " "dimensions.";
 		}
 		return &_radicalInversePermutations[PrimeSums[dim]];
 	}

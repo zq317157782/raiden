@@ -201,7 +201,7 @@ Film *CreateFilm(const ParamSet &params, std::unique_ptr<Filter> filter) {
         crop.minPoint.y = Clamp(std::min(cr[2], cr[3]), 0.0f, 1.0f);
         crop.maxPoint.y = Clamp(std::max(cr[2], cr[3]), 0.0f, 1.0f);
     } else if (cr){
-    	Error("cropwindow need four values, and "<<cwi<<" for now.");
+    	LError<<"cropwindow need four values, and "<<cwi<<" for now.";
     }
     Float maxSampleLuminance = params.FindOneFloat("maxsampleluminance",
                                                    Infinity);

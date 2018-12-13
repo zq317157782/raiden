@@ -2254,8 +2254,8 @@ Float ScrambledRadicalInverse(int baseIndex, uint64_t a,const uint16_t* perm) {
 	case 1023:
 		return ScrambledRadicalInverseSpecialized<8161>(perm, a);
 	default:
-		Error("Base "<<baseIndex<<" is >= 1024, the limit of "
-			"ScrambledRadicalInverse");
+		LError<<"Base "<<baseIndex<<" is >= 1024, the limit of "
+			"ScrambledRadicalInverse";
 		return 0;
 	}
 }
@@ -4312,7 +4312,7 @@ Float RadicalInverse(int baseIndex, uint64_t a) {
 	case 1023:
 		return RadicalInverseSpecialized<8161>(a);
 	default:
-		Error("Base " << baseIndex << " is >= 1024, the limit of RadicalInverse");
+		LError<<"Base " << baseIndex << " is >= 1024, the limit of RadicalInverse";
 		return 0;
 	}
 }

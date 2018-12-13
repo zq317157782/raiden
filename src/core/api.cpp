@@ -220,7 +220,7 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 			reverseOrientation, paramSet);
 	}
 	else {
-		Error("shape \"" << name.c_str() << "\" unknown.");
+		LError<<"shape \"" << name.c_str() << "\" unknown.";
 	}
 	if (s != nullptr) {
 		shapes.push_back(s);
@@ -244,7 +244,7 @@ std::shared_ptr<Primitive> MakeAccelerator(const std::string &name,
 		accel = CreateBVHAccelerator(prims, paramSet);
 	}
 	else {
-		Error("accelerator \"" << name.c_str() << "\" unknown.");
+		LError<<"accelerator \"" << name.c_str() << "\" unknown.";
 	}
 	paramSet.ReportUnused();
 	return accel;
@@ -276,7 +276,7 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 			mediumInterface.outside);
 	}
 	else {
-		Error("camera \"" << name.c_str() << "\" unknown.");
+		LError<<"camera \"" << name.c_str() << "\" unknown.";
 	}
 	paramSet.ReportUnused();
 	return camera;
@@ -289,7 +289,7 @@ Film *MakeFilm(const std::string &name, const ParamSet &paramSet,
 		film = CreateFilm(paramSet, std::move(filter));
 	}
 	else {
-		Error("film \"" << name.c_str() << "\" unknown.");
+		LError<<"film \"" << name.c_str() << "\" unknown.";
 	}
 	paramSet.ReportUnused();
 	return film;
@@ -308,7 +308,7 @@ std::shared_ptr<Sampler> MakeSampler(const std::string &name,
 		sampler = CreateHaltonSampler(paramSet, film->croppedPixelBound);
 	}
 	else {
-		Error("sampler \"" << name.c_str() << "\" unknown.");
+		LError<<"sampler \"" << name.c_str() << "\" unknown.";
 	}
 	return std::shared_ptr<Sampler>(sampler);
 }
@@ -320,7 +320,7 @@ std::unique_ptr<Filter> MakeFilter(const std::string &name,
 		filter = CreateBoxFilter(paramSet);
 	}
 	else {
-		Error("filter \"" << name.c_str() << "\" unknown.");
+		LError<<"filter \"" << name.c_str() << "\" unknown.";
 		exit(1);
 	}
 	paramSet.ReportUnused();
@@ -344,7 +344,7 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
 		light = CreateInfiniteAreaLight(light2world,paramSet);
 	}
 	else {
-		Error("light \"" << name.c_str() << "\" unknown.");
+		LError<<"light \"" << name.c_str() << "\" unknown.";
 	}
 	paramSet.ReportUnused();
 	return light;
@@ -358,7 +358,7 @@ std::shared_ptr<AreaLight> MakeAreaLight(const std::string &name,
 		light = CreateDiffuseAreaLight(light2world, paramSet, shape);
 	}
 	else {
-		Error("area light \"" << name.c_str() << "\" unknown.");
+		LError<<"area light \"" << name.c_str() << "\" unknown.";
 		light = nullptr;
 	}
 	paramSet.ReportUnused();
@@ -397,7 +397,7 @@ std::shared_ptr<Material> MakeMaterial(const std::string &name,
 		material = CreateLambertianMaterial(mp);
 	}
 	if (!material) {
-		Error("Unable to create material " << name);
+		LError<<"Unable to create material " << name;
 	}
 	mp.ReportUnused();
 	return std::shared_ptr<Material>(material);
@@ -463,8 +463,8 @@ std::shared_ptr<Material> GraphicsState::CreateMaterial(
 		}
 		else {
 			//并没有找到相应的已经命名了的材质,用lambertian代替
-			Error(
-				"Named material \"" << currentNamedMaterial << "\" not defined. Using \"lambertian\".");
+			LError<<
+				"Named material \"" << currentNamedMaterial << "\" not defined. Using \"lambertian\".";
 			mtl = MakeMaterial("lambertian", mp);
 		}
 	}
@@ -485,7 +485,7 @@ MediumInterface GraphicsState::CreateMediumInterface() {
 			!= renderOptions->namedMedia.end())
 			m.inside = renderOptions->namedMedia[currentInsideMedium].get();
 		else {
-			Error("Named medium \"" << currentInsideMedium << "\" undefined.");
+			LError<<"Named medium \"" << currentInsideMedium << "\" undefined.";
 		}
 	}
 	if (currentOutsideMedium != "") {
@@ -493,7 +493,7 @@ MediumInterface GraphicsState::CreateMediumInterface() {
 			!= renderOptions->namedMedia.end())
 			m.outside = renderOptions->namedMedia[currentOutsideMedium].get();
 		else {
-			Error("Named medium \"" << currentOutsideMedium << "\" undefined.");
+			LError<<"Named medium \"" << currentOutsideMedium << "\" undefined.";
 		}
 	}
 	return m;
@@ -544,19 +544,19 @@ std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
 //确认现在的系统是否已经初始完毕
 #define VERIFY_INITIALIZED(func)                           \
     if (currentApiState == APIState::Uninitialized) {      \
-    	Error("need call raidenInit() before call "<<func<<"()");	\
+    	LError<<"need call raidenInit() before call "<<func<<"()";	\
         return;                                            \
     } else
 
 #define VERIFY_OPTIONS(func)                           \
     if (currentApiState == APIState::WorldBlock) {      \
-    	Error("can't call "<<func<<"() inside WorlBlock.");	\
+    	LError<<"can't call "<<func<<"() inside WorlBlock.";	\
         return;                                          \
     } else
 
 #define VERIFY_WORLD(func)                           \
     if (currentApiState == APIState::OptionsBlock) {      \
-    	Error("must call "<<func<<"() inside WorlBlock.");	\
+    	LError<<"must call "<<func<<"() inside WorlBlock.";	\
         return;                                          \
     } else
 
@@ -570,7 +570,7 @@ std::shared_ptr<Texture<Spectrum>> MakeSpectrumTexture(const std::string &name,
 void raidenInit(const Options &opt) {
 	RaidenOptions = opt; //初始化系统参数
 	if (currentApiState != APIState::Uninitialized) {
-		Error("raidenInit() has been called.");
+		LError<<"raidenInit() has been called.";
 	}
 	currentApiState = APIState::OptionsBlock;
 	renderOptions.reset(new RenderOptions);
@@ -582,7 +582,7 @@ void raidenInit(const Options &opt) {
 
 void raidenCleanup() {
 	if (currentApiState == APIState::Uninitialized) {
-		Error("raidenInit() must be called befor call raidenCleanup().");
+		LError<<"raidenInit() must be called befor call raidenCleanup().";
 	}
 	else if (currentApiState == APIState::WorldBlock) {
 		printf("raidenCleanup() can't be called inside WorldBlock.");
@@ -663,7 +663,7 @@ void raidenCoordSysTransform(const std::string &name) {
 		curTransform = namedCoordinateSystems[name];
 	}
 	else {
-		Error("cant find CoordinateSystem: \"" << name.c_str() << "\"");
+		LError<<"cant find CoordinateSystem: \"" << name.c_str() << "\"";
 	}
 }
 
@@ -731,7 +731,7 @@ void raidenLightSource(const std::string& name, const ParamSet &params) {
 		renderOptions->lights.push_back(light); //插入光源
 	}
 	else {
-		Error("Light Source Type \'" << name << "\' unknown");
+		LError<<"Light Source Type \'" << name << "\' unknown";
 	}
 }
 
@@ -816,7 +816,7 @@ void raidenTransformBegin() {
 void raidenTransformEnd() {
 	VERIFY_WORLD("TransformEnd");
 	if (!pushedTransforms.size()) {
-		Error("raidenTransformEnd() miss match");
+		LError<<"raidenTransformEnd() miss match";
 		return;
 	}
 	curTransform = pushedTransforms.back();
@@ -843,7 +843,7 @@ Camera *RenderOptions::MakeCamera() const {
 	std::unique_ptr<Filter> filter = MakeFilter(FilterName, FilterParams);
 	Film *film = MakeFilm(FilmName, FilmParams, std::move(filter));
 	if (!film) {
-		Error("film cant be made.");
+		LError<<"film cant be made.";
 		return nullptr;
 	}
 	Camera *camera = ::MakeCamera(CameraName, CameraParams, CameraToWorld, film);
@@ -853,13 +853,13 @@ Camera *RenderOptions::MakeCamera() const {
 Integrator *RenderOptions::MakeIntegrator() const {
 	std::shared_ptr<const Camera> camera(MakeCamera());
 	if (!camera) {
-		Error("camera cant be made.");
+		LError<<"camera cant be made.";
 		return nullptr;
 	}
 	std::shared_ptr<Sampler> sampler = MakeSampler(SamplerName, SamplerParams,
 		camera->film);
 	if (!sampler) {
-		Error("sampler cant be made.");
+		LError<<"sampler cant be made.";
 		return nullptr;
 	}
 
@@ -889,7 +889,7 @@ Integrator *RenderOptions::MakeIntegrator() const {
 		integrator = CreateAOIntegrator(IntegratorParams, sampler, camera);
 	}
 	else {
-		Error("integrator \"" << IntegratorName.c_str() << "\" unkonwn.");
+		LError<<"integrator \"" << IntegratorName.c_str() << "\" unkonwn.";
 		return nullptr;
 	}
 	return integrator;
@@ -955,7 +955,7 @@ void raidenTexture(const std::string &name, const std::string &type,
 		}
 	}
 	else {
-		Error("texture type\"" << type << "\" unknown.");
+		LError<<"texture type\"" << type << "\" unknown.";
 		//exit(1);
 	}
 }
@@ -979,7 +979,7 @@ void raidenMakeNamedMaterial(const std::string& name, const ParamSet& params) {
 		graphicsState.spectrumTextures);
 	std::string matName = mp.FindString("type"); //寻找NamedMaterial的类型
 	if (matName == "") {
-		Error("No parameter string \"type\" found in MakeNamedMaterial");
+		LError<<"No parameter string \"type\" found in MakeNamedMaterial";
 	}
 
 	std::shared_ptr<Material> mtl = MakeMaterial(matName, mp);
@@ -994,7 +994,7 @@ void raidenMakeNamedMedium(const std::string &name, const ParamSet &params) {
 	VERIFY_INITIALIZED("MakeNamedMedium");
 	std::string type = params.FindOneString("type", "");
 	if (type == "") {
-		Error("No parameter string \"type\" found in MakeNamedMedium");
+		LError<<"No parameter string \"type\" found in MakeNamedMedium";
 	}
 	else {
 		std::shared_ptr<Medium> medium = MakeMedium(type, params, curTransform[0]);

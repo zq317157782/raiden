@@ -411,9 +411,9 @@ std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
 	}
 	if (uvs) {
 		if (nuvi < npi) {
-			Error(
+			LError<<
 				"Not enough of \"uv\"s for triangle mesh.  Expected "<< npi <<", "
-				"found "<< nuvi <<".  Discarding.");
+				"found "<< nuvi <<".  Discarding.";
 			uvs = nullptr;
 		}
 		else if (nuvi > npi) {
@@ -423,29 +423,29 @@ std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
 		}
 	}
 	if (!vi) {
-		Error(
-			"Vertex indices \"indices\" not provided with triangle mesh shape");
+		LError<<
+			"Vertex indices \"indices\" not provided with triangle mesh shape";
 		return std::vector<std::shared_ptr<Shape>>();
 	}
 	if (!P) {
-		Error("Vertex positions \"P\" not provided with triangle mesh shape");
+		LError<<"Vertex positions \"P\" not provided with triangle mesh shape";
 		return std::vector<std::shared_ptr<Shape>>();
 	}
 	const Vector3f *S = params.FindVector3f("S", &nsi);
 	if (S && nsi != npi) {
-		Error("Number of \"S\"s for triangle mesh must match \"P\"s");
+		LError<<"Number of \"S\"s for triangle mesh must match \"P\"s";
 		S = nullptr;
 	}
 	const Normal3f *N = params.FindNormal3f("N", &nni);
 	if (N && nni != npi) {
-		Error("Number of \"N\"s for triangle mesh must match \"P\"s");
+		LError<<"Number of \"N\"s for triangle mesh must match \"P\"s";
 		N = nullptr;
 	}
 	for (int i = 0; i < nvi; ++i) {
 		if (vi[i] >= npi) {
-			Error(
+			LError<<
 				"trianglemesh has out of-bounds vertex index " << vi[i] << " (" << npi << " \"P\" "
-				"values were given)");
+				"values were given)";
 			return std::vector<std::shared_ptr<Shape>>();
 		}
 	}
