@@ -92,4 +92,52 @@ class Disk : public Shape
         (*surfaceInsect)=(*objectToWorld)(SurfaceInteraction(hit,pError,Point2f(u,v),-ray.d,dpdu,dpdv,dndu,dndv,ray.time,this));
         return true;
     }
+
+    virtual bool IntersectP(const Ray& ray,bool testAlpha=true)const override {
+         Vector3f oErr, dErr;
+	    Ray oRay = (*worldToObject)(ray, &oErr, &dErr);
+        //判断是否和disk平行
+        if(oRay.d.z==0){
+            return false;
+        }
+        Float t=(_height-oRay.o.z)/oRay.d.z;
+        //判断t是否在有效范围内
+        if(t<0||t>oRay.tMax){
+            return false;
+        }
+        //获取交点
+        auto hit=oRay(t);
+
+        Float dist2=hit.x*hit.x+hit.y*hit.y;
+        if(dist2>(_radius*_radius)||dist2<(_innerRadius*_innerRadius)){
+            return false;
+        }
+
+        Float phi=std::atan2(hit.y,hit.x);
+        if(phi<0){
+            phi+=2*Pi;
+        }
+        if(phi>_phiMax){
+            return false;
+        }
+        return true;
+    }
+
+    virtual Interaction Sample(const Point2f& uv,Float *pdf) const override{
+        LError<<"Disk::Sample is not implemented!";
+        Assert(false);
+       return Interaction();
+    }
+
+    virtual Interaction Sample(const Interaction& ref,const Point2f& u, Float *pdf) const override{
+         LError<<"Disk::Sample is not implemented!";
+         Assert(false);
+         return Interaction();
+    }
+
 };
+
+std::shared_ptr<Shape> CreateDiskShape(const Transform *o2w,
+                                         const Transform *w2o,
+                                         bool reverseOrientation,
+                                         const ParamSet &params);

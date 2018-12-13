@@ -211,6 +211,9 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 	if (name == "sphere") {
 		s = CreateSphereShape(object2world, world2object, reverseOrientation,
 			paramSet);
+	}else if(name == "disk"){
+		s = CreateDiskShape(object2world, world2object,
+			reverseOrientation, paramSet);
 	}
 	else if (name == "trianglemesh") {
 		shapes = CreateTriangleMeshShape(object2world, world2object,
