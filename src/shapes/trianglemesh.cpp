@@ -48,12 +48,18 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	const Point3f& v1 = _mesh->vertices[_vertexIndices[0]];
 	const Point3f& v2 = _mesh->vertices[_vertexIndices[1]];
 	const Point3f& v3 = _mesh->vertices[_vertexIndices[2]];
+
+	//以下是经过1.Translate 2.Permutation 3.Shear三个变换组成的仿射变换
+
+	//1.Translate
 	//变换Ray的起始点到(0,0,0)
 	Vector3f origin = Vector3f(ray.o);
 	Point3f v1t = v1 - origin;
 	Point3f v2t = v2 - origin;
 	Point3f v3t = v3 - origin;
 
+
+	//2.Permutation
 	//重新排列ray的方向的x,y,z分量，保证z分量的绝对值最大(不为0)
 	//这里没用取余是为了避免浮点数的除法运算
 	int zk = MaxDimension(Abs(ray.d));
@@ -69,6 +75,8 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 	v2t = Permute(v2t, xk, yk, zk);
 	v3t = Permute(v3t, xk, yk, zk);
 	Vector3f d = Permute(ray.d, xk, yk, zk);
+
+	//3.Shear
 	//使ray的方向指向局部坐标的(0,0,1)
 	Float sx = -d.x / d.z;
 	Float sy = -d.y / d.z;
