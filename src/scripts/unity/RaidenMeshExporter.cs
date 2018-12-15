@@ -145,7 +145,7 @@ public class RaidenMeshExporter : MonoBehaviour
         _out.WriteLine("meshs.indices={}");
         for(int i = 0; i < _meshFilter.sharedMesh.subMeshCount; ++i)
         {
-            _out.WriteLine("meshs.indices["+i+"]={"+IntArrayToString(_indices[i])+"}");
+            _out.WriteLine("meshs.indices["+i+"]={'int[]',{"+IntArrayToString(_indices[i])+"}}");
         }
         _out.WriteLine("return meshs");
         _out.Flush();
