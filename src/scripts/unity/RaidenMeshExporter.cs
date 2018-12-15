@@ -115,7 +115,7 @@ public class RaidenMeshExporter : MonoBehaviour
     [ContextMenu("Export as Lua file")]
     void ExportAsLua()
     {
-        var dir = "raiden_output";
+        var dir = "raiden_meshs";
 
         if (!Directory.Exists(dir))
         {
