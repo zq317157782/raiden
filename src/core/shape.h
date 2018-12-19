@@ -40,7 +40,10 @@ public:
 	//根据一个ref点，采样一个在shape表面，并且方向指向ref的点，以及它的立体角pdf
 	virtual Interaction Sample(const Interaction& ref,const Point2f& u, Float *pdf) const = 0;
 	virtual Float Pdf(const Interaction& ref, const Vector3f& wi) const;
-
+	
+	virtual std::vector<Point3f> UVToWorldPosition(const Point2f& uv,bool* valid) const{
+		return std::vector<Point3f>();
+	}
 };
 
 #endif /* SRC_CORE_SHAPE_H_ */
