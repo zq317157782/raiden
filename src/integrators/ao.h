@@ -14,16 +14,22 @@
 #include "scene.h"
 #include "sampling.h"
 //计算AO信息
+
+enum AOMode{
+	VIEW,SCENE
+};
+
 class AOIntegrator : public SamplerIntegrator
 {
   private:
 	uint32_t _sampleNum;
-
+	AOMode _mode;
   public:
-	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
+	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum,AOMode mode=AOMode::SCENE) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
 	{
 		//申请相应的样本空间
 		sampler->Request2DArray(sampleNum);
+		_mode=mode;
 	}
 
 	virtual Spectrum Li(const RayDifferential &r, const Scene &scene,
@@ -34,7 +40,39 @@ class AOIntegrator : public SamplerIntegrator
 		RayDifferential ray(r);
 		SurfaceInteraction ref; //和表面的交互点
 
-	//这个goto是为了如果交点是PM的话，需要继续延申射线
+		if(_mode==AOMode::VIEW){
+			//计算从切线坐标系到世界坐标系的FRAME
+			//这里使用的是几何法线
+			 auto n=(Normal3f)ray.d;
+			 Vector3f t;
+			 Vector3f b;
+			 CoordinateSystem((Vector3f)n,&t,&b);
+
+			 auto samples = sampler.Get2DArray(_sampleNum);
+			 for(uint32_t i=0;i<_sampleNum;++i)
+			 {
+				auto sample=samples[i];
+				//采样样本
+				//切线空间
+				auto wi = UniformSampleHemisphere(sample);
+				auto pdf = UniformHemispherePdf();
+				//转换到世界坐标系
+				auto cosTheta=std::abs(wi.z);
+				wi=Vector3f(
+					t.x*wi.x+b.x*wi.y+n.x*wi.z,
+					t.y*wi.x+b.y*wi.y+n.y*wi.z,
+					t.z*wi.x+b.z*wi.y+n.z*wi.z
+				);
+
+				ray.d=Normalize(wi);
+				if (!scene.IntersectP(ray))
+				{
+					L += (Dot(wi,n) / (pdf*_sampleNum));
+				}
+			 }
+			return L;
+		}else {
+			//这个goto是为了如果交点是PM的话，需要继续延申射线
 	retry:
 		bool isHit = scene.Intersect(ray, &ref);
 		if (isHit)
@@ -71,12 +109,13 @@ class AOIntegrator : public SamplerIntegrator
 					t.z*wi.x+b.z*wi.y+n.z*wi.z
 				);
 
-				auto rr = ref.SpawnRay(wi);
+				auto rr = ref.SpawnRay(Normalize(wi));
 				if (!scene.IntersectP(rr))
 				{
 					L += (Dot(wi,n) / (pdf*_sampleNum));
 				}
 			}
+		}
 		}
 		return L;
 	};

@@ -11,6 +11,14 @@ AOIntegrator *CreateAOIntegrator(
 	std::shared_ptr<const Camera> camera) {
 	int np;
 	const int *pb = params.FindInt("pixelbounds", &np);
+	auto modeStr = params.FindOneString("mode","scene");
+	AOMode mode;
+	if(modeStr=="view"){
+		mode=AOMode::VIEW;
+	}else {
+		mode=AOMode::SCENE;
+	}
+
 	Bound2i pixelBounds = camera->film->GetSampleBounds();
 	if (pb) {
 		if (np != 4)
@@ -26,7 +34,7 @@ AOIntegrator *CreateAOIntegrator(
 
 	uint32_t sampleNum = params.FindOneInt("samplenum", 32);
 	
-	return new AOIntegrator(camera, sampler, pixelBounds,sampleNum);
+	return new AOIntegrator(camera, sampler, pixelBounds,sampleNum,mode);
 }
 
 
