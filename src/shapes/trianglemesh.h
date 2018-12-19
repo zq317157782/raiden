@@ -128,7 +128,7 @@ public:
 	}
 
 	//从uv坐标映射到三角面世界坐标系的函数,可能不是一一对应
-	virtual std::vector<Point3f> UVToWorldPosition(const Point2f& uv,bool* valid) const override{
+	virtual bool UVToWorld(const Point2f& uv,UVInteraction* insect)const override{
 		//获取当前三角面的3个uv坐标
 		Point2f uvs[3];
 		GetUVs(uvs);
@@ -147,18 +147,12 @@ public:
 #endif
 	//判断是否相交
 	if ((e0 < 0 || e1 < 0 || e2 < 0) && (e0 > 0 || e1 > 0 || e2 > 0)) {
-		if(valid){
-			(*valid)=false;
-		}
-		return std::vector<Point3f>();
+		return false;
 	}
 
 	Float det = e0 + e1 + e2;
 	if (det == 0) {
-		if(valid){
-			(*valid)=false;
-		}
-		return std::vector<Point3f>();
+		return false;
 	}
 
 	//走到这就说明相交了
@@ -171,14 +165,28 @@ public:
 	const Point3f& v1 = _mesh->vertices[_vertexIndices[0]];
 	const Point3f& v2 = _mesh->vertices[_vertexIndices[1]];
 	const Point3f& v3 = _mesh->vertices[_vertexIndices[2]];
-
+	
 	Point3f p = v1 * b0 + v2 * b1 + v3 * b2;
+	Vector3f dp02 = v1 - v3, dp12 = v2 - v3;
+
 	std::vector<Point3f> set;
 	set.push_back(p);
-	if(valid){
-		(*valid)=true;
+	if(insect){
+		Normal3f n=Normal3f(Normalize(Cross(dp02, dp12)));
+		(*insect) = UVInteraction(p, n);
+		Normal3f ns;
+		if (_mesh->normals) {
+			ns = (b0 * _mesh->normals[_vertexIndices[0]]
+					+ b1 * _mesh->normals[_vertexIndices[1]]
+					+ b2 * _mesh->normals[_vertexIndices[2]]);
+			//判断是否为合法网格
+			if (ns.LengthSquared() > 0.0f) {
+				ns = Normalize(ns);
+				insect->n=ns;
+			} 
+		}
 	}
-	return  set;
+	return  true;
 	}
 };
 

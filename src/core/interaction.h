@@ -124,4 +124,17 @@ public:
 };
 
 
+class UVInteraction {
+	public:
+		Point3f  p;
+	    Normal3f n;
+	public:
+	UVInteraction(){}
+	UVInteraction(const Point3f &pp,const Normal3f &nn){
+		p=pp;
+		n=nn;
+	}
+};
+
+
 #endif /* SRC_CORE_INTERACTION_H_ */

@@ -41,8 +41,8 @@ public:
 	virtual Interaction Sample(const Interaction& ref,const Point2f& u, Float *pdf) const = 0;
 	virtual Float Pdf(const Interaction& ref, const Vector3f& wi) const;
 	
-	virtual std::vector<Point3f> UVToWorldPosition(const Point2f& uv,bool* valid) const{
-		return std::vector<Point3f>();
+	virtual bool UVToWorld(const Point2f& uv,UVInteraction* insect) const{
+		return false;
 	}
 };
 

@@ -1,6 +1,7 @@
 #include "raiden.h"
 #include "gtest.h"
 #include "shapes/trianglemesh.h"
+#include "interaction.h"
 
 TEST(Triangle,UVToWorldPosition){
     Transform i;
@@ -8,19 +9,17 @@ TEST(Triangle,UVToWorldPosition){
     Point3f vertices[3]={Point3f(0,0,0),Point3f(1,0,0),Point3f(0,1,0)};
     
     Point2f uv(0,0);
-    bool flag=false;
 
     Triangle triangle(&i,&i,false,std::shared_ptr<TriangleMesh>(new TriangleMesh(i,1,indices,3,vertices,nullptr,nullptr,nullptr)),0);
-
-    auto points=triangle.UVToWorldPosition(uv,&flag);
-    auto p=points[0];
+    UVInteraction inte;
+    bool flag=triangle.UVToWorld(uv,&inte);
     EXPECT_TRUE(flag);
-    EXPECT_EQ(p,Point3f(0,0,0));
+    EXPECT_EQ(inte.p,Point3f(0,0,0));
 
-    uv=Point2f(1,0);
-    points=triangle.UVToWorldPosition(uv,&flag);
-    p=points[0];
+     uv=Point2f(1,0);
+    flag=triangle.UVToWorld(uv,&inte);
+
     EXPECT_TRUE(flag);
-    EXPECT_EQ(p,Point3f(1,0,0));
-
+    EXPECT_EQ(inte.p,Point3f(1,0,0));
+    EXPECT_EQ(inte.n,Normal3f(0,0,1));
 }

@@ -130,6 +130,7 @@ class EFloat;
 class Interaction;
 class SurfaceInteraction;
 class MediumInteraction;
+class UVInteraction;
 class Shape;
 class Primitive;
 class GeomPrimitive;
