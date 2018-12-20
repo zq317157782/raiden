@@ -33,8 +33,8 @@ AOIntegrator *CreateAOIntegrator(
 	}
 
 	uint32_t sampleNum = params.FindOneInt("samplenum", 32);
-	
-	return new AOIntegrator(camera, sampler, pixelBounds,sampleNum,mode);
+	Float maxDistance = params.FindOneFloat("maxdistance",1);
+	return new AOIntegrator(camera, sampler, pixelBounds,sampleNum,mode,maxDistance);
 }
 
 

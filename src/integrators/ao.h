@@ -24,12 +24,14 @@ class AOIntegrator : public SamplerIntegrator
   private:
 	uint32_t _sampleNum;
 	AOMode _mode;
+	Float _maxDistance;
   public:
-	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum,AOMode mode=AOMode::SCENE) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
+	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum,AOMode mode=AOMode::SCENE,Float maxDistance=1) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
 	{
 		//申请相应的样本空间
 		sampler->Request2DArray(sampleNum);
 		_mode=mode;
+		_maxDistance=maxDistance;
 	}
 
 	virtual Spectrum Li(const RayDifferential &r, const Scene &scene,
@@ -65,6 +67,7 @@ class AOIntegrator : public SamplerIntegrator
 				);
 
 				ray.d=Normalize(wi);
+				ray.tMax=_maxDistance;
 				if (!scene.IntersectP(ray))
 				{	
 					
@@ -112,6 +115,7 @@ class AOIntegrator : public SamplerIntegrator
 				);
 
 				auto rr = ref.SpawnRay(Normalize(wi));
+				rr.tMax=_maxDistance;
 				if (!scene.IntersectP(rr))
 				{
 					L += (Dot(wi,n) / (pdf*_sampleNum*2*Pi));
