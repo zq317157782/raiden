@@ -397,6 +397,22 @@ std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(
 	return tris;
 }
 
+std::vector<std::shared_ptr<Triangle>> CreateTriangleMesh2(
+	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
+	const Vector3f *s, const Normal3f *n, const Point2f *uv) {
+	//创建trianglemesh
+	std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(
+		*o2w, nTriangles, vertexIndices, nVertices, p, s, n, uv);
+	std::vector<std::shared_ptr<Triangle>> tris;
+	tris.reserve(nTriangles);
+	for (int i = 0; i < nTriangles; ++i) {
+		tris.push_back(std::make_shared<Triangle>(o2w, w2o,
+			reverseOrientation, mesh, i));
+	}
+	return tris;
+}
+
 std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
 	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
 	const ParamSet &params) {

@@ -90,6 +90,7 @@ public:
 		const Point3f& p2 = _mesh->vertices[_vertexIndices[2]];
 		return Union(Bound3f(p0, p1), p2);
 	}
+
 	//三角形的面积
 	Float Area() const override {
 		Vector3f l1 = _mesh->vertices[_vertexIndices[1]]
@@ -128,7 +129,7 @@ public:
 	}
 
 	//从uv坐标映射到三角面世界坐标系的函数,可能不是一一对应
-	virtual bool UVToWorld(const Point2f& uv,UVInteraction* insect)const override{
+	bool UVToWorld(const Point2f& uv,UVInteraction* insect)const {
 		//获取当前三角面的3个uv坐标
 		Point2f uvs[3];
 		GetUVs(uvs);
@@ -192,6 +193,10 @@ public:
 
 
 std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(
+	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
+	const Vector3f *s, const Normal3f *n, const Point2f *uv);
+std::vector<std::shared_ptr<Triangle>> CreateTriangleMesh2(
 	const Transform *o2w, const Transform *w2o, bool reverseOrientation,
 	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
 	const Vector3f *s, const Normal3f *n, const Point2f *uv);
