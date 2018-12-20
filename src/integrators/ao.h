@@ -66,10 +66,12 @@ class AOIntegrator : public SamplerIntegrator
 
 				ray.d=Normalize(wi);
 				if (!scene.IntersectP(ray))
-				{
-					L += (Dot(wi,n) / (pdf*_sampleNum));
+				{	
+					
+					L += (Dot(wi,n) / (pdf*_sampleNum*2*Pi));
 				}
 			 }
+			 //LInfo<<L;
 			return L;
 		}else {
 			//这个goto是为了如果交点是PM的话，需要继续延申射线
@@ -112,7 +114,7 @@ class AOIntegrator : public SamplerIntegrator
 				auto rr = ref.SpawnRay(Normalize(wi));
 				if (!scene.IntersectP(rr))
 				{
-					L += (Dot(wi,n) / (pdf*_sampleNum));
+					L += (Dot(wi,n) / (pdf*_sampleNum*2*Pi));
 				}
 			}
 		}

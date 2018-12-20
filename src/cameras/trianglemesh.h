@@ -158,7 +158,7 @@ public:
 		}
 		if(flag==true){
 			Vector3f dir=(Vector3f)Normalize(hit.n);
-			*ray = Ray(hit.p,dir,Infinity, Lerp(sample.time, shutterOpen, shutterEnd));
+			*ray = Ray(hit.p+dir*gamma(2),dir,Infinity, Lerp(sample.time, shutterOpen, shutterEnd));
 			ray->medium = medium;
 			return 1;
 		}
