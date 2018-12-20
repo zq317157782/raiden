@@ -143,6 +143,8 @@ public:
     virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const override {
 		//计算uv坐标
         Float v =  sample.pFilm.y / (film->fullResolution.y);
+		//这一步是为了和U3D的uv空间兼容
+		v=1-v;
 		Float u =  sample.pFilm.x / (film->fullResolution.x);
 		Point2f uv(u,v);
 		UVInteraction hit;
