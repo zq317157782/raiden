@@ -189,6 +189,14 @@ public:
 	}
 	return  true;
 	}
+
+	Bound2f UVBound() const{
+		Point2f uvs[3];
+		GetUVs(uvs);
+		Bound2f bound(uvs[0],uvs[1]);
+		bound=Union(bound,uvs[2]);
+		return bound;
+	}
 };
 
 
