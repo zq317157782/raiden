@@ -135,6 +135,8 @@ public:
 	TriangeMeshCamera(const Transform& c2w, bool reverseOrientation,
 	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
 	const Vector3f *s, const Normal3f *n, const Point2f *uv,Float shutterOpen, Float shutterEnd, Film * f, const Medium* medium):Camera(c2w, shutterOpen, shutterEnd,f, medium){
+		
+		
 		auto invC2w=Inverse(c2w);
 		_mesh=CreateTriangleMesh2(&c2w,&invC2w,reverseOrientation,nTriangles,vertexIndices,nVertices,p,s,n,uv);
 		_tree=std::make_shared<UVQuadTree>(Bound2f(Point2f(0,0),Point2f(1,1)),4,6);
