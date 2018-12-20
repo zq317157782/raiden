@@ -1097,6 +1097,15 @@ inline Bound3<T> Union(const Bound3<T>& b, const Bound3<T>& b2) {
 	return ret;
 }
 
+//2D版本
+template<typename T>
+inline Bound2<T> Union(const Bound2<T>& b, const Point2<T> p) {
+	Bound2<T> ret;
+	ret.minPoint=Min(b.minPoint,p);
+	ret.maxPoint=Max(b.maxPoint,p);
+	return ret;
+}
+
 //AABB盒之间的交集
 template<typename T>
 inline Bound3<T> Intersect(const Bound3<T>& b, const Bound3<T>& b2) {
@@ -1142,6 +1151,15 @@ inline bool Overlap(const Bound3<T> &b1, const Bound3<T> &b2) {
 	bool z = (b1.maxPoint.z >= b2.minPoint.z)
 			&& (b1.minPoint.z <= b2.maxPoint.z);
 	return (x && y && z);
+}
+
+template<typename T>
+inline bool Overlap(const Bound2<T> &b1, const Bound2<T> &b2){
+	bool x = (b1.maxPoint.x >= b2.minPoint.x)
+			&& (b1.minPoint.x <= b2.maxPoint.x);
+	bool y = (b1.maxPoint.y >= b2.minPoint.y)
+			&& (b1.minPoint.y <= b2.maxPoint.y);
+	return (x && y);
 }
 
 //判断一个点是否在AABB中
