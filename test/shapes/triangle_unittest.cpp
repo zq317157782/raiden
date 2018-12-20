@@ -9,8 +9,8 @@ TEST(Triangle,UVToWorldPosition){
     Point3f vertices[3]={Point3f(0,0,0),Point3f(1,0,0),Point3f(0,1,0)};
     
     Point2f uv(0,0);
-
-    Triangle triangle(&i,&i,false,std::shared_ptr<TriangleMesh>(new TriangleMesh(i,1,indices,3,vertices,nullptr,nullptr,nullptr)),0);
+    auto tm=std::shared_ptr<TriangleMesh>(new TriangleMesh(i,1,indices,3,vertices,nullptr,nullptr,nullptr));
+    Triangle triangle(&i,&i,false,tm,0);
     UVInteraction inte;
     bool flag=triangle.UVToWorld(uv,&inte);
     EXPECT_TRUE(flag);
