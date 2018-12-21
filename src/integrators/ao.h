@@ -24,13 +24,15 @@ class AOIntegrator : public SamplerIntegrator
   private:
 	uint32_t _sampleNum;
 	AOMode _mode;
+	Float _minDistance;
 	Float _maxDistance;
   public:
-	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum,AOMode mode=AOMode::SCENE,Float maxDistance=1) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
+	AOIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,uint32_t sampleNum,AOMode mode=AOMode::SCENE,Float minDistance=0,Float maxDistance=1) :SamplerIntegrator(camera,sampler,pixelBound), _sampleNum(sampleNum)
 	{
 		//申请相应的样本空间
 		sampler->Request2DArray(sampleNum);
 		_mode=mode;
+		_minDistance=minDistance;
 		_maxDistance=maxDistance;
 	}
 
@@ -67,7 +69,10 @@ class AOIntegrator : public SamplerIntegrator
 				);
 
 				ray.d=Normalize(wi);
-				ray.tMax=_maxDistance;
+				ray.o=ray.o+ray.d*_minDistance;
+				ray.tMax=_maxDistance-_minDistance;
+
+
 				if (!scene.IntersectP(ray))
 				{	
 					
@@ -115,7 +120,8 @@ class AOIntegrator : public SamplerIntegrator
 				);
 
 				auto rr = ref.SpawnRay(Normalize(wi));
-				rr.tMax=_maxDistance;
+				rr.o=ray.o+ray.d*_minDistance;
+				rr.tMax=_maxDistance-_minDistance;
 				if (!scene.IntersectP(rr))
 				{
 					L += (Dot(wi,n) / (pdf*_sampleNum*2*Pi));
