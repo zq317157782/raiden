@@ -197,6 +197,64 @@ public:
 		bound=Union(bound,uvs[2]);
 		return bound;
 	}
+
+	Point2f UVClamp(const Point2f& uv) const{
+		//获取当前三角面的3个uv坐标
+		Point2f uvs[3];
+		GetUVs(uvs);
+		//使用和判断射线和三角面相交一样的思路来判断，提供的uv是否在三角面内
+		//计算edge函数
+		Float e2=(uvs[1].x-uvs[0].x)*(uv.y-uvs[0].y)-(uv.x-uvs[0].x)*(uvs[1].y-uvs[0].y);
+		Float e0=(uvs[2].x-uvs[1].x)*(uv.y-uvs[1].y)-(uv.x-uvs[1].x)*(uvs[2].y-uvs[1].y);
+		Float e1=(uvs[0].x-uvs[2].x)*(uv.y-uvs[2].y)-(uv.x-uvs[2].x)*(uvs[0].y-uvs[2].y);
+#ifdef FLOAT_IS_DOUBLE
+#else
+		if (e0 == 0 || e1 == 0 || e2 == 0) {
+			e2=((double)uvs[1].x-(double)uvs[0].x)*((double)uv.y-(double)uvs[0].y)-((double)uv.x-(double)uvs[0].x)*((double)uvs[1].y-(double)uvs[0].y);
+			e0=((double)uvs[2].x-(double)uvs[1].x)*(double)(uv.y-(double)uvs[1].y)-((double)uv.x-(double)uvs[1].x)*((double)uvs[2].y-(double)uvs[1].y);
+			e1=((double)uvs[0].x-(double)uvs[2].x)*((double)uv.y-(double)uvs[2].y)-((double)uv.x-(double)uvs[2].x)*((double)uvs[0].y-(double)uvs[2].y);
+		}
+#endif
+		//判断是否相交
+		if ((e0 < 0 || e1 < 0 || e2 < 0) && (e0 > 0 || e1 > 0 || e2 > 0)) {
+
+			
+				auto v0=uvs[1]-uvs[0];
+				auto n0=uv-uvs[0];
+				auto l0=Clamp(Dot(v0,n0)/Dot(v0,v0),0.0,1.0);
+				auto uv0=uvs[0]*(1.0-l0)+uvs[1]*l0;
+				auto len0=Dot(uv-uv0,uv-uv0);
+
+				auto v1=uvs[2]-uvs[1];
+				auto n1=uv-uvs[1];
+				auto l1=Clamp(Dot(v1,n1)/Dot(v1,v1),0.0,1.0);
+				auto uv1=uvs[1]*(1.0-l1)+uvs[2]*l1;
+				auto len1=Dot(uv-uv1,uv-uv1);
+
+				auto v2=uvs[0]-uvs[2];
+				auto n2=uv-uvs[2];
+				auto l2=Clamp(Dot(v2,n2)/Dot(v2,v2),0.0,1.0);
+				auto uv2=uvs[2]*(1.0-l2)+uvs[0]*l2;
+				auto len2=Dot(uv-uv2,uv-uv2);
+
+				if(len0<=len1&&len0<=len2){
+					return uv0;
+				}
+				else if(len1<=len2){
+					return uv1;
+				}
+				else{
+					return uv2;
+				}
+				
+		}
+
+		Float det = e0 + e1 + e2;
+		if (det == 0) {
+			return uv;
+		}
+		return uv;
+	}
 };
 
 
