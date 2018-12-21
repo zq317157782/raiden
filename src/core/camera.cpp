@@ -15,14 +15,14 @@ Camera::Camera(const Transform& c2w, Float shutterOpen, Float shutterEnd,
 }
 
 
-float Camera::GenerateRayDifferential(const CameraSample &sample,
+Float Camera::GenerateRayDifferential(const CameraSample &sample,
 		RayDifferential *rd) const {
-	float wt = GenerateRay(sample, rd);
+	Float wt = GenerateRay(sample, rd);
 	//生成x偏移射线
 	CameraSample sshift = sample;
 	++sshift.pFilm.x;
 	Ray rx;
-	float wtx = GenerateRay(sshift, &rx);
+	Float wtx = GenerateRay(sshift, &rx);
 	if (wtx == 0) {
 		return 0;
 	}
@@ -32,7 +32,7 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 	--sshift.pFilm.x;
 	++sshift.pFilm.y;
 	Ray ry;
-	float wty = GenerateRay(sshift, &ry);
+	Float wty = GenerateRay(sshift, &ry);
 	if (wty == 0) {
 		return 0;
 	}
