@@ -18,15 +18,20 @@ public class RaidenMeshExporter : MonoBehaviour
         }
     }
 
+    public bool batchSubMesh = false;
+
     public bool normal=true;
     public bool tangent = true;
     public bool uv1 = true;
+    public bool uv2 = true;
+
 
     private MeshFilter _meshFilter;
     private float[] _vertices;
     private float[] _normals;
     private float[] _tangents;
     private float[] _uvs;
+    private float[] _uvs2;
     private List<int[]> _indices;
     // Start is called before the first frame update
     void Start()
@@ -35,6 +40,7 @@ public class RaidenMeshExporter : MonoBehaviour
         _vertices=VectorArrayToFloatArray(_meshFilter.sharedMesh.vertices);
         _normals = VectorArrayToFloatArray(_meshFilter.sharedMesh.normals);
         _uvs = VectorArrayToFloatArray(_meshFilter.sharedMesh.uv);
+        _uvs2= VectorArrayToFloatArray(_meshFilter.sharedMesh.uv2);
         _tangents= VectorArrayToFloatArrayWithoutW(_meshFilter.sharedMesh.tangents);
         _indices = new List<int[]>();
         for(int i = 0; i < _meshFilter.sharedMesh.subMeshCount; ++i)
@@ -141,11 +147,33 @@ public class RaidenMeshExporter : MonoBehaviour
         if (uv1)
         {
             _out.WriteLine("meshs.uv1s={'point2f',{" + FloatArrayToString(_uvs) + "}}");
+            
         }
+        if (uv2)
+        {
+            _out.WriteLine("meshs.uv2s={'point2f',{" + FloatArrayToString(_uvs2) + "}}");
+        }
+
+
         _out.WriteLine("meshs.indices={}");
         for(int i = 0; i < _meshFilter.sharedMesh.subMeshCount; ++i)
         {
             _out.WriteLine("meshs.indices["+i+"]={'int[]',{"+IntArrayToString(_indices[i])+"}}");
+        }
+
+        if (batchSubMesh)
+        {
+            string str = "meshs.batchindices={'int[]',{";
+            for (int i = 0; i < _meshFilter.sharedMesh.subMeshCount; ++i)
+            {
+                str = str + IntArrayToString(_indices[i]);
+                if(i!= _meshFilter.sharedMesh.subMeshCount - 1)
+                {
+                    str = str + ",";
+                }
+            }
+            str = str + "}}";
+            _out.WriteLine(str);
         }
         _out.WriteLine("return meshs");
         _out.Flush();
