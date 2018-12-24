@@ -53,13 +53,11 @@ void Film::WriteImage(Float splatScale) {
 				Pixel &p = GetPixel(Point2i(i, j));
 				Float rgb[3];
 				XYZToRGB(p.xyz, rgb);
-				Float alpha=p.alpha;
 				if(p.filterWeightSum!=0){
 					Float invWeight = 1.0 / p.filterWeightSum;
 					rgb[0] *= invWeight;
 					rgb[1] *= invWeight;
 					rgb[2] *= invWeight;
-					alpha*=invWeight;
 				}
 				
 				
@@ -75,7 +73,6 @@ void Film::WriteImage(Float splatScale) {
 				image.push_back(rgb[0]);
 				image.push_back(rgb[1]);
 				image.push_back(rgb[2]);
-				image.push_back(alpha);
 			}
 		}
 	Vector2i resolution=croppedPixelBound.Diagonal();
@@ -112,7 +109,7 @@ void Film::AddSplat(const Point2f& p, Spectrum L) {
 	}
 }
 
-void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight,Float alpha) {
+void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight) {
 	Assert(weight>0.0f);
 	//Assert(InsideExclusive(pFilm,_pixelBound));
 	//贡献值大于最大值，需要scale
@@ -150,7 +147,6 @@ void FilmTile::AddSample(const Point2f& pFilm, Spectrum L, Float weight,Float al
 			FilmTilePixel& pixel = GetPixel(Point2i(x, y));
 			pixel.contribSum += L * weight * fiterWeight;
 			pixel.filterWeightSum += fiterWeight;
-			pixel.alpha +=alpha* weight * fiterWeight;
 		}
 	}
 }
@@ -178,7 +174,6 @@ void Film::MergeFilmTile(std::unique_ptr<FilmTile> tile){
 		for(int i=0;i<3;++i){
 			pixel.xyz[i]+=xyz[i];
 		}
-		pixel.alpha += tilePixel.alpha;
 		pixel.filterWeightSum+=tilePixel.filterWeightSum;
 	}
 }
