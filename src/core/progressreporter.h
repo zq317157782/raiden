@@ -25,10 +25,10 @@ private:
 		//线程的睡眠时间
 		std::chrono::milliseconds sleepDuration(500);
 		char buf[128];
-		char buf2[128];
+		//char buf2[128];
 		for(int i=0;i<128;++i){
 			buf[i]=' ';
-			buf2[i]='\b';
+			//buf2[i]='\b';
 		}
 
 		int titleSize=_title.size()+1;
@@ -69,8 +69,8 @@ private:
 
 			 snprintf(buf+52+_title.size(),34+6,"[percent:%.1f|%2d:%2d:%2d=>%2d:%2d:%2d]",percent,nh,nm,ns,h,m,s);//seconds,nokotaSeconds);
 			 buf[_title.size()+51+34+6+1]='\0';
-			 buf2[_title.size()+51+34+6+1]='\0';
-			 printf(buf2);
+			 //buf2[_title.size()+51+34+6+1]='\0';
+			 printf("\r");
 			 fputs(buf, stdout);
 			 fflush(stdout);
 			 it++;
