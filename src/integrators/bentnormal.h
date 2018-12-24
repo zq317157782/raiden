@@ -127,6 +127,7 @@ class BentNormalIntegrator : public SamplerIntegrator
 		}
 		}
         avgWi=Normalize(avgWi);
+        avgWi=(avgWi+Vector3f(1.0f,1.0f,1.0f))*0.5f;
         L[0]=avgWi[0];
         L[1]=avgWi[1];
         L[2]=avgWi[2];
