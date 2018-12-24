@@ -12,27 +12,43 @@
 #include "spectrum.h"
 #include "interaction.h"
 #include "scene.h"
+
+enum class NormalMode{
+	VIEW,SCENE
+};
+
 class NormalIntegrator:public SamplerIntegrator{
 private:
-
+	NormalMode _mode;
 public:
-	NormalIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound):
-	SamplerIntegrator(camera,sampler,pixelBound){}
+	NormalIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,NormalMode mode=NormalMode::SCENE):
+	SamplerIntegrator(camera,sampler,pixelBound),_mode(mode){}
 
 	virtual Spectrum Li(const RayDifferential &ray, const Scene &scene,
 		                        Sampler &sampler, MemoryArena &arena,
 		                        int depth = 0) const override{
 		SurfaceInteraction ref;//和表面的交互点
-		if (scene.Intersect(ray, &ref)) {
-			Spectrum ret(0.0f);
-			Normal3f nn=ref.shading.n;
+		Spectrum ret(0.0f);
+		if(_mode==NormalMode::VIEW){
+			Normal3f nn=(Normal3f)ray.d;
+			//映射到[0~1]范围
 			nn=(nn+Normal3f(1.0f,1.0f,1.0f))*0.5f;
 			ret[0]=nn.x;
 			ret[1]=nn.y;
 			ret[2]=nn.z;
-			return ret;
+		}else{
+			if (scene.Intersect(ray, &ref)) {
+				Normal3f nn=ref.shading.n;
+				//映射到[0~1]范围
+				nn=(nn+Normal3f(1.0f,1.0f,1.0f))*0.5f;
+				ret[0]=nn.x;
+				ret[1]=nn.y;
+				ret[2]=nn.z;
+				return ret;
+			}
 		}
 		return 0.0f;
+		
 	}
 };
 

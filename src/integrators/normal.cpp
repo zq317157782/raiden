@@ -25,8 +25,16 @@ NormalIntegrator *CreateNormalIntegrator(
             }
         }
     }
-    Debug("[CreateNormalIntegrator]");
-    return new NormalIntegrator(camera,sampler, pixelBounds);
+
+    auto modeStr = params.FindOneString("mode","scene");
+    NormalMode mode;
+	if(modeStr=="view"){
+		mode=NormalMode::VIEW;
+	}else {
+		mode=NormalMode::SCENE;
+	}
+
+    return new NormalIntegrator(camera,sampler, pixelBounds,mode);
 }
 
 
