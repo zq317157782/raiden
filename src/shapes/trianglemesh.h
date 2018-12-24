@@ -196,9 +196,12 @@ public:
 
 		auto midUV=uvs[0]+uvs[1]+uvs[2];
 		midUV=midUV/3;
-		uvs[0]=midUV*(1-delta)+uvs[0]*delta;
-		uvs[1]=midUV*(1-delta)+uvs[1]*delta;
-		uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+		// uvs[0]=midUV*(1-delta)+uvs[0]*delta;
+		// uvs[1]=midUV*(1-delta)+uvs[1]*delta;
+		// uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+		uvs[0]=uvs[0]+Normalize(uvs[0]-midUV)*delta;
+		uvs[1]=uvs[1]+Normalize(uvs[1]-midUV)*delta;
+		uvs[2]=uvs[2]+Normalize(uvs[2]-midUV)*delta;
 
 		//使用和判断射线和三角面相交一样的思路来判断，提供的uv是否在三角面内
 		//计算edge函数
@@ -268,9 +271,12 @@ public:
 		GetUVs(uvs);
 		auto midUV=uvs[0]+uvs[1]+uvs[2];
 		midUV=midUV/3;
-		uvs[0]=midUV*(1-delta)+uvs[0]*delta;
-		uvs[1]=midUV*(1-delta)+uvs[1]*delta;
-		uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+		// uvs[0]=midUV*(1-delta)+uvs[0]*delta;
+		// uvs[1]=midUV*(1-delta)+uvs[1]*delta;
+		// uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+		uvs[0]=uvs[0]+Normalize(uvs[0]-midUV)*delta;
+		uvs[1]=uvs[1]+Normalize(uvs[1]-midUV)*delta;
+		uvs[2]=uvs[2]+Normalize(uvs[2]-midUV)*delta;
 		
 		Bound2f bound(uvs[0],uvs[1]);
 		bound=Union(bound,uvs[2]);
