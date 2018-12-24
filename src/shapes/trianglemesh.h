@@ -188,9 +188,90 @@ public:
 	return  true;
 	}
 
+//从uv坐标映射到三角面世界坐标系的函数,可能不是一一对应
+	bool UVToWorld(const Point2f& uv,Float delta,UVInteraction* insect)const {
+		//获取当前三角面的3个uv坐标
+		Point2f uvs[3];
+		GetUVs(uvs);
+
+		auto midUV=uvs[0]+uvs[1]+uvs[2];
+		midUV=midUV/3;
+		uvs[0]=midUV*(1-delta)+uvs[0]*delta;
+		uvs[1]=midUV*(1-delta)+uvs[1]*delta;
+		uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+
+		//使用和判断射线和三角面相交一样的思路来判断，提供的uv是否在三角面内
+		//计算edge函数
+		Float e2=(uvs[1].x-uvs[0].x)*(uv.y-uvs[0].y)-(uv.x-uvs[0].x)*(uvs[1].y-uvs[0].y);
+		Float e0=(uvs[2].x-uvs[1].x)*(uv.y-uvs[1].y)-(uv.x-uvs[1].x)*(uvs[2].y-uvs[1].y);
+		Float e1=(uvs[0].x-uvs[2].x)*(uv.y-uvs[2].y)-(uv.x-uvs[2].x)*(uvs[0].y-uvs[2].y);
+#ifdef FLOAT_IS_DOUBLE
+#else
+	if (e0 == 0 || e1 == 0 || e2 == 0) {
+		e2=((double)uvs[1].x-(double)uvs[0].x)*((double)uv.y-(double)uvs[0].y)-((double)uv.x-(double)uvs[0].x)*((double)uvs[1].y-(double)uvs[0].y);
+		e0=((double)uvs[2].x-(double)uvs[1].x)*(double)(uv.y-(double)uvs[1].y)-((double)uv.x-(double)uvs[1].x)*((double)uvs[2].y-(double)uvs[1].y);
+		e1=((double)uvs[0].x-(double)uvs[2].x)*((double)uv.y-(double)uvs[2].y)-((double)uv.x-(double)uvs[2].x)*((double)uvs[0].y-(double)uvs[2].y);
+	}
+#endif
+	//判断是否相交
+	if ((e0 < 0 || e1 < 0 || e2 < 0) && (e0 > 0 || e1 > 0 || e2 > 0)) {
+		return false;
+	}
+
+	Float det = e0 + e1 + e2;
+	if (det == 0) {
+		return false;
+	}
+
+	//走到这就说明相交了
+	//求质心坐标以及参数t
+	Float invDet = 1.0 / det;
+	Float b0 = e0 * invDet;
+	Float b1 = e1 * invDet;
+	Float b2 = e2 * invDet;
+	//获得三个世界坐标系的顶点
+	const Point3f& v1 = _mesh->vertices[_vertexIndices[0]];
+	const Point3f& v2 = _mesh->vertices[_vertexIndices[1]];
+	const Point3f& v3 = _mesh->vertices[_vertexIndices[2]];
+	
+	Point3f p = v1 * b0 + v2 * b1 + v3 * b2;
+	Vector3f dp02 = v1 - v3, dp12 = v2 - v3;
+
+	if(insect){
+		Normal3f n=Normal3f(Normalize(Cross(dp02, dp12)));
+		(*insect) = UVInteraction(p, n);
+		Normal3f ns;
+		if (_mesh->normals) {
+			ns = (b0 * _mesh->normals[_vertexIndices[0]]
+					+ b1 * _mesh->normals[_vertexIndices[1]]
+					+ b2 * _mesh->normals[_vertexIndices[2]]);
+			//判断是否为合法网格
+			if (ns.LengthSquared() > 0.0f) {
+				ns = Normalize(ns);
+				insect->n=ns;
+			} 
+		}
+	}
+	return  true;
+	}
+
 	Bound2f UVBound() const{
 		Point2f uvs[3];
 		GetUVs(uvs);
+		Bound2f bound(uvs[0],uvs[1]);
+		bound=Union(bound,uvs[2]);
+		return bound;
+	}
+
+	Bound2f UVBound(Float delta) const{
+		Point2f uvs[3];
+		GetUVs(uvs);
+		auto midUV=uvs[0]+uvs[1]+uvs[2];
+		midUV=midUV/3;
+		uvs[0]=midUV*(1-delta)+uvs[0]*delta;
+		uvs[1]=midUV*(1-delta)+uvs[1]*delta;
+		uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+		
 		Bound2f bound(uvs[0],uvs[1]);
 		bound=Union(bound,uvs[2]);
 		return bound;
