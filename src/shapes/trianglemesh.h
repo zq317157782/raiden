@@ -170,8 +170,6 @@ public:
 	Point3f p = v1 * b0 + v2 * b1 + v3 * b2;
 	Vector3f dp02 = v1 - v3, dp12 = v2 - v3;
 
-	std::vector<Point3f> set;
-	set.push_back(p);
 	if(insect){
 		Normal3f n=Normal3f(Normalize(Cross(dp02, dp12)));
 		(*insect) = UVInteraction(p, n);
