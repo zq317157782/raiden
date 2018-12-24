@@ -93,6 +93,8 @@ MeshCamera *CreateMeshCamera(const ParamSet &params,
 		else
 			LError<<"\"screenwindow\" should have four values";
 	}
+
+	Float scale = params.FindOneFloat("scale", 1.0);
     return new MeshCamera(cam2world,false, nvi / 3, vi, npi, P,
-		S, N, uvs, shutteropen, shutterclose, film, medium);
+		S, N, uvs,scale,shutteropen, shutterclose, film, medium);
 }

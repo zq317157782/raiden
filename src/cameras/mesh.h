@@ -65,23 +65,23 @@ class UVQuadTree{
 	 }
 
 
-	 bool Build(const std::vector<std::shared_ptr<Triangle>>& meshs){
+	 bool Build(const std::vector<std::shared_ptr<Triangle>>& meshs,Float boundScale){
 		  _root->isLeaf=true;
 		  _root->data.clear();
 		  bool flag=false;
 		  for(size_t i=0;i<meshs.size();++i){
-			  flag|=Insert(meshs[i],_root,0);
+			  flag|=Insert(meshs[i],_root,0,boundScale);
 		  }
 		  return flag;
 	 }
 
-	 bool Insert(const std::shared_ptr<Triangle>& mesh,const std::shared_ptr<UVQuadTreeNode>& node,int depth){
+	 bool Insert(const std::shared_ptr<Triangle>& mesh,const std::shared_ptr<UVQuadTreeNode>& node,int depth,Float boundScale){
 		 //首先判断是否是叶子节点
 		 if(node->isLeaf==true){
 			 //再判断叶子中的数据是否到达最大值
 			 //或者深度超过最大深度的话，直接加入数据到节点
 			 if((node->data.size()<_capacity)||(depth>_maxDepth)){
-				 if(Overlap(mesh->UVBound(),node->rect)){
+				 if(Overlap(mesh->UVBound(boundScale),node->rect)){
 					 	node->data.push_back(mesh);
 						//LInfo<<depth;
 						return true;
@@ -106,10 +106,10 @@ class UVQuadTree{
 				 
 				 //把数据插入到子节点中
 				 for(size_t i=0;i<node->data.size();++i){
-					 Insert(node->data[i],node->childs[0],depth+1);
-					 Insert(node->data[i],node->childs[1],depth+1);
-					 Insert(node->data[i],node->childs[2],depth+1);
-					 Insert(node->data[i],node->childs[3],depth+1);
+					 Insert(node->data[i],node->childs[0],depth+1,boundScale);
+					 Insert(node->data[i],node->childs[1],depth+1,boundScale);
+					 Insert(node->data[i],node->childs[2],depth+1,boundScale);
+					 Insert(node->data[i],node->childs[3],depth+1,boundScale);
 				 }
 				 //清除中间节点的数据
 				 node->data.clear();
@@ -118,10 +118,10 @@ class UVQuadTree{
 
 		 //往子节点加数据
 		 bool flag=false;
-		 flag|=Insert(mesh,node->childs[0],depth+1);
-		 flag|=Insert(mesh,node->childs[1],depth+1);
-		 flag|=Insert(mesh,node->childs[2],depth+1);
-		 flag|=Insert(mesh,node->childs[3],depth+1);
+		 flag|=Insert(mesh,node->childs[0],depth+1,boundScale);
+		 flag|=Insert(mesh,node->childs[1],depth+1,boundScale);
+		 flag|=Insert(mesh,node->childs[2],depth+1,boundScale);
+		 flag|=Insert(mesh,node->childs[3],depth+1,boundScale);
 		 return flag; 
 	 }
 };
@@ -131,16 +131,17 @@ private:
 	//相机空间和光栅化空间的差分
 	std::vector<std::shared_ptr<Triangle>> _mesh;
 	std::shared_ptr<UVQuadTree> _tree;
+	Float _scale;
 public:
 	MeshCamera(const Transform& c2w, bool reverseOrientation,
 	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
-	const Vector3f *s, const Normal3f *n, const Point2f *uv,Float shutterOpen, Float shutterEnd, Film * f, const Medium* medium):Camera(c2w, shutterOpen, shutterEnd,f, medium){
+	const Vector3f *s, const Normal3f *n, const Point2f *uv,Float UVScale,Float shutterOpen, Float shutterEnd, Film * f, const Medium* medium):Camera(c2w, shutterOpen, shutterEnd,f, medium),_scale(UVScale){
 		
 		
 		auto invC2w=Inverse(c2w);
 		_mesh=CreateTriangleMesh2(&c2w,&invC2w,reverseOrientation,nTriangles,vertexIndices,nVertices,p,s,n,uv);
 		_tree=std::make_shared<UVQuadTree>(Bound2f(Point2f(0,0),Point2f(1,1)),4,6);
-		_tree->Build(_mesh);
+		_tree->Build(_mesh,_scale);
 	}
 	
     virtual Float GenerateRay(const CameraSample &sample, Ray *ray) const override {
@@ -150,15 +151,30 @@ public:
 		v=1-v;
 		Float u =  sample.pFilm.x / (film->fullResolution.x);
 		Point2f uv(u,v);
-		UVInteraction hit;
+		
 		bool flag=false;
 
 		auto meshList=_tree->Lookup(uv);
-	
+
+		Float minDistance=Infinity;
+		UVInteraction hit;
 	 	for(size_t i=0;i<meshList.size();++i){
-			flag=meshList[i]->UVToWorld(uv,&hit);
-			if(flag==true){
-				break;
+			UVInteraction t_hit;
+			bool t_flag=meshList[i]->UVToWorld(uv,_scale,&t_hit);
+			if(t_flag){
+				auto clamp_uv=meshList[i]->UVClamp(uv);
+				auto uv_vec=uv-clamp_uv;
+				auto l=Dot(uv_vec,uv_vec);
+				if(l<minDistance){
+					//flag=true;
+					t_flag=meshList[i]->UVToWorld(clamp_uv,&t_hit);
+					if(t_flag){
+							minDistance=l;
+							flag=true;
+							hit=t_hit;
+					}
+				
+				}
 			}
 		}
 		if(flag==true){
