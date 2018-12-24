@@ -28,7 +28,8 @@ private:
 		Float filterWeightSum; //所有样本的filter权重之和
 		AtomicFloat splatXYZ[3]; //不经过filter
 		//到这里是 (float)3*4字节+4字节+3*4字节==28个字节/(double)3*8字节+8字节+3*8字节==56个字节
-		Float pad; //用来补充(float)4个字节/(double)8个字节
+		Float alpha;//alpha通道
+		//Float pad; //用来补充(float)4个字节/(double)8个字节
 		//到这里是(float)32字节/(double)64字节
 		//in cache line
 		Pixel(){
@@ -39,6 +40,7 @@ private:
 			splatXYZ[0] = 0.0;
 			splatXYZ[1] = 0.0;
 			splatXYZ[2] = 0.0;
+			alpha=0.0;
 		}
 
 		/*Pixel(const Pixel& p) {
@@ -94,8 +96,9 @@ public:
 };
 
 struct FilmTilePixel {
-	Spectrum contribSum = 0.0f;
-	Float filterWeightSum = 0.0f;
+	Spectrum contribSum = 0.0;
+	Float filterWeightSum = 0.0;
+	Float alpha=0.0;
 };
 
 //代表Film上的一个Tile
@@ -134,7 +137,7 @@ public:
 		return _pixels[index];
 	}
 	//向tile中贡献样本
-	void AddSample(const Point2f& pFilm, Spectrum L, Float weight);
+	void AddSample(const Point2f& pFilm, Spectrum L, Float weight,Float alpha=1.0);
 
 	const Bound2i& GetPixelBound() const {
 		return _pixelBound;

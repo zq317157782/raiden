@@ -42,10 +42,11 @@ void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 	if (0 == strcmp(fileExt, "png") || 0 == strcmp(fileExt, "PNG")) {
 		std::vector<uint8_t> image;
 		for (int i = 0; i<w*h; ++i) {
-			Float rgb[3];
-			rgb[0] = data[i * 3];
-			rgb[1] = data[i * 3 + 1];
-			rgb[2] = data[i * 3 + 2];
+			Float rgb[4];
+			rgb[0] = data[i * 4];
+			rgb[1] = data[i * 4 + 1];
+			rgb[2] = data[i * 4 + 2];
+			rgb[3] = data[i * 4 + 3];
 
 			rgb[0] = GammaCorrect(rgb[0]);
 			rgb[1] = GammaCorrect(rgb[1]);
@@ -54,11 +55,12 @@ void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 			rgb[0] = Clamp(rgb[0], 0, 1);
 			rgb[1] = Clamp(rgb[1], 0, 1);
 			rgb[2] = Clamp(rgb[2], 0, 1);
+			rgb[3] = Clamp(rgb[3], 0, 1);
 
 			image.push_back(rgb[0] * 255);//R
 			image.push_back(rgb[1] * 255);//G
 			image.push_back(rgb[2] * 255);//B
-			image.push_back(255);		//A
+			image.push_back(rgb[3] * 255);//A
 		}
 
 		unsigned error = lodepng::encode(fileName, image, w, h);
@@ -69,7 +71,7 @@ void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 	else if (0 == strcmp(fileExt, "exr") || 0 == strcmp(fileExt, "EXR")) {
 		std::vector<IMF::Rgba> image;
 		for (int i = 0; i<w*h; ++i) {
-			image.push_back(IMF::Rgba{ data[i * 3] ,data[i * 3 + 1] ,data[i * 3 + 2] ,1 });
+			image.push_back(IMF::Rgba{ data[i * 3] ,data[i * 3 + 1] ,data[i * 3 + 2] ,data[i * 3 + 3] });
 		}
 		WriteOpenEXR(fileName, &image[0], w, h);
 	}
