@@ -260,7 +260,47 @@ public:
 	return  true;
 	}
 	
+	bool UVToWorldP(const Point2f& uv,Float delta=0)const {
+		//获取当前三角面的3个uv坐标
+		Point2f uvs[3];
+		GetUVs(uvs);
+		if(delta!=0){
+			auto midUV=uvs[0]+uvs[1]+uvs[2];
+			midUV=midUV/3;
+			// uvs[0]=midUV*(1-delta)+uvs[0]*delta;
+			// uvs[1]=midUV*(1-delta)+uvs[1]*delta;
+			// uvs[2]=midUV*(1-delta)+uvs[2]*delta;
+			uvs[0]=uvs[0]+Normalize(uvs[0]-midUV)*delta;
+			uvs[1]=uvs[1]+Normalize(uvs[1]-midUV)*delta;
+			uvs[2]=uvs[2]+Normalize(uvs[2]-midUV)*delta;
+		}
+		
 
+		//使用和判断射线和三角面相交一样的思路来判断，提供的uv是否在三角面内
+		//计算edge函数
+		Float e2=(uvs[1].x-uvs[0].x)*(uv.y-uvs[0].y)-(uv.x-uvs[0].x)*(uvs[1].y-uvs[0].y);
+		Float e0=(uvs[2].x-uvs[1].x)*(uv.y-uvs[1].y)-(uv.x-uvs[1].x)*(uvs[2].y-uvs[1].y);
+		Float e1=(uvs[0].x-uvs[2].x)*(uv.y-uvs[2].y)-(uv.x-uvs[2].x)*(uvs[0].y-uvs[2].y);
+#ifdef FLOAT_IS_DOUBLE
+#else
+	if (e0 == 0 || e1 == 0 || e2 == 0) {
+		e2=((double)uvs[1].x-(double)uvs[0].x)*((double)uv.y-(double)uvs[0].y)-((double)uv.x-(double)uvs[0].x)*((double)uvs[1].y-(double)uvs[0].y);
+		e0=((double)uvs[2].x-(double)uvs[1].x)*(double)(uv.y-(double)uvs[1].y)-((double)uv.x-(double)uvs[1].x)*((double)uvs[2].y-(double)uvs[1].y);
+		e1=((double)uvs[0].x-(double)uvs[2].x)*((double)uv.y-(double)uvs[2].y)-((double)uv.x-(double)uvs[2].x)*((double)uvs[0].y-(double)uvs[2].y);
+	}
+#endif
+	//判断是否相交
+	if ((e0 < 0 || e1 < 0 || e2 < 0) && (e0 > 0 || e1 > 0 || e2 > 0)) {
+		return false;
+	}
+
+	Float det = e0 + e1 + e2;
+	if (det == 0) {
+		return false;
+	}
+
+	return  true;
+	}
 	// Bound2f UVBound() const{
 	// 	Point2f uvs[3];
 	// 	GetUVs(uvs);

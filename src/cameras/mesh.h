@@ -160,7 +160,7 @@ public:
 		UVInteraction hit;
 	 	for(size_t i=0;i<meshList.size();++i){
 			UVInteraction t_hit;
-			bool t_flag=meshList[i]->UVToWorld(uv,&t_hit,_delta);
+			bool t_flag=meshList[i]->UVToWorldP(uv,_delta);
 			if(t_flag){
 				auto clamp_uv=meshList[i]->UVClamp(uv);
 				auto uv_vec=uv-clamp_uv;
