@@ -36,6 +36,7 @@ public:
 			ret[0]=nn.x;
 			ret[1]=nn.y;
 			ret[2]=nn.z;
+			return ret;
 		}else{
 			if (scene.Intersect(ray, &ref)) {
 				Normal3f nn=ref.shading.n;
