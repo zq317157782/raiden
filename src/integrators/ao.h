@@ -15,7 +15,7 @@
 #include "sampling.h"
 //计算AO信息
 
-enum AOMode{
+enum class AOMode{
 	VIEW,SCENE
 };
 
