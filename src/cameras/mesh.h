@@ -126,13 +126,13 @@ class UVQuadTree{
 	 }
 };
 
-class TriangeMeshCamera :public Camera {
+class MeshCamera :public Camera {
 private:
 	//相机空间和光栅化空间的差分
 	std::vector<std::shared_ptr<Triangle>> _mesh;
 	std::shared_ptr<UVQuadTree> _tree;
 public:
-	TriangeMeshCamera(const Transform& c2w, bool reverseOrientation,
+	MeshCamera(const Transform& c2w, bool reverseOrientation,
 	int nTriangles, const int *vertexIndices, int nVertices, const Point3f *p,
 	const Vector3f *s, const Normal3f *n, const Point2f *uv,Float shutterOpen, Float shutterEnd, Film * f, const Medium* medium):Camera(c2w, shutterOpen, shutterEnd,f, medium){
 		
@@ -177,7 +177,7 @@ public:
 };
 
 
-TriangeMeshCamera *CreateTriangleMeshCamera(const ParamSet &params,
+MeshCamera *CreateMeshCamera(const ParamSet &params,
 	const Transform &cam2world,
 	Film *film, const Medium *medium);
 #endif /* SRC_CAMERAS_ENVERONMENT_H_ */

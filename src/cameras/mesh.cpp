@@ -1,7 +1,7 @@
-#include "trianglemesh.h"
+#include "mesh.h"
 #include "paramset.h"
 
-TriangeMeshCamera *CreateTriangleMeshCamera(const ParamSet &params,
+MeshCamera *CreateMeshCamera(const ParamSet &params,
 	const Transform &cam2world,
 	Film *film, const Medium *medium){
 	int nvi, npi, nuvi, nsi, nni;
@@ -93,6 +93,6 @@ TriangeMeshCamera *CreateTriangleMeshCamera(const ParamSet &params,
 		else
 			LError<<"\"screenwindow\" should have four values";
 	}
-    return new TriangeMeshCamera(cam2world,false, nvi / 3, vi, npi, P,
+    return new MeshCamera(cam2world,false, nvi / 3, vi, npi, P,
 		S, N, uvs, shutteropen, shutterclose, film, medium);
 }

@@ -22,7 +22,7 @@
 #include "cameras/orthographic.h"
 #include "cameras/perspective.h"
 #include "cameras/environment.h"
-#include "cameras/trianglemesh.h"
+#include "cameras/mesh.h"
 #include "samplers/random.h"
 #include "samplers/stratified.h"
 #include "samplers/halton.h"
@@ -277,7 +277,7 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
 		camera = CreateEnvironmentCamera(paramSet, *cam2world[0], film,
 			mediumInterface.outside);
 	} else if(name =="trianglemesh"){
-		camera = CreateTriangleMeshCamera(paramSet, *cam2world[0], film,
+		camera = CreateMeshCamera(paramSet, *cam2world[0], film,
 			mediumInterface.outside);
 	}
 	else {
