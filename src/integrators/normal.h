@@ -28,7 +28,7 @@ public:
 		                        Sampler &sampler, MemoryArena &arena,
 		                        int depth = 0) const override{
 		SurfaceInteraction ref;//和表面的交互点
-		Spectrum ret(0.0f);
+		RGBSpectrum ret(0.0f);
 		if(_mode==NormalMode::VIEW){
 			Normal3f nn=(Normal3f)ray.d;
 			//映射到[0~1]范围
