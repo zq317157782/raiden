@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 	char *scriptName=nullptr;
     Options options;
     options.numThread=0;
-    options.imageFile="raiden.png";
+    options.imageFile="default.png";
     while((result = getopt(argc,argv,"i:t:o:h")) != -1) {
         switch(result){
             case 'i':{ 
