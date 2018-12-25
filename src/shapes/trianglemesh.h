@@ -11,6 +11,20 @@
 #include "shape.h"
 #include <map>
 
+//UV空间的交点
+class UVInteraction {
+	public:
+		Point3f  p;
+	    Normal3f n;
+	public:
+	UVInteraction(){}
+	UVInteraction(const Point3f &pp,const Normal3f &nn){
+		p=pp;
+		n=nn;
+	}
+};
+
+
 //三角Mesh
 struct TriangleMesh {
 	const int numTriangles; //三角面片的个数
