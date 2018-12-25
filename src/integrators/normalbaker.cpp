@@ -1,14 +1,9 @@
-/*
- * normal.cpp
- *
- *  Created on: 2016年12月15日
- *      Author: zhuqian
- */
-#include "normal.h"
+
+#include "normalbaker.h"
 #include "paramset.h"
 #include "camera.h"
 #include "film.h"
-NormalIntegrator *CreateNormalIntegrator(
+NormalBakerIntegrator *CreateNormalBakerIntegrator(
     const ParamSet &params, std::shared_ptr<Sampler> sampler,
     std::shared_ptr<const Camera> camera) {
     int np;
@@ -25,8 +20,7 @@ NormalIntegrator *CreateNormalIntegrator(
             }
         }
     }
-
-    return new NormalIntegrator(camera,sampler, pixelBounds);
+    return new NormalBakerIntegrator(camera,sampler, pixelBounds);
 }
 
 

@@ -44,6 +44,7 @@
 #include "integrators/bdpt.h"
 #include "integrators/ao.h"
 #include "integrators/bentnormal.h"
+#include "integrators/normalbaker.h"
 #include "textures/constant.h"
 #include "textures/checkerboard2d.h"
 #include "textures/imagemap.h"
@@ -895,6 +896,8 @@ Integrator *RenderOptions::MakeIntegrator() const {
 	}
 	else if (IntegratorName == "bentnormal") {
 		integrator = CreateBentNormalIntegrator(IntegratorParams, sampler, camera);
+	}else if(IntegratorName=="normalbaker"){
+		integrator = CreateNormalBakerIntegrator(IntegratorParams, sampler, camera);
 	}
 	else {
 		LError<<"integrator \"" << IntegratorName.c_str() << "\" unkonwn.";
