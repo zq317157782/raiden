@@ -20,7 +20,15 @@ NormalBakerIntegrator *CreateNormalBakerIntegrator(
             }
         }
     }
-    return new NormalBakerIntegrator(camera,sampler, pixelBounds);
+
+    auto spaceStr = params.FindOneString("space","object");
+	NormalSpace space;
+	if(spaceStr=="object"){
+		space=NormalSpace::OBJECT;
+	}else {
+		space=NormalSpace::WORLD;
+	}
+    return new NormalBakerIntegrator(camera,sampler, pixelBounds,space);
 }
 
 
