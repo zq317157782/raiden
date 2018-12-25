@@ -269,7 +269,7 @@ public:
 		return flag;
 	}
 	
-	bool UVToWorldP(const Point2f& uv,Float delta=0)const {
+	bool UVInside(const Point2f& uv,Float delta=0)const {
 		//获取当前三角面的3个uv坐标
 		Point2f uvs[3];
 		GetUVs(uvs);
