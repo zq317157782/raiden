@@ -22,6 +22,7 @@ class Camera {
 public:
 	Film * film;
 	Transform cameraToWorld;
+	Transform worldToCamera;
 	const Float shutterOpen,shutterEnd;//曝光时间区间
 	const Medium * medium;//中间介质
 public:
