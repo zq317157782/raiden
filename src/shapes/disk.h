@@ -46,6 +46,8 @@ class Disk : public Shape
         }
         //获取交点
         auto hit=oRay(t);
+        //把相交点投影到disk所在的plane上
+        hit.z=_height;
 
         Float dist2=hit.x*hit.x+hit.y*hit.y;
         if(dist2>(_radius*_radius)||dist2<(_innerRadius*_innerRadius)){
