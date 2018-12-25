@@ -27,18 +27,27 @@ void ReadOpenEXR(const char fileName[],std::vector<IMF::Rgba> &pixels,int &width
 	file.readPixels(dw.min.y, dw.max.y);
 }
 
-
-
-void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
+const char* GetExt(const char* fileName){
 	const char* fileExt;
 	const char *ptr, c = '.';
-	//���һ������c��λ��
 	ptr = strrchr(fileName, c);
-	//��ָ����� ������� 
 	int pos = ptr - fileName;
-	//��ȡ��׺
 	fileExt = &fileName[pos + 1];
-	//�жϺ�׺�Ƿ���ͬ
+	return fileExt;
+}
+
+bool IsImageFormatSupported(const char* fileName){
+	const char* fileExt=GetExt(fileName);
+	if(0 == strcmp(fileExt, "png") || 0 == strcmp(fileExt, "PNG")){
+		return true;
+	}else if(0 == strcmp(fileExt, "exr") || 0 == strcmp(fileExt, "EXR")){
+		return true;
+	}
+	return false;
+}
+
+void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
+	const char* fileExt=GetExt(fileName);
 	if (0 == strcmp(fileExt, "png") || 0 == strcmp(fileExt, "PNG")) {
 		std::vector<uint8_t> image;
 		for (int i = 0; i<w*h; ++i) {
