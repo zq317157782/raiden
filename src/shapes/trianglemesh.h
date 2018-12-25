@@ -259,6 +259,15 @@ public:
 	}
 	return  true;
 	}
+
+	bool UVToObject(const Point2f& uv,UVInteraction* hit,Float delta=0) const{
+		bool flag=UVToWorld(uv,hit,delta);
+		if(flag){
+			hit->p=(*worldToObject)(hit->p);
+			hit->n=(*worldToObject)(hit->n);
+		}
+		return flag;
+	}
 	
 	bool UVToWorldP(const Point2f& uv,Float delta=0)const {
 		//获取当前三角面的3个uv坐标
