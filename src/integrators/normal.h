@@ -20,6 +20,9 @@ enum class NormalMode{
 class NormalIntegrator:public SamplerIntegrator{
 private:
 	NormalMode _mode;
+	inline Normal3f MapTo01(const Normal3f& n) const{
+		return (n+Normal3f(1.0f,1.0f,1.0f))*0.5f;
+	}
 public:
 	NormalIntegrator(const std::shared_ptr<const Camera>& camera,const std::shared_ptr<Sampler>& sampler,const Bound2i&pixelBound,NormalMode mode=NormalMode::SCENE):
 	SamplerIntegrator(camera,sampler,pixelBound),_mode(mode){}
@@ -30,18 +33,18 @@ public:
 		SurfaceInteraction ref;//和表面的交互点
 		RGBSpectrum ret(0.0f);
 		if(_mode==NormalMode::VIEW){
-			Normal3f nn=(Normal3f)ray.d;
+			Normal3f nn=Normalize((Normal3f)ray.d);
 			//映射到[0~1]范围
-			nn=(nn+Normal3f(1.0f,1.0f,1.0f))*0.5f;
+			nn=MapTo01(nn);
 			ret[0]=nn.x;
 			ret[1]=nn.y;
 			ret[2]=nn.z;
 			return ret;
 		}else{
 			if (scene.Intersect(ray, &ref)) {
-				Normal3f nn=ref.shading.n;
+				Normal3f nn=Normalize(ref.shading.n);
 				//映射到[0~1]范围
-				nn=(nn+Normal3f(1.0f,1.0f,1.0f))*0.5f;
+				nn=MapTo01(nn);
 				ret[0]=nn.x;
 				ret[1]=nn.y;
 				ret[2]=nn.z;
