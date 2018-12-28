@@ -231,3 +231,43 @@ SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
 	ret.shading.n = Faceforward(ret.shading.n, ret.n);
 	return ret;
 }
+
+
+Transform LookAt(const Point3f& pos,const Point3f& look,const Vector3f& up){
+	
+	Matrix4x4 cameraToWorld;
+
+	//先是translate;
+	cameraToWorld.m[0][3]=pos.x;
+	cameraToWorld.m[1][3]=pos.y;
+	cameraToWorld.m[2][3]=pos.z;
+	cameraToWorld.m[3][3]=1;
+	
+	//然后判断向前向量和向上向量是否相同,或者相反
+	auto dir=Normalize(look-pos);
+	if(Cross(dir,Normalize(up)).Length()==0){
+		LError<<"look vector["<<dir.x<<","<<dir.y<<","<<dir.z<<"] is the same as up vector[" <<up.x<<","<<up.y<<","<<up.z<<",use identity trasform.";
+		return Transform();
+	}
+	//计算x轴向量
+	auto right=Normalize(Cross(up,dir));
+	//计算y轴向量
+	auto newUp=Cross(dir,right);
+
+	cameraToWorld.m[0][0]=right.x;
+	cameraToWorld.m[1][0]=right.y;
+	cameraToWorld.m[2][0]=right.z;
+	cameraToWorld.m[3][0]=0;
+
+	cameraToWorld.m[0][1]=newUp.x;
+	cameraToWorld.m[1][1]=newUp.y;
+	cameraToWorld.m[2][1]=newUp.z;
+	cameraToWorld.m[3][1]=0;
+
+	cameraToWorld.m[0][2]=dir.x;
+	cameraToWorld.m[1][2]=dir.y;
+	cameraToWorld.m[2][2]=dir.z;
+	cameraToWorld.m[3][2]=0;
+
+	return Transform(Inverse(cameraToWorld),cameraToWorld);
+}

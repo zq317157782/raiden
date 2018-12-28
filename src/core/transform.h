@@ -475,4 +475,5 @@ Transform Rotate(Float angle, const Vector3f &axis);
 Transform Orthographic(Float znear, Float zfar);	//正交变换
 Transform Perspective(Float fov, Float znear, Float zfar);//透视变换 fov:field of view
 
+Transform LookAt(const Point3f& pos,const Point3f& look,const Vector3f& up);
 #endif /* SRC_CORE_TRANSFORM_H_ */
