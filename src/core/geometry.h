@@ -724,7 +724,7 @@ public:
 	inline Normal3<T> operator/(U f) const {
 		Assert(!IsNaN(f));
 		Assert(f != 0);
-		Float reciprocal = 1.0 / f;
+		Float reciprocal = (Float)1 / f;
 		return Normal3<T>(x * reciprocal, y * reciprocal, z * reciprocal);
 	}
 
@@ -732,7 +732,7 @@ public:
 	inline Normal3<T>& operator/=(U f) {
 		Assert(!IsNaN(f));
 		Assert(f != 0);
-		Float reciprocal = 1.0 / f;
+		Float reciprocal = (Float)1 / f;
 		x *= reciprocal;
 		y *= reciprocal;
 		z *= reciprocal;
@@ -843,7 +843,7 @@ public:
 	//求面积
 	inline T SurfaceArea() const {
 		Vector3<T> d = Diagonal();
-		return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.0;
+		return (d.x * d.y + d.x * d.z + d.y * d.z) * 2;
 	}
 
 	//求体积
@@ -884,9 +884,9 @@ public:
 	inline void BoundingSphere(Point3<T>*c, Float* r) const {
 		*c = (minPoint + maxPoint) / 2;
 		if (Inside(*c, *this)) {
-			*r = Distance(*c, maxPoint);
+			*r = (Float)Distance(*c, maxPoint);
 		} else {
-			*r = 0;
+			*r = (Float)0;
 		}
 	}
 	//计算点在碰撞盒中的偏移量
@@ -1000,11 +1000,11 @@ public:
 
 	//获得包围圆
 	inline void BoundingSphere(Point2<T>*c, Float* r) const {
-		*c = (minPoint + maxPoint) / 2;
+		*c = (minPoint + maxPoint) / (Float)2;
 		if (Inside(*c, *this)) {
-			*r = Distance(*c, maxPoint);
+			*r = (Float)Distance(*c, maxPoint);
 		} else {
-			*r = 0;
+			*r = (Float)0;
 		}
 	}
 
@@ -1380,22 +1380,22 @@ inline Normal3<T> operator*(U n, const Normal3<T>& v) {
 //4系列
 template<typename T>
 inline Normal3<T> Faceforward(const Normal3<T> &n, const Vector3<T> &v) {
-	return (Dot(n, v) < 0.0) ? -n : n;
+	return (Dot(n, v) < 0) ? -n : n;
 }
 
 template<typename T>
 inline Normal3<T> Faceforward(const Normal3<T> &n, const Normal3<T> &v) {
-	return (Dot(n, v) < 0.0) ? -n : n;
+	return (Dot(n, v) < 0) ? -n : n;
 }
 
 template<typename T>
 inline Vector3<T> Faceforward(const Vector3<T> &n, const Vector3<T> &v) {
-	return (Dot(n, v) < 0.0) ? -n : n;
+	return (Dot(n, v) < 0) ? -n : n;
 }
 
 template<typename T>
 inline Vector3<T> Faceforward(const Vector3<T> &n, const Normal3<T> &v) {
-	return (Dot(n, v) < 0.0) ? -n : n;
+	return (Dot(n, v) < 0) ? -n : n;
 }
 
 //距离相关
@@ -1426,10 +1426,10 @@ template<typename T>
 inline void CoordinateSystem(const Vector3<T>& V, Vector3<T>* VT,
 		Vector3<T>* VB) {
 	if (std::abs(V.x) > std::abs(V.y)) {
-		Float reciprocal = 1.0 / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
+		Float reciprocal = (Float)1 / std::sqrt(V.x * V.x + V.z * V.z);	//用来标准化的参数
 		(*VT) = Vector3<T>(-V.z * reciprocal, 0, V.x * reciprocal);
 	} else {
-		Float reciprocal = 1.0 / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
+		Float reciprocal = (Float)1 / std::sqrt(V.y * V.y + V.z * V.z);	//用来标准化的参数
 		(*VT) = Vector3<T>(0, -V.z * reciprocal, V.y * reciprocal);
 	}
 	(*VB) = Cross(V, *VT);
@@ -1634,7 +1634,7 @@ inline bool Bound3<T>::IntersectP(const Ray& ray,Float* tHit1,Float *tHit2) cons
 	Float t1=ray.tMax;
 	for(int i=0;i<3;++i){
 		//通过简化求交方程式，可以得到t=(x-ox)/dx
-		Float reciprocalD=1.0/ray.d[i];
+		Float reciprocalD=(Float)1/ray.d[i];
 		Float tNear=(minPoint[i]-ray.o[i])*reciprocalD;
 		Float tFar=(maxPoint[i]-ray.o[i])*reciprocalD;
 		if(tNear>tFar){
