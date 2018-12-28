@@ -18,6 +18,7 @@
 #include "shapes/sphere.h"
 #include "shapes/trianglemesh.h"
 #include "shapes/disk.h"
+#include "shapes/curve.h"
 #include "cameras/pinhole.h"
 #include "cameras/orthographic.h"
 #include "cameras/perspective.h"
