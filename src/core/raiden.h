@@ -217,7 +217,7 @@ inline float NextFloatUp(float f) {
 	if (f == -0.0f)
 		f = 0.0f;
 	uint32_t bits = FloatToBits(f);
-	if (f >= 0)
+	if (f >= 0.0f)
 		++bits;
 	else
 		--bits;
@@ -232,7 +232,7 @@ inline float NextFloatDown(float f) {
 	if (f == 0.0f)
 		f = -0.0f;
 	uint32_t bits = FloatToBits(f);
-	if (f > 0)
+	if (f > 0.0f)
 		--bits;
 	else
 		++bits;
@@ -246,7 +246,7 @@ inline double NextFloatUp(double d, int delta = 1) {
 	if (d == -0.0)
 		d = 0.0;
 	uint64_t bits = FloatToBits(d);
-	if (d >= 0)
+	if (d >= 0.0)
 		bits += delta;
 	else
 		bits -= delta;
@@ -270,8 +270,7 @@ inline double NextFloatDown(double d, int delta = 1) {
 //这个MachineEpsion是数值分析下的MachineEpsion；为2的-24次方；
 //C++标准库提供的Epsion是大于1的ULP，为2的-23次方
 //所以需要再除以2
-static constexpr Float MachineEpsion = 0.5f
-		* std::numeric_limits<Float>::epsilon();
+static constexpr Float MachineEpsion = std::numeric_limits<Float>::epsilon()/(Float)2;
 
 //这个gamma不是用来做Gamma校正的gamma，这个gamma是浮点数运算中，每一次运算后的最大ERR边界
 inline constexpr Float gamma(int n) {
