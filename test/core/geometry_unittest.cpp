@@ -2,6 +2,13 @@
 #include "geometry.h"
 #include "gtest.h"
 
+TEST(Vector3i,Div){
+  Vector3i v1(1);
+  int f=2;;
+  auto v3=v1/f;
+  EXPECT_EQ(0, v3.x)<<"test operater+";
+}
+
 TEST(Vector3f,Add){
   Vector3f v1(-1);
   Vector3f v2(1);
