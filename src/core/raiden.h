@@ -295,7 +295,17 @@ inline Float Mod(Float a, Float b) {
 }
 
 //裁剪函数
-inline Float Clamp(Float val, Float low, Float high) {
+// inline Float Clamp(Float val, Float low, Float high) {
+// 	if (val < low)
+// 		return low;
+// 	else if (val > high)
+// 		return high;
+// 	else
+// 		return val;
+// }
+
+template <typename T,typename U,typename V>
+inline T Clamp(T val, U low, V high) {
 	if (val < low)
 		return low;
 	else if (val > high)
