@@ -29,7 +29,34 @@ class Curve : public Shape
     const Float _uMax;
 
     bool RecursiveIntersect(const Ray& ray,Float *tHit, SurfaceInteraction *surfaceInsect,const Point3f cp[4],const Transform& rayToObject,Float u0,Float u1,int depth) const{
-        return false;
+        //计算Ray空间的curve bound
+        auto curveBound = Union(Bound3f(cp[0], cp[1]), Bound3f(cp[2], cp[3]));
+        //计算最大的width
+        Float w0 = Lerp(u0, _common->width[0], _common->width[1]);
+        Float w1 = Lerp(u1, _common->width[0], _common->width[1]);
+        Float w = std::max(w0, w1);
+        //扩大bound,获得保守的bound
+        curveBound = Expand(curveBound, w * (Float)0.5);
+
+        //计算Ray空间下的Ray的bound
+        Float zMax=ray.d.Length()*ray.tMax;
+        Bound3f rayBound(Point3f(0,0,0),Point3f(0,0,zMax));
+
+        //判断rayBound和curveBound是否相交
+        if(Overlap(rayBound,curveBound)==false){
+            return false;
+        }
+        //到这里，已经和现在的bound相交了，所以要开始迭代的判断子curve是否相交，
+        //直到深度为0的时候，再判断是都和实际的curve相交
+        if(depth>0){
+            //迭代
+           
+        }
+        else{
+            //相交测试
+             return true;
+        }
+       
     }
   public:
     Curve(const Transform *objectToWorld, const Transform *worldToObject,
