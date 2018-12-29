@@ -64,7 +64,7 @@ class Curve : public Shape
 
         Point3f b0=Lerp(u,a0,a1);
         Point3f b1=Lerp(u,a1,a2);
-        //计算
+        //计算导数
         if (deriv){
             *deriv = (Float)3 * (b1 - b0);
         }
@@ -135,6 +135,18 @@ class Curve : public Shape
             //计算近似交点的宽度
             Float u=Clamp(Lerp(w,u0,u1),u0,u1);
             Float hitWidth=Lerp(u,_common->width[0],_common->width[1]);
+
+            //计算曲线上的点以及相应的偏导
+            Vector3f dpcdw;
+            auto pc=EvalBezier(cp,Clamp(w,0,1),&dpcdw);
+            Float len2=pc.x*pc.x+pc.y*pc.y;//计算到(0,0)的距离
+            if(len2>(hitWidth*hitWidth*(Float)0.25)){
+                return false;
+            }
+            //判断z轴
+            if(pc.z<0||pc.z>zMax){
+                return false;
+            }
             return true;
         }
        
