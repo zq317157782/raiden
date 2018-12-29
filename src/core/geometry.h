@@ -1372,6 +1372,11 @@ inline Vector3<T> operator*(U n, const Vector3<T>& v) {
 }
 
 template<typename T, typename U>
+inline Point3<T> operator*(U n, const Point3<T>& v) {
+	return v * n;
+}
+
+template<typename T, typename U>
 inline Normal3<T> operator*(U n, const Normal3<T>& v) {
 	return v * n;
 }
