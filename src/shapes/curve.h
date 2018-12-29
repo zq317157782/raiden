@@ -81,7 +81,7 @@ class Curve : public Shape
             Float uMid=(u0+u1)/2;
             Point3f newcp[7];
             SubdivideBezier(cp,newcp);
-            return RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[0],rayToObject,u0,uMid,depth-1)|RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[3],rayToObject,uMid,u1,depth-1);
+            return RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[0],rayToObject,u0,uMid,depth-1)||RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[3],rayToObject,uMid,u1,depth-1);
         }
         else{
             //相交测试
