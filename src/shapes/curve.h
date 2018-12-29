@@ -62,9 +62,9 @@ class Curve : public Shape
         //计算最大的width
         Float w0 = Lerp(u0, _common->width[0], _common->width[1]);
         Float w1 = Lerp(u1, _common->width[0], _common->width[1]);
-        Float w = std::max(w0, w1);
+        Float width = std::max(w0, w1);
         //扩大bound,获得保守的bound
-        curveBound = Expand(curveBound, w * (Float)0.5);
+        curveBound = Expand(curveBound, width * (Float)0.5);
 
         //计算Ray空间下的Ray的bound
         Float zMax=ray.d.Length()*ray.tMax;
@@ -108,6 +108,16 @@ class Curve : public Shape
                 //(0,0)点在edge的左边，所以不能和曲线相交
                 return false;
             }
+
+            //使用start point和end point组成的直线来近似Bezier Curve
+            Vector2f segmentDir=Point2f(cp[3])-Point2f(cp[0]);
+            Float denom=segmentDir.LengthSquared();
+            if(denom==0){
+                //退化的情况
+                return false;
+            }
+            Float w=Dot(-Vector2f(cp[0]),segmentDir)/denom;//直线上的参数
+            
             return true;
         }
        
