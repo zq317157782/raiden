@@ -28,6 +28,34 @@ class Curve : public Shape
     const Float _uMin;
     const Float _uMax;
 
+    void SubdivideBezier(const Point3f cp[4],Point3f newcp[7]) const{
+        //Blossom
+        // a0=(1-u0)*p0+u0*p1;
+        // a1=(1-u0)*p1+u0*p2;
+        // a2=(1-u0)*p2+u0*p3;
+        // b0=(1-u1)*a0+u1*a1;
+        // b1=(1-u1)*a1+u1*a2;
+        // c =(1-u2)*b0+u2*b1;
+        // c =(1-u2)*((1-u1)*((1-u0)*p0+u0*p1)+u1*((1-u0)*p1+u0*p2))+u2*((1-u1)*((1-u0)*p1+u0*p2)+u1*((1-u0)*p2+u0*p3));
+
+        // np0 = p0 [u0:0 u1:0 u2:0]
+        // np1 = p0/2 + p1/2    [u0:0 u1:0 u2:1/2]
+        // np2 = p0/4 + p1/4 + p1/4 + p2/4 [u0:0 u1:1/2 u2:1/2]
+        // np3 = p0/8 + p1/8 + p1/8 + p2/8 + p1/8 + p2/8 + p2/8 + p3/8[u0:1/2 u1:1/2 u2:1/2]
+        // np4 = ... [u0:1/2 u1:1/2 u2:1]
+        // np5 = ... [u0:1/2 u1:1 u2:1]
+        // np6 = ... [u0:1 u1:1 u2:1]
+
+        newcp[0] = cp[0];
+        newcp[1] = (cp[0] + cp[1]) / 2;
+        newcp[2] = (cp[0] + 2 * cp[1] + cp[2]) / 4;
+        newcp[3] = (cp[0] + 3 * cp[1] + 3 * cp[2] + cp[3]) / 8;
+        newcp[4] = (cp[1] + 2 * cp[2] + cp[3]) / 4;
+        newcp[5] = (cp[2] + cp[3]) / 2;
+        newcp[6] = cp[3];
+    }
+    
+
     bool RecursiveIntersect(const Ray& ray,Float *tHit, SurfaceInteraction *surfaceInsect,const Point3f cp[4],const Transform& rayToObject,Float u0,Float u1,int depth) const{
         //计算Ray空间的curve bound
         auto curveBound = Union(Bound3f(cp[0], cp[1]), Bound3f(cp[2], cp[3]));
@@ -50,7 +78,10 @@ class Curve : public Shape
         //直到深度为0的时候，再判断是都和实际的curve相交
         if(depth>0){
             //迭代
-           
+            Float uMid=(u0+u1)/2;
+            Point3f newcp[7];
+            SubdivideBezier(cp,newcp);
+            return RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[0],rayToObject,u0,uMid,depth-1)|RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[3],rayToObject,uMid,u1,depth-1);
         }
         else{
             //相交测试
