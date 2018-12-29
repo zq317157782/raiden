@@ -28,7 +28,7 @@ class Curve : public Shape
     const Float _uMin;
     const Float _uMax;
 
-    void SubdivideBezier(const Point3f cp[4],Point3f newcp[7]) const{
+    static void SubdivideBezier(const Point3f cp[4],Point3f newcp[7]){
         //Blossom
         // a0=(1-u0)*p0+u0*p1;
         // a1=(1-u0)*p1+u0*p2;
@@ -55,6 +55,21 @@ class Curve : public Shape
         newcp[6] = cp[3];
     }
     
+    //计算在Bezier曲线上的值
+    static Point3f EvalBezier(const Point3f cp[4],Float u,Vector3f* deriv=nullptr){
+        
+        Point3f a0=Lerp(u,cp[0],cp[1]);
+        Point3f a1=Lerp(u,cp[1],cp[2]);
+        Point3f a2=Lerp(u,cp[2],cp[3]);
+
+        Point3f b0=Lerp(u,a0,a1);
+        Point3f b1=Lerp(u,a1,a2);
+        //计算
+        if (deriv){
+            *deriv = (Float)3 * (b1 - b0);
+        }
+        return Lerp(u,b0,b1);
+    }
 
     bool RecursiveIntersect(const Ray& ray,Float *tHit, SurfaceInteraction *surfaceInsect,const Point3f cp[4],const Transform& rayToObject,Float u0,Float u1,int depth) const{
         //计算Ray空间的curve bound
@@ -117,7 +132,9 @@ class Curve : public Shape
                 return false;
             }
             Float w=Dot(-Vector2f(cp[0]),segmentDir)/denom;//直线上的参数
-            
+            //计算近似交点的宽度
+            Float u=Clamp(Lerp(w,u0,u1),u0,u1);
+            Float hitWidth=Lerp(u,_common->width[0],_common->width[1]);
             return true;
         }
        
