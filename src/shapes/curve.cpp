@@ -33,6 +33,8 @@ std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Tra
             std::string curveType=params.FindOneString("type","flat");
             if(curveType=="flat"){
                 type=CurveType::FLAT;
+            } else if(curveType=="cylinder"){
+                 type=CurveType::CYLINDER;
             }
 
             Float width=params.FindOneFloat("width",1);

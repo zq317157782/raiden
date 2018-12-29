@@ -4,7 +4,7 @@
 //曲线的类型
 enum class CurveType
 {
-    FLAT
+    FLAT,CYLINDER
 };
 
 //完整的曲线
@@ -172,11 +172,19 @@ class Curve : public Shape
                 //计算偏导
                 Vector3f dpdu,dpdv;
                 EvalBezier(_common->bezier.p,u,&dpdu);
-                if(_common->type==CurveType::FLAT){
+                if(_common->type==CurveType::FLAT||_common->type==CurveType::CYLINDER){
                     //先变换到Ray空间
                     //这时候的dpdu是在xy平面上的
                     auto dpduPlane=Inverse(rayToObject)(dpdu);
-                    auto dpdvPlane=Normalize(Vector3f(dpduPlane.y,-dpduPlane.x,0))*hitWidth;//注意这里偏导向量的长度
+                    auto dpdvPlane=Normalize(Vector3f(-dpduPlane.y,dpduPlane.x,0))*hitWidth;//注意这里偏导向量的长度
+
+                    //处理CYLINDER情况下的dpdv
+                    if(_common->type==CurveType::CYLINDER){
+                        Float theta=Lerp(v,(Float)-90.0,(Float)90.0);
+                        auto rotate=Rotate(-theta,dpduPlane);
+                        dpdvPlane=rotate(dpdvPlane);
+                    }
+
                     dpdv=rayToObject(dpdvPlane);//重新变回局部空间
                 }
 

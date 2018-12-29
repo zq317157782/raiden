@@ -30,12 +30,12 @@ TEST(Curve,Intersect){
     bool f=curve.Intersect(ray,&hit,&is);
     EXPECT_TRUE(f);
     EXPECT_FLOAT_EQ(hit,0.5);
-    EXPECT_EQ(is.n,Normal3f(0,0,-1));
+    EXPECT_EQ(is.n,Normal3f(0,0,1));
 
     ray.o=Point3f(0,-1,0);
     ray.d=Vector3f(0,2,0);
     f=curve.Intersect(ray,&hit,&is);
     EXPECT_TRUE(f);
     EXPECT_FLOAT_EQ(hit,0.5);
-    EXPECT_EQ(is.n,Normal3f(0,-1,0));
+    EXPECT_EQ(is.n,Normal3f(0,1,0));
 }
