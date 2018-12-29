@@ -273,3 +273,7 @@ class Curve : public Shape
         return Interaction();
     }
 };
+
+
+std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Transform *w2o, bool reverseOrientation,
+    const Point3f *c, Float w0, Float w1, CurveType type,int splitDepth);
