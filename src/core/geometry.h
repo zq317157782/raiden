@@ -214,6 +214,11 @@ public:
 	}
 
 	template<typename T1>
+	inline explicit Vector2(const Point3<T1>& p):x(p.x),y(p.y){
+		Assert(!HasNaNs());
+	}
+
+	template<typename T1>
 	inline explicit Vector2(const Vector3<T1>& v):x(v.x),y(v.y){
 		Assert(!HasNaNs());
 	}
