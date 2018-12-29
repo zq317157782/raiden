@@ -222,6 +222,9 @@ std::vector<std::shared_ptr<Shape>> MakeShapes(const std::string &name,
 	else if (name == "trianglemesh") {
 		shapes = CreateTriangleMeshShape(object2world, world2object,
 			reverseOrientation, paramSet);
+	} else if(name == "curve"){
+		shapes = CreateCurveShape(object2world, world2object,
+			reverseOrientation, paramSet);
 	}
 	else {
 		LError<<"shape \"" << name.c_str() << "\" unknown.";

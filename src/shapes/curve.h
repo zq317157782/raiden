@@ -277,3 +277,8 @@ class Curve : public Shape
 
 std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Transform *w2o, bool reverseOrientation,
     const Point3f *c, Float w0, Float w1, CurveType type,int splitDepth);
+
+std::vector<std::shared_ptr<Shape>> CreateCurveShape(const Transform *o2w,
+                                                     const Transform *w2o,
+                                                     bool reverseOrientation,
+                                                     const ParamSet &params);
