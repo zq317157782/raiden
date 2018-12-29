@@ -71,7 +71,7 @@ class Curve : public Shape
         return Lerp(u,b0,b1);
     }
 
-    bool RecursiveIntersect(const Ray& ray,Float *tHit, SurfaceInteraction *surfaceInsect,const Point3f cp[4],const Transform& rayToObject,Float u0,Float u1,int depth) const{
+    bool RecursiveIntersect(const Ray& ray,Float *tHit, SurfaceInteraction *is,const Point3f cp[4],const Transform& rayToObject,Float u0,Float u1,int depth) const{
         //计算Ray空间的curve bound
         auto curveBound = Union(Bound3f(cp[0], cp[1]), Bound3f(cp[2], cp[3]));
         //计算最大的width
@@ -82,7 +82,8 @@ class Curve : public Shape
         curveBound = Expand(curveBound, width * (Float)0.5);
 
         //计算Ray空间下的Ray的bound
-        Float zMax=ray.d.Length()*ray.tMax;
+        Float rayLen=ray.d.Length();
+        Float zMax=rayLen*ray.tMax;
         Bound3f rayBound(Point3f(0,0,0),Point3f(0,0,zMax));
 
         //判断rayBound和curveBound是否相交
@@ -96,7 +97,7 @@ class Curve : public Shape
             Float uMid=(u0+u1)/2;
             Point3f newcp[7];
             SubdivideBezier(cp,newcp);
-            return RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[0],rayToObject,u0,uMid,depth-1)||RecursiveIntersect(ray,tHit,surfaceInsect,&newcp[3],rayToObject,uMid,u1,depth-1);
+            return RecursiveIntersect(ray,tHit,is,&newcp[0],rayToObject,u0,uMid,depth-1)||RecursiveIntersect(ray,tHit,is,&newcp[3],rayToObject,uMid,u1,depth-1);
         }
         else{
             //相交测试
@@ -146,6 +147,42 @@ class Curve : public Shape
             //判断z轴
             if(pc.z<0||pc.z>zMax){
                 return false;
+            }
+            
+
+            //计算参数v
+             //计算实际的距离
+            Float len=std::sqrt(len2);
+            //判断交点是在curve的左边还是右边
+            //使用edge function
+            edge=(dpcdw.x)*(-pc.y)+(pc.x)*(dpcdw.y);
+            Float v;
+            if(edge<0){
+                v=(Float)0.5+len/hitWidth;
+            }
+            else {
+                v=(Float)0.5-len/hitWidth;
+            }
+            
+
+            Vector3f err(0,0,0);
+            //初始化
+            if(tHit){
+                (*tHit)=pc.z/rayLen;
+                //计算偏导
+                Vector3f dpdu,dpdv;
+                EvalBezier(_common->bezier.p,u,&dpdu);
+                if(_common->type==CurveType::FLAT){
+                    //先变换到Ray空间
+                    //这时候的dpdu是在xy平面上的
+                    auto dpduPlane=Inverse(rayToObject)(dpdu);
+                    auto dpdvPlane=Normalize(Vector3f(-dpduPlane.y,dpduPlane.x,0))*hitWidth;//注意这里偏导向量的长度
+                    dpdv=rayToObject(dpdvPlane);//重新变回局部空间
+                }
+
+                if(is){
+                    (*is)=(*objectToWorld)(SurfaceInteraction(ray(*tHit),err,Point2f(u,v),-ray.d,dpdu,dpdv,Normal3f(0,0,0),Normal3f(0,0,0),ray.time,this));
+                }
             }
             return true;
         }
