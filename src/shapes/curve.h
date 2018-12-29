@@ -85,7 +85,30 @@ class Curve : public Shape
         }
         else{
             //相交测试
-             return true;
+            //首先计算垂直于start point和end point的直线 
+            //1.先算出Bezier曲线的一阶导，并且获得相应点处的切线方程
+            //2.因为已经在ray空间了，所以相当于在处理2D空间的向量，因此假设切线t为[x,y],则垂直于切线的向量为b[y,-x]
+            //3.获得这个向量后，就可以计算edge function
+
+            //start point处的1阶导为3(p1-p0)=> 3[p1.x-p0.x,p1.y-p0.y]
+            //所以垂直向量为 [p1.y-p0.y,p0.x-p1.x]
+            //所以第二个点为 p0+[p1.y-p0.y,p0.x-p1.x] =>[p0.x+p1.y-p0.y,p0.y+p0.x-p1.x]
+
+            //所以edge function为:(p1.y-p0.y)(p.y-p0.y)-(p.x-p0.x)(p0.x-p1.x)  
+            //因为在ray空间中，p为[0,0],所以简化成 (p1.y-p0.y)(-p0.y)+(p0.x)(p0.x-p1.x)  
+            Float edge=(cp[1].y-cp[0].y)*(-cp[0].y)+(cp[0].x)*(cp[0].x-cp[1].x);
+            if(edge<0){
+                //(0,0)点在edge的左边，所以不能和曲线相交
+                return false;
+            }
+            //这里是相应的判断end point处的edge function
+            //省略
+            edge = (cp[2].y - cp[3].y) * (-cp[3].y) + (cp[3].x) * (cp[3].x - cp[2].x);
+            if(edge<0){
+                //(0,0)点在edge的左边，所以不能和曲线相交
+                return false;
+            }
+            return true;
         }
        
     }
