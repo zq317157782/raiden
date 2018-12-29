@@ -176,7 +176,7 @@ class Curve : public Shape
                     //先变换到Ray空间
                     //这时候的dpdu是在xy平面上的
                     auto dpduPlane=Inverse(rayToObject)(dpdu);
-                    auto dpdvPlane=Normalize(Vector3f(-dpduPlane.y,dpduPlane.x,0))*hitWidth;//注意这里偏导向量的长度
+                    auto dpdvPlane=Normalize(Vector3f(dpduPlane.y,-dpduPlane.x,0))*hitWidth;//注意这里偏导向量的长度
                     dpdv=rayToObject(dpdvPlane);//重新变回局部空间
                 }
 
