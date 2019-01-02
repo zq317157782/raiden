@@ -411,5 +411,9 @@ inline int Log2Int(uint32_t v) {
 #endif
 }
 
+//计算Sqr
+inline Float Sqr(Float v){
+	return v*v;
+}
 
 #endif /* SRC_CORE_RAIDEN_H_ */
