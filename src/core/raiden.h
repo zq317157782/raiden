@@ -416,4 +416,19 @@ inline Float Sqr(Float v){
 	return v*v;
 }
 
+
+template<int n> static Float Pow(Float v){
+	static_assert(n>=0,"Power can't be negative");
+	Float v2=Pow<n/2>(v);
+	return v2*v2*Pow<n&1>(v);
+}
+
+ template<> Float Pow<0>(Float v){
+ 	return 1;
+ }
+
+template<> Float Pow<1>(Float v){
+	return v;
+}
+
 #endif /* SRC_CORE_RAIDEN_H_ */
