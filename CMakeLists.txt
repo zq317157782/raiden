@@ -3,20 +3,26 @@ project(raiden VERSION 0.1.0)
 
 include(CTest)
 enable_testing()
-
+ 
 #Window下默认这个变量没有赋值，所以这里默认赋值成release
 if (WIN32)
     SET(CMAKE_BUILD_TYPE release)
+     # Force to always compile with W4
+    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+       string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    endif()
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+  
 MESSAGE(STATUS "CMAKE_BUILD_TYPE = " ${CMAKE_BUILD_TYPE})
 #设置输出目录
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 #使用C++11的语言特征
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
+ 
 #设置的参数
 option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
 option (RAIDEN_FLOAT_PRECISION "Use float precision float number" ON)
@@ -54,23 +60,27 @@ set(ILMBASE_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
 set(OPENEXR_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
 add_subdirectory(external/openexr)
 set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups  IlmThread Half Iex Imath IlmImf PROPERTY FOLDER "external")
-
+ 
 #编译Lua
 add_subdirectory(external/lua)
 
 #编译glog
 set(WITH_GFLAGS OFF)
 add_subdirectory(external/glog)
-
+ 
 #编译lodepng
 add_subdirectory(external/lodepng)
-
+ 
 if(RAIDEN_UNITTEST)
   #编译gtest
   set(gtest_force_shared_crt ON)
   set(BUILD_GMOCK OFF)
   set(BUILD_GTEST ON)
   add_subdirectory(external/googletest)
+
+  #编译
+  SET(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+  add_subdirectory(external/benchmark)
 endif(RAIDEN_UNITTEST)
 
 
@@ -93,6 +103,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/pugixml)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if(RAIDEN_UNITTEST)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//googletest/googletest/include/gtest)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//benchmark/include/benchmark)
 endif(RAIDEN_UNITTEST)
 
 #设置源文件
@@ -109,6 +120,7 @@ aux_source_directory(src/shapes RAIDEN_SRC_SHAPE)
 aux_source_directory(src/textures RAIDEN_SRC_TEXTURE)
 aux_source_directory(src/binders RAIDEN_SRC_BINDER)
 if(RAIDEN_UNITTEST)
+    aux_source_directory(test RAIDEN_TEST)
     aux_source_directory(test/core RAIDEN_TEST_CORE)
     aux_source_directory(test/binders RAIDEN_TEST_BINDERS)
     aux_source_directory(test/shapes RAIDEN_TEST_SHAPES)
@@ -127,6 +139,7 @@ ${RAIDEN_SRC_MEDIA}
 ${RAIDEN_SRC_SAMPLER} 
 ${RAIDEN_SRC_SHAPE} 
 ${RAIDEN_SRC_TEXTURE} 
+${RAIDEN_TEST}
 ${RAIDEN_TEST_CORE} 
 ${RAIDEN_TEST_BINDERS}
 ${RAIDEN_TEST_SHAPES}
@@ -144,6 +157,7 @@ target_link_libraries(raiden ${OPENEXR_LIBS})
 target_link_libraries(raiden lodepng)
 if(RAIDEN_UNITTEST)
   target_link_libraries(raiden gtest)
+  target_link_libraries(raiden benchmark)
 endif(RAIDEN_UNITTEST)
 
 if (WIN32)
