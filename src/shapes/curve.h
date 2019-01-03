@@ -4,7 +4,7 @@
 //曲线的类型
 enum class CurveType
 {
-    FLAT,CYLINDER
+    FLAT,CYLINDER,RIBBON
 };
 
 //完整的曲线
@@ -14,11 +14,35 @@ struct CurveCommon
     const CubicBezier bezier;
     const Float width[2];
     const CurveType type;
-
+    //RIBBON类型需要用到的数据
+    Normal3f n[2];
+    Float angle;
+    Float invSin;
   public:
-    CurveCommon(const CubicBezier &bezier, Float w0, Float w1, CurveType type) : bezier(bezier), width{w0, w1}, type(type) {}
-    CurveCommon(const Point3f p[4], Float w0, Float w1, CurveType type) : bezier(CubicBezier(p)), width{w0, w1}, type(type) {}
-    CurveCommon(const Point3f &p0, const Point3f &p1, const Point3f &p2, const Point3f &p3, Float w0, Float w1, CurveType type) : bezier(CubicBezier(p0, p1, p2, p3)), width{w0, w1}, type(type) {}
+    CurveCommon(const CubicBezier &bezier, Float w0, Float w1, CurveType type,const Normal3f* norm) : bezier(bezier), width{w0, w1}, type(type) {
+        if(norm){
+            n[0]=Normalize(norm[0]);
+            n[1]=Normalize(norm[1]);
+            angle=std::acos(Clamp(Dot(n[0],n[1]),0,1));
+            invSin=1/std::sin(angle);
+        }
+    }
+    CurveCommon(const Point3f p[4], Float w0, Float w1, CurveType type,const Normal3f* norm) : bezier(CubicBezier(p)), width{w0, w1}, type(type) {
+        if(norm){
+            n[0]=Normalize(norm[0]);
+            n[1]=Normalize(norm[1]);
+            angle=std::acos(Clamp(Dot(n[0],n[1]),0,1));
+            invSin=1/std::sin(angle);
+        }
+    }
+    CurveCommon(const Point3f &p0, const Point3f &p1, const Point3f &p2, const Point3f &p3, Float w0, Float w1, CurveType type,const Normal3f* norm) : bezier(CubicBezier(p0, p1, p2, p3)), width{w0, w1}, type(type) {
+        if(norm){
+            n[0]=Normalize(norm[0]);
+            n[1]=Normalize(norm[1]);
+            angle=std::acos(Clamp(Dot(n[0],n[1]),0,1));
+            invSin=1/std::sin(angle);
+        }
+    } 
 };
 
 class Curve : public Shape
@@ -137,6 +161,18 @@ class Curve : public Shape
             Float u=Clamp(Lerp(w,u0,u1),u0,u1);
             Float hitWidth=Lerp(u,_common->width[0],_common->width[1]);
 
+            Normal3f nHit;
+            //如果是Ribbon类型的,需要处理法线和width的缩放
+            if(_common->type==CurveType::RIBBON){
+                //Spherical Interplate
+                //参考四元数
+                Float sin0=std::sin((1-u)*_common->angle)*_common->invSin;
+                Float sin1=std::sin(u*_common->angle)*_common->invSin;
+                nHit=sin0*_common->n[0]+sin1*_common->n[1];
+                //根据法线和射线的夹角值，缩放width
+                hitWidth=hitWidth*(AbsDot(nHit,ray.d)/rayLen);
+            }
+
             //计算曲线上的点以及相应的偏导
             Vector3f dpcdw;
             auto pc=EvalBezier(cp,Clamp(w,0,1),&dpcdw);
@@ -172,7 +208,10 @@ class Curve : public Shape
                 //计算偏导
                 Vector3f dpdu,dpdv;
                 EvalBezier(_common->bezier.p,u,&dpdu);
-                if(_common->type==CurveType::FLAT||_common->type==CurveType::CYLINDER){
+                if(_common->type==CurveType::RIBBON){
+                   dpdv=Normalize(Cross(nHit,dpdu))*hitWidth;
+                }
+                else if(_common->type==CurveType::FLAT||_common->type==CurveType::CYLINDER){
                     //先变换到Ray空间
                     //这时候的dpdu是在xy平面上的
                     auto dpduPlane=Inverse(rayToObject)(dpdu);

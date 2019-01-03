@@ -1,8 +1,8 @@
 #include "curve.h"
 #include "paramset.h"
 std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Transform *w2o, bool reverseOrientation,
-    const Point3f *c, Float w0, Float w1, CurveType type,int splitDepth){
-        std::shared_ptr<CurveCommon> common=std::make_shared<CurveCommon>(c,w0,w1,type);
+    const Point3f *c, Float w0, Float w1, CurveType type,const Normal3f*  norm,int splitDepth){
+        std::shared_ptr<CurveCommon> common=std::make_shared<CurveCommon>(c,w0,w1,type,norm);
         int segmentNum=1<<splitDepth;
 
         std::vector<std::shared_ptr<Shape>> curves;
@@ -27,6 +27,7 @@ std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Tra
             int degree= params.FindOneInt("degree",3);
             if(((np - 1 - degree) % degree) != 0){
                 LError<<"Invalid number of control points "<<np<<": for the degree"<<degree<<"Bezier basis "<<degree+1<<" n*"<<degree<<"are required, for n >= 0.";
+                return {};
             }
 
             CurveType type;
@@ -35,18 +36,41 @@ std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Tra
                 type=CurveType::FLAT;
             } else if(curveType=="cylinder"){
                  type=CurveType::CYLINDER;
+            } else if(curveType=="ribbon"){
+                type=CurveType::RIBBON;
             }
 
             Float width=params.FindOneFloat("width",1);
             Float width0=params.FindOneFloat("width0",width);
             Float width1=params.FindOneFloat("width1",width);
 
-
-
             int segmentNum=(np-1)/degree;
+
+            int nn=0;
+            const Normal3f* norm=params.FindNormal3f("N",&nn);
+            if(norm){
+                 if (type != CurveType::RIBBON) {
+                    LWarning<<"Curve normals are only used with \"ribbon\" type curves.";
+                    norm = nullptr;
+                 }
+                 else{
+                     if(nn!=(segmentNum+1)){
+                          LError<<"Invalid number of normals "<<nn<<": must provide "<<segmentNum+1<<" normals for ribbon curves with "<<segmentNum<<" segments.";
+                          return {};
+                     }
+                 }
+            }
+            else{
+                if(type==CurveType::RIBBON){
+                    LError<<"Must provide normals \"N\" at curve endpoints with ribbon curves.";
+                    return {};
+                }
+            }
+
+            
             const Point3f* cpBase=cp;
             std::vector<std::shared_ptr<Shape>> curves;
-
+            
             for(int i=0;i<segmentNum;++i){
                 Point3f segCP[4];
                 if(degree==2){
@@ -62,7 +86,7 @@ std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Tra
                 }
                 cpBase+=degree;
 
-                auto c=CreateCurves(o2w,w2o,reverseOrientation,segCP,width0,width1,type,splitDepth);
+                auto c=CreateCurves(o2w,w2o,reverseOrientation,segCP,width0,width1,type,norm,splitDepth);
                 curves.insert(curves.end(), c.begin(), c.end());
             }
             return curves;
