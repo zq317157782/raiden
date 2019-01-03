@@ -200,8 +200,8 @@ class Curve : public Shape
                 v=(Float)0.5-len/hitWidth;
             }
             
-
-            Vector3f err(0,0,0);
+            //这里要考虑Curve永远都会把自己面朝ray的方向
+            Vector3f err(2*hitWidth,2*hitWidth,2*hitWidth);
             //初始化
             if(tHit){
                 (*tHit)=pc.z/rayLen;
