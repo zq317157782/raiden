@@ -473,7 +473,6 @@ std::vector<std::shared_ptr<Shape>> CreateTriangleMeshShape(
 			return std::vector<std::shared_ptr<Shape>>();
 		}
 	}
-	Debug("[CreateTriangleMeshShape triangle num:"<< nvi / 3 <<"]");
 	return CreateTriangleMesh(o2w, w2o, reverseOrientation, nvi / 3, vi, npi, P,
 		S, N, uvs);
 }
