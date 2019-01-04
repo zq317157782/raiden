@@ -64,6 +64,5 @@ std::shared_ptr<SpotLight> CreateSpotLight(const Transform &light2world, const M
 			dir.y, dir.z, 0.0, 0, 0, 0, 1.0));
 	Transform l2w =
 		light2world * Translate(Vector3f(from.x, from.y, from.z)) * Inverse(dirToZ);
-	Debug("[CreateSpotLight]");
 	return std::make_shared<SpotLight>(l2w, MediumInterface(medium), I * sc, coneangle, coneangle-conedelta);
 }

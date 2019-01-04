@@ -60,6 +60,5 @@ std::shared_ptr<DistantLight> CreateDistantLight(const Transform &light2world, c
 	Spectrum sc = paramSet.FindOneSpectrum("scale", Spectrum(1.0));
 	Point3f P = paramSet.FindOnePoint3f("from", Point3f(0, 0, 0));
 	Point3f P2 = paramSet.FindOnePoint3f("to", Point3f(0, 0, 1));
-	Debug("[CreateDistantLight]");
 	return std::make_shared<DistantLight>(light2world, L * sc,P-P2);
 }

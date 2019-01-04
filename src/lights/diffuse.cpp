@@ -63,7 +63,6 @@ std::shared_ptr<AreaLight> CreateDiffuseAreaLight(const Transform &light2world,
 	Spectrum L = paramSet.FindOneSpectrum("L", Spectrum(1.0));
 	Spectrum sc = paramSet.FindOneSpectrum("scale", Spectrum(1.0));
 	int nSamples = paramSet.FindOneInt("nsamples", 1);
-	Debug("[CreateDiffuseAreaLight]");
 	return std::make_shared<DiffuseAreaLight>(light2world,nSamples, L * sc,shape,nullptr);
 }
 
