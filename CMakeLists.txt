@@ -167,10 +167,35 @@ if (WIN32)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/getopt)
 endif()
 
-add_custom_command(TARGET raiden POST_BUILD
-                  COMMAND ${CMAKE_COMMAND} -E copy
-                  "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/raiden.lua"
-                  "${CMAKE_CURRENT_BINARY_DIR}/raiden.lua")
+IF(WIN32)
+    add_custom_command(TARGET raiden POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/raiden.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/raiden.lua")
+    add_custom_command(TARGET raiden POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/raiden.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/Debug/raiden.lua")
+    add_custom_command(TARGET raiden POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/pbrt2lua_curlyhair.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/pbrt2lua_curlyhair.lua")
+    add_custom_command(TARGET raiden POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/pbrt2lua_curlyhair.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/Debug/pbrt2lua_curlyhair.lua")
+ELSE()
+    add_custom_command(TARGET raiden POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/raiden.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/raiden.lua")
+    add_custom_command(TARGET raiden POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scripts/lua/pbrt2lua_curlyhair.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/pbrt2lua_curlyhair.lua")
+ENDIF()
+
+
 
 #objtolua
 aux_source_directory(src/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
