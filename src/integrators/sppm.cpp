@@ -14,7 +14,6 @@ SPPMIntegrator *CreateSPPMIntegrator(
 	Float radius = params.FindOneFloat("radius", 1.0f);
 	uint64_t photonNumPreIteration = params.FindOneInt("photonsperiteration", -1);
 	int writeFreq = params.FindOneInt("imagewritefrequency", 1 << 31);
-	Debug("[CreateSPPMIntegrator]");
 	return new SPPMIntegrator(camera,nIterations,depth, radius, photonNumPreIteration, writeFreq);
 }
 

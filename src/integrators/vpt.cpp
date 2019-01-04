@@ -21,6 +21,5 @@ VolPathIntegrator *CreateVolPathIntegrator(
 	}
 	int depth = params.FindOneInt("depth", 5);
 	Float rr = params.FindOneFloat("rrthreshold", 1.0);
-	Debug("[CreateVolPathIntegrator]");
 	return new VolPathIntegrator(depth, camera, sampler, pixelBounds, rr);
 }
