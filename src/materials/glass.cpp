@@ -11,7 +11,6 @@ GlassMaterial* CreateGlassMaterial(const TextureParams&mp) {
 	std::shared_ptr<Texture<Spectrum>> r = mp.GetSpectrumTexture("Kr", Spectrum(1.0f));
 	std::shared_ptr<Texture<Spectrum>> t = mp.GetSpectrumTexture("Kt", Spectrum(1.0f));
 	std::shared_ptr<Texture<Float>> roughness = mp.GetFloatTexture("roughness", 0.0f);
-	Debug("[CreateGlassMaterial]");
 	return new GlassMaterial(r,t,eta,roughness);
 }
 
