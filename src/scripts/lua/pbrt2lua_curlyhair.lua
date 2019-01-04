@@ -23,7 +23,7 @@ local function getline()
 end
 
 local function getfunctionname()
-    if line == nil or index >= #line then
+    if line == nil or index+1 >= #line then
         getline()
         if line == nil then
             return nil
