@@ -110,7 +110,7 @@ private:
 			}
 			//获取最大坐标轴
 			int dim = cBound.MaximumExtent();
-			int mid = (end - start)*0.5f;
+			int mid = (end - start)/2;
 			if (cBound.maxPoint[dim] == cBound.minPoint[dim]) {
 				int firstOffset = orderedPrimitives.size();
 				for (int i = start; i < end; ++i) {
@@ -136,7 +136,7 @@ private:
 				}
 			}
 			case SplitMethod::EQUAL_COUNT: {
-				mid = (start + end)*0.5f;
+				mid = (start + end)/2;
 				std::nth_element(&primitiveInfos[start], &primitiveInfos[mid], &primitiveInfos[end - 1] + 1, [dim](const BVHPrimitiveInfo& i1, const BVHPrimitiveInfo& i2) {
 					return i1.centroid[dim] < i2.centroid[dim];
 				});
@@ -145,7 +145,7 @@ private:
 
 			case SplitMethod::SAH: {
 				if (numPrimitive<=2) {
-					mid = (start + end)*0.5f;
+					mid = (start + end)/2;
 					std::nth_element(&primitiveInfos[start], &primitiveInfos[mid], &primitiveInfos[end - 1] + 1, [dim](const BVHPrimitiveInfo& i1, const BVHPrimitiveInfo& i2) {
 						return i1.centroid[dim] < i2.centroid[dim];
 					});
