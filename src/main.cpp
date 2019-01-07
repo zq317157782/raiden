@@ -78,7 +78,7 @@ static void PrintHelp(){
 }
 
 int main(int argc, char* argv[]) {
-	float ret=0;
+	int ret=0;
 #ifdef RAIDEN_UNITTEST
     testing::InitGoogleTest(&argc,argv);
     ret= RUN_ALL_TESTS();
