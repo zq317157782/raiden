@@ -11,7 +11,7 @@ file(GLOB
     *.cc
     ${PROJECT_SOURCE_DIR}/include/benchmark/*.h
     ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-list(FILTER SOURCE_FILES EXCLUDE REGEX "benchmark_main\\.cc")
+#list(FILTER SOURCE_FILES EXCLUDE REGEX "benchmark_main\\.cc")
 
 add_library(benchmark ${SOURCE_FILES})
 set_target_properties(benchmark PROPERTIES
