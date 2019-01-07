@@ -193,7 +193,7 @@ public:
 							beta = beta*f*AbsDot(ref.shading.n, wi) / pdf;
 							//俄罗斯罗盘
 							if (beta.y() < 0.25f) {
-								Float prob = std::min(beta.y(), 1.0f);
+								Float prob = std::min(beta.y(), (Float)1.0f);
 								if (tileSampler->Get1DSample() > prob) {
 									break;
 								}
@@ -347,7 +347,7 @@ public:
 					Spectrum betaNew = beta*f*AbsDot(ref.shading.n, wi) / bsdfPdf; 
 
 					//俄罗斯罗盘
-					Float quitProb=std::max(0.0f, (1 - betaNew.y()/beta.y()));
+					Float quitProb=std::max((Float)0.0f, ((Float)1.0f - betaNew.y()/beta.y()));
 					if (RadicalInverse(haltonDim++, haltonIndex) > quitProb) {
 						beta = betaNew / (1.0f - quitProb);
 						photonRay = (RayDifferential)ref.SpawnRay(wi);
