@@ -78,7 +78,7 @@ void WriteImageToFile(const char* fileName, Float* data, int w, int h) {
 	else if (0 == strcmp(fileExt, "exr") || 0 == strcmp(fileExt, "EXR")) {
 		std::vector<IMF::Rgba> image;
 		for (int i = 0; i<w*h; ++i) {
-			image.push_back(IMF::Rgba{ data[i * 3] ,data[i * 3 + 1] ,data[i * 3 + 2] ,1 });
+			image.push_back(IMF::Rgba{(float)data[i * 3] ,(float)data[i * 3 + 1] ,(float)data[i * 3 + 2] ,(float)1 });
 		}
 		WriteOpenEXR(fileName, &image[0], w, h);
 	}
