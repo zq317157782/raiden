@@ -1,12 +1,12 @@
-#include "xmlbinder.h"
+#include "xmlparser.h"
 #include "raiden.h"
 #include "paramset.h"
 #include <string>
-void XMLBinder::Init()
+void XMLParser::Init()
 {
 }
 
-void XMLBinder::Release()
+void XMLParser::Release()
 {
 }
 
@@ -137,7 +137,7 @@ void PushString(ParamSet &set, const pugi::xml_node &node, const char *name = "n
     set.AddString(name, std::unique_ptr<std::string[]>(new std::string[1]{v_name}), 1);
 }
 
-void XMLBinder::PharseChildNodeParamSet(ParamSet &set, const pugi::xml_node &root) const
+void XMLParser::PharseChildNodeParamSet(ParamSet &set, const pugi::xml_node &root) const
 {
 
     for (pugi::xml_node node = root.first_child(); node; node = node.next_sibling())
@@ -202,7 +202,7 @@ void XMLBinder::PharseChildNodeParamSet(ParamSet &set, const pugi::xml_node &roo
     }
 }
 
-void XMLBinder::ExecScript(const char *fileName)
+void XMLParser::Parse(const char *fileName)
 {
     pugi::xml_parse_result result = _doc.load_file(fileName);
     if(!result){

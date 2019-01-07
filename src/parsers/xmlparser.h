@@ -1,17 +1,17 @@
 
 /*
- * constant.cpp
+ * xmlparser.cpp
  *
  *  Created on: 2018年11月11日
  *      Author: zhuqian
  */
 #pragma once
 
-#include "apibinder.h"
+#include "parser.h"
 #include "pugixml.hpp"
 
 
-class XMLBinder : public APIBinder{
+class XMLParser : public Parser{
 private:
     pugi::xml_document _doc;
     const std::string _postFix=".xml";
@@ -28,11 +28,11 @@ public:
      void Init() override;
      void Release() override;
     
-     bool IsSupportedScript(const char*  fileName) const override{ 
+     bool IsSupported(const char*  fileName) const override{ 
           assert(fileName!=nullptr);
           return EndWithXML(std::string(fileName));
      }
 
      //执行XML解析
-     void ExecScript(const char*  fileName) override;
+     void Parse(const char*  fileName) override;
 };

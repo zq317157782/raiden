@@ -1,13 +1,13 @@
 
 /*
- * constant.cpp
+ * parse.cpp
  *
  *  Created on: 2017年9月13日
  *      Author: zhuqian
  */
 #pragma once
 #include "api.h"
-class APIBinder{
+class Parser{
 private:
 
 public:
@@ -18,10 +18,10 @@ public:
     virtual void Release()=0;
 
     //执行脚本
-    virtual void ExecScript(const char*  fileName){
+    virtual void Parse(const char*  fileName){
     }
     //判断脚本是否被当前Wrapper支持
-    virtual bool IsSupportedScript(const char*  fileName) const{
+    virtual bool IsSupported(const char*  fileName) const{
         return false;
     }
 };

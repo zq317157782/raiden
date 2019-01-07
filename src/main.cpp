@@ -21,24 +21,24 @@
 #endif//RAIDEN_UNITTEST
 
 #include "api.h"
-#include "binders/luabinder.h"
-#include "binders/xmlbinder.h"
-static std::vector<std::unique_ptr<APIBinder>> binders;
+#include "parsers/luaparser.h"
+#include "parsers/xmlparser.h"
+static std::vector<std::unique_ptr<Parser>> parsers;
 
 //初始化所有的binder
-static void Initbinders(){
-    binders.push_back(std::unique_ptr<APIBinder>(new LuaBinder()));
-    binders.push_back(std::unique_ptr<APIBinder>(new XMLBinder()));
-    for(int i=0;i<binders.size();++i){
-        binders[i]->Init();
+static void InitParsers(){
+    parsers.push_back(std::unique_ptr<Parser>(new LuaParser()));
+    parsers.push_back(std::unique_ptr<Parser>(new XMLParser()));
+    for(int i=0;i<parsers.size();++i){
+        parsers[i]->Init();
     }
 }
 
 //执行脚本
-static void ExecScript(const char* src){
-    for(int i=0;i<binders.size();++i){
-        if(binders[i]->IsSupportedScript(src)){
-            binders[i]->ExecScript(src);
+static void Parse(const char* src){
+    for(int i=0;i<parsers.size();++i){
+        if(parsers[i]->IsSupported(src)){
+            parsers[i]->Parse(src);
             return;
         }
     }
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 	FLAGS_logtostderr = 1;
 	google::InitGoogleLogging(argv[0]);
 	
-    Initbinders();
+    InitParsers();
 
     int result;
 	char *scriptName=nullptr;
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 	raidenInit(options);
 	if (scriptName != nullptr) {
         Trim(scriptName);
-		ExecScript(scriptName);
+		Parse(scriptName);
 	}
 	
 	raidenCleanup();
