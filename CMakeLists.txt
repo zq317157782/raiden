@@ -52,7 +52,7 @@ if(WIN32)
   include_directories(${ZLIB_INCLUDE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/external/zlib")
 endif()
 #message("+++" ${ZLIB_LIBRARY})
-
+     
 #编译OpenEXR 使用了Nori内的版本
 set(ILMBASE_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
 set(OPENEXR_BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
@@ -118,7 +118,7 @@ aux_source_directory(src/media RAIDEN_SRC_MEDIA)
 aux_source_directory(src/samplers RAIDEN_SRC_SAMPLER)
 aux_source_directory(src/shapes RAIDEN_SRC_SHAPE)
 aux_source_directory(src/textures RAIDEN_SRC_TEXTURE)
-aux_source_directory(src/binders RAIDEN_SRC_BINDER)
+aux_source_directory(src/parsers RAIDEN_SRC_PARSER)
 if(RAIDEN_UNITTEST)
     aux_source_directory(test RAIDEN_TEST)
     aux_source_directory(test/core RAIDEN_TEST_CORE)
@@ -127,7 +127,7 @@ if(RAIDEN_UNITTEST)
 endif(RAIDEN_UNITTEST)
 
 add_executable(raiden src/main.cpp 
-${RAIDEN_SRC_BINDER} 
+${RAIDEN_SRC_PARSER} 
 ${RAIDEN_SRC_CORE} 
 ${RAIDEN_SRC_ACCE} 
 ${RAIDEN_SRC_CAMERA} 
