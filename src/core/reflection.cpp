@@ -14,7 +14,7 @@ bool Refract(const Vector3f& wi, const Normal3f& n,
 	//1.先求cosThetaT
 	//2.然后使用推导的折射方向公式
 	Float cosThetaI = Dot(wi, n);
-	Float sinThetaI2 = std::max(0.0f, 1.0f - cosThetaI * cosThetaI);
+	Float sinThetaI2 = std::max((Float)0.0f, (Float)1.0f - cosThetaI * cosThetaI);
 	//这里运用snell law
 	Float sinThetaT2 = oeta * sinThetaI2;
 	if (sinThetaT2 >= 1) {
@@ -35,14 +35,14 @@ Float FrDielectric(Float cosThetaI, Float etaI, Float etaT) {
 	}
 	//计算折射光线和法线之间的夹角
 	//运用Snell's law
-	Float sinThetaI = std::sqrt(std::max(0.0f, 1.0f - cosThetaI * cosThetaI));
+	Float sinThetaI = std::sqrt(std::max((Float)0.0f, (Float)1.0f - cosThetaI * cosThetaI));
 	Float sinThetaT = (etaI / etaT) * sinThetaI;
 	//判断是否发生全反射
 	if (sinThetaT >= 1.0f) {
 		return 1.0f;
 	}
 	//运用Fresnel equation计算反射系数
-	Float cosThetaT = std::sqrt(std::max(0.0f, 1.0f - sinThetaT * sinThetaT));
+	Float cosThetaT = std::sqrt(std::max((Float)0.0f, (Float)1.0f - sinThetaT * sinThetaT));
 	Float Rparl = ((etaT * cosThetaI) - (etaI * cosThetaT))
 			/ ((etaT * cosThetaI) + (etaI * cosThetaT));
 	Float Rperp = ((etaI * cosThetaI) - (etaT * cosThetaT))
