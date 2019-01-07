@@ -41,7 +41,7 @@ Point2f RejectionSampleDisk(RNG& rng) {
 
 Vector3f UniformSampleHemisphere(const Point2f &u) {
 	Float z = u.x; //半球范围内 z的定义域是[0-1]
-	Float r = std::sqrt(std::max(1.0f - z * z, 0.0f));
+	Float r = std::sqrt(std::max((Float)1.0f - z * z, (Float)0.0f));
 	Float phi = 2 * Pi * u.y; //计算得到phi
 	//然后在xy平面上求x和y
 	Float x = std::cos(phi) * r;
@@ -55,7 +55,7 @@ Float UniformHemispherePdf() {
 
 Vector3f UniformSampleSphere(const Point2f &u) {
 	Float z = -(u.x * 2 - 1);
-	Float r = std::sqrt(std::max(1.0f - z * z, 0.0f));
+	Float r = std::sqrt(std::max((Float)1.0f - z * z, (Float)0.0f));
 	Float phi = 2 * Pi * u.y;	//计算得到phi
 	//然后在xy平面上求x和y
 	Float x = std::cos(phi) * r;
@@ -118,7 +118,7 @@ Vector3f CosineSampleHemisphere(const Point2f &u){
 	//获得x-y平面上的一个点
 	Point2f pp=ConcentricSampleDisk(u);
 	//计算到半球上，满足cosine分布
-	Float z=std::sqrt(std::max(0.0f,1.0f-pp.x*pp.x-pp.y*pp.y));
+	Float z=std::sqrt(std::max((Float)0.0f,(Float)1.0f-pp.x*pp.x-pp.y*pp.y));
 	return Vector3f(pp.x,pp.y,z);
 }
 
