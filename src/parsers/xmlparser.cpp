@@ -21,7 +21,7 @@ void PushFloat(ParamSet &set, const pugi::xml_node &node, const char *name = "na
 {
     const char *v_name = node.attribute(name).as_string();
     auto v = node.attribute("value").as_float();
-    set.AddFloat(v_name, std::unique_ptr<float[]>(new float[1]{v}), 1);
+    set.AddFloat(v_name, std::unique_ptr<Float[]>(new Float[1]{v}), 1);
 }
 
 void PushBool(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -37,7 +37,7 @@ void PushRGB(ParamSet &set, const pugi::xml_node &node, const char *name = "name
     float r = node.attribute("r").as_float();
     float g = node.attribute("g").as_float();
     float b = node.attribute("b").as_float();
-    set.AddRGBSpectrum(v_name, std::unique_ptr<float[]>(new float[3]{r, g, b}), 3);
+    set.AddRGBSpectrum(v_name, std::unique_ptr<Float[]>(new Float[3]{r, g, b}), 3);
 }
 
 void PushPoint2f(ParamSet &set, const pugi::xml_node &node, const char *name = "name")
@@ -117,7 +117,7 @@ void PushFloatArray(ParamSet &set, const pugi::xml_node &node, const char *name 
         splits.push_back(atof(p));
         p = strtok(nullptr, ",");
     }
-    std::unique_ptr<float[]> floats(new float[splits.size()]);
+    std::unique_ptr<Float[]> floats(new Float[splits.size()]);
     for (uint32_t i = 0; i < splits.size(); ++i)
     {
         floats[i] = splits[i];
