@@ -33,7 +33,7 @@ inline Float AbsCosTheta(const Vector3f &w)
 //三角函数公式:sin^2+cos^2=1
 inline Float SinTheta2(const Vector3f &w)
 {
-	return std::max(0.0f, 1.0f - CosTheta2(w)); //这里进行max操作防止Float误差导致值小于0
+	return std::max((Float)0.0f, (Float)1.0f - CosTheta2(w)); //这里进行max操作防止Float误差导致值小于0
 }
 
 inline Float SinTheta(const Vector3f &w)
