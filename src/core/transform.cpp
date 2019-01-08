@@ -174,12 +174,12 @@ Transform Rotate(Float theta, const Vector3f &axis) {
 	return Transform(m, Transpose(m));
 }
 
-Transform Orthographic(float znear, float zfar) {
+Transform Orthographic(Float znear, Float zfar) {
 	return Scale(1.f, 1.f, 1.f / (zfar - znear))
 			* Translate(Vector3f(0.f, 0.f, -znear));
 }
 
-Transform Perspective(float fov, float n, float f) {
+Transform Perspective(Float fov, Float n, Float f) {
 	Matrix4x4 persp = Matrix4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, f / (f - n),
 			-f * n / (f - n), 0, 0, 1, 0);
 	//使用fov来缩放到标准空间
