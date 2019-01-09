@@ -438,10 +438,15 @@ HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Floa
 	_v[0] = Sqr(0.726f * _betaM + 0.812f * Sqr(_betaM) + 3.7f * Pow<20>(_betaM));
 	_v[1] = (Float)0.25f * _v[0];
 	_v[2] = 4 * _v[0];
-	for (int p = 3; p <= _pMax; ++p)
+	for (int p = 3; p <= pMax; ++p)
 	{
 		_v[p] = _v[2];
 	}
+
+	//预计算logistic的缩放参数,使得感知上是线性的
+	//TODO 出处在哪？
+	_s = SqrtPiOver8 * (0.265f * _betaN + 1.194f * Sqr(_betaN) +
+						5.372f * Pow<22>(_betaN));
 }
 
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
@@ -457,7 +462,7 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 
 	Spectrum sum(0);
 	//计算每个p的贡献
-	for (int i = 0; i < _pMax; ++i)
+	for (int i = 0; i < pMax; ++i)
 	{
 		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i]);
 	}
@@ -484,7 +489,7 @@ Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 
 	Float sum(0);
 	//计算每个p的贡献
-	for (int i = 0; i < _pMax; ++i)
+	for (int i = 0; i < pMax; ++i)
 	{
 		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i]);
 	}

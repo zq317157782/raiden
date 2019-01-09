@@ -865,23 +865,26 @@ class BSDF
 	}
 };
 
+static const Float SqrtPiOver8 = 0.626657069f;
+static const int pMax=3;//独立计算的p的最大值，超过这个p的值全部用级数一起计算
+
 //头发的BSDF的实现
 //f(wo,wi)=Sum f_p(wo,wi)
 //f_p(wo,wi)=M_p*A_p*Np/Abs(cosTheta_i)
 class HairBSDF : public BxDF
 {
   private:
-	static const int _pMax=3;//独立计算的p的最大值，超过这个p的值全部用级数一起计算
-
 	Float _h;//v:[0,1]=>h:[-1,1]
 	Float _eta;//头发的ior
 	Spectrum _sigmaA;//头发的吸收系数(absorb cross section)
 	Float _betaM,_betaN;//相应的纵向？横向？成分的粗糙度
 	Float _alpha;//头发表面的scale的角度(通常的均值为2)
 	//以下是预计算的数据
-	Float _v[_pMax+1];//每个p对应的roughness variance
+	Float _v[pMax+1];//每个p对应的roughness variance
 	Float _sin2kAlpha[3];
 	Float _cos2kAlpha[3];
+
+	Float _s;
   public:
 	HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha);
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
