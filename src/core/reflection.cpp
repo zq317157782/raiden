@@ -482,6 +482,13 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	Float phiI = std::atan2(wi.z, wi.y);
 
+	//首先计算映射到normal平面的ior
+	Float etaP=Bravais(_eta,sinThetaO,cosThetaO);
+	//然后根据Snell's Law计算新的角度
+	Float sinGammaT=_h/etaP;
+	Float cosGammaT=SafeSqrt(1-Sqr(sinGammaT));
+	Float gammaT=SafeASin(sinGammaT);
+
 	Spectrum sum(0);
 	//计算每个p的贡献
 	for (int i = 0; i < pMax; ++i)
