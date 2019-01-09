@@ -419,10 +419,11 @@ static Float Mp(Float cosThetaO, Float sinThetaO, Float cosThetaI, Float sinThet
 
 //用来计算不同的p mode下,假设完美镜面反射和折射，在normal平面上的phi角度需要调整的角度
 //net change in azimuthal direction
-static inline Phi(int p,Float gammaO,Float gammaT){
+static inline Float Phi(int p,Float gammaO,Float gammaT){
 	Assert(p>=0);
 	return 2*p*gammaT-2*gammaO+p*Pi;
 }
+
 
 HairBSDF::HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
 	_h(h),_eta(eta),_sigmaA(sigmaA),_betaM(betaM),_betaN(betaN),_alpha(alpha){
