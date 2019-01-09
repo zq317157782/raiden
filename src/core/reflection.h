@@ -904,10 +904,6 @@ class HairBSDF : public BxDF
 	// 	Assert(false);
 	// 	return 0;
 	// }
-	// virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override
-	// {
-	// 	Assert(false);
-	// 	return 0;
-	// }
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override;
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
