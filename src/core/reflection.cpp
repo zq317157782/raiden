@@ -465,6 +465,12 @@ HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Floa
 	_gammaO=SafeASin(_h);
 }
 
+//Bravais函数，用来计算映射到normal平面后的ior
+inline Float Bravais(Float eta,Float sinTheta,Float cosTheta){
+	return std::sqrt(eta*eta-Sqr(sinTheta))/cosTheta;
+}
+
+
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 {
 	//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
