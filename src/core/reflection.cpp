@@ -449,5 +449,7 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	if(absCosThetaI>0){
 		sum=sum/absCosThetaI;
 	}
+	Assert(!std::isinf(sum.y()));
+	Assert(!std::isnan(sum.y()));
 	return sum;
 }
