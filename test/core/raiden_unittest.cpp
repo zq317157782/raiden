@@ -8,3 +8,13 @@ TEST(Raiden,Clamp){
 TEST(Raiden,Pow){
     EXPECT_EQ(Pow<10>(2),1024);
 }
+
+TEST(Raiden,SafeSqrt){
+  EXPECT_EQ(SafeSqrt(-4),0);
+  EXPECT_EQ(SafeSqrt(4),2);
+}
+
+TEST(Raiden,SafeASin){
+  EXPECT_EQ(SafeASin(1),Pi/2);
+  EXPECT_EQ(SafeASin(-1),-Pi/2);
+}

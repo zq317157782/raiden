@@ -431,4 +431,13 @@ template<> Float Pow<1>(Float v){
 	return v;
 }
 
+
+inline Float SafeASin(Float x){
+	return std::asin(Clamp(x,-1,1));
+}
+
+inline Float SafeSqrt(Float x){
+	return std::sqrt(std::max(Float(0),x));
+}
+
 #endif /* SRC_CORE_RAIDEN_H_ */
