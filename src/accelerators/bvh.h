@@ -12,6 +12,7 @@
 #include "geometry.h"
 #include "memory.h"
 #include <algorithm>
+#include "progressreporter.h"
 
 //构建BVH树的过程中使用的节点结构
 class BVHBuildNode{
@@ -83,7 +84,7 @@ private:
 	int _maxPrimitivesInNode;
 
 	//递归生成BVHBuildNode
-	BVHBuildNode* RecursiveBuild(MemoryArena& arena, std::vector<BVHPrimitiveInfo>& primitiveInfos,int start,int end,int* totalNodes, std::vector<std::shared_ptr<Primitive>>& orderedPrimitives) const {
+	BVHBuildNode* RecursiveBuild(MemoryArena& arena, std::vector<BVHPrimitiveInfo>& primitiveInfos,int start,int end,int* totalNodes, std::vector<std::shared_ptr<Primitive>>& orderedPrimitives,ProgressReporter& reporter) const {
 		BVHBuildNode* node = arena.Alloc<BVHBuildNode>();
 		(*totalNodes)++;
 		Bound3f bound;
@@ -100,6 +101,7 @@ private:
 				orderedPrimitives.push_back(_primitives[index]);
 			}
 			node->InitLeaf(firstOffset, numPrimitive, bound);
+			reporter.Update(numPrimitive);
 			return node;
 		}
 		//生成中间节点
@@ -219,7 +221,7 @@ private:
 			} 
 
 			}
-			node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives), dim);
+			node->InitInterior(RecursiveBuild(arena, primitiveInfos, start, mid, totalNodes, orderedPrimitives,reporter), RecursiveBuild(arena, primitiveInfos, mid, end, totalNodes, orderedPrimitives,reporter), dim);
 
 		}
 
@@ -255,12 +257,14 @@ public:
 		for(int i=0;i<_primitives.size();++i){
 			primitiveInfos[i]=BVHPrimitiveInfo(i,_primitives[i]->WorldBound());
 		}
+
+		ProgressReporter reporter(_primitives.size(),"BVH building");
 		//生成build tree
 		BVHBuildNode * root;
 		int totalNodes=0;
 		std::vector<std::shared_ptr<Primitive>> orderedPrimitives;
 		MemoryArena arena(1024 * 1024);//用于为中间节点提供内存空间
-		root=RecursiveBuild(arena, primitiveInfos, 0, primitiveInfos.size(), &totalNodes, orderedPrimitives);
+		root=RecursiveBuild(arena, primitiveInfos, 0, primitiveInfos.size(), &totalNodes, orderedPrimitives,reporter);
 		_primitives.swap(orderedPrimitives);
 		//为实际线性树分配空间
 		_nodes = AllocAligned<LinearBVHNode>(totalNodes);
