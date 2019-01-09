@@ -883,29 +883,29 @@ class HairBSDF : public BxDF
   public:
 	HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha);
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
-	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
-							  const Point2f &sample, Float *pdf,
-							  BxDFType *sampledType = nullptr) const override
-	{
-		Assert(false);
-		return 0;
-	}
-	virtual Spectrum rho(const Vector3f &wo, int nSamples,
-						 const Point2f *samples) const override
-	{
-		Assert(false);
-		return 0;
-	}
-	virtual Spectrum rho(int nSamples, const Point2f *samples1,
-						 const Point2f *samples2) const override
-	{
-		Assert(false);
-		return 0;
-	}
-	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override
-	{
-		Assert(false);
-		return 0;
-	}
+	// virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+	// 						  const Point2f &sample, Float *pdf,
+	// 						  BxDFType *sampledType = nullptr) const override
+	// {
+	// 	Assert(false);
+	// 	return 0;
+	// }
+	// virtual Spectrum rho(const Vector3f &wo, int nSamples,
+	// 					 const Point2f *samples) const override
+	// {
+	// 	Assert(false);
+	// 	return 0;
+	// }
+	// virtual Spectrum rho(int nSamples, const Point2f *samples1,
+	// 					 const Point2f *samples2) const override
+	// {
+	// 	Assert(false);
+	// 	return 0;
+	// }
+	// virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override
+	// {
+	// 	Assert(false);
+	// 	return 0;
+	// }
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
