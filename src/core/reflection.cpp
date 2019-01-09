@@ -439,6 +439,15 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	Float sinThetaI = wi.x;
 	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	Float phiI = std::atan2(wi.z, wi.y);
-	Assert(false);
-	return 0;
+
+	Spectrum sum(0);
+	//计算每个p的贡献
+	for(int i=0;i<_pMax;++i){
+		sum+=Mp(cosThetaO,sinThetaO,cosThetaI,sinThetaI,_v[i]);
+	}
+	Float absCosThetaI=AbsCosTheta(wi);
+	if(absCosThetaI>0){
+		sum=sum/absCosThetaI;
+	}
+	return sum;
 }
