@@ -46,6 +46,10 @@ inline Float LogisticPdf(Float x,Float s){
 	return std::exp(-x/s)/(s*Sqr(1+std::exp(-x/s)));
 }
 
+inline Float LogisticCdf(Float x,Float s){
+	return 1 / (1 + std::exp(-x / s));
+}
+
 //MIS中使用的权重计算方法
 inline Float BalanceHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
 	return (nf * fPdf) / (nf * fPdf + ng * gPdf);
