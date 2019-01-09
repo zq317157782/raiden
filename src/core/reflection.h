@@ -878,29 +878,34 @@ class HairBSDF : public BxDF
 	Spectrum _sigmaA;//头发的吸收系数(absorb cross section)
 	Float _betaM,_betaN;//相应的纵向？横向？成分的粗糙度
 	Float _alpha;//头发表面的scale的角度(通常的均值为2)
+
+	Float _v[_pMax+1];//每个p对应的roughness variance
   public:
-	HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
-	_h(h),_eta(eta),_sigmaA(sigmaA),_betaM(betaM),_betaN(betaN),_alpha(alpha){}
+	HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha);
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
 							  const Point2f &sample, Float *pdf,
 							  BxDFType *sampledType = nullptr) const override
 	{
 		Assert(false);
+		return 0;
 	}
 	virtual Spectrum rho(const Vector3f &wo, int nSamples,
 						 const Point2f *samples) const override
 	{
 		Assert(false);
+		return 0;
 	}
 	virtual Spectrum rho(int nSamples, const Point2f *samples1,
 						 const Point2f *samples2) const override
 	{
 		Assert(false);
+		return 0;
 	}
 	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override
 	{
 		Assert(false);
+		return 0;
 	}
 };
 #endif /* SRC_CORE_REFLECTION_H_ */

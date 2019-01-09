@@ -400,19 +400,34 @@ inline Float LogI0(Float x)
 //Mp = 1/(2*v*sinH(1/v))*exp(e,-(sinThetaI*sinThetaO)/v)*IO(cosThetaI*cosThetaO/v)
 //IO为modified Bessal函数
 //[d’Eon 2011]"An energyconserving hair reflectance model."
-static Float Mp(Float cosThetaO,Float sinThetaO,Float cosThetaI,Float sinThetaI,Float v){
-		Float a=sinThetaI*sinThetaO/v;
-		Float b=cosThetaI*cosThetaO/v;
-		Float mp=0;
-		//小于0.1的时候，用一个更加数值稳定的版本
-		if(v<=0.1f){
-			mp=std::exp(LogI0(b) - a - 1/v + 0.6931f + std::log(1 / (2*v)));
-		}
-		else{
-			mp=std::exp(-a)*I0(b)/(2*v*std::sinh(1/v));
-		}
-		return mp;
+static Float Mp(Float cosThetaO, Float sinThetaO, Float cosThetaI, Float sinThetaI, Float v)
+{
+	Float a = sinThetaI * sinThetaO / v;
+	Float b = cosThetaI * cosThetaO / v;
+	Float mp = 0;
+	//小于0.1的时候，用一个更加数值稳定的版本
+	if (v <= 0.1f)
+	{
+		mp = std::exp(LogI0(b) - a - 1 / v + 0.6931f + std::log(1 / (2 * v)));
+	}
+	else
+	{
+		mp = std::exp(-a) * I0(b) / (2 * v * std::sinh(1 / v));
+	}
+	return mp;
 }
+
+HairBSDF::HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
+	_h(h),_eta(eta),_sigmaA(sigmaA),_betaM(betaM),_betaN(betaN),_alpha(alpha){
+		//计算roughness variance
+		//具体细节，参考PBRT的futher reading
+		_v[0] = Sqr(0.726f * _betaM + 0.812f * Sqr(_betaM) + 3.7f * Pow<20>(_betaM));
+		_v[1] = (Float)0.25f*_v[0];
+		_v[2] = 4*_v[0];
+		for(int p=3;p<=_pMax;++p){
+			_v[p]=_v[2];
+		}
+	}
 
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 {
@@ -424,7 +439,6 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	Float sinThetaI = wi.x;
 	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	Float phiI = std::atan2(wi.z, wi.y);
-
 	Assert(false);
 	return 0;
 }
