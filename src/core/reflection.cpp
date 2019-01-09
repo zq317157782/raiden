@@ -430,6 +430,17 @@ inline Float TrimmedLogistic(Float x, Float s, Float a, Float b)
 	return LogisticPdf(x, s) / (LogisticCdf(b, s) - LogisticCdf(a, s));
 }
 
+static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
+	Float dPhi=phi-Phi(p,gammaO,gammaT);
+	//映射到TrimmedLogistic有效的范围内
+	if(dPhi>Pi){
+		dPhi-=2*Pi;
+	}else if(dPhi<-Pi){
+		dPhi+=2*Pi;
+	}
+	return TrimmedLogistic(dPhi,s,-Pi,Pi);
+}
+
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
 																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
 {
