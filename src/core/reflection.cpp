@@ -444,6 +444,7 @@ static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
 																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
 {
+	Assert(_h>=-1&&_h<=1)
 	Assert(_betaM>=0&&_betaM<=1);
 	Assert(_betaN>=0&&_betaN<=1);
 	//计算roughness variance
@@ -460,6 +461,8 @@ HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Floa
 	//TODO 出处在哪？
 	_s = SqrtPiOver8 * (0.265f * _betaN + 1.194f * Sqr(_betaN) +
 						5.372f * Pow<22>(_betaN));
+
+	_gammaO=SafeASin(_h);
 }
 
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
