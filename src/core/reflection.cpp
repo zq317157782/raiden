@@ -393,6 +393,27 @@ inline Float LogI0(Float x)
 	}
 }
 
+//头发渲染中的Mp成分
+//cosThetaO sinThetaO : wo和normal平面夹角的正弦和余弦
+//cosThetaI sinThetaI : wi和normal平面夹角的正弦和余弦
+//v : roughness variance
+//Mp = 1/(2*v*sinH(1/v))*exp(e,-(sinThetaI*sinThetaO)/v)*IO(cosThetaI*cosThetaO/v)
+//IO为modified Bessal函数
+//[d’Eon 2011]"An energyconserving hair reflectance model."
+static Float Mp(Float cosThetaO,Float sinThetaO,Float cosThetaI,Float sinThetaI,Float v){
+		Float a=sinThetaI*sinThetaO/v;
+		Float b=cosThetaI*cosThetaO/v;
+		Float mp=0;
+		//小于0.1的时候，用一个更加数值稳定的版本
+		if(v<=0.1f){
+			mp=std::exp(LogI0(b) - a - 1/v + 0.6931f + std::log(1 / (2*v)));
+		}
+		else{
+			mp=std::exp(-a)*I0(b)/(2*v*std::sinh(1/v));
+		}
+		return mp;
+}
+
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 {
 	//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
