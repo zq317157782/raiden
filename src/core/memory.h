@@ -82,7 +82,7 @@ public:
 			bool runConstructor = true/*这个参数决定是否调用T类型的默认构造函数*/) {
 		T* ptr = (T*) Alloc(nBytes * sizeof(T));
 		if (runConstructor) {
-			for (int i = 0; i < nBytes; ++i) {
+			for (size_t i = 0; i < nBytes; ++i) {
 				new (&ptr[i]) T();
 			}
 		}
