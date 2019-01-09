@@ -433,6 +433,8 @@ inline Float TrimmedLogistic(Float x, Float s, Float a, Float b)
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
 																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
 {
+	Assert(_betaM>=0&&_betaM<=1);
+	Assert(_betaN>=0&&_betaN<=1);
 	//计算roughness variance
 	//具体细节，参考PBRT的futher reading
 	_v[0] = Sqr(0.726f * _betaM + 0.812f * Sqr(_betaM) + 3.7f * Pow<20>(_betaM));
