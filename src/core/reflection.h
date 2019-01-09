@@ -127,14 +127,13 @@ class FresnelSchlick : public Fresnel
 	Spectrum _F0;
 
   public:
-	FresnelSchlick(const Spectrum &F0):_F0(F0)
+	FresnelSchlick(const Spectrum &F0) : _F0(F0)
 	{
-
 	}
 
 	virtual Spectrum Evaluate(Float cosI) const override
 	{
-		return SchlickFresnel(_F0,cosI);
+		return SchlickFresnel(_F0, cosI);
 	}
 };
 
@@ -863,6 +862,48 @@ class BSDF
 			return pdf / matchingCompNum;
 		}
 		return 0.0f;
+	}
+};
+
+//头发的BSDF的实现
+//f(wo,wi)=Sum f_p(wo,wi)
+//f_p(wo,wi)=M_p*A_p*Np/Abs(cosTheta_i)
+class HairBSDF : public BxDF
+{
+  private:
+	static const int _pMax=3;//独立计算的p的最大值，超过这个p的值全部用级数一起计算
+
+	Float _h;//v:[0,1]=>h:[-1,1]
+	Float _eta;//头发的ior
+	Spectrum _absorbA;//头发的吸收系数(absorb cross section)
+	Float _betaM,_betaN;//相应的纵向？横向？成分的粗糙度
+	Float _alpha;//头发表面的scale的角度(通常的均值为2)
+  public:
+	HairBSDF(Float h,Float eta,const Spectrum& absorbA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
+	_h(h),_eta(eta),_absorbA(absorbA),_betaM(betaM),_betaN(betaN),_alpha(alpha){}
+	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override
+	{
+		Assert(false);
+	}
+	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
+							  const Point2f &sample, Float *pdf,
+							  BxDFType *sampledType = nullptr) const override
+	{
+		Assert(false);
+	}
+	virtual Spectrum rho(const Vector3f &wo, int nSamples,
+						 const Point2f *samples) const override
+	{
+		Assert(false);
+	}
+	virtual Spectrum rho(int nSamples, const Point2f *samples1,
+						 const Point2f *samples2) const override
+	{
+		Assert(false);
+	}
+	virtual Float Pdf(const Vector3f &wo, const Vector3f &wi) const override
+	{
+		Assert(false);
 	}
 };
 #endif /* SRC_CORE_REFLECTION_H_ */
