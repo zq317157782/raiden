@@ -196,7 +196,7 @@ inline uint64_t FloatToBits(double d) {
 	Assert(!std::isnan(d));
 	uint64_t bits = 0;
 	std::memcpy(&bits, &d, sizeof(double));
-	return d;
+	return bits;
 }
 
 inline double BitsToFloat(uint64_t bits) {
