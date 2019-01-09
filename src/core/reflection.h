@@ -875,12 +875,12 @@ class HairBSDF : public BxDF
 
 	Float _h;//v:[0,1]=>h:[-1,1]
 	Float _eta;//头发的ior
-	Spectrum _absorbA;//头发的吸收系数(absorb cross section)
+	Spectrum _sigmaA;//头发的吸收系数(absorb cross section)
 	Float _betaM,_betaN;//相应的纵向？横向？成分的粗糙度
 	Float _alpha;//头发表面的scale的角度(通常的均值为2)
   public:
-	HairBSDF(Float h,Float eta,const Spectrum& absorbA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
-	_h(h),_eta(eta),_absorbA(absorbA),_betaM(betaM),_betaN(betaN),_alpha(alpha){}
+	HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
+	_h(h),_eta(eta),_sigmaA(sigmaA),_betaM(betaM),_betaN(betaN),_alpha(alpha){}
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override
 	{
 		Assert(false);
