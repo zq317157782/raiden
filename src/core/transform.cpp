@@ -128,22 +128,22 @@ Transform Scale(Float x, Float y, Float z) {
 
 //旋转矩阵的逆 等于旋转矩阵的转置  所以是正交矩阵
 Transform RotateX(Float angle) {
-	float sinR = std::sin(Radians(angle));
-	float cosR = std::cos(Radians(angle));
+	Float sinR = std::sin(Radians(angle));
+	Float cosR = std::cos(Radians(angle));
 	Matrix4x4 m(1, 0, 0, 0, 0, cosR, -sinR, 0, 0, sinR, cosR, 0, 0, 0, 0, 1);
 	return Transform(m, Transpose(m));
 }
 
-Transform RotateY(float angle) {
-	float sinR = std::sin(Radians(angle));
-	float cosR = std::cos(Radians(angle));
+Transform RotateY(Float angle) {
+	Float sinR = std::sin(Radians(angle));
+	Float cosR = std::cos(Radians(angle));
 	Matrix4x4 m(cosR, 0, sinR, 0, 0, 1, 0, 0, -sinR, 0, cosR, 0, 0, 0, 0, 1);
 	return Transform(m, Transpose(m));
 }
 
-Transform RotateZ(float angle) {
-	float sinR = std::sin(Radians(angle));
-	float cosR = std::cos(Radians(angle));
+Transform RotateZ(Float angle) {
+	Float sinR = std::sin(Radians(angle));
+	Float cosR = std::cos(Radians(angle));
 	Matrix4x4 m(cosR, -sinR, 0, 0, sinR, cosR, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	return Transform(m, Transpose(m));
 }
@@ -175,7 +175,7 @@ Transform Rotate(Float theta, const Vector3f &axis) {
 }
 
 Transform Orthographic(Float znear, Float zfar) {
-	return Scale(1.f, 1.f, 1.f / (zfar - znear))
+	return Scale(1.0f, 1.0f, 1.0f / (zfar - znear))
 			* Translate(Vector3f(0.f, 0.f, -znear));
 }
 
@@ -183,7 +183,7 @@ Transform Perspective(Float fov, Float n, Float f) {
 	Matrix4x4 persp = Matrix4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, f / (f - n),
 			-f * n / (f - n), 0, 0, 1, 0);
 	//使用fov来缩放到标准空间
-	float invTanAng = 1.f / tanf(Radians(fov) / 2.f);
+	Float invTanAng = 1.f / tanf(Radians(fov) / 2.f);
 	return Scale(invTanAng, invTanAng, 1) * Transform(persp);
 }
 
