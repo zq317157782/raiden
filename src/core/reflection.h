@@ -883,6 +883,15 @@ class HairBSDF : public BxDF
 	_h(h),_eta(eta),_sigmaA(sigmaA),_betaM(betaM),_betaN(betaN),_alpha(alpha){}
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override
 	{
+		//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
+		Float sinThetaO=wo.x;
+		Float cosThetaO=SafeSqrt(1-Sqr(sinThetaO));
+		Float phiO=std::atan2(wo.z,wo.y);//简单的三角函数几何推导
+		//同样计算wi相应的参数
+		Float sinThetaI=wi.x;
+		Float cosThetaI=SafeSqrt(1-Sqr(sinThetaI));
+		Float phiI=std::atan2(wi.z,wi.y);
+
 		Assert(false);
 	}
 	virtual Spectrum Sample_f(const Vector3f &wo, Vector3f *wi,
