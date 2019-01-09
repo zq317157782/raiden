@@ -15,7 +15,7 @@ public:
 	const Float distanceToView;
 public:
 	PinholeCamera(const Transform& c2w, Float shutterOpen, Float shutterEnd,
-			Film * f, const Medium* medium, const float distance = 10) :
+			Film * f, const Medium* medium, const Float distance = 10) :
 			Camera(c2w, shutterOpen, shutterEnd, f, medium), distanceToView(distance) {
 	}
 
