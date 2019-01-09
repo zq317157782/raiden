@@ -419,23 +419,30 @@ static Float Mp(Float cosThetaO, Float sinThetaO, Float cosThetaI, Float sinThet
 
 //用来计算不同的p mode下,假设完美镜面反射和折射，在normal平面上的phi角度需要调整的角度
 //net change in azimuthal direction
-static inline Float Phi(int p,Float gammaO,Float gammaT){
-	Assert(p>=0);
-	return 2*p*gammaT-2*gammaO+p*Pi;
+static inline Float Phi(int p, Float gammaO, Float gammaT)
+{
+	Assert(p >= 0);
+	return 2 * p * gammaT - 2 * gammaO + p * Pi;
 }
 
+inline Float TrimmedLogistic(Float x, Float s, Float a, Float b)
+{
+	return LogisticPdf(x, s) / (LogisticCdf(b, s) - LogisticCdf(a, s));
+}
 
-HairBSDF::HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha):BxDF(BxDFType(BSDF_REFLECTION|BSDF_GLOSSY|BSDF_TRANSMISSION)),
-	_h(h),_eta(eta),_sigmaA(sigmaA),_betaM(betaM),_betaN(betaN),_alpha(alpha){
-		//计算roughness variance
-		//具体细节，参考PBRT的futher reading
-		_v[0] = Sqr(0.726f * _betaM + 0.812f * Sqr(_betaM) + 3.7f * Pow<20>(_betaM));
-		_v[1] = (Float)0.25f*_v[0];
-		_v[2] = 4*_v[0];
-		for(int p=3;p<=_pMax;++p){
-			_v[p]=_v[2];
-		}
+HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
+																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
+{
+	//计算roughness variance
+	//具体细节，参考PBRT的futher reading
+	_v[0] = Sqr(0.726f * _betaM + 0.812f * Sqr(_betaM) + 3.7f * Pow<20>(_betaM));
+	_v[1] = (Float)0.25f * _v[0];
+	_v[2] = 4 * _v[0];
+	for (int p = 3; p <= _pMax; ++p)
+	{
+		_v[p] = _v[2];
 	}
+}
 
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 {
@@ -450,20 +457,23 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 
 	Spectrum sum(0);
 	//计算每个p的贡献
-	for(int i=0;i<_pMax;++i){
-		sum+=Mp(cosThetaO,sinThetaO,cosThetaI,sinThetaI,_v[i]);
+	for (int i = 0; i < _pMax; ++i)
+	{
+		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i]);
 	}
-	Float absCosThetaI=AbsCosTheta(wi);
-	if(absCosThetaI>0){
-		sum=sum/absCosThetaI;
+	Float absCosThetaI = AbsCosTheta(wi);
+	if (absCosThetaI > 0)
+	{
+		sum = sum / absCosThetaI;
 	}
 	Assert(!std::isinf(sum.y()));
 	Assert(!std::isnan(sum.y()));
 	return sum;
 }
 
- Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const{
-	 //normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
+Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
+{
+	//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
 	Float sinThetaO = wo.x;
 	Float cosThetaO = SafeSqrt(1 - Sqr(sinThetaO));
 	Float phiO = std::atan2(wo.z, wo.y); //简单的三角函数几何推导
@@ -474,10 +484,11 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 
 	Float sum(0);
 	//计算每个p的贡献
-	for(int i=0;i<_pMax;++i){
-		sum+=Mp(cosThetaO,sinThetaO,cosThetaI,sinThetaI,_v[i]);
+	for (int i = 0; i < _pMax; ++i)
+	{
+		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i]);
 	}
 	Assert(!std::isinf(sum.y()));
 	Assert(!std::isnan(sum.y()));
 	return sum;
- }
+}
