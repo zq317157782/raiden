@@ -494,6 +494,31 @@ inline Float Bravais(Float eta,Float sinTheta,Float cosTheta){
 }
 
 
+//-----------------------------------------------
+//这两个函数直接复制于PBRT
+//作用是把一维样本，映射成二维样本，并且保持一定的分层属性
+//使用到了 2D Morton curve
+//参考BVH那一章节获取更加详细的解释
+static uint32_t Compact1By1(uint32_t x) {
+	// x = -f-e -d-c -b-a -9-8 -7-6 -5-4 -3-2 -1-0
+	x &= 0x55555555;
+	// x = --fe --dc --ba --98 --76 --54 --32 --10
+	x = (x ^ (x >> 1)) & 0x33333333;
+	// x = ---- fedc ---- ba98 ---- 7654 ---- 3210
+	x = (x ^ (x >> 2)) & 0x0f0f0f0f;
+	// x = ---- ---- fedc ba98 ---- ---- 7654 3210
+	x = (x ^ (x >> 4)) & 0x00ff00ff;
+	// x = ---- ---- ---- ---- fedc ba98 7654 3210
+	x = (x ^ (x >> 8)) & 0x0000ffff;
+	return x;
+}
+static Point2f DemuxFloat(Float f) {
+	uint64_t v = f * (1ull << 32);
+	uint32_t bits[2] = {Compact1By1(v), Compact1By1(v >> 1)};
+	return {bits[0] / Float(1 << 16), bits[1] / Float(1 << 16)};
+}
+//-----------------------------------------------
+
 Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 {
 	//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
