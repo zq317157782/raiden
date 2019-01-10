@@ -536,6 +536,11 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	{
 		sum = sum / absCosThetaI;
 	}
+
+	//添加大于pMax后的路径的贡献
+	//这里normal平面的分布使用均匀分布来近似
+	sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[pMax])*ap[pMax]/(2.0f*Pi);
+
 	Assert(!std::isinf(sum.y()));
 	Assert(!std::isnan(sum.y()));
 	return sum;
