@@ -8,6 +8,7 @@
 #include "sampling.h"
 #include "spectrum.h"
 #include "microfacet.h"
+#include <array>
 
 bool Refract(const Vector3f &wi, const Normal3f &n,
 			 Float oeta /*这里是两个折射率之比(i/t)*/, Vector3f *wt)
@@ -441,9 +442,27 @@ static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
 	return TrimmedLogistic(dPhi,s,-Pi,Pi);
 }
 
-// static  std::array<Spectrum,pMax+1> Ap(){
+static  std::array<Spectrum,pMax+1> Ap(Float cosThetaO,Float eta,Float h,const Spectrum& T){
+	//这个三角函数我咋不记得呢
+	std::array<Spectrum,pMax+1> ap;
 
-// }
+	Float cosGammaO=SafeSqrt(1-Sqr(h));//计算gamma O
+	Float cosTheta=cosThetaO*cosGammaO;
+	Float f=FrDielectric(cosTheta,1.0f,eta);
+
+	ap[0]=f; 		 //f
+	ap[1]=Sqr(1-f)*T;//(1-f)*T*(1-f)
+	//(1-f)*T*f*T*...*T*f*T*(1-f)
+	for(int p=2;p<pMax;++p){
+		ap[p]=ap[p-1]*f*T;
+	}
+
+	//运用几何级数来计算剩余的order
+	//a=ap[pMax-1]*f*T;
+	//r=f*T;
+	ap[pMax]=ap[pMax-1]*f*T/(Spectrum(1.0f)-f*T);
+	return ap;
+}
 
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
 																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
@@ -504,11 +523,13 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	//计算transmittance
 	auto T=Exp(-(2*cosGammaT/cosThetaT)*_sigmaA);
 
+	auto ap=Ap(cosThetaO,_eta,_h,T);
+
 	Spectrum sum(0);
 	//计算每个p的贡献
 	for (int i = 0; i < pMax; ++i)
 	{
-		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i])*Np(phi,i,_s,_gammaO,gammaT);
+		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i])*ap[i]*Np(phi,i,_s,_gammaO,gammaT);
 	}
 	Float absCosThetaI = AbsCosTheta(wi);
 	if (absCosThetaI > 0)
