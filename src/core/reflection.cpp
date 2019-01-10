@@ -496,6 +496,9 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 
 
 	Float phi=phiI-phiO;
+	
+	//计算transmittance
+	auto T=std::exp(-(2*cosGammaT/cosThetaT)*_sigmaA);
 
 	Spectrum sum(0);
 	//计算每个p的贡献
