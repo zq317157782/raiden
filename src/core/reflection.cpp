@@ -482,6 +482,11 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	Float phiI = std::atan2(wi.z, wi.y);
 
+	//计算纵向平面的折射角度
+	//Snell's Law
+	Float sinThetaT=sinThetaO/_eta;
+	Float cosThetaT=SafeSqrt(1 - Sqr(sinThetaT));
+
 	//首先计算映射到normal平面的ior
 	Float etaP=Bravais(_eta,sinThetaO,cosThetaO);
 	//然后根据Snell's Law计算新的角度
@@ -518,6 +523,11 @@ Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 	Float sinThetaI = wi.x;
 	Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	Float phiI = std::atan2(wi.z, wi.y);
+
+	//计算纵向平面的折射角度
+	//Snell's Law
+	Float sinThetaT=sinThetaO/_eta;
+	Float cosThetaT=SafeSqrt(1 - Sqr(sinThetaT));
 
 	//首先计算映射到normal平面的ior
 	Float etaP=Bravais(_eta,sinThetaO,cosThetaO);
