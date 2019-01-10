@@ -467,7 +467,7 @@ static  std::array<Spectrum,pMax+1> Ap(Float cosThetaO,Float eta,Float h,const S
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
 																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
 {
-	Assert(_h>=-1&&_h<=1)
+	Assert(_h>=-1&&_h<=1);
 	Assert(_betaM>=0&&_betaM<=1);
 	Assert(_betaN>=0&&_betaN<=1);
 	//计算roughness variance
@@ -578,7 +578,7 @@ Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 	{
 		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i])*Np(phi,i,_s,_gammaO,gammaT);
 	}
-	Assert(!std::isinf(sum.y()));
-	Assert(!std::isnan(sum.y()));
+	Assert(!std::isinf(sum));
+	Assert(!std::isnan(sum));
 	return sum;
 }
