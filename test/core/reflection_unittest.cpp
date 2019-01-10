@@ -2,6 +2,7 @@
 #include "reflection.h"
 //#include "transform.h"
 #include "gtest.h"
+#include "sampling.h"
 
 
 TEST(FrConductor,Au){
@@ -25,4 +26,25 @@ TEST(FrConductor,Au){
    EXPECT_GE(au[0],0.9);
    EXPECT_GE(au[1],0.7);
    EXPECT_GE(au[2],0.3);
+}
+
+TEST(HairBSDF,WhiteFurnace){
+   RNG rng;
+   auto wo=UniformSampleSphere({rng.UniformFloat(),rng.UniformFloat()});
+   for(Float betam=0.1;betam<=1;betam+=0.2){
+      for(Float betan=0.1;betan<=1;betan+=0.2){
+         int count=300000;
+         Spectrum sigmaA(0);
+         Spectrum sum(0);
+         for(int i=0;i<count;++i){
+            Float h=-1+2*rng.UniformFloat();
+            HairBSDF bsdf(h,1.55f,sigmaA,betam,betan,0.0f);
+            auto wi=UniformSampleSphere({rng.UniformFloat(),rng.UniformFloat()});
+            sum+=bsdf.f(wo,wi)*AbsCosTheta(wi);
+         }
+         sum=sum/(count*UniformSpherePdf());
+         EXPECT_GT(sum.y(),0.95);
+         EXPECT_LT(sum.y(),1.05);
+      }
+   }
 }
