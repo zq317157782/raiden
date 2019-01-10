@@ -441,6 +441,10 @@ static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
 	return TrimmedLogistic(dPhi,s,-Pi,Pi);
 }
 
+// static  std::array<Spectrum,pMax+1> Ap(){
+
+// }
+
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
 																										_h(h), _eta(eta), _sigmaA(sigmaA), _betaM(betaM), _betaN(betaN), _alpha(alpha)
 {
@@ -498,7 +502,7 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	Float phi=phiI-phiO;
 	
 	//计算transmittance
-	auto T=std::exp(-(2*cosGammaT/cosThetaT)*_sigmaA);
+	auto T=Exp(-(2*cosGammaT/cosThetaT)*_sigmaA);
 
 	Spectrum sum(0);
 	//计算每个p的贡献
