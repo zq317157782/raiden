@@ -9,6 +9,7 @@
 #include "spectrum.h"
 #include "microfacet.h"
 #include <array>
+#include <numeric>
 
 bool Refract(const Vector3f &wi, const Normal3f &n,
 			 Float oeta /*这里是两个折射率之比(i/t)*/, Vector3f *wt)
@@ -442,11 +443,16 @@ static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
 	return TrimmedLogistic(dPhi,s,-Pi,Pi);
 }
 
-static  std::array<Spectrum,pMax+1> Ap(Float cosThetaO,Float eta,Float h,const Spectrum& T){
-	//这个三角函数我咋不记得呢
-	std::array<Spectrum,pMax+1> ap;
+//Bravais函数，用来计算映射到normal平面后的ior
+inline Float Bravais(Float eta,Float sinTheta,Float cosTheta){
+	return std::sqrt(eta*eta-Sqr(sinTheta))/cosTheta;
+}
 
+static  std::array<Spectrum,pMax+1> Ap(Float cosThetaO,Float eta,Float h,const Spectrum& T){
+	
+	std::array<Spectrum,pMax+1> ap;
 	Float cosGammaO=SafeSqrt(1-Sqr(h));//计算gamma O
+	//这个三角函数我咋不记得呢
 	Float cosTheta=cosThetaO*cosGammaO;
 	Float f=FrDielectric(cosTheta,1.0f,eta);
 
@@ -462,6 +468,35 @@ static  std::array<Spectrum,pMax+1> Ap(Float cosThetaO,Float eta,Float h,const S
 	//r=f*T;
 	ap[pMax]=ap[pMax-1]*f*T/(Spectrum(1.0f)-f*T);
 	return ap;
+}
+
+std::array<Float,pMax+1> HairBSDF::ComputeApPdf(Float cosThetaO) const{
+	//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
+	Float sinThetaO = SafeSqrt(1 - Sqr(cosThetaO));
+
+	//计算纵向平面的折射角度
+	//Snell's Law
+	Float sinThetaT=sinThetaO/_eta;
+	Float cosThetaT=SafeSqrt(1 - Sqr(sinThetaT));
+
+	//首先计算映射到normal平面的ior
+	Float etaP=Bravais(_eta,sinThetaO,cosThetaO);
+	//然后根据Snell's Law计算新的角度
+	Float sinGammaT=_h/etaP;
+	Float cosGammaT=SafeSqrt(1-Sqr(sinGammaT));
+	
+	//计算transmittance
+	auto T=Exp(-(2*cosGammaT/cosThetaT)*_sigmaA);
+
+	auto ap=Ap(cosThetaO,_eta,_h,T);
+	//开始计算积累的Ap的能量
+	//又是一个新的标准库函数
+	Float sum=std::accumulate(ap.begin(),ap.end(),Float(0),[](Float s,const Spectrum& f){return s+f.y();});
+	std::array<Float,pMax+1> apPdf;
+	for(int i=0;i<=pMax;++i){
+		apPdf[i]=ap[i].y()/sum;
+	}
+	return apPdf;
 }
 
 HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Float betaN, Float alpha) : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY | BSDF_TRANSMISSION)),
@@ -486,11 +521,6 @@ HairBSDF::HairBSDF(Float h, Float eta, const Spectrum &sigmaA, Float betaM, Floa
 						5.372f * Pow<22>(_betaN));
 
 	_gammaO=SafeASin(_h);
-}
-
-//Bravais函数，用来计算映射到normal平面后的ior
-inline Float Bravais(Float eta,Float sinTheta,Float cosTheta){
-	return std::sqrt(eta*eta-Sqr(sinTheta))/cosTheta;
 }
 
 

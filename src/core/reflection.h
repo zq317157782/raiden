@@ -886,6 +886,10 @@ class HairBSDF : public BxDF
 
 	Float _s;
 	Float _gammaO;//等于asin(h)
+
+	//计算Ap的分布
+	std::array<Float,pMax+1> ComputeApPdf(Float cosThetaO) const;
+
   public:
 	HairBSDF(Float h,Float eta,const Spectrum& sigmaA,Float betaM,Float betaN,Float alpha);
 	virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override;
