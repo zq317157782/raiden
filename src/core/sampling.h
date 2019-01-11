@@ -50,6 +50,18 @@ inline Float LogisticCdf(Float x,Float s){
 	return 1 / (1 + std::exp(-x / s));
 }
 
+inline Float TrimmedLogisticPdf(Float x, Float s, Float a, Float b)
+{
+	return LogisticPdf(x, s) / (LogisticCdf(b, s) - LogisticCdf(a, s));
+}
+
+inline Float SampleTrimmedLogistic(Float u, Float s, Float a, Float b){
+	Float c=LogisticCdf(b,s)-LogisticCdf(a,s);
+	Float d=1/(u*c+LogisticCdf(a,s))-1;
+	Float x=-s*std::log(d);
+	return Clamp(x,a,b);//这一步的Clamp是为了防止round err使得在u接近1的时候，值无限大
+}
+
 //MIS中使用的权重计算方法
 inline Float BalanceHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
 	return (nf * fPdf) / (nf * fPdf + ng * gPdf);

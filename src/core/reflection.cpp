@@ -427,10 +427,6 @@ static inline Float Phi(int p, Float gammaO, Float gammaT)
 	return 2 * p * gammaT - 2 * gammaO + p * Pi;
 }
 
-inline Float TrimmedLogistic(Float x, Float s, Float a, Float b)
-{
-	return LogisticPdf(x, s) / (LogisticCdf(b, s) - LogisticCdf(a, s));
-}
 
 static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
 	Float dPhi=phi-Phi(p,gammaO,gammaT);
@@ -440,7 +436,7 @@ static Float Np(Float phi,int p,Float s,Float gammaO,Float gammaT){
 	}else if(dPhi<-Pi){
 		dPhi+=2*Pi;
 	}
-	return TrimmedLogistic(dPhi,s,-Pi,Pi);
+	return TrimmedLogisticPdf(dPhi,s,-Pi,Pi);
 }
 
 //Bravais函数，用来计算映射到normal平面后的ior
