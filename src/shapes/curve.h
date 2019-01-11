@@ -301,10 +301,10 @@ class Curve : public Shape
         return RecursiveIntersect(ray,tHit,surfaceInsect,cp,Inverse(objectToRay),_uMin,_uMax,maxDepth);
     }
 
-    virtual bool IntersectP(const Ray &ray, bool testAlpha = true) const override
-    {
-        return false;
-    }
+    // virtual bool IntersectP(const Ray &ray, bool testAlpha = true) const override
+    // {
+    //     return false;
+    // }
 
     virtual Interaction Sample(const Point2f &uv, Float *pdf) const override
     {
