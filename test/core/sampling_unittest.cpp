@@ -12,5 +12,6 @@ TEST(TrimmedLogisticPdf,Normalizition){
         sum+=TrimmedLogisticPdf(x,1,0,1);
     }
     sum/=count;
-    EXPECT_GE(sum,0.99);
+    EXPECT_GT(sum,0.99);
+    EXPECT_LT(sum,1.01);
 }
