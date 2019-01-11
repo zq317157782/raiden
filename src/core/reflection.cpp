@@ -601,6 +601,41 @@ Spectrum HairBSDF::f(const Vector3f &wo, const Vector3f &wi) const
 	return sum;
 }
 
+Spectrum HairBSDF::Sample_f(const Vector3f &wo, Vector3f *wi,
+							  const Point2f &sample, Float *pdf,
+							  BxDFType *sampledType) const{
+				
+	Float sinThetaO = wo.x;
+ 	Float cosThetaO = SafeSqrt(1 - Sqr(sinThetaO));
+	//计算 Ap的distribution
+	auto apPdf=ComputeApPdf(cosThetaO);
+	//从两个样本生成4个样本
+	Point2f u[2]={DemuxFloat(sample[0]),DemuxFloat(sample[1])};
+	//采样ap
+	int p;
+	for(p=0;p<=pMax;++p){
+		if(apPdf[p]>u[0][0]){
+			break;
+		}
+		u[0][0]=u[0][0]-apPdf[p];
+	}
+
+	//--------------------------------------------------------------------------
+	//采样Mp成分
+	//复制于pbrt
+	//推导要参考Mp相关的那篇论文
+	//这里使用了u[1]样本
+	u[1][0] = std::max(u[1][0], Float(1e-5));//防止样本值为0
+    Float cosTheta =1 + _v[p] * std::log(u[1][0] + (1 - u[1][0]) * std::exp(-2/_v[p]));
+    Float sinTheta = SafeSqrt(1 - Sqr(cosTheta));
+    Float cosPhi = std::cos(2 * Pi * u[1][1]);
+    Float sinThetaI = -cosTheta * sinThetaO + sinTheta * cosPhi * cosThetaO;
+    Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
+	//--------------------------------------------------------------------------
+
+	return Spectrum(0);
+}
+
 Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 {
 	//normal平面垂直于x轴，所以theta的对边的长度是x,斜边的长度是1(因为是标准化向量)，所以sinTheta=x/1=x
