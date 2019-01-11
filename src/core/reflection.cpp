@@ -683,16 +683,19 @@ Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 	Float cosGammaT=SafeSqrt(1-Sqr(sinGammaT));
 	Float gammaT=SafeASin(sinGammaT);
 
+	//计算 Ap的distribution
+	auto apPdf=ComputeApPdf(cosThetaO);
 
 	Float phi=phiI-phiO;
 
-	Float sum(0);
+	Float pdf;
 	//计算每个p的贡献
 	for (int i = 0; i < pMax; ++i)
 	{
-		sum += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i])*Np(phi,i,_s,_gammaO,gammaT);
+		pdf += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i])*Np(phi,i,_s,_gammaO,gammaT)*apPdf[i];
 	}
-	Assert(!std::isinf(sum));
-	Assert(!std::isnan(sum));
-	return sum;
+	pdf += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[pMax])*apPdf[pMax]/(2*Pi);
+	Assert(!std::isinf(pdf));
+	Assert(!std::isnan(pdf));
+	return pdf;
 }
