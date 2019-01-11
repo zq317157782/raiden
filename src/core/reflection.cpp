@@ -621,6 +621,7 @@ Spectrum HairBSDF::Sample_f(const Vector3f &wo, Vector3f *wi,
 	//复制于pbrt
 	//推导要参考Mp相关的那篇论文
 	//这里使用了u[1]样本
+	//ThetaI
 	u[1][0] = std::max(u[1][0], Float(1e-5));//防止样本值为0
     Float cosTheta =1 + _v[p] * std::log(u[1][0] + (1 - u[1][0]) * std::exp(-2/_v[p]));
     Float sinTheta = SafeSqrt(1 - Sqr(cosTheta));
@@ -629,7 +630,34 @@ Spectrum HairBSDF::Sample_f(const Vector3f &wo, Vector3f *wi,
     Float cosThetaI = SafeSqrt(1 - Sqr(sinThetaI));
 	//--------------------------------------------------------------------------
 
-	return Spectrum(0);
+	//采样Np
+	//PhiI =PhiO + dphi
+	//需要计算PhiO 和采样dphi
+	Float phiO = std::atan2(wo.z, wo.y); //简单的三角函数几何推导
+	//先计算logistic分布的中心phi
+	//然后再加上采样的phi偏移量就得到dphi
+	//首先计算映射到normal平面的ior
+	Float etaP=Bravais(_eta,sinThetaO,cosThetaO);
+	//然后根据Snell's Law计算新的角度
+	Float sinGammaT=_h/etaP;
+	Float gammaT=SafeASin(sinGammaT);
+	Float dPhi=0;
+	if(p<pMax){
+		dPhi= Phi(p,_gammaO,gammaT)+SampleTrimmedLogistic(u[0][1],_s,-Pi,Pi);
+	}else{
+		dPhi = 2*Pi*u[0][1];
+	}
+	Float phiI=phiO+dPhi;
+	//从采样的数据生成wi
+	//这里要注意参数的顺序，不要忘记我们的角度都是按照轴为x轴来计算的
+	*wi=Vector3f(sinThetaI,cosThetaI*std::cos(phiI),cosThetaI*std::sin(phiI));
+	//计算每个p的贡献
+	for (int i = 0; i < pMax; ++i)
+	{
+		(*pdf) += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[i])*Np(dPhi,i,_s,_gammaO,gammaT)*apPdf[i];
+	}
+	(*pdf) += Mp(cosThetaO, sinThetaO, cosThetaI, sinThetaI, _v[pMax])*apPdf[pMax]/(2*Pi);
+	return f(wo,*wi);
 }
 
 Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
