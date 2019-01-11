@@ -383,6 +383,12 @@ public:
 		Assert(!s.HasNaNs());
 		return s;
 	}
+
+	//重构ostream方法
+	inline friend std::ostream &operator<<(std::ostream &os, const RGBSpectrum &s) {
+		os << "[ " << s._c[0] << " , " << s._c[1] << " , " << s._c[2] << " ]";
+		return os;
+	}
 };
 
 
