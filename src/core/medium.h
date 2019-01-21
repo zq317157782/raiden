@@ -22,18 +22,20 @@ public:
 	virtual Float Sample_p(const Vector3f &wo, Vector3f *wi,
 		const Point2f &u) const = 0;
 
-	virtual std::string ToString() const = 0;
+	virtual void ToStream(std::ostream &os) const = 0;
 
 };
 
 
 
 inline std::ostream &operator<<(std::ostream &os, const PhaseFunction &p) {
-	os << p.ToString();
+	p.ToStream(os);
 	return os;
 }
 
 //HenyeyGreenstein
+//负数的g代表backward scattering
+//正数的g代表forward scattering
 inline Float PhaseHG(Float cosTheta, Float g) {
 	Float denom = 1 + g * g + 2 * g * cosTheta;
 	return Inv4Pi * (1 - g * g) / (denom * std::sqrt(denom));
@@ -75,8 +77,8 @@ public:
 		return PhaseHG(-cosTheta, _g);
 	}
 
-	std::string ToString() const override {
-		return "[HenyeyGreenstein]";
+	virtual void ToStream(std::ostream &os) const override {
+		os<<"[HenyeyGreenstein g:"<<_g<<"]";
 	}
 };
 
