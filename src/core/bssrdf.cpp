@@ -24,3 +24,10 @@ Float FresnelMoment2(Float eta) {
                54.9327f * eta3 - 9.00603f * eta4 + 0.63942f * eta5;
     }
 }
+
+
+Spectrum SeparableBSSRDF::S(const Point3f& pi,const Vector3f& wi) const{
+    //计算三个成分，并且相乘
+    Float oneMinusFr=1.0f-FrDielectric(Dot(_po.wo,_po.shading.n),1,_eta);
+    return oneMinusFr*Sp(pi)*Sw(wi);
+}
