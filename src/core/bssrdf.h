@@ -54,3 +54,28 @@ public:
 
     virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const override;
 };
+
+
+//制表的BSSRDF
+//使用一张二维表(albedo,radii)作为Sr的输出
+//原来的Sr函数是个5维函数 Sr(r,albedo,sigma_t,g,eta)
+class TabulatedBSSRDF: public SeparableBSSRDF{
+private:
+    //const Spectrum _sigmaS;//scattering coefficient
+    Spectrum _sigmaT;
+    Spectrum _albedo;
+
+    virtual Spectrum Sr(Float d) const override{
+        Assert(false);
+        return 0;
+    }
+
+public:
+    TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA):SeparableBSSRDF(po,eta),_sigmaT(sigmaS+sigmaA){
+        //计算albedo
+        for(int i=0;i<Spectrum::numSample;++i){
+            //处理除数为0的情况
+            _albedo[i]=(_sigmaT[i]==0)?0:(sigmaS[i]/_sigmaT[i]);
+        }
+    }
+};
