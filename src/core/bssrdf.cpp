@@ -31,3 +31,64 @@ Spectrum SeparableBSSRDF::S(const Point3f& pi,const Vector3f& wi) const{
     Float oneMinusFr=1.0f-FrDielectric(Dot(_po.wo,_po.shading.n),1,_eta);
     return oneMinusFr*Sp(pi)*Sw(wi);
 }
+
+Float BeamDuffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
+    //根据对称理论，计算sigmaS和sigmaT
+    Float r_sigmaS=(1-g)*sigmaS;
+    Float r_sigmaT=r_sigmaS+sigmaA;
+    Float t_albedo=r_sigmaS/r_sigmaT;
+
+    //Grosjean’s non-classical diffusion coefficient
+    //考虑的是非典型情况下的
+    //典型情况是指材质是高albedo,容易发生scattering,无限体积的材质
+    Float D_G=(2*sigmaA+r_sigmaS)/(3*r_sigmaT*r_sigmaT);
+
+    //effective transport coefficient
+    //在monopole情况下，Fluence有解析解，其中有个成分就是这个
+    Float sigma_tr=std::sqrt(sigmaA/D_G);
+
+    //计算不依赖于monopole的位置的数据
+    //比如，分割两个dipole光源的平面的位置
+    Float fm1=FresnelMoment1(eta);
+    Float fm2=FresnelMoment2(eta);
+    Float ze = -2*D_G*(1+3*fm2)/(1-2*fm2);
+    //再比如计算Radiant Exitance的Fluence成分的系数，以及Radiant Exitance的irradiance vector成分的系数
+    //为简化版本:
+    //Float co_phi=(0.25f-0.5f*fm1);
+    //Float co_E=(0.5f-1.5f*fm2);
+    //简化版本:
+    Float co_phi=0.25f*(1-2*fm1);
+    Float co_E=0.5f*(1-3*fm2);
+
+    //
+    const int nSamples=100;//样本数
+    Float ED=0;
+    for(int i=0;i<nSamples;++i){
+        //计算样本值
+        Float u=(i+0.5f)/nSamples;
+        //MIS采样zr
+        //其实可以写成:Float zr=std::log(u)/r_sigmaT;
+        Float zr=std::log(1-u)/r_sigmaT;
+        //计算虚拟光源的位置
+        Float zv=-zr+2*ze;
+        //计算表面上的出射点到两个光源的距离
+        //基本的三角函数运用
+        Float dr=std::sqrt(r*r+zr*zr);
+        Float dv=std::sqrt(r*r+zv*zv);
+
+        //计算Radiant Exitance的Fluence成分
+        Float phiD=(std::exp(-sigma_tr*dr)/dr-std::exp(-sigma_tr*dv)/dv)*Inv4Pi/D_G;
+        //计算Radiant Exitance的irradiance vector dot n 成分
+        Float negNDotE=Inv4Pi*( zr*(1+dr*sigma_tr)*std::exp(-sigma_tr*dr)/(dr*dr*dr) - zv*(1+dv*sigma_tr)*std::exp(-sigma_tr*dv)/(dv*dv*dv) );
+        //计算Radiant Exitance
+        Float E=phiD*co_phi+negNDotE*co_E;
+
+        //经验缩放数
+        Float kappa = 1 - std::exp(-2 * r_sigmaT * (dr + zr));
+        //第一个t_albedo来自r_sigmaS和MIS的pdf的比值
+        //第二个来自Grosjean’s non-classical monopole 
+        ED+=kappa*t_albedo*t_albedo*E;
+    }
+
+    return ED;
+}
