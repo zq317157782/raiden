@@ -56,6 +56,30 @@ public:
 };
 
 
+//记录bssrdf profile的表
+class BSSRDFTable{
+public:
+    const int numAlbedoSample;//albedo样本个数
+    const int numRadiusSample;//半径样本个数
+    std::unique_ptr<Float[]> albedoSamples;
+    std::unique_ptr<Float[]> radiusSamples;
+    std::unique_ptr<Float[]> albedoEff;
+
+    std::unique_ptr<Float[]> profile;
+    std::unique_ptr<Float[]> profileCDF;
+public:
+    BSSRDFTable(int nAlbedoSample,int nRadiusSample):numAlbedoSample(nAlbedoSample),numRadiusSample(nRadiusSample){
+       
+        albedoSamples=std::unique_ptr<Float[]>(new Float[numAlbedoSample]);
+        radiusSamples=std::unique_ptr<Float[]>(new Float[numRadiusSample]);
+
+        albedoEff=std::unique_ptr<Float[]>(new Float[numAlbedoSample]);
+       
+        profile=std::unique_ptr<Float[]>(new Float[numAlbedoSample*numRadiusSample]);
+        profileCDF=std::unique_ptr<Float[]>(new Float[numAlbedoSample*numRadiusSample]);
+    }
+};
+
 //制表的BSSRDF
 //使用一张二维表(albedo,radii)作为Sr的输出
 //原来的Sr函数是个5维函数 Sr(r,albedo,sigma_t,g,eta)
