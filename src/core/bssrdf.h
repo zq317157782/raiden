@@ -107,3 +107,6 @@ public:
 //使用PBD方法计算表面点处的Multi-Scattering造成的irradiance
 Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r);
 
+//填充BSSRDFTable
+void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* table);
+
