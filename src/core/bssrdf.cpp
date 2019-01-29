@@ -32,7 +32,7 @@ Spectrum SeparableBSSRDF::S(const Point3f& pi,const Vector3f& wi) const{
     return oneMinusFr*Sp(pi)*Sw(wi);
 }
 
-Float BeamDuffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
+Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
     //根据对称理论，计算sigmaS和sigmaT
     Float r_sigmaS=(1-g)*sigmaS;
     Float r_sigmaT=r_sigmaS+sigmaA;

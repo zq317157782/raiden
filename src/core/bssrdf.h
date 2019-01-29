@@ -105,4 +105,5 @@ public:
 };
 
 //使用PBD方法计算表面点处的Multi-Scattering造成的irradiance
-Float BeamDuffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r);
+Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r);
+
