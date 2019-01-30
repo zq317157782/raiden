@@ -81,7 +81,7 @@ public:
 	const Shape* shape;
 	const Primitive* primitive;
 	BSDF* bsdf=nullptr;
-	//todo BSSRDF指针
+	BSSRDF* bssrdf=nullptr;
 	struct {
 		Normal3f n;
 		Vector3f dpdu, dpdv;
