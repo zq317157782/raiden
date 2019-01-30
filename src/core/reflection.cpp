@@ -19,14 +19,14 @@ bool Refract(const Vector3f &wi, const Normal3f &n,
 	Float cosThetaI = Dot(wi, n);
 	Float sinThetaI2 = std::max((Float)0.0f, (Float)1.0f - cosThetaI * cosThetaI);
 	//这里运用snell law
-	Float sinThetaT2 = oeta * sinThetaI2;
+	Float sinThetaT2 = oeta*oeta * sinThetaI2;
 	if (sinThetaT2 >= 1)
 	{
 		return false; //完全反射情况
 	}
 	Float cosThetaT = std::sqrt(1.0f - sinThetaT2);
 	//代入公式
-	*wt = oeta * (-wi) + (oeta * Dot(wi, n) - cosThetaT) * Vector3f(n);
+	*wt = oeta * (-wi) + (oeta * cosThetaI - cosThetaT) * Vector3f(n);
 	return true;
 }
 
