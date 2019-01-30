@@ -1,5 +1,6 @@
 #include "bssrdf.h"
 #include "parallel.h"
+#include "interpolation.h"
 Float FresnelMoment1(Float eta) {
     Float eta2 = eta * eta, eta3 = eta2 * eta, eta4 = eta3 * eta,
           eta5 = eta4 * eta;
@@ -105,17 +106,20 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
     //计算非线性的albedo样本
     //使用的公式为albedo=(1-exp(-8i/(N-1)))/(1-exp(-8))
     for(int i=0;i<t->numAlbedoSample;++i){
-        t->albedoSamples[i]=(1-std::exp(-8*i/(Float)(t->numAlbedoSample-1)))/(1-std::exp(-8));
+        t->albedoSamples[i]=(1-std::exp(-8*i/(Float)(t->numAlbedoSample-1)))/(1-std::exp(-8.0f));
     }
 
     //并行的计算profile
-    ParallelFor([&](int64_t i){
+    ParallelFor([&](size_t i){
         for(int j=0;j<t->numRadiusSample;++j){
             Float albedo=t->albedoSamples[i];
             Float r=t->radiusSamples[j];
             //计算边缘profile
             t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r);//TODO Single-Scattering Event还没有考虑
+
         }
+        //计算eff albedo
+        t->albedoEff[i]=IntegrateCatmullRom(t->numRadiusSample,t->radiusSamples.get(),&t->profile[i*t->numRadiusSample],&t->profileCDF[i*t->numRadiusSample]);
     },t->numAlbedoSample);
     
     
