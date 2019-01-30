@@ -4,13 +4,14 @@ TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
     BSSRDFTable table(8,8);
     ComputeBeamDiffusionBSSRDF(0,1.5,&table);
     //非线性分布，集中在1
-    EXPECT_FLOAT_EQ(table.albedoSamples[0],0);
-    EXPECT_FLOAT_EQ(table.albedoSamples[1],0.63233268);
-    EXPECT_FLOAT_EQ(table.albedoSamples[2],0.86495489);
-    EXPECT_FLOAT_EQ(table.albedoSamples[3],0.95053178);
-    EXPECT_FLOAT_EQ(table.albedoSamples[4],0.98201376);
-    EXPECT_FLOAT_EQ(table.albedoSamples[5],0.99359536);
-    EXPECT_FLOAT_EQ(table.albedoSamples[6],0.99785602);
+    //(1-std::exp(-8*i/(Float)(7)))/(1-std::exp(-8.0f))
+    EXPECT_FLOAT_EQ(table.albedoSamples[0],(1-std::exp(-8*0/(Float)(7)))/(1-std::exp(-8.0f)));
+    EXPECT_FLOAT_EQ(table.albedoSamples[1],(1-std::exp(-8*1/(Float)(7)))/(1-std::exp(-8.0f)));
+    EXPECT_FLOAT_EQ(table.albedoSamples[2],(1-std::exp(-8*2/(Float)(7)))/(1-std::exp(-8.0f)));
+    EXPECT_FLOAT_EQ(table.albedoSamples[3],(1-std::exp(-8*3/(Float)(7)))/(1-std::exp(-8.0f)));
+    EXPECT_FLOAT_EQ(table.albedoSamples[4],(1-std::exp(-8*4/(Float)(7)))/(1-std::exp(-8.0f)));
+    EXPECT_FLOAT_EQ(table.albedoSamples[5],(1-std::exp(-8*5/(Float)(7)))/(1-std::exp(-8.0f)));
+    EXPECT_FLOAT_EQ(table.albedoSamples[6],(1-std::exp(-8*6/(Float)(7)))/(1-std::exp(-8.0f)));
     EXPECT_FLOAT_EQ(table.albedoSamples[7],1);
     //指数分布
     EXPECT_FLOAT_EQ(table.radiusSamples[0],0);
