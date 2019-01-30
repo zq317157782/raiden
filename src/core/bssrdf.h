@@ -92,20 +92,20 @@ private:
     //const Spectrum _sigmaS;//scattering coefficient
     Spectrum _sigmaT;
     Spectrum _albedo;
+    const BSSRDFTable& _table;
 
-    virtual Spectrum Sr(Float d) const override{
-        Assert(false);
-        return 0;
-    }
-
+     //计算profile
+    virtual Spectrum Sr(Float d) const override;
 public:
-    TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA):SeparableBSSRDF(po,eta),_sigmaT(sigmaS+sigmaA){
+    TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table):SeparableBSSRDF(po,eta),_sigmaT(sigmaS+sigmaA),_table(table){
         //计算albedo
         for(int i=0;i<Spectrum::numSample;++i){
             //处理除数为0的情况
             _albedo[i]=(_sigmaT[i]==0)?0:(sigmaS[i]/_sigmaT[i]);
         }
     }
+
+    
 };
 
 //使用PBD方法计算表面点处的Multi-Scattering造成的irradiance

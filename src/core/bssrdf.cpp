@@ -33,6 +33,52 @@ Spectrum SeparableBSSRDF::S(const Point3f& pi,const Vector3f& wi) const{
     return oneMinusFr*Sp(pi)*Sw(wi);
 }
 
+ Spectrum TabulatedBSSRDF::Sr(Float r) const{
+       Spectrum Sr(0);
+
+       for(int i=0;i<Spectrum::numSample;++i){
+           //计算无单位的光学半径
+           Float opticalR=_sigmaT[i]*r;
+           //single-scattering albedo
+           Float albedo=_albedo[i];
+           
+           //样条插值获得权重
+           int rOffset=0;
+           Float rWeights[4];
+
+           int albedoOffset=0;
+           Float albedoWeights[4]; 
+
+           bool b0=CatmullRomWeights(_table.numRadiusSample,_table.radiusSamples.get(),opticalR,&rOffset,rWeights);
+           bool b1=CatmullRomWeights(_table.numAlbedoSample,_table.albedoSamples.get(),albedo,&albedoOffset,albedoWeights);
+           
+           if((!b0)||(!b1)){
+               continue;
+           }
+
+           Float sr=0;
+           //遍历weights,计算函数值
+           for(int j=0;j<4;++j){
+               for(int k=0;k<4;++k){
+                   Float w=albedoWeights[j]*rWeights[k];
+                   sr+=w*_table.EvalProfile(albedoOffset+j,rOffset+k);
+               }
+           }
+           //从边缘PDF 转换到 disjoint PDF
+           if(opticalR!=0){
+               sr/=(2*Pi*opticalR);
+           }
+
+           Sr[i]=sr;
+       }
+
+       //乘上因为空间变换而带来的因子
+       Sr=Sr*_sigmaT*_sigmaT;
+
+       return Clamp(Sr);
+    }
+
+
 Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
     //根据对称理论，计算sigmaS和sigmaT
     Float r_sigmaS=(1-g)*sigmaS;
