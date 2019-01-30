@@ -190,7 +190,7 @@ public:
 	friend CoefficientSpectrum Clamp(const CoefficientSpectrum &s,Float low=0,Float hign=Infinity){
 		CoefficientSpectrum ret;
 		for (int i = 0; i < numSpectrumSample; ++i) {
-			ret._c[i] = std::clamp(s._c[i],low,hign);
+			ret._c[i] = Clamp(s._c[i],low,hign);
 		}
 		Assert(!ret.HasNaNs());
 		return ret;
