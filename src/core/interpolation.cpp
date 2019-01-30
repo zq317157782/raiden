@@ -84,3 +84,38 @@ bool CatmullRomWeights(int size, const Float *nodes, Float x,int *offset, Float 
 
     return true;
 }
+
+
+Float IntegrateCatmullRom(int n, const Float *x, const Float *values,Float *cdf){
+    Float sum=0;//定积分值
+    cdf[0]=0;
+    for(int i=0;i<n-1;++i){
+        Float x0=x[i];
+        Float x1=x[i+1];
+        Float w=x1-x0;// dx
+
+        Float f0=values[i];
+        Float f1=values[i+1];
+
+        Float d0,d1;//相应端点的一阶导数
+        //可以使用中心差分的使用中心差分
+        //不然使用右差分
+        if(i>0){
+            d0=w*(f1-values[i-1])/(x1-x[i-1]);//中心差分
+        }else{
+            d0=f1-f0;//右差分
+        }
+
+        if(i<(n-2)){
+            d1=w*(values[i+2]-f0)/(x[i+2]-x0);//中心差分
+        }else{
+            d1=f1-f0;//右差分
+        }
+
+        //累计
+        //用的是CatmullRom的解析式
+        sum+=w*((f1+f0)*0.5f + (d0-d1)*(1.0f/12.0f));
+        cdf[i+1]=sum;
+    }
+    return sum;
+}
