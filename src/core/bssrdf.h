@@ -65,7 +65,7 @@ public:
     std::unique_ptr<Float[]> radiusSamples;
     std::unique_ptr<Float[]> albedoEff;
 
-    std::unique_ptr<Float[]> profile;
+    std::unique_ptr<Float[]> profile;//存的是极坐标空间下的边缘PDF(未标准化),多乘了2*Pi*r,r是光学半径
     std::unique_ptr<Float[]> profileCDF;
 public:
     BSSRDFTable(int nAlbedoSample,int nRadiusSample):numAlbedoSample(nAlbedoSample),numRadiusSample(nRadiusSample){
@@ -77,6 +77,10 @@ public:
        
         profile=std::unique_ptr<Float[]>(new Float[numAlbedoSample*numRadiusSample]);
         profileCDF=std::unique_ptr<Float[]>(new Float[numAlbedoSample*numRadiusSample]);
+    }
+
+    inline Float EvalProfile(int albedoIdx,int radiusIdx) const{
+        return profile[albedoIdx*numRadiusSample+radiusIdx];
     }
 };
 
