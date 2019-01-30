@@ -186,6 +186,15 @@ public:
 		Assert(!ret.HasNaNs());
 		return ret;
 	}
+
+	friend CoefficientSpectrum Clamp(const CoefficientSpectrum &s,Float low=0,Float hign=Infinity){
+		CoefficientSpectrum ret;
+		for (int i = 0; i < numSpectrumSample; ++i) {
+			ret._c[i] = std::clamp(s._c[i],low,hign);
+		}
+		Assert(!ret.HasNaNs());
+		return ret;
+	}
 	
 	//判断光谱样本总是否包含nan
 	bool HasNaNs() const {
