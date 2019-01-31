@@ -14,8 +14,9 @@ class BSSRDF{
 protected:
 	const SurfaceInteraction &_po;//出射点和方向
 	const Float _eta;//折射系数
+    const TransportMode _mode;
 public:
-	BSSRDF(const SurfaceInteraction &po,Float eta):_po(po),_eta(eta){}
+	BSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):_po(po),_eta(eta),_mode(mode){}
 	//S(po,wo,pi,wi)
 	//出射的微元radiance和入射的微元flux之比
 	virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const=0;
@@ -54,7 +55,7 @@ protected:
     const Vector3f _ts;
     
 public:
-    SeparableBSSRDF(const SurfaceInteraction &po,Float eta):BSSRDF(po,eta),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)){}
+    SeparableBSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta,mode),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)){}
 
     virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const override;
 };
@@ -101,7 +102,7 @@ private:
      //计算profile
     virtual Spectrum Sr(Float d) const override;
 public:
-    TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table):SeparableBSSRDF(po,eta),_sigmaT(sigmaS+sigmaA),_table(table){
+    TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table,TransportMode mode=TransportMode::Radiance):SeparableBSSRDF(po,eta,mode),_sigmaT(sigmaS+sigmaA),_table(table){
         //计算albedo
         for(int i=0;i<Spectrum::numSample;++i){
             //处理除数为0的情况
