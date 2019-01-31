@@ -26,6 +26,7 @@ public:
 };
 
 
+
 //可分离的BSSRDF模型
 //BSSRDF模型太通用了，难度很大，所以一般学术会使用可分离的成分来近似BSSRDF
 // S=(1-Fr)*Sp*Sw
@@ -58,8 +59,29 @@ public:
     SeparableBSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)),_mode(mode){}
 
     virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const override;
+
+    //用来采样SeparableBSSRDF的Sw成分
+    friend class SeparableBSSRDFAdapter;
 };
 
+
+
+//一个轻量级的包装了Sw成分的BxDF
+//又因为Sw是一个Diffuse分布和标准化的(1-Fr)分布的乘积，因此这里把这个BxDF当作Diffuse
+class SeparableBSSRDFAdapter:public BxDF{
+private:
+    const SeparableBSSRDF* _bssrdf;
+public:
+     SeparableBSSRDFAdapter(const SeparableBSSRDF * bssrdf):BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)),_bssrdf(bssrdf){}
+
+     virtual Spectrum f(const Vector3f &wo, const Vector3f &wi) const override{
+         Spectrum f=_bssrdf->Sw(wi);
+         if(_bssrdf->_mode==TransportMode::Radiance){
+             f=f*_bssrdf->_eta*_bssrdf->_eta;
+         }
+         return f;
+     }
+};
 
 //记录bssrdf profile的表
 class BSSRDFTable{
@@ -71,7 +93,7 @@ public:
     std::unique_ptr<Float[]> albedoEff;
 
     std::unique_ptr<Float[]> profile;//存的是极坐标空间下的边缘PDF(未标准化),多乘了2*Pi*r,r是光学半径
-    std::unique_ptr<Float[]> profileCDF;
+    std::unique_ptr<Float[]> profileCDF; 
 public:
     BSSRDFTable(int nAlbedoSample,int nRadiusSample):numAlbedoSample(nAlbedoSample),numRadiusSample(nRadiusSample){
        
