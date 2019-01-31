@@ -119,3 +119,57 @@ Float IntegrateCatmullRom(int n, const Float *x, const Float *values,Float *cdf)
     }
     return sum;
 }
+
+
+Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float u){
+    //首先找到u所在的区间
+    //PDF=函数值/函数的积分
+    //CDF=函数的部分积分/函数的积分
+    
+    //这里使用二分法找到u所在的区间
+    u=u*F[n-1];
+    int i=FindInterval(n,[&](int i){return F[i]<=u;});
+    
+    //获得当前区间的相应的值
+    Float x0=x[i];
+    Float x1=x[i+1];
+
+    Float w=x1-x0;
+
+    Float f0=f[i];
+    Float f1=f[i+1];
+
+    Float d0,d1;//相应端点的一阶导数
+    //可以使用中心差分的使用中心差分
+    //不然使用右差分
+    if(i>0){
+        d0=w*(f1-f[i-1])/(x1-x[i-1]);//中心差分
+    }else{
+        d0=f1-f0;//右差分
+    }
+
+    if(i<(n-2)){
+        d1=w*(f[i+2]-f0)/(x[i+2]-x0);//中心差分
+    }else{
+        d1=f1-f0;//右差分
+    }
+    
+    //计算给样条线段的积分的逆函数用的样本
+    //非标准化的CDF
+    //(这是提醒我自己的，这里为啥要除以w? 请记住dt=(x-x0)/w*dx,然后从dt的积分变换到dx的积分，相信我自己能够回忆起来！！！！)
+    u=(u-F[i])/w;
+    
+    //开始使用牛顿-二分法来求定义域值
+    //首先先要选择一个合适的初始值,这里假设样条线段是线性的 f(t)=(1-t)f(0)+tf(1)
+    //然后求积分 F(t)=tf(0)-t^2f(0)+t^2f(1)
+    //然后求逆函数  f(0)-srqt(f(0)^2+2(f(1)-f(0))*x)/(f(0)-f(1))
+    Float t;
+    if(f1!=f0){
+        t=f0-std::sqrt(f0*f0+2*(f1-f0)*u)/(f0-f1);
+    }else{
+        //这种情况为f0=f1,因此f(x)=f0,然后积分，求逆函数巴拉巴拉，就能得到这个了
+        t=u/f0;
+    }
+    
+    return 0;
+}
