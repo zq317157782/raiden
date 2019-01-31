@@ -14,9 +14,8 @@ class BSSRDF{
 protected:
 	const SurfaceInteraction &_po;//出射点和方向
 	const Float _eta;//折射系数
-    const TransportMode _mode;
 public:
-	BSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):_po(po),_eta(eta),_mode(mode){}
+	BSSRDF(const SurfaceInteraction &po,Float eta):_po(po),_eta(eta){}
 	//S(po,wo,pi,wi)
 	//出射的微元radiance和入射的微元flux之比
 	virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const=0;
@@ -54,8 +53,9 @@ protected:
     const Vector3f _ss;
     const Vector3f _ts;
     
+     const TransportMode _mode;
 public:
-    SeparableBSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta,mode),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)){}
+    SeparableBSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)),_mode(mode){}
 
     virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const override;
 };
