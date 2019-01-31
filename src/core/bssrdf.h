@@ -50,6 +50,9 @@ protected:
     virtual Spectrum Sr(Float d) const=0;
     //采样Sp成分
     Spectrum Sample_Sp(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const;
+    //采样profile以及相应的pdf
+    virtual Float Sample_Sr(int ch,Float u) const=0;
+    virtual Float Pdf_Sr(int ch,Float u) const=0;
     //BSSRD的局部Frame 
     const Normal3f _ns;
     const Vector3f _ss;
@@ -124,6 +127,10 @@ private:
 
      //计算profile
     virtual Spectrum Sr(Float d) const override;
+
+    virtual Float Sample_Sr(int ch,Float u) const override{return 0;}
+    virtual Float Pdf_Sr(int ch,Float u) const override{return 0;}
+
 public:
     TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table,TransportMode mode=TransportMode::Radiance):SeparableBSSRDF(po,eta,mode),_sigmaT(sigmaS+sigmaA),_table(table){
         //计算albedo
