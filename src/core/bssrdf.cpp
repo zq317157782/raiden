@@ -175,3 +175,34 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
 Spectrum SeparableBSSRDF::Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const{
     return 0;
 }
+
+Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const{
+    //首先根据样本值，从三个轴里面，选出一个轴作为投影平面的法线方向
+    //PBRT是给了50%的概率给表面垂直方向
+    //另外50%的概率给两个切线方向
+    //还需要重新缩放u1,使其再映射到0~1范围
+    Vector3f sv,tv,nv;
+    if(u1<0.5f){
+        sv=_ss;
+        tv=_ts;
+        nv=Vector3f(_ns);
+        u1=u1*2;
+    }else if(u1<0.75f){
+        sv=_ts;
+        tv=Vector3f(_ns);
+        nv=_ss;
+        u1=(u1-0.5f)*4;
+    }else {
+        sv=Vector3f(_ns);
+        tv=_ss;
+        nv=_ts;
+        u1=(u1-0.75f)*4;
+    }
+
+    //然后选择采样profile的哪个通道，并且重新缩放u1
+    int ch=(int)Clamp(u1*Spectrum::numSample,0,Spectrum::numSample-1);
+    u1=u1*Spectrum::numSample-ch;//>_< 真是省样本啊
+    //然后根据通道的索引，采样Sr成分
+    
+    return 0;
+}

@@ -48,7 +48,8 @@ protected:
 
 	//距离相关成分
     virtual Spectrum Sr(Float d) const=0;
-    virtual Spectrum Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const override;
+    //采样Sp成分
+    Spectrum Sample_Sp(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const;
     //BSSRD的局部Frame 
     const Normal3f _ns;
     const Vector3f _ss;
@@ -59,7 +60,7 @@ public:
     SeparableBSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)),_mode(mode){}
 
     virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const override;
-
+    virtual Spectrum Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const override;
     //用来采样SeparableBSSRDF的Sw成分
     friend class SeparableBSSRDFAdapter;
 };
