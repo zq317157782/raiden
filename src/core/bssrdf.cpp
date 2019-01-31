@@ -170,3 +170,8 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
     
     
 }
+
+
+Spectrum SeparableBSSRDF::Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const{
+    return 0;
+}

@@ -19,6 +19,10 @@ public:
 	//S(po,wo,pi,wi)
 	//出射的微元radiance和入射的微元flux之比
 	virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const=0;
+    //采样BSSRDF
+    //u1用于采样各种1D分布
+    //u2用来采样si
+    virtual Spectrum Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const = 0;
 };
 
 
@@ -43,7 +47,7 @@ protected:
 
 	//距离相关成分
     virtual Spectrum Sr(Float d) const=0;
-
+    virtual Spectrum Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const override;
     //BSSRD的局部Frame 
     const Normal3f _ns;
     const Vector3f _ss;
