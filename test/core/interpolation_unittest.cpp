@@ -69,4 +69,9 @@ TEST(SampleCatmullRom,SampleCatmullRom){
     EXPECT_EQ(ret,2);
     EXPECT_EQ(fval,2);
     EXPECT_EQ(pdf,0.2f);
+
+    ret=SampleCatmullRom(4,x,f,F,0.75f,&fval,&pdf);
+    EXPECT_EQ(ret,3);
+    EXPECT_EQ(fval,3);
+    EXPECT_EQ(pdf,3/(Float)10);
 }
