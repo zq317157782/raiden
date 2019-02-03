@@ -121,7 +121,7 @@ Float IntegrateCatmullRom(int n, const Float *x, const Float *values,Float *cdf)
 }
 
 
-Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float u){
+Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float u,Float* fval,Float* pdf){
     //首先找到u所在的区间
     //PDF=函数值/函数的积分
     //CDF=函数的部分积分/函数的积分
@@ -171,5 +171,52 @@ Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float 
         t=u/f0;
     }
     
-    return 0;
+
+    int a =0;
+    int b =1;
+    Float Fhat;
+    Float fhat;
+    //进入牛顿-二分法
+    while(true){
+        //首先判断t是否在二分法允许的范围内
+        //不在的话，更新t值为当前二分区间的中心点
+        if(t<a||t>b){
+            t=(a+b)*0.5f;
+        }
+        //计算相应的t的函数值
+        //这里是相应的CatmullRom样条的Horner格式
+        //这里直接复制于PBRT
+        //其实就是换了下函数的排列
+        Fhat = t * (f0 + t * (0.5f * d0 + t * ((1.0f/3.0f) * (-2 * d0 - d1) +f1 - f0 + t * (0.25f * (d0 + d1) + 0.5f * (f0 - f1)))));
+        fhat = f0 + t * (d0 + t * (-2 * d0 - d1 + 3 * (f1 - f0) + t * (d0 + d1 + 2 * (f0 - f1))));
+
+        //判断是否接近实际的root值
+        //牛顿法的话要判断函数值是否接近0
+        //二分法的话，比较二分边界是否足够接近
+        if( std::abs(Fhat-u)<1e-6f||std::abs(a-b)<1e-6f){
+            break;
+        }
+        //到这里的话，说明还需要迭代，提高进度
+        
+        if(Fhat<u){
+            //说明[a,t]不可能包含解,更新a
+            a=t;
+        }else {
+            //说明[t,b]不可能包含解,更新b
+            b=t;
+        }
+        //运用牛顿法
+        t=t-(Fhat-u)/fhat;
+    }
+
+    if(fval){
+        (*fval)=fhat;
+    }
+
+    if(pdf){
+        (*pdf)=fhat/F[n-1];
+    }
+
+    //从[0-1]映射回原来的空间
+    return x0+t*w;
 }

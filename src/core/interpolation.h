@@ -28,4 +28,4 @@ Float IntegrateCatmullRom(int n, const Float *x, const Float *values,
 //size    : 定义域样本点个数
 //xval   : 定义域样本
 //fval    : 值域样本
-Float SampleCatmullRom(Float u,int size,const Float *xVal,const Float *fVal,const Float *FVal);
+Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float u,Float* fval,Float* pdf);

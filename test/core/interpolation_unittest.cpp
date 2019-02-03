@@ -57,3 +57,16 @@ TEST(CatmullRomWeights,RightEnd){
    EXPECT_EQ(weights[3],0);
 
 }
+
+TEST(SampleCatmullRom,SampleCatmullRom){
+    Float fval;
+    Float pdf;
+
+    Float x[4]={1,2,3,4};
+    Float f[4]={1,2,3,4};
+    Float F[4]={1,3,6,10};
+    Float ret=SampleCatmullRom(4,x,f,F,0.5f,&fval,&pdf);
+    EXPECT_EQ(ret,2);
+    EXPECT_EQ(fval,2);
+    EXPECT_EQ(pdf,0.2f);
+}
