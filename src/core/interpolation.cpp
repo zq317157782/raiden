@@ -165,7 +165,7 @@ Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float 
     //然后求逆函数  f(0)-srqt(f(0)^2+2(f(1)-f(0))*x)/(f(0)-f(1))
     Float t;
     if(f1!=f0){
-        t=f0-std::sqrt(f0*f0+2*(f1-f0)*u)/(f0-f1);
+        t=(f0-std::sqrt(std::max(f0*f0+2*(f1-f0)*u,(Float)0)))/(f0-f1);
     }else{
         //这种情况为f0=f1,因此f(x)=f0,然后积分，求逆函数巴拉巴拉，就能得到这个了
         t=u/f0;
@@ -180,7 +180,7 @@ Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float 
     while(true){
         //首先判断t是否在二分法允许的范围内
         //不在的话，更新t值为当前二分区间的中心点
-        if(t<a||t>b){
+        if(t<=a||t>=b){
             t=(a+b)*0.5f;
         }
         //计算相应的t的函数值
@@ -193,7 +193,7 @@ Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float 
         //判断是否接近实际的root值
         //牛顿法的话要判断函数值是否接近0
         //二分法的话，比较二分边界是否足够接近
-        if( std::abs(Fhat-u)<1e-6f||std::abs(a-b)<1e-6f){
+        if( std::abs(Fhat-u)<1e-6f||(b-a)<1e-6f){
             break;
         }
         //到这里的话，说明还需要迭代，提高进度
