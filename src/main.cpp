@@ -17,7 +17,6 @@
 
 #ifdef RAIDEN_UNITTEST
     #include "gtest.h"
-    #include "benchmark.h"
 #endif//RAIDEN_UNITTEST
 
 #include "api.h"
@@ -82,10 +81,6 @@ int main(int argc, char* argv[]) {
 #ifdef RAIDEN_UNITTEST
     testing::InitGoogleTest(&argc,argv);
     ret= RUN_ALL_TESTS();
-    
-    ::benchmark::Initialize(&argc, argv);  
-    //if (::benchmark::ReportUnrecognizedArguments(argc, argv)) return 1; 
-    ::benchmark::RunSpecifiedBenchmarks(); 
 #endif//RAIDEN_UNITTEST
 
 	FLAGS_logtostderr = 1;

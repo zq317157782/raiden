@@ -77,10 +77,6 @@ if(RAIDEN_UNITTEST)
   set(BUILD_GMOCK OFF)
   set(BUILD_GTEST ON)
   add_subdirectory(external/googletest)
-
-  #编译
-  SET(BENCHMARK_ENABLE_GTEST_TESTS OFF)
-  add_subdirectory(external/benchmark)
 endif(RAIDEN_UNITTEST)
 
 
@@ -103,7 +99,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/pugixml)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if(RAIDEN_UNITTEST)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//googletest/googletest/include/gtest)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//benchmark/include/benchmark)
 endif(RAIDEN_UNITTEST)
 
 #设置源文件
@@ -157,8 +152,17 @@ target_link_libraries(raiden ${OPENEXR_LIBS})
 target_link_libraries(raiden lodepng)
 if(RAIDEN_UNITTEST)
   target_link_libraries(raiden gtest)
-  target_link_libraries(raiden benchmark)
 endif(RAIDEN_UNITTEST)
+
+#benchmark----------------------------------------------------------------------------
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//benchmark/include/benchmark)
+#编译
+SET(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+add_subdirectory(external/benchmark)
+aux_source_directory(benchmark RAIDEN_BENCHMARK)
+add_executable(raiden_benchmark benchmark/main.cpp ${RAIDEN_BENCHMARK}) 
+target_link_libraries(raiden_benchmark benchmark)
+
 
 if (WIN32)
     #set_target_properties(${RAIDEN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
