@@ -202,9 +202,9 @@ ENDIF()
 
 
 #objtolua
-aux_source_directory(src/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
-set(OBJ_TO_LUA obj2lua)
-add_executable(obj2lua ${RAIDEN_SRC_OBJ_TO_LUA})
+# aux_source_directory(src/tools/objtolua RAIDEN_SRC_OBJ_TO_LUA)
+# set(OBJ_TO_LUA obj2lua)
+# add_executable(obj2lua ${RAIDEN_SRC_OBJ_TO_LUA})
 # if (WIN32)
 #     set_target_properties(obj2lua PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runtimes")
 # endif()
