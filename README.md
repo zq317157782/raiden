@@ -8,16 +8,25 @@
 - [ ] 第二章的内容 
   - [x] 基础的向量,法线,空间点,包围盒和射线结构和相关函数(Vector2,Vector3,Point2,Point3,Normal3,Bound2,Bound3,Ray,RayDifferential)
   - [x] 基础矩阵和Transform(Matrix4x4,Transform)
-  - [x] 四元数(Quaternion)
-  - [ ] 插值的Trasform(AnimateTrasform) 
-  - [x] 表面交点信息结构(Interaction,SurfaceInteraction)
-  - [x] 体素交点信息结构(MediumInteraction)
+  - [ ] 插值的Trasform(AnimateTrasform)
+    - [x] 四元数(Quaternion)
+  - [x] 交点信息(Interaction)
+    - [x] 表面交点信息结构(SurfaceInteraction)
+    - [x] 体素交点信息结构(MediumInteraction)
 - [x] 第三章的内容
   - [x] Shape抽象类
   - [x] 球体的基础结构(Sphere)
+  - [ ] 圆柱体的基础结构
   - [x] 三角面片的基础结构(Triangle,TriangleMesh)
   - [x] Disk的基础结构(Disk)
   - [x] 曲线的基础结构(Curve)
-- [x] 基础的图元抽象类(Primitive)
-- [x] 加速结构抽象类(Aggregate)
+  - [ ] 曲面细分
+  - [x] 浮点数误差
+- [ ] 第四章的内容
+  - [x] 基础的图元抽象类(Primitive)
+    - [x] 几何图元(GeomPrimitive)
+    - [x] 加速结构抽象类(Aggregate)
+      - [x] BVH(Mean,Middle,SAH)
+        - [ ] 进阶的BVH
+      - [ ] KDTree
  
