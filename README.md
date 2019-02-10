@@ -4,3 +4,20 @@
 * 重新实现PBRT_V3以此学习PBRT新的架构以及算法，并且完成PBRT的练习。
 * 在此框架下继续渲染领域的研究。
 * 尝试修改框架，以达到更加完善的设计。
+
+- [ ] 第二章的内容 
+  - [x] 基础的向量,法线,空间点,包围盒和射线结构和相关函数(Vector2,Vector3,Point2,Point3,Normal3,Bound2,Bound3,Ray,RayDifferential)
+  - [x] 基础矩阵和Transform(Matrix4x4,Transform)
+  - [x] 四元数(Quaternion)
+  - [ ] 插值的Trasform(AnimateTrasform) 
+  - [x] 表面交点信息结构(Interaction,SurfaceInteraction)
+  - [x] 体素交点信息结构(MediumInteraction)
+- [x] 第三章的内容
+  - [x] Shape抽象类
+  - [x] 球体的基础结构(Sphere)
+  - [x] 三角面片的基础结构(Triangle,TriangleMesh)
+  - [x] Disk的基础结构(Disk)
+  - [x] 曲线的基础结构(Curve)
+- [x] 基础的图元抽象类(Primitive)
+- [x] 加速结构抽象类(Aggregate)
+ 
