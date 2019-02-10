@@ -15,9 +15,6 @@
   #include <unistd.h>
 #endif
 
-#ifdef RAIDEN_UNITTEST
-    #include "gtest.h"
-#endif//RAIDEN_UNITTEST
 
 #include "api.h"
 #include "parsers/luaparser.h"
@@ -78,10 +75,6 @@ static void PrintHelp(){
 
 int main(int argc, char* argv[]) {
 	int ret=0;
-#ifdef RAIDEN_UNITTEST
-    testing::InitGoogleTest(&argc,argv);
-    ret= RUN_ALL_TESTS();
-#endif//RAIDEN_UNITTEST
 
 	FLAGS_logtostderr = 1;
 	google::InitGoogleLogging(argv[0]);

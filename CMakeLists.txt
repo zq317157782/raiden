@@ -26,8 +26,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #设置的参数
 option (RAIDEN_DOUBLE_PRECISION "Use double precision float number" OFF)
 option (RAIDEN_FLOAT_PRECISION "Use float precision float number" ON)
-option (RAIDEN_UNITTEST "Run unittest cases" ON)
-MESSAGE(STATUS "Unit Test:" ${RAIDEN_UNITTEST})
 
 # 加入一个配置头文件，用于处理 CMake 对源码的设置
 configure_file (
@@ -71,13 +69,11 @@ add_subdirectory(external/glog)
 #编译lodepng
 add_subdirectory(external/lodepng)
  
-if(RAIDEN_UNITTEST)
-  #编译gtest
-  set(gtest_force_shared_crt ON)
-  set(BUILD_GMOCK OFF)
-  set(BUILD_GTEST ON)
-  add_subdirectory(external/googletest)
-endif(RAIDEN_UNITTEST)
+#编译gtest
+set(gtest_force_shared_crt ON)
+set(BUILD_GMOCK OFF)
+set(BUILD_GTEST ON)
+add_subdirectory(external/googletest)
 
 
 #####包含头文件
@@ -97,9 +93,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/glog/src/glog)#glog
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/lodepng)#lodepng
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/pugixml)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-if(RAIDEN_UNITTEST)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//googletest/googletest/include/gtest)
-endif(RAIDEN_UNITTEST)
+
+
 
 #设置源文件
 aux_source_directory(src/core RAIDEN_SRC_CORE)
@@ -114,12 +109,6 @@ aux_source_directory(src/samplers RAIDEN_SRC_SAMPLER)
 aux_source_directory(src/shapes RAIDEN_SRC_SHAPE)
 aux_source_directory(src/textures RAIDEN_SRC_TEXTURE)
 aux_source_directory(src/parsers RAIDEN_SRC_PARSER)
-if(RAIDEN_UNITTEST)
-    aux_source_directory(test RAIDEN_TEST)
-    aux_source_directory(test/core RAIDEN_TEST_CORE)
-    aux_source_directory(test/binders RAIDEN_TEST_BINDERS)
-    aux_source_directory(test/shapes RAIDEN_TEST_SHAPES)
-endif(RAIDEN_UNITTEST)
 
 add_executable(raiden src/main.cpp 
 ${RAIDEN_SRC_PARSER} 
@@ -134,10 +123,6 @@ ${RAIDEN_SRC_MEDIA}
 ${RAIDEN_SRC_SAMPLER} 
 ${RAIDEN_SRC_SHAPE} 
 ${RAIDEN_SRC_TEXTURE} 
-${RAIDEN_TEST}
-${RAIDEN_TEST_CORE} 
-${RAIDEN_TEST_BINDERS}
-${RAIDEN_TEST_SHAPES}
 external/pugixml/pugixml.cpp)
 
 #链接库
@@ -150,9 +135,44 @@ ELSE()
 ENDIF()
 target_link_libraries(raiden ${OPENEXR_LIBS})
 target_link_libraries(raiden lodepng)
-if(RAIDEN_UNITTEST)
-  target_link_libraries(raiden gtest)
-endif(RAIDEN_UNITTEST)
+
+
+
+#单元测试--------------------------------------------------------------------------------------
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//googletest/googletest/include/gtest)
+aux_source_directory(test/core RAIDEN_TEST_CORE)
+aux_source_directory(test/binders RAIDEN_TEST_BINDERS)
+aux_source_directory(test/shapes RAIDEN_TEST_SHAPES)
+add_executable(raiden_test test/main.cpp 
+${RAIDEN_SRC_PARSER} 
+${RAIDEN_SRC_CORE} 
+${RAIDEN_SRC_ACCE} 
+${RAIDEN_SRC_CAMERA} 
+${RAIDEN_SRC_FILTER} 
+${RAIDEN_SRC_INTEGRATOR} 
+${RAIDEN_SRC_LIGHT} 
+${RAIDEN_SRC_MATERIAL} 
+${RAIDEN_SRC_MEDIA} 
+${RAIDEN_SRC_SAMPLER} 
+${RAIDEN_SRC_SHAPE} 
+${RAIDEN_SRC_TEXTURE} 
+${RAIDEN_TEST_CORE} 
+${RAIDEN_TEST_BINDERS}
+${RAIDEN_TEST_SHAPES}
+external/pugixml/pugixml.cpp)
+
+#单元测试使用的链接库
+target_link_libraries(raiden_test glog)
+target_link_libraries(raiden_test lua5.3.4)
+IF(WIN32)
+  SET(OPENEXR_LIBS IlmImf Imath Half ${ZLIB_LIBRARY})
+ELSE()
+  SET(OPENEXR_LIBS IlmImf Imath Half)
+ENDIF()
+target_link_libraries(raiden_test ${OPENEXR_LIBS})
+target_link_libraries(raiden_test lodepng)
+target_link_libraries(raiden_test gtest)
 
 #benchmark----------------------------------------------------------------------------
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external//benchmark/include/benchmark)
