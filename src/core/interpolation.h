@@ -29,3 +29,6 @@ Float IntegrateCatmullRom(int n, const Float *x, const Float *values,
 //xval   : 定义域样本
 //fval    : 值域样本
 Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float u,Float* fval,Float* pdf);
+
+//采样二维的CatmullRom曲面上的一条曲线
+Float SampleCatmullRom2D(int n1,int n2,const Float *x1,const Float *x2,const Float *f,const Float *cdf,Float alpha,Float u,Float* fval,Float* pdf);

@@ -69,29 +69,20 @@ TEST(SampleCatmullRom,Uniform){
     EXPECT_EQ(ret,2.5);
     EXPECT_EQ(fval,1);
     EXPECT_FLOAT_EQ(pdf,0.2);
-
-    // ret=SampleCatmullRom(4,x,f,F,0.75f,&fval,&pdf);
-    // EXPECT_EQ(ret,3);
-    // EXPECT_EQ(fval,3);
-    // EXPECT_EQ(pdf,3/(Float)10);
-    
 }
 
-// TEST(SampleCatmullRom,Ununiform){
-//     Float fval;
-//     Float pdf;
 
-//     Float x[4]={1,2,3,4};
-//     Float f[4]={1,10,100,1000};
-//     Float F[4]={1,11,111,1111};
-//     Float ret=SampleCatmullRom(4,x,f,F,0.5f,&fval,&pdf);
-//     EXPECT_EQ(ret,2);
-//     EXPECT_EQ(fval,2);
-//     EXPECT_EQ(pdf,0.2f);
+TEST(SampleCatmullRom2D,Uniform){
+    Float fval;
+    Float pdf;
 
-//     // ret=SampleCatmullRom(4,x,f,F,0.75f,&fval,&pdf);
-//     // EXPECT_EQ(ret,3);
-//     // EXPECT_EQ(fval,3);
-//     // EXPECT_EQ(pdf,3/(Float)10);
-    
-// }
+    Float x[5]={1,2,3,4,5};
+    Float y[5]={1,2,3,4,5};
+    Float f[25]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+    Float F[25]={1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5};
+    Float ret=SampleCatmullRom2D(5,5,x,y,f,F,3,0.5f,&fval,&pdf);
+    EXPECT_EQ(ret,2.5);
+    EXPECT_EQ(fval,1);
+    EXPECT_FLOAT_EQ(pdf,0.2);
+}
+

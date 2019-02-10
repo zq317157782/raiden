@@ -15,6 +15,6 @@ TEST(Raiden,SafeSqrt){
 }
 
 TEST(Raiden,SafeASin){
-  EXPECT_EQ(SafeASin(1),Pi/2);
-  EXPECT_EQ(SafeASin(-1),-Pi/2);
+  EXPECT_FLOAT_EQ(SafeASin(1),Pi/2);
+  EXPECT_FLOAT_EQ(SafeASin(-1),-Pi/2);
 }
