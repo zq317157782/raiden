@@ -290,3 +290,9 @@ Float SeparableBSSRDF::Pdf_Sp(const SurfaceInteraction& pi) const {
     return pdf;
 }
  
+ Float TabulatedBSSRDF::Sample_Sr(int ch,Float u) const{
+     if(_sigmaT[ch]==0){
+         return -1;
+     }
+     return SampleCatmullRom2D(_table.numAlbedoSample,_table.numRadiusSample,_table.albedoSamples.get(),_table.radiusSamples.get(),_table.profile.get(),_table.profileCDF.get(),_albedo[ch],u)/_sigmaT[ch];
+ }

@@ -135,7 +135,7 @@ private:
      //计算profile
     virtual Spectrum Sr(Float d) const override;
 
-    virtual Float Sample_Sr(int ch,Float u) const override{return 0;}
+    virtual Float Sample_Sr(int ch,Float u) const override;
     virtual Float Pdf_Sr(int ch,Float u) const override{return 0;}
 
 public:
