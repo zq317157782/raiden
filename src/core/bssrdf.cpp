@@ -1,6 +1,9 @@
 #include "bssrdf.h"
 #include "parallel.h"
 #include "interpolation.h"
+#include "memory.h"
+#include "scene.h"
+#include "primitive.h"
 Float FresnelMoment1(Float eta) {
     Float eta2 = eta * eta, eta3 = eta2 * eta, eta4 = eta3 * eta,
           eta5 = eta4 * eta;
@@ -176,6 +179,12 @@ Spectrum SeparableBSSRDF::Sample_S(const Scene &scene, Float u1, const Point2f &
     return 0;
 }
 
+class IntersectionChain{
+public:
+    SurfaceInteraction si;
+    IntersectionChain* next=nullptr;
+};
+
 Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const{
     //首先根据样本值，从三个轴里面，选出一个轴作为投影平面的法线方向
     //PBRT是给了50%的概率给表面垂直方向
@@ -202,7 +211,56 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
     //然后选择采样profile的哪个通道，并且重新缩放u1
     int ch=(int)Clamp(u1*Spectrum::numSample,0,Spectrum::numSample-1);
     u1=u1*Spectrum::numSample-ch;//>_< 真是省样本啊
+    //采样r和phi
     //然后根据通道的索引，采样Sr成分
-    
-    return 0;
+    Float r=Sample_Sr(ch,u2[0]);
+    if(r<0){
+        return Spectrum(0);
+    }
+    //均匀分布
+    Float phi=2*Pi*u2[1];
+    //计算最大半径,大于这个半径的能量可以忽略不计(这个假设在光源非常强的情况下，可能会失败)
+    //rMax定义的球体包含99.9%的能量
+    Float rMax=Sample_Sr(ch,0.999f);
+    if(r>rMax){
+         return Spectrum(0);
+    }
+    //根据勾股定律计算probe射线的长度
+    //(l/2)^2+r^2=rMax^2
+    Float l = 2 * std::sqrt(rMax * rMax - r * r);
+
+    //计算probe射线的起点和目标点
+    Interaction base;
+    base.p=_po.p+(sv*std::cos(phi)+tv*std::cos(phi))-nv*l*0.5f;
+    base.time=_po.time;
+    Point3f target=base.p+nv*l;
+
+    //把probe射线相交的所有的交点形成链表
+    IntersectionChain *chain=ARENA_ALLOC(arena, IntersectionChain)();
+    int numFound=0;
+    IntersectionChain* ptr=chain;
+    while(scene.Intersect(base.SpawnRayTo(target),&ptr->si)){
+        base=ptr->si;//更新base,是得下次生成新射线是在最新的交点开始生成
+        if(ptr->si.primitive->GetMaterial()==_material){
+            IntersectionChain *next=ARENA_ALLOC(arena, IntersectionChain)();
+            ptr->next=next;
+            ptr=next;
+            numFound++;
+        }
+    }
+    //链表完成
+    if(numFound==0){
+        return Spectrum(0);
+    }
+    //从链表中随机选取一个交点
+
+    int selected=Clamp(u1*numFound,0,numFound-1);
+
+    while((selected--)>0){
+        chain=chain->next;
+    }
+    (*si)=chain->si;
+    //这里是两个pdf的积
+    (*pdf)=Pdf_Sp(*si)/numFound;
+    return Sp(*si);
 }
