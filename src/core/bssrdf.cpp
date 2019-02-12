@@ -296,3 +296,47 @@ Float SeparableBSSRDF::Pdf_Sp(const SurfaceInteraction& pi) const {
      }
      return SampleCatmullRom2D(_table.numAlbedoSample,_table.numRadiusSample,_table.albedoSamples.get(),_table.radiusSamples.get(),_table.profile.get(),_table.profileCDF.get(),_albedo[ch],u)/_sigmaT[ch];
  }
+
+ Float TabulatedBSSRDF::Pdf_Sr(int ch,Float r) const{
+     //计算无单位的光学半径
+           Float opticalR=_sigmaT[ch]*r;
+           //single-scattering albedo
+           Float albedo=_albedo[ch];
+           
+           //样条插值获得权重
+           int rOffset=0;
+           Float rWeights[4];
+
+           int albedoOffset=0;
+           Float albedoWeights[4]; 
+
+           bool b0=CatmullRomWeights(_table.numRadiusSample,_table.radiusSamples.get(),opticalR,&rOffset,rWeights);
+           bool b1=CatmullRomWeights(_table.numAlbedoSample,_table.albedoSamples.get(),albedo,&albedoOffset,albedoWeights);
+           
+           if((!b0)||(!b1)){
+               return 0;
+           }
+
+           Float sr=0;
+           Float effAlbedo=0;
+           //遍历weights,计算函数值
+           for(int j=0;j<4;++j){
+               if(albedoWeights[j]==0){
+                   continue;
+               }
+               effAlbedo+=_table.albedoEff[albedoOffset+j]*albedoWeights[j];
+               for(int k=0;k<4;++k){
+                   if(rWeights[k]==0){
+                       continue;
+                   }
+                   Float w=albedoWeights[j]*rWeights[k];
+                   sr+=w*_table.EvalProfile(albedoOffset+j,rOffset+k);
+               }
+           }
+           //从边缘PDF 转换到 disjoint PDF
+           if(opticalR!=0){
+               sr/=(2*Pi*opticalR);
+           }
+
+           return std::max((Float)0,sr*_sigmaT[ch]*_sigmaT[ch]/effAlbedo);
+ }

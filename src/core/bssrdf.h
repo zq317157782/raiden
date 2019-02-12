@@ -136,7 +136,7 @@ private:
     virtual Spectrum Sr(Float d) const override;
 
     virtual Float Sample_Sr(int ch,Float u) const override;
-    virtual Float Pdf_Sr(int ch,Float u) const override{return 0;}
+    virtual Float Pdf_Sr(int ch,Float r) const override;
 
 public:
     TabulatedBSSRDF(const SurfaceInteraction &po,const Material* material,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table,TransportMode mode=TransportMode::Radiance):SeparableBSSRDF(po,material,eta,mode),_sigmaT(sigmaS+sigmaA),_table(table){
