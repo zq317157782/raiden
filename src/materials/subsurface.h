@@ -15,6 +15,7 @@
 #include "texture.h"
 #include "microfacet.h"
 #include "bssrdf.h"
+#include "primitive.h"
 class SubsurfaceMaterial:public Material {
 private:
     BSSRDFTable _table; 
@@ -76,7 +77,7 @@ public:
             Spectrum sigmaS=_sigmaS->Evaluate(*si);
             Spectrum sigmaA=_sigmaA->Evaluate(*si);
             //const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table
-            si->bssrdf=ARENA_ALLOC(arena,TabulatedBSSRDF)(*si,_eta,sigmaS,sigmaA,_table);
+            si->bssrdf=ARENA_ALLOC(arena,TabulatedBSSRDF)(*si,si->primitive->GetMaterial(), _eta,sigmaS,sigmaA,_table);
 	}
 	virtual ~SubsurfaceMaterial(){};
 };

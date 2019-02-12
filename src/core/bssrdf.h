@@ -58,9 +58,12 @@ protected:
     const Vector3f _ss;
     const Vector3f _ts;
     
-     const TransportMode _mode;
+    const TransportMode _mode;
+
+    const Material* _material;
+
 public:
-    SeparableBSSRDF(const SurfaceInteraction &po,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)),_mode(mode){}
+    SeparableBSSRDF(const SurfaceInteraction &po,const Material* material,Float eta,TransportMode mode=TransportMode::Radiance):BSSRDF(po,eta),_ns(po.shading.n),_ss(Normalize(po.shading.dpdu)),_ts(Cross(_ns,_ss)),_mode(mode),_material(material){}
 
     virtual Spectrum S(const Point3f& pi,const Vector3f& wi) const override;
     virtual Spectrum Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const override;
@@ -132,7 +135,7 @@ private:
     virtual Float Pdf_Sr(int ch,Float u) const override{return 0;}
 
 public:
-    TabulatedBSSRDF(const SurfaceInteraction &po,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table,TransportMode mode=TransportMode::Radiance):SeparableBSSRDF(po,eta,mode),_sigmaT(sigmaS+sigmaA),_table(table){
+    TabulatedBSSRDF(const SurfaceInteraction &po,const Material* material,Float eta,const Spectrum& sigmaS,const Spectrum& sigmaA,const BSSRDFTable& table,TransportMode mode=TransportMode::Radiance):SeparableBSSRDF(po,material,eta,mode),_sigmaT(sigmaS+sigmaA),_table(table){
         //计算albedo
         for(int i=0;i<Spectrum::numSample;++i){
             //处理除数为0的情况
