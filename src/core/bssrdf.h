@@ -53,7 +53,7 @@ protected:
     virtual Spectrum Sr(Float d) const=0;
     //采样Sp成分
     Spectrum Sample_Sp(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const;
-    Float Pdf_Sp(const SurfaceInteraction& si) const {return 0;};
+    Float Pdf_Sp(const SurfaceInteraction& si) const;
     //采样profile以及相应的pdf
     virtual Float Sample_Sr(int ch,Float u) const=0;
     virtual Float Pdf_Sr(int ch,Float u) const=0;

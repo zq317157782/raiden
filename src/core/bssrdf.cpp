@@ -264,3 +264,29 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
     (*pdf)=Pdf_Sp(*si)/numFound;
     return Sp(*si);
 }
+
+
+Float SeparableBSSRDF::Pdf_Sp(const SurfaceInteraction& pi) const {
+    //从世界坐标系转换到局部坐标系
+    Normal3f nLocal=Normal3f(Dot(_ss,pi.n),Dot(_ts,pi.n),Dot(_ns,pi.n));
+    Vector3f d=_po.p-pi.p;
+    Vector3f dLocal=Vector3f(Dot(_ss,d),Dot(_ts,d),Dot(_ns,d));
+
+    //计算映射到三个平面后的r的值
+    Float rProj[3]={
+        std::sqrt(dLocal.y*dLocal.y+dLocal.z*dLocal.z),
+        std::sqrt(dLocal.x*dLocal.x+dLocal.z*dLocal.z),
+        std::sqrt(dLocal.y*dLocal.y+dLocal.x*dLocal.x),
+    };
+    //下面是我困惑的地方，到底是不是MIS呢
+    Float pdf=0;
+    Float axisPdf[3]={0.25f,0.25f,0.5f};
+    Float chPdf=1/(Float)Spectrum::numSample;
+    for(int axis=0;axis<3;++axis){
+        for(int ch=0;ch<Spectrum::numSample;++ch){
+            pdf+=Pdf_Sr(ch,rProj[axis])*axisPdf[axis]*chPdf*std::abs(nLocal[axis]);//最后为啥还要乘以一个std::abs(nLocal[axis])???
+        }
+    }
+    return pdf;
+}
+ 
