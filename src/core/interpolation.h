@@ -32,4 +32,4 @@ Float SampleCatmullRom(int n,const Float *x,const Float *f,const Float *F,Float 
 
 //采样二维的CatmullRom曲面上的一条曲线
 //alpha 在x1范围内的值
-Float SampleCatmullRom2D(int n1,int n2,const Float *x1,const Float *x2,const Float *f,const Float *cdf,Float alpha,Float u,Float* fval,Float* pdf);
+Float SampleCatmullRom2D(int n1,int n2,const Float *x1,const Float *x2,const Float *f,const Float *cdf,Float alpha,Float u,Float* fval=nullptr,Float* pdf=nullptr);
