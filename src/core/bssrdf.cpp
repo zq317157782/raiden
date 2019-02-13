@@ -164,7 +164,7 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
             Float albedo=t->albedoSamples[i];
             Float r=t->radiusSamples[j];
             //计算边缘profile
-            t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r);//TODO Single-Scattering Event还没有考虑
+            t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r)+0.01;//TODO Single-Scattering Event还没有考虑
         }
         //计算eff albedo
         t->albedoEff[i]=IntegrateCatmullRom(t->numRadiusSample,t->radiusSamples.get(),&t->profile[i*t->numRadiusSample],&t->profileCDF[i*t->numRadiusSample]);
