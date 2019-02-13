@@ -1,5 +1,7 @@
 #include "gtest.h"
 #include "bssrdf.h"
+#include <iostream>
+#include <fstream>
 TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
     BSSRDFTable table(8,8);
     ComputeBeamDiffusionBSSRDF(0,1.5,&table);
@@ -23,3 +25,20 @@ TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
     EXPECT_FLOAT_EQ(table.radiusSamples[6],0.0062208008);
     EXPECT_FLOAT_EQ(table.radiusSamples[7],0.0074649611);
 }
+
+
+TEST(DuffusionEquation,WriteProfileFile100X64){
+    BSSRDFTable table(100,64);
+    ComputeBeamDiffusionBSSRDF(0,1.3,&table);
+    std::ofstream myfile;
+    myfile.open ("bssrdf_profile.data");
+    myfile<<" #albedo radius profile_data\n";
+    for(int i=0;i<100;++i){
+        for(int j=0;j<64;++j){
+            myfile<<table.albedoSamples[i]<<" "<<table.radiusSamples[j]<<" "<<table.profile[i*64+j]<<"\n";
+        }
+    }
+    
+    myfile.close();
+}
+
