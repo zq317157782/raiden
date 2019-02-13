@@ -101,7 +101,7 @@ Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
     //比如，分割两个dipole光源的平面的位置
     Float fm1=FresnelMoment1(eta);
     Float fm2=FresnelMoment2(eta);
-    Float ze = -2*D_G*(1+3*fm2)/(1-2*fm2);
+    Float ze = -2*D_G*(1+3*fm2)/(1-2*fm1);
     //再比如计算Radiant Exitance的Fluence成分的系数，以及Radiant Exitance的irradiance vector成分的系数
     //为简化版本:
     //Float co_phi=(0.25f-0.5f*fm1);
@@ -118,7 +118,7 @@ Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
         Float u=(i+0.5f)/nSamples;
         //MIS采样zr
         //其实可以写成:Float zr=std::log(u)/r_sigmaT;
-        Float zr=std::log(1-u)/r_sigmaT;
+        Float zr=-std::log(1-u)/r_sigmaT;
         //计算虚拟光源的位置
         Float zv=-zr+2*ze;
         //计算表面上的出射点到两个光源的距离
@@ -165,7 +165,6 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
             Float r=t->radiusSamples[j];
             //计算边缘profile
             t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r);//TODO Single-Scattering Event还没有考虑
-
         }
         //计算eff albedo
         t->albedoEff[i]=IntegrateCatmullRom(t->numRadiusSample,t->radiusSamples.get(),&t->profile[i*t->numRadiusSample],&t->profileCDF[i*t->numRadiusSample]);
