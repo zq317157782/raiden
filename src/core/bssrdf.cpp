@@ -176,7 +176,13 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
 
 
 Spectrum SeparableBSSRDF::Sample_S(const Scene &scene, Float u1, const Point2f &u2, MemoryArena &arena, SurfaceInteraction *si, Float *pdf) const{
-    return 0;
+    Spectrum sp=Sample_Sp(scene,u1,u2,arena,si,pdf);
+    if(!sp.IsBlack()){
+        si->bsdf=ARENA_ALLOC(arena,BSDF)(*si);
+        si->bsdf->Add(ARENA_ALLOC(arena, SeparableBSSRDFAdapter)(this));
+        si->wo = Vector3f(si->shading.n);
+    }
+    return sp;
 }
 
 class IntersectionChain{
