@@ -16,6 +16,7 @@
 #include "sampler.h"
 #include "reflection.h"
 #include "lightdistrib.h"
+#include "bssrdf.h"
 class PathIntegrator : public SamplerIntegrator {
 private:
 	int _maxDepth; //路径的最大长度
@@ -126,6 +127,46 @@ public:
 		
 			//生成新射线
 			ray = ref.SpawnRay(wi);
+
+//----------------------------------------------BSSRDF--------------------------------------------------------------
+			//考虑BSSRDF
+			//只有在BSDF有投射的情况下才会有BSSRDF的作用
+			if(ref.bssrdf&&(flag&BSDF_TRANSMISSION)){
+				SurfaceInteraction pi;
+				Float pdf=0;
+				auto S=ref.bssrdf->Sample_S(scene,sampler.Get1DSample(),sampler.Get2DSample(),arena,&pi,&pdf);
+				if(S.IsBlack()||pdf==0){
+					break;
+				}
+				//更新pi空间成分的影响
+				beta=beta*(S/pdf);
+
+				//更新方向成分
+
+				//首先是直接光的影响(next event estimate)
+				L+=beta*UniformSampleOneLight(pi, scene, arena, sampler, false,distribution);
+				
+				//然后是间接光
+				//这里的bsdf是BSSRDF的方向成分
+				auto f=pi.bsdf->Sample_f(wo,&wi,sampler.Get2DSample(),&pdf,BSDF_ALL,&flag);
+				if(f.IsBlack()||pdf==0){
+					break;
+				}
+				beta=beta*f*AbsDot(wi,pi.shading.n)/pdf;
+
+				//判断这次反射是否是specular
+				if ((flag&BSDF_SPECULAR) != 0) {
+					isSpecularBounce = true;
+				}
+				else {
+					isSpecularBounce = false;
+				}
+
+				//生成新射线(BSSRDF版本哦！！！！)
+				ray = pi.SpawnRay(wi);
+			}
+//----------------------------------------------BSSRDF--------------------------------------------------------------
+
 			 // Factor out radiance scaling due to refraction in rrBeta.
 			Spectrum rrBeta=beta*etaScale;
 			if (rrBeta.MaxComponentValue()<_rrThreshold&&bounces>3) {
