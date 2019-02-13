@@ -182,6 +182,7 @@ add_subdirectory(external/benchmark)
 aux_source_directory(benchmark RAIDEN_BENCHMARK)
 add_executable(raiden_benchmark benchmark/main.cpp ${RAIDEN_BENCHMARK}) 
 target_link_libraries(raiden_benchmark benchmark)
+target_link_libraries(raiden_benchmark glog)
 
 
 if (WIN32)
