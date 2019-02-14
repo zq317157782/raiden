@@ -81,7 +81,38 @@ Spectrum SeparableBSSRDF::S(const Point3f& pi,const Vector3f& wi) const{
        return Clamp(Sr);
     }
 
+Float BeamDiffusionSS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
+    Float sigmaT=sigmaS+sigmaA;
+    Float albedo=sigmaS/sigmaT;
 
+    //计算全反射的临界角度
+    //theta_c=arcsin(1/eta)
+    //因此cosTheta_c=sqrt(1-1/eta^2)
+    
+    //根据临界角度来算最小的t值
+    Float tc=r*std::sqrt(eta*eta-1);
+
+    const int numSample=100;
+    Float E=0;
+
+    //MC计算积分
+    for(int i=0;i<numSample;++i){
+        //采样t值
+         Float ti = tc - std::log(1 - (i + 0.5f) / numSample) / sigmaT;
+         //计算到po点的距离
+         Float d=std::sqrt(r*r+ti*ti);
+         //计算ti和d之间余弦值
+         Float cosThetaS=ti/d;
+         //累计贡献
+         //公式推导详见书,这里已经是f(x)/p(x)了
+         E += albedo * std::exp(-sigmaT * (d + tc)) / (d * d) *
+                  PhaseHG(cosThetaS, g) * (1 - FrDielectric(-cosThetaS, 1, eta)) *
+                  std::abs(cosThetaS);
+    }
+    //最后不要忘记MC最后一步，除以样本数
+    E=E/numSample;
+    return E;
+}
 Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
     //根据对称理论，计算sigmaS和sigmaT
     Float r_sigmaS=(1-g)*sigmaS;
@@ -164,12 +195,11 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
             Float albedo=t->albedoSamples[i];
             Float r=t->radiusSamples[j];
             //计算边缘profile
-            t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r)+0.01;//TODO Single-Scattering Event还没有考虑
+            t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r)+BeamDiffusionSS(albedo,1-albedo,g,eta,r);
         }
         //计算eff albedo
         t->albedoEff[i]=IntegrateCatmullRom(t->numRadiusSample,t->radiusSamples.get(),&t->profile[i*t->numRadiusSample],&t->profileCDF[i*t->numRadiusSample]);
     },t->numAlbedoSample);
-    
     
 }
 
@@ -219,6 +249,7 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
     //采样r和phi
     //然后根据通道的索引，采样Sr成分
     Float r=Sample_Sr(ch,u2[0]);
+    LInfo<<r;
     if(r<0){
         return Spectrum(0);
     }
