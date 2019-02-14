@@ -40,44 +40,43 @@ bool CatmullRomWeights(int size, const Float *nodes, Float x,int *offset, Float 
     //w3=0
 
     //首先计算w1和w2的前面的括号内的内容
-    Float w0=0;
-    Float w1=2*t3-3*t2+1;
-    Float w2=-2*t3+3*t2;
-    Float w3=0;
+
+    weights[1]=2*t3-3*t2+1;
+    weights[2]=-2*t3+3*t2;
+  
     //计算w0和w3的时候因为涉及到x_{-1}和x_{2},因此可能会越界,所以到分条件处理
     //先处理w0
     if(idx>0){
         //不越界的情况
         //这里没有像pbrt那样做一些优化操作:
-        w0=(t3-2*t2+t)*(x1-x0)/(nodes[idx-1]-x1);
-        w2-=w0;
+        Float w0=(t3-2*t2+t)*(x1-x0)/(nodes[idx-1]-x1);
+        weights[0]=w0;
+        weights[2]-=w0;
     }
     else{
         //左越界
-        Float v=t3-2*t2+t;
-        w1-=v;
-        w2+=v;
+        Float w0=t3-2*t2+t;
+        weights[0]=0;
+        weights[1]-=w0;
+        weights[2]+=w0;
     }
 
     //再处理w3
     if((idx+1)<(size-1)){
         //w3=(x^3-x^2)/(x_2)
-        w3=(t3-t2)*(x1-x0)/(nodes[idx+2]-x0);
+        Float w3=(t3-t2)*(x1-x0)/(nodes[idx+2]-x0);
         //w1=(2x^3-3x^2+1) - w3
-        w1-=w3;
+        weights[1]-=w3;
+        weights[3]=w3;
     }
     else{
         //右越界
-         Float v=t3-t2;
-         w1-=v;
-         w2+=v;
+         Float w3=t3-t2;
+         weights[1]-=w3;
+         weights[2]+=w3;
+         weights[3]=0;
     }
 
-    //真正的赋值的地方
-    weights[0]=w0;
-    weights[1]=w1;
-    weights[2]=w2;
-    weights[3]=w3;
 
     return true;
 }
@@ -246,7 +245,7 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
     //这里使用二分法找到u所在的区间
     Float maximum=interpolate(cdf,n2-1);
     u=u*maximum;
-    int i=FindInterval(n2,[&](int i){return interpolate(cdf,i)<=u;});
+    int i=FindInterval(n2,[&](int idx){return interpolate(cdf,idx)<=u;});
 
     //获得当前区间的相应的值
     Float x0=xv2[i];
@@ -297,7 +296,7 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
     while(true){
         //首先判断t是否在二分法允许的范围内
         //不在的话，更新t值为当前二分区间的中心点
-        if(t<=a||t>=b){
+        if(t<a||t>b){
             t=(a+b)*0.5f;
         }
         //计算相应的t的函数值
@@ -324,6 +323,7 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
         }
         //运用牛顿法
         t=t-(Fhat-u)/fhat;
+       // LInfo<<"t"<<t<<" alpha"<<alpha<<" u"<<u<<" d0"<<d0<<" d1"<<d1<<" a"<<a<<" b"<<b<<" w0"<<weights[0]<<" w1"<<weights[1]<<" w2"<<weights[2]<<" w3"<<weights[3];
     }
 
     if(fval){
@@ -334,6 +334,7 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
         (*pdf)=fhat/maximum;
     }
 
+    //LInfo<<"--------------------------------------------------------------------";
     //从[0-1]映射回原来的空间
     return x0+t*w;
 }
