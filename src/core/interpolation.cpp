@@ -1,4 +1,4 @@
-#include "interpolation.h"
+ #include "interpolation.h"
 
 bool CatmullRomWeights(int size, const Float *nodes, Float x,int *offset, Float *weights){
     //先判断x是否在有效的值域内
@@ -227,12 +227,12 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
     }
 
     //通过第一维度的权重，计算第二维度的值得lambda
-    auto interpolate=[&](const Float *f,int idx){
+    auto interpolate=[&](const Float *array,int idx){
         Float value=0;
         //插值操作
         for(int i=0;i<4;++i){
             if(weights[i]!=0){
-                value+=f[n2*(offset+i)+idx]*weights[i];
+                value+=array[n2*(offset+i)+idx]*weights[i];
             }
         }
         return value;
@@ -253,6 +253,11 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
 
     Float w=x1-x0;
 
+    //计算给样条线段的积分的逆函数用的样本
+    //非标准化的CDF
+    //(这是提醒我自己的，这里为啥要除以w? 请记住dt=(x-x0)/w*dx,然后从dt的积分变换到dx的积分，相信我自己能够回忆起来！！！！)
+    u=(u-interpolate(cdf,i))/w;
+
     Float f0= interpolate(f,i); 
     Float f1= interpolate(f,i+1);
 
@@ -271,10 +276,7 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
         d1=f1-f0;//右差分
     }
 
-    //计算给样条线段的积分的逆函数用的样本
-    //非标准化的CDF
-    //(这是提醒我自己的，这里为啥要除以w? 请记住dt=(x-x0)/w*dx,然后从dt的积分变换到dx的积分，相信我自己能够回忆起来！！！！)
-    u=(u-interpolate(cdf,i))/w;
+    
 
     //开始使用牛顿-二分法来求定义域值
     //首先先要选择一个合适的初始值,这里假设样条线段是线性的 f(t)=(1-t)f(0)+tf(1)
@@ -288,15 +290,15 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
         t=u/f0;
     }
 
-    int a =0;
-    int b =1;
+    Float a =0;
+    Float b =1;
     Float Fhat;
     Float fhat;
     //进入牛顿-二分法
     while(true){
         //首先判断t是否在二分法允许的范围内
         //不在的话，更新t值为当前二分区间的中心点
-        if(t<a||t>b){
+        if(!(t >= a && t <= b)){
             t=(a+b)*0.5f;
         }
         //计算相应的t的函数值
@@ -338,3 +340,5 @@ Float SampleCatmullRom2D(int n1,int n2,const Float *xv1,const Float *xv2,const F
     //从[0-1]映射回原来的空间
     return x0+t*w;
 }
+
+
