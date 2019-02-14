@@ -244,7 +244,7 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
     }
 
     //然后选择采样profile的哪个通道，并且重新缩放u1
-    int ch=(int)Clamp(u1*Spectrum::numSample,0,Spectrum::numSample-1);
+    int ch=Clamp((int)u1*Spectrum::numSample,0,Spectrum::numSample-1);
     u1=u1*Spectrum::numSample-ch;//>_< 真是省样本啊
     //采样r和phi
     //然后根据通道的索引，采样Sr成分
@@ -257,7 +257,7 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
     //计算最大半径,大于这个半径的能量可以忽略不计(这个假设在光源非常强的情况下，可能会失败)
     //rMax定义的球体包含99.9%的能量
     Float rMax=Sample_Sr(ch,0.999f);
-    if(r>rMax){
+    if(r>=rMax){
          return Spectrum(0);
     }
     //根据勾股定律计算probe射线的长度
@@ -266,7 +266,7 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
 
     //计算probe射线的起点和目标点
     Interaction base;
-    base.p=_po.p+(sv*std::cos(phi)+tv*std::cos(phi))-nv*l*0.5f;
+    base.p=_po.p+(sv*std::cos(phi)+tv*std::sin(phi))*r-nv*l*0.5f;
     base.time=_po.time;
     Point3f target=base.p+nv*l;
 
