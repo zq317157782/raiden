@@ -49,11 +49,8 @@ bool CatmullRomWeights(int size, const Float *nodes, Float x,int *offset, Float 
     if(idx>0){
         //不越界的情况
         //这里没有像pbrt那样做一些优化操作:
-        //w0=(t3-2*t2+t)*(x1-x0)/(nodes[idx-1]-x1);
-        //w2-=w0;
-        //优化:
-        w0=(t3-2*t2+t)*(x1-x0)/(x1-nodes[idx-1]);
-        w2+=w0;
+        w0=(t3-2*t2+t)*(x1-x0)/(nodes[idx-1]-x1);
+        w2-=w0;
     }
     else{
         //左越界
