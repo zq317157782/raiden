@@ -195,7 +195,7 @@ void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
             Float albedo=t->albedoSamples[i];
             Float r=t->radiusSamples[j];
             //计算边缘profile
-            t->profile[i*t->numRadiusSample+j]=2*Pi*r*BeamDiffusionMS(albedo,1-albedo,g,eta,r)+BeamDiffusionSS(albedo,1-albedo,g,eta,r);
+            t->profile[i*t->numRadiusSample+j]=2*Pi*r*(BeamDiffusionMS(albedo,1-albedo,g,eta,r)+BeamDiffusionSS(albedo,1-albedo,g,eta,r));
         }
         //计算eff albedo
         t->albedoEff[i]=IntegrateCatmullRom(t->numRadiusSample,t->radiusSamples.get(),&t->profile[i*t->numRadiusSample],&t->profileCDF[i*t->numRadiusSample]);
@@ -249,7 +249,6 @@ Spectrum SeparableBSSRDF::Sample_Sp(const Scene &scene, Float u1, const Point2f 
     //采样r和phi
     //然后根据通道的索引，采样Sr成分
     Float r=Sample_Sr(ch,u2[0]);
-    LInfo<<r;
     if(r<0){
         return Spectrum(0);
     }
