@@ -2,6 +2,8 @@
 #include "bssrdf.h"
 #include <iostream>
 #include <fstream>
+#include "sampling.h"
+
 TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
     BSSRDFTable table(8,8);
     ComputeBeamDiffusionBSSRDF(0,1.5,&table);
@@ -42,3 +44,53 @@ TEST(DuffusionEquation,WriteProfileFile100X64){
     myfile.close();
 }
 
+
+
+
+TEST(SeparableBSSRDFA,Sw){
+    auto Sw=[](const Vector3f& wi,Float eta){
+         float c=1-2*FresnelMoment1(1/eta);
+        //wi是BSSRDF局部空间的
+        return (1-FrDielectric(CosTheta(wi),1,eta))/(c*Pi);
+    };
+
+    RNG rng;
+    Spectrum sum=0;
+    const int numSample=30000;
+    for(int i=0;i<numSample;++i){
+        auto wi= UniformSampleHemisphere({rng.UniformFloat(),rng.UniformFloat()});
+        auto f=Sw(wi,1.5);
+        sum=sum+f*AbsCosTheta(wi);
+    }
+    sum=sum/numSample/UniformHemispherePdf();
+    Float rgb[3];
+    sum.ToRGB(rgb);
+    EXPECT_LE(rgb[0],1.01);
+    EXPECT_GE(rgb[0],0.99);
+
+}
+
+// TEST(SeparableBSSRDFAdapter,Sw){
+
+//     SurfaceInteraction po;
+//     po.p=Point3f(0,0,0);
+//     BSSRDFTable table(10,10);
+//     TabulatedBSSRDF bssrdf(po,nullptr,1.5,Spectrum(0),Spectrum(0),table);
+//     SeparableBSSRDFAdapter adapter(&bssrdf);
+    
+
+//     RNG rng;
+//     Spectrum sum=0;
+//     const int numSample=30000;
+//     for(int i=0;i<numSample;++i){
+//         Vector3f wo(0,0,1);
+//         Vector3f wi;
+//         Float pdf;
+//         auto f=adapter.Sample_f(wo,&wi,Point2f(rng.UniformFloat(),rng.UniformFloat()),&pdf);
+
+//         sum=sum+f*AbsCosTheta(wi)/pdf;
+//     }
+//     sum=sum/numSample;
+//     EXPECT_EQ(sum,1);
+
+// }
