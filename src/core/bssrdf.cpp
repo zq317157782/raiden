@@ -167,11 +167,12 @@ Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
         Float kappa = 1 - std::exp(-2 * r_sigmaT * (dr + zr));
         //第一个t_albedo来自r_sigmaS和MIS的pdf的比值
         //第二个来自Grosjean’s non-classical monopole 
-        float pdf=r_sigmaT*std::exp(-r_sigmaT*zr);
+        
+        //这里已经考虑了mis，只不过PDF部分和 Source部分相互抵消了
+        // float pdf=r_sigmaT*std::exp(-r_sigmaT*zr);
+        // float source=t_albedo*r_sigmaT*std::exp(-r_sigmaT*zr);
 
-        float source=t_albedo*r_sigmaT*std::exp(-r_sigmaT*zr);
-
-        ED+=kappa*t_albedo*t_albedo*E*source/pdf;
+        ED+=kappa*t_albedo*t_albedo*E;
 
         //ED+=kappa*t_albedo*E/pdf;
     }
