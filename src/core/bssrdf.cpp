@@ -123,7 +123,6 @@ Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
     //考虑的是非典型情况下的
     //典型情况是指材质是高albedo,容易发生scattering,无限体积的材质
     Float D_G=(2*sigmaA+r_sigmaS)/(3*r_sigmaT*r_sigmaT);
-
     //effective transport coefficient
     //在monopole情况下，Fluence有解析解，其中有个成分就是这个
     Float sigma_tr=std::sqrt(sigmaA/D_G);
@@ -168,11 +167,18 @@ Float BeamDiffusionMS(Float sigmaS,Float sigmaA,Float g,Float eta,Float r){
         Float kappa = 1 - std::exp(-2 * r_sigmaT * (dr + zr));
         //第一个t_albedo来自r_sigmaS和MIS的pdf的比值
         //第二个来自Grosjean’s non-classical monopole 
-        ED+=kappa*t_albedo*t_albedo*E;
-    }
+        float pdf=r_sigmaT*std::exp(-r_sigmaT*zr);
 
-    return ED;
+        float source=t_albedo*r_sigmaT*std::exp(-r_sigmaT*zr);
+
+        ED+=kappa*t_albedo*t_albedo*E*source/pdf;
+
+        //ED+=kappa*t_albedo*E/pdf;
+    }
+    
+    return ED/nSamples;
 }
+
 
 void ComputeBeamDiffusionBSSRDF(Float g,Float eta,BSSRDFTable* t){
     Assert(t!=nullptr);
