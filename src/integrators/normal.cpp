@@ -25,8 +25,18 @@ NormalIntegrator *CreateNormalIntegrator(
             }
         }
     }
+    auto typeStr = params.FindOneString("type","normal");
+    NormalIntegratorType type;
+    if(typeStr=="normal"){
+        type=NormalIntegratorType::NORMAL;
+    }
+    else if(typeStr=="tangent"){
+        type=NormalIntegratorType::TANGENT;
+    }else {
+         type=NormalIntegratorType::BINORMAL;
+    }
 
-    return new NormalIntegrator(camera,sampler, pixelBounds);
+    return new NormalIntegrator(camera,sampler, pixelBounds,type);
 }
 
 
