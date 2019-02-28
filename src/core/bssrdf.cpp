@@ -321,11 +321,13 @@ Float SeparableBSSRDF::Pdf_Sp(const SurfaceInteraction& pi) const {
         std::sqrt(dLocal.y*dLocal.y+dLocal.x*dLocal.x),
     };
     //下面是我困惑的地方，到底是不是MIS呢
+    //！！！解惑了，这里使用的是 The one-sample model 的MIS
     Float pdf=0;
     Float axisPdf[3]={0.25f,0.25f,0.5f};
     Float chPdf=1/(Float)Spectrum::numSample;
     for(int axis=0;axis<3;++axis){
         for(int ch=0;ch<Spectrum::numSample;++ch){
+            //C*(1/WEIGHT)*PDF
             pdf+=Pdf_Sr(ch,rProj[axis])*axisPdf[axis]*chPdf*std::abs(nLocal[axis]);//最后为啥还要乘以一个std::abs(nLocal[axis])???
         }
     }
