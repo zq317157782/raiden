@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "sampling.h"
+#include "interpolation.h"
 
 TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
     BSSRDFTable table(8,8);
@@ -29,11 +30,11 @@ TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
 }
 
 
-TEST(DuffusionEquation,WriteProfileFile100X64){
+TEST(DuffusionEquation,ProfileFile100X64){
     BSSRDFTable table(100,64);
     ComputeBeamDiffusionBSSRDF(0,1.3,&table);
     std::ofstream myfile;
-    myfile.open ("bssrdf_profile.data");
+    myfile.open ("profile_samples.data");
     myfile<<" #albedo radius profile_data\n";
     for(int i=0;i<100;++i){
         for(int j=0;j<64;++j){
@@ -42,6 +43,23 @@ TEST(DuffusionEquation,WriteProfileFile100X64){
     }
     
     myfile.close();
+}
+
+
+TEST(DuffusionEquation,RadiuSamplesData){
+    std::ofstream myfile;
+    myfile.open ("sr_samples.data");
+    myfile<<" #radius samples\n";
+    myfile<<"\"raw samples\"\n";
+    float radius[64];
+    radius[0]=0;
+    radius[1]=2.5e-3 ;
+    for(int i=2;i<64;++i){
+        radius[i]=radius[i-1]*1.2f;
+    }
+    for(int i=0;i<64;++i){
+        myfile<<i<<" "<<radius[i]<<'\n';
+    }
 }
 
 
