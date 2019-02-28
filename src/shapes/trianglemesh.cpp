@@ -243,7 +243,7 @@ bool Triangle::Intersect(const Ray& ray, Float* tHit,
 		Vector3f ts = Cross(ss, ns);
 		if (ts.LengthSquared() > 0.0f) {
 			ts = Normalize(ts);
-			ss = Cross(ts, ns);
+			ss = Cross(ns,ts);
 		} else {
 			CoordinateSystem((Vector3f) ns, &ss, &ts);
 		}
