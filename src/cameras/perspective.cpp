@@ -49,7 +49,6 @@ Float PerspectiveCamera::GenerateRay(const CameraSample &sample,
 	}
 	
 	ray->time = Lerp(sample.time, shutterOpen, shutterEnd);
-	Info(medium);
 	ray->medium = medium;
 	*ray = cameraToWorld(*ray);
 	return 1.0f;
