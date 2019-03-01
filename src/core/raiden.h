@@ -68,12 +68,10 @@ static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 // #define Error(x) LOG(ERROR)<<x;
  #define Warning(x) LOG(WARNING)<<x;
  #define Info(x) LOG(INFO)<<x;
- #define Debug(x) DLOG(INFO)<<x;
 
 #define LError LOG(ERROR)
 #define LWarning LOG(WARNING)
 #define LInfo LOG(INFO)
-#define LDebug DLOG(INFO)
 
 //命名空间
 #define RAIDEN_NAMESPACE_BEGIN namespace raiden{

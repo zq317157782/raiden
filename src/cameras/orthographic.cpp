@@ -116,7 +116,6 @@ OrthoCamera *CreateOrthoCamera(const ParamSet &params,
 		} else
 			LError<<"\"screenwindow\" should have four values";
 	}
-	Debug("[make OrthoCamera lensradius:"<<lensradius<<" focaldistance:"<<focaldistance<<"]");
 	return new OrthoCamera(cam2world, screen, shutteropen, shutterclose,
 			lensradius, focaldistance, film, medium);
 }

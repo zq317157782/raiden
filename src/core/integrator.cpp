@@ -118,7 +118,6 @@ void SamplerIntegrator::Render(const Scene& scene) {
 	Preprocess(scene,*_sampler);
 	//首先计算需要的tile数
 	Bound2i filmBound = _camera->film->GetSampleBounds();
-	Debug("[SamplerIntegrator::RenderScene][filmBound:"<<filmBound<<"]");
 	Vector2i filmExtent = filmBound.Diagonal();
 	const int tileSize = 16; //默认是16*16为1个tile
 	int numTileX = (filmExtent.x + tileSize - 1) / tileSize;
