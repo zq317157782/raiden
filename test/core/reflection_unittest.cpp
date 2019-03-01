@@ -3,7 +3,7 @@
 //#include "transform.h"
 #include "gtest.h"
 #include "sampling.h"
-
+#include "spectrum.h"
 
 TEST(FrConductor,Au){
    Float air_ior[3]={1,1,1};
@@ -69,3 +69,35 @@ TEST(HairBSDF,WhiteFurnace){
 //       }
 //    }
 // }
+
+// TEST(FrDielectric,Glass){
+//    for(int i=0;i<100;++i){
+//       Float r = FrDielectric(i/(Float)99,1,1.5);
+//       EXPECT_EQ(r,0)<<"cos: "<<i/(Float)99;
+//    }
+// }
+
+
+TEST(Refract,Refract){
+   Vector3f wi;
+   Refract(Normalize(Vector3f(0.0,0,1)),Normal3f(0,0,1),1.5,&wi);
+   EXPECT_EQ(wi,Vector3f(0,0,-1));
+   EXPECT_EQ(wi.Length(),1);
+}
+
+TEST(FresnelDielectric,Compare){
+   FresnelDielectric  fresnel(1.0,1.5);
+   Spectrum one(1);
+   SpecularReflection rf(one,&fresnel);
+   SpecularTransmission rt(one,1,1.5,TransportMode::Radiance);
+
+   Vector3f wo=Normalize(Vector3f(0.3,0,1));
+   Vector3f wi;
+   Float pdf;
+   Spectrum A=rf.Sample_f(wo,&wi,Point2f(0,0),&pdf);
+   Spectrum B=rt.Sample_f(wo,&wi,Point2f(0,0),&pdf);
+   Spectrum C=A+B;
+   Float rgb[3];
+   C.ToRGB(rgb);
+   EXPECT_EQ(rgb[0],1);
+}
