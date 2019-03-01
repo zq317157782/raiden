@@ -34,9 +34,8 @@
 #include <assert.h>
 #include <thread>
 #include "platform.h"
-#include "glog/logging.h"
-
 #include "config.h"
+#include "logging.h"
 
 //定义一个Float宏 可能指向float可能指向double
 #ifdef RAIDEN_DOUBLE_PRECISION
@@ -63,12 +62,6 @@ static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
 
 //一如既往的全局Alloc函数,分配栈空间
 #define ALLOCA(TYPE, COUNT) (TYPE *) alloca((COUNT) * sizeof(TYPE))
-
-//打印错误的宏定义，我把它定义在这，PBRT的实现我没有深究，对我来说，这个目前已经做够了
-// #define Error(x) LOG(ERROR)<<x;
-#define LError LOG(ERROR)
-#define LWarning LOG(WARNING)
-#define LInfo LOG(INFO)
 
 //命名空间
 #define RAIDEN_NAMESPACE_BEGIN namespace raiden{
