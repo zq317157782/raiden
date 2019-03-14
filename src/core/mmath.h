@@ -24,32 +24,64 @@ static MAYBE_UNUSED constexpr float MinRcpInput = 1E-18f;
 FINLINE uint32_t FloatToBits(float f)
 {
     Assert(!std::isnan(f));
+    //PBRT
+    /*
     uint32_t bits = 0;
     std::memcpy(&bits, &f, sizeof(float));
-    return bits;
+    return bits;*/
+    //EMBREE
+    union {
+        float f;
+        uint32_t bits;
+    } v;
+    v.f = f;
+    return v.bits;
 }
 //从BIT形式转换会float类型
 FINLINE float BitsToFloat(uint32_t bits)
 {
-    float f = 0;
+    //PBRT
+    /*float f = 0;
     std::memcpy(&f, &bits, sizeof(uint32_t));
-    return f;
+    return f;*/
+
+    //EMBREE
+    union {
+        float f;
+        uint32_t bits;
+    } v;
+    v.bits = bits;
+    return v.f;
 }
 
 //double版本的 FloatToBits
 FINLINE uint64_t FloatToBits(double d)
 {
     Assert(!std::isnan(d));
-    uint64_t bits = 0;
+    //PBRT
+    /* uint64_t bits = 0;
     std::memcpy(&bits, &d, sizeof(double));
-    return bits;
+    return bits;*/
+    //EMBREE
+    union {
+        double d;
+        uint64_t bits;
+    } v;
+    v.d = d;
+    return v.bits;
 }
 
 FINLINE double BitsToFloat(uint64_t bits)
 {
-    double d = 0;
+    /* double d = 0;
     std::memcpy(&d, &bits, sizeof(uint64_t));
-    return d;
+    return d;*/
+    union {
+        double d;
+        uint64_t bits;
+    } v;
+    v.bits=bits;
+    return v.d;
 }
 
 //获取下一个大于本float变量的float变量
@@ -145,7 +177,6 @@ FINLINE Float Mod(Float a, Float b)
 {
     return std::fmod(a, b);
 }
-
 
 template <typename T, typename U, typename V>
 FINLINE T Clamp(T val, U low, V high)
