@@ -65,4 +65,30 @@ static void BM_FloatToBits_v2(benchmark::State& state) {
 BENCHMARK(BM_FloatToBits_v2);
 
 
+static void BM_common_rcp(benchmark::State &state)
+{
+    Float ret = 0;
+    Float x = 100.0f;
+    for (auto _ : state)
+    {   
+        x++;
+        benchmark::DoNotOptimize(ret += 1.0f /x);
+    }
+}
+BENCHMARK(BM_common_rcp);
+
+static void BM_SSE_rcp(benchmark::State &state)
+{
+    Float ret = 0;
+    Float x = 100.0f;
+    for (auto _ : state)
+    {
+        x++;
+        benchmark::DoNotOptimize(ret += Rcp(x));
+    }
+}
+
+BENCHMARK(BM_SSE_rcp);
+
+
 
