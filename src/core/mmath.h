@@ -15,7 +15,7 @@ static constexpr Float PiOver4 = (Float)0.78539816339744830961;
 static constexpr Float Sqrt2 = (Float)1.41421356237309504880;
 static constexpr Float ShadowEpsilon = (Float)0.0001f;
 
-d
+static MAYBE_UNUSED constexpr float MinRcpInput = 1E-18f;
 
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，
