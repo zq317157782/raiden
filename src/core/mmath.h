@@ -1,5 +1,6 @@
 #pragma once
 #include "raiden.h"
+#include "platform.h"
 
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
@@ -14,11 +15,13 @@ static constexpr Float PiOver4 = (Float)0.78539816339744830961;
 static constexpr Float Sqrt2 = (Float)1.41421356237309504880;
 static constexpr Float ShadowEpsilon = (Float)0.0001f;
 
+d
+
 //float类型相应的IEEE标准的BIT格式
 //最高位是符号位，然后8位是指数,接下来23位是值，
 //指数为0的时候没有默认最高位的1
 //指数为255的时候，值为0则为无穷大，值不为0则为NaN
-inline uint32_t FloatToBits(float f)
+FINLINE uint32_t FloatToBits(float f)
 {
     Assert(!std::isnan(f));
     uint32_t bits = 0;
@@ -26,7 +29,7 @@ inline uint32_t FloatToBits(float f)
     return bits;
 }
 //从BIT形式转换会float类型
-inline float BitsToFloat(uint32_t bits)
+FINLINE float BitsToFloat(uint32_t bits)
 {
     float f = 0;
     std::memcpy(&f, &bits, sizeof(uint32_t));
@@ -34,7 +37,7 @@ inline float BitsToFloat(uint32_t bits)
 }
 
 //double版本的 FloatToBits
-inline uint64_t FloatToBits(double d)
+FINLINE uint64_t FloatToBits(double d)
 {
     Assert(!std::isnan(d));
     uint64_t bits = 0;
@@ -42,7 +45,7 @@ inline uint64_t FloatToBits(double d)
     return bits;
 }
 
-inline double BitsToFloat(uint64_t bits)
+FINLINE double BitsToFloat(uint64_t bits)
 {
     double d = 0;
     std::memcpy(&d, &bits, sizeof(uint64_t));
@@ -54,7 +57,7 @@ inline double BitsToFloat(uint64_t bits)
 //2.如果是负0的话，先转换成正0，因为下面的比较需要0是一个正0
 //3.转换成BIT形式，并且比较BIT是否大于0，大于++，小于--
 //4.再度转换回float，并且返回
-inline float NextFloatUp(float f)
+FINLINE float NextFloatUp(float f)
 {
     Assert(!std::isnan(f));
     if (std::isinf(f) && f > 0.0f)
@@ -70,7 +73,7 @@ inline float NextFloatUp(float f)
 }
 
 //获取下一个小于本float变量的float变量
-inline float NextFloatDown(float f)
+FINLINE float NextFloatDown(float f)
 {
     Assert(!std::isnan(f));
     if (std::isinf(f) && f < 0.0f)
@@ -85,7 +88,7 @@ inline float NextFloatDown(float f)
     return BitsToFloat(bits);
 }
 
-inline double NextFloatUp(double d, int delta = 1)
+FINLINE double NextFloatUp(double d, int delta = 1)
 {
     Assert(!std::isnan(d));
     if (std::isinf(d) && d > 0.0)
@@ -121,13 +124,13 @@ inline double NextFloatDown(double d, int delta = 1)
 static constexpr Float MachineEpsion = std::numeric_limits<Float>::epsilon() / (Float)2;
 
 //这个gamma不是用来做Gamma校正的gamma，这个gamma是浮点数运算中，每一次运算后的最大ERR边界
-inline constexpr Float gamma(int n)
+FINLINE constexpr Float gamma(int n)
 {
     return (n * MachineEpsion) / (1 - n * MachineEpsion);
 }
 
 template <typename T>
-inline T Mod(T a, T b)
+FINLINE T Mod(T a, T b)
 {
     T ret = a - (a / b) * b;
     if (ret < 0)
@@ -138,23 +141,14 @@ inline T Mod(T a, T b)
 }
 
 template <>
-inline Float Mod(Float a, Float b)
+FINLINE Float Mod(Float a, Float b)
 {
     return std::fmod(a, b);
 }
 
-//裁剪函数
-// inline Float Clamp(Float val, Float low, Float high) {
-// 	if (val < low)
-// 		return low;
-// 	else if (val > high)
-// 		return high;
-// 	else
-// 		return val;
-// }
 
 template <typename T, typename U, typename V>
-inline T Clamp(T val, U low, V high)
+FINLINE T Clamp(T val, U low, V high)
 {
     if (val < low)
         return low;
@@ -165,14 +159,14 @@ inline T Clamp(T val, U low, V high)
 }
 
 //线性插值
-inline Float Lerp(Float val, Float min, Float max)
+FINLINE Float Lerp(Float val, Float min, Float max)
 {
     return min + (max - min) * val;
 }
 
 //线性插值
 template <typename T>
-inline T Lerp(Float val, T min, T max)
+FINLINE T Lerp(Float val, T min, T max)
 {
     return min + (max - min) * val;
 }
@@ -222,12 +216,12 @@ inline Float InverseGammaCorrect(Float value)
 
 //判断是否是2的幂
 template <typename T>
-inline constexpr bool IsPowerOf2(T v)
+FINLINE constexpr bool IsPowerOf2(T v)
 {
     return v && !(v & (v - 1));
 }
 //32位int到2的幂的转换函数
-inline int32_t RoundUpPow2(int32_t v)
+FINLINE int32_t RoundUpPow2(int32_t v)
 {
     v--;
     v |= v >> 1;
@@ -238,7 +232,7 @@ inline int32_t RoundUpPow2(int32_t v)
     return v + 1;
 }
 //64位int到2的幂的转换函数
-inline int64_t RoundUpPow2(int64_t v)
+FINLINE int64_t RoundUpPow2(int64_t v)
 {
     v--;
     v |= v >> 1;
@@ -251,7 +245,7 @@ inline int64_t RoundUpPow2(int64_t v)
 }
 
 //求Float型的Log2
-inline Float Log2(Float x)
+FINLINE Float Log2(Float x)
 {
     //使用了换底公式
     const Float invLog2 = 1.442695040888963387004650940071;
@@ -260,7 +254,7 @@ inline Float Log2(Float x)
 
 //求int的log2
 //__builtin_clz是glibc内置函数，作用是返回左起第一个为1的位之前0的个数
-inline int Log2Int(uint32_t v)
+FINLINE int Log2Int(uint32_t v)
 {
 #ifdef _WIN32
     unsigned long lz;
@@ -277,13 +271,13 @@ inline int Log2Int(uint32_t v)
 }
 
 //计算Sqr
-inline Float Sqr(Float v)
+FINLINE Float Sqr(Float v)
 {
     return v * v;
 }
 
 template <int n>
-static Float Pow(Float v)
+FINLINE static Float Pow(Float v)
 {
     static_assert(n >= 0, "Power can't be negative");
     Float v2 = Pow<n / 2>(v);
@@ -291,23 +285,23 @@ static Float Pow(Float v)
 }
 
 template <>
-Float Pow<0>(Float v)
+FINLINE Float Pow<0>(Float v)
 {
     return 1;
 }
 
 template <>
-Float Pow<1>(Float v)
+FINLINE Float Pow<1>(Float v)
 {
     return v;
 }
 
-inline Float SafeASin(Float x)
+FINLINE Float SafeASin(Float x)
 {
     return std::asin(Clamp(x, -1, 1));
 }
 
-inline Float SafeSqrt(Float x)
+FINLINE Float SafeSqrt(Float x)
 {
     return std::sqrt(std::max(Float(0), x));
 }
