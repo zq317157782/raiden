@@ -1,6 +1,7 @@
 
 #include "bentnormal.h"
 #include "paramset.h"
+#include "logging.h"
 BentNormalIntegrator *CreateBentNormalIntegrator(
 	const ParamSet &params, std::shared_ptr<Sampler> sampler,
 	std::shared_ptr<const Camera> camera) {

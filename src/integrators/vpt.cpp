@@ -1,7 +1,7 @@
 ﻿#include "vpt.h"
 #include "paramset.h"
 #include "film.h"
-
+#include "logging.h"
 VolPathIntegrator *CreateVolPathIntegrator(
 	const ParamSet &params, std::shared_ptr<Sampler> sampler,
 	std::shared_ptr<const Camera> camera) {

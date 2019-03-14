@@ -33,9 +33,7 @@
 #include <cstring>
 #include <assert.h>
 #include <thread>
-#include "platform.h"
 #include "config.h"
-#include "logging.h"
 
 //定义一个Float宏 可能指向float可能指向double
 #ifdef RAIDEN_DOUBLE_PRECISION

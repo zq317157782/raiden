@@ -12,6 +12,7 @@
 #include "mipmap.h"
 #include "imageio.h"
 #include <map>
+#include "logging.h"
 //纹理的信息
 struct TexInfo{
 	TexInfo(const std::string& name, WrapMode wm, bool trilinear,Float maxAn,  Float s,bool g):fileName(name), wrapMode(wm),doTrilinear(trilinear), maxAnisotropy(maxAn), scale(s), gamma(g){

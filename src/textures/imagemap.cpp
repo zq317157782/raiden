@@ -1,6 +1,6 @@
 #include "imagemap.h"
 #include "paramset.h"
-
+#include "logging.h"
 
 ImageTexture<Float, Float> *CreateImageFloatTexture(const Transform &tex2world,
 	const TextureParams &tp) {

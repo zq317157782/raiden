@@ -8,6 +8,7 @@
 #include "interaction.h"
 #include "paramset.h"
 #include <map>
+#include "logging.h"
 TriangleMesh::TriangleMesh(const Transform& ObjectToWorld, int nTriangles,
 		const int* vertexIndices, int nVertices, const Point3f* P,
 		const Vector3f *S, const Normal3f *N, const Point2f *UV) :

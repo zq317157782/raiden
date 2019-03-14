@@ -1,6 +1,7 @@
 ﻿#include "spot.h"
 #include "paramset.h"
 #include "mmath.h"
+#include "logging.h"
 Float SpotLight::FallOff(const Vector3f& w) const {
 	//求夹角
 	Float cosTheta = Dot(_worldToLight(w), Vector3f(0, 0, 1));

@@ -24,6 +24,7 @@
 #include "memory.h"
 #include "progressreporter.h"
 #include "mmath.h"
+#include "logging.h"
 //代表lens上的或者光源上的一个点
 struct EndpointInteraction: public Interaction {
 public:

@@ -11,7 +11,7 @@
 #include "interaction.h"
 #include "sampler.h"
 #include "memory.h"
-
+#include "logging.h"
 
 //非同质介质
 class GridDensityMedium:public Medium {

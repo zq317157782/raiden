@@ -9,6 +9,7 @@
 #include "sampler.h"
 #include "paramset.h"
 #include "filters/box.h"
+#include "logging.h"
 
 
 //临时修改某个指针内的值的Helper类

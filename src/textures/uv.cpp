@@ -1,6 +1,6 @@
 #include "uv.h"
 #include "paramset.h"
-
+#include "logging.h"
 UVTexture *CreateUVTexture(const Transform &tex2world,
 	const TextureParams &tp){
         //确认mapping类型

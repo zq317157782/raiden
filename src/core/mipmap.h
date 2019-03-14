@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "parallel.h"
 #include "memory.h"
+#include "logging.h"
 //#include "lodepng.h"
 //提供三种包围模式[裁剪 重复 纯黑]
 enum class WrapMode{Clamp,Repeat,Black};

@@ -1,6 +1,6 @@
 #include "checkerboard2d.h"
 #include "paramset.h"
-
+#include "logging.h"
 
 Checkerboard2DTexture<Float> *CreateCheckerboard2DFloatTexture(const Transform &tex2world,
 	const TextureParams &tp) {

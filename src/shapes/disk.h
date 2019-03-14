@@ -2,6 +2,7 @@
 #include "shape.h"
 #include "errfloat.h"
 #include "mmath.h"
+#include "logging.h"
 class Disk : public Shape
 {
     private:

@@ -8,7 +8,7 @@
 #include "spectrum.h"
 #include "geometry.h"
 #include "mmath.h"
-
+#include "logging.h"
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 
 void WriteOpenEXR(const char fileName[], IMF::Rgba* pixels, int w, int h) {

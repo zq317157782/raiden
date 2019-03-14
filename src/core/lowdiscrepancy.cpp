@@ -1,5 +1,5 @@
 ﻿#include "lowdiscrepancy.h"
-
+#include "logging.h"
 //质数表
 const int Primes[PrimeTableSize] = {
 	2, 3, 5, 7, 11,

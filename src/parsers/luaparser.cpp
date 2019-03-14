@@ -1,7 +1,7 @@
 #include "luaparser.h"
 #include "geometry.h"
 #include "paramset.h"
-
+#include "logging.h"
 
 #define PARAM_TYPR_WRONG(x) lua_getglobal(L, "debug");\
 							lua_getfield(L, -1, "traceback");\

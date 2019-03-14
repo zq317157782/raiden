@@ -9,6 +9,7 @@
 #define SRC_CORE_MICROFACET_H_
 #include "raiden.h"
 #include "geometry.h"
+#include "logging.h"
 class MicrofacetDistribution {
 protected:
 	MicrofacetDistribution()  {

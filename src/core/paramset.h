@@ -9,6 +9,7 @@
 #define SRC_CORE_PARAMSET_H_
 #include "raiden.h"
 #include "geometry.h"
+#include "logging.h"
 #include <map>
 //代表一个参数以及它的值
 template<typename T>

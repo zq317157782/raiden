@@ -7,6 +7,7 @@
 #include "whitted.h"
 #include "film.h"
 #include "paramset.h"
+#include "logging.h"
 WhittedIntegrator *CreateWhittedIntegrator(
     const ParamSet &params, std::shared_ptr<Sampler> sampler,
     std::shared_ptr<const Camera> camera) {

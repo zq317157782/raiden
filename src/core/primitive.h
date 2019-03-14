@@ -13,6 +13,7 @@
 #include "interaction.h"
 #include "material.h"
 #include "medium.h"
+#include "logging.h"
 //图元类
 class Primitive {
 public:

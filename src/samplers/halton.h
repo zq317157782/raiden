@@ -12,7 +12,7 @@
 #include "rng.h"
 #include "lowdiscrepancy.h"
 #include "mmath.h"
-
+#include "logging.h"
 //Halton样本器
 //Halton序列的理论部分理解了，但是实现部分中寻找相应像素的index值没理解，直接复制自PBRT的代码，待以后实现
 //PBRT建议看Gru ̈nschloß et al. (2012)对于算法的解释

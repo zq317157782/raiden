@@ -2,6 +2,7 @@
 #include "raiden.h"
 #include "paramset.h"
 #include <string>
+#include "logging.h"
 void XMLParser::Init()
 {
 }

@@ -8,6 +8,7 @@
 #include "paramset.h"
 #include "camera.h"
 #include "film.h"
+#include "logging.h"
 DepthIntegrator *CreateDepthIntegrator(const ParamSet &params,
 		std::shared_ptr<Sampler> sampler,
 		std::shared_ptr<const Camera> camera) {

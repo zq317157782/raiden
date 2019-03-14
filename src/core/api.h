@@ -8,7 +8,7 @@
 #ifndef SRC_CORE_API_H_
 #define SRC_CORE_API_H_
 #include "raiden.h"
-
+#include "logging.h"
 
 //初始化raiden渲染系统
 void raidenInit(const Options &opt);

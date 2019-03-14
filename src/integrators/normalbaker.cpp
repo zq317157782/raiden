@@ -3,6 +3,7 @@
 #include "paramset.h"
 #include "camera.h"
 #include "film.h"
+#include "logging.h"
 NormalBakerIntegrator *CreateNormalBakerIntegrator(
     const ParamSet &params, std::shared_ptr<Sampler> sampler,
     std::shared_ptr<const Camera> camera) {

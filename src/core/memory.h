@@ -9,6 +9,7 @@
 #define SRC_CORE_MEMORY_H_
 #include "raiden.h"
 #include <list>
+#include "platform.h"
 
 //往arena分配的地址上初始化一个Type类型的变量
 #define ARENA_ALLOC(arena, Type) new ((arena).Alloc(sizeof(Type))) Type

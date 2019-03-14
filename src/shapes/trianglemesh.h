@@ -10,7 +10,7 @@
 #include "raiden.h"
 #include "shape.h"
 #include <map>
-
+#include "logging.h"
 //UV空间的交点
 class UVInteraction {
 	public:

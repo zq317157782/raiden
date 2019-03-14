@@ -6,6 +6,7 @@
  */
 #include "ao.h"
 #include "paramset.h"
+#include "logging.h"
 AOIntegrator *CreateAOIntegrator(
 	const ParamSet &params, std::shared_ptr<Sampler> sampler,
 	std::shared_ptr<const Camera> camera) {
