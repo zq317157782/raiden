@@ -1,7 +1,7 @@
 #pragma once
 #include "raiden.h"
 #include "platform.h"
-
+#include "sse.h"
 //无限大数
 static constexpr Float Infinity = std::numeric_limits<Float>::infinity();
 static constexpr Float MaxFloat = std::numeric_limits<Float>::max();
@@ -279,7 +279,7 @@ FINLINE int64_t RoundUpPow2(int64_t v)
 FINLINE Float Log2(Float x)
 {
     //使用了换底公式
-    const Float invLog2 = 1.442695040888963387004650940071;
+    const Float invLog2 = (Float)1.442695040888963387004650940071f;
     return std::log(x) * invLog2;
 }
 
@@ -287,7 +287,7 @@ FINLINE Float Log2(Float x)
 //__builtin_clz是glibc内置函数，作用是返回左起第一个为1的位之前0的个数
 FINLINE int Log2Int(uint32_t v)
 {
-#ifdef _WIN32
+#ifdef RAIDEN_IS_WIN
     unsigned long lz;
     if (_BitScanReverse(&lz, v >> 32))
         lz += 32;
@@ -335,4 +335,26 @@ FINLINE Float SafeASin(Float x)
 FINLINE Float SafeSqrt(Float x)
 {
     return std::sqrt(std::max(Float(0), x));
+}
+
+FINLINE Float Rcp(const Float x){
+#if defined(RAIDEN_FLOAT_PRECISION)
+    const __m128 a = _mm_set_ss(x);
+    const __m128 r = _mm_rcp_ss(a);
+    return _mm_cvtss_f32(_mm_mul_ss(r,_mm_sub_ss(_mm_set_ss(2.0f), _mm_mul_ss(r, a))));
+#else
+    return (Float)1.0f/x;
+#endif
+}
+
+FINLINE Float Rsqrt( const Float x )
+{
+#if defined(RAIDEN_FLOAT_PRECISION)
+    const __m128 a = _mm_set_ss(x);
+    const __m128 r = _mm_rsqrt_ss(a);
+    const __m128 c = _mm_add_ss(_mm_mul_ss(_mm_set_ss(1.5f), r),_mm_mul_ss(_mm_mul_ss(_mm_mul_ss(a, _mm_set_ss(-0.5f)), r), _mm_mul_ss(r, r)));
+    return _mm_cvtss_f32(c);
+#else 
+    return (Float)1.0f/std::sqrt(x);
+#endif
 }
