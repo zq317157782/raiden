@@ -692,7 +692,7 @@ Float HairBSDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 
 	Float phi=phiI-phiO;
 
-	Float pdf;
+	Float pdf=0;
 	//计算每个p的贡献
 	for (int i = 0; i < pMax; ++i)
 	{
