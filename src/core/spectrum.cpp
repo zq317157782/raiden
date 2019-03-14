@@ -5,7 +5,7 @@
  *      Author: zhuqian
  */
 #include "spectrum.h"
-
+#include "mmath.h"
 SampledSpectrum SampledSpectrum::_X;
 SampledSpectrum SampledSpectrum::_Y;
 SampledSpectrum SampledSpectrum::_Z;

@@ -13,6 +13,7 @@
 #include "film.h"
 #include "shapes/trianglemesh.h"
 #include "geometry.h"
+#include "mmath.h"
 
 class UVQuadTreeNode{
 public:

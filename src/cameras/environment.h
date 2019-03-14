@@ -11,6 +11,7 @@
 #include "raiden.h"
 #include "camera.h"
 #include "film.h"
+#include "mmath.h"
 
 class EnvironmentCamera :public Camera {
 private:

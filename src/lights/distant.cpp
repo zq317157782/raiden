@@ -11,6 +11,7 @@
 #include "geometry.h"
 #include "sampling.h"
 #include "paramset.h"
+#include "mmath.h"
 
 void DistantLight::Preprocess(Scene& scene) {
 	//获得场景的包围盒

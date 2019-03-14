@@ -1,6 +1,7 @@
 #pragma once
 #include "shape.h"
 #include "errfloat.h"
+#include "mmath.h"
 class Disk : public Shape
 {
     private:

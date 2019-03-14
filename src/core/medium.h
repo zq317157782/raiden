@@ -11,7 +11,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "spectrum.h"
-
+#include "mmath.h"
 
 //体渲染使用的类似于BSDF的函数
 class PhaseFunction {

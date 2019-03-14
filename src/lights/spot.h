@@ -9,6 +9,7 @@
 #define SRC_LIGHTS_SPOT_H_
 #include "raiden.h"
 #include "light.h"
+#include "mmath.h"
 //聚光灯光源
 class SpotLight : public Light {
 private:

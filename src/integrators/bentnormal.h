@@ -13,7 +13,7 @@
 #include "film.h"
 #include "scene.h"
 #include "sampling.h"
-
+#include "mmath.h"
 enum class BentNormalMode{
 	VIEW,SCENE
 };

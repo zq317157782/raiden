@@ -1,5 +1,5 @@
  #include "interpolation.h"
-
+#include "mmath.h"
 bool CatmullRomWeights(int size, const Float *nodes, Float x,int *offset, Float *weights){
     //先判断x是否在有效的值域内
     //PBRT在这里还解释道，使用这种条件是为了同时判断NaN的情况

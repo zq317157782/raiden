@@ -11,7 +11,7 @@
 
 //光谱相关类和函数
 #include "raiden.h"
-
+#include "mmath.h"
 template<int numSpectrumSample>
 class CoefficientSpectrum {
 protected:

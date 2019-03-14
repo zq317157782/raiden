@@ -1,5 +1,6 @@
 #include "curve.h"
 #include "paramset.h"
+#include "mmath.h"
 std::vector<std::shared_ptr<Shape>> CreateCurves(const Transform *o2w, const Transform *w2o, bool reverseOrientation,
     const Point3f *c, Float w0, Float w1, CurveType type,const Normal3f*  norm,int splitDepth){
         std::shared_ptr<CurveCommon> common=std::make_shared<CurveCommon>(c,w0,w1,type,norm);

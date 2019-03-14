@@ -13,6 +13,7 @@
 #include "film.h"
 #include "scene.h"
 #include "sampling.h"
+#include "mmath.h"
 //计算AO信息
 
 enum class AOMode{

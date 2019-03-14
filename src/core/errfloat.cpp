@@ -6,6 +6,7 @@
  */
 
 #include "errfloat.h"
+#include "mmath.h"
 
 EFloat::EFloat(float v, float err) :
 		_value(v) {

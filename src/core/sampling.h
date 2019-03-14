@@ -10,6 +10,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "rng.h"
+#include "mmath.h"
 //1维分层采样
 void StratifiedSample1D(Float *samples, int nsamples, RNG &rand, bool jitter =
 		true);

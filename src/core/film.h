@@ -13,6 +13,7 @@
 #include "spectrum.h"
 #include "parallel.h"
 #include <mutex>
+#include "mmath.h"
 class Film {
 public:
 

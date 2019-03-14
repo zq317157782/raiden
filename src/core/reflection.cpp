@@ -10,6 +10,7 @@
 #include "microfacet.h"
 #include <array>
 #include <numeric>
+#include "mmath.h"
 
 bool Refract(const Vector3f &wi, const Normal3f &n,
 			 Float oeta /*这里是两个折射率之比(i/t)*/, Vector3f *wt)

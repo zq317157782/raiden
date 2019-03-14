@@ -6,8 +6,9 @@
 #include "light.h"
 #include "scene.h"
 #include "sampling.h"
-//ÎÞÏÞÔ¶Ãæ»ý¹â
-//»·¾³¹â
+#include "mmath.h"
+//ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 class InfiniteAreaLight :public Light {
 private:
 	Transform _worldToLight;
@@ -31,67 +32,67 @@ public:
 		}
 		
 		if (!rawImage) {
-			//´¦ÀíÃ»ÓÐ¶ÁÈ¡µ½ÎÆÀíµÄÇé¿ö
+			//ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ð¶ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 
-		//´´½¨MipMap
+		//ï¿½ï¿½ï¿½ï¿½MipMap
 		_Lmap.reset(new MIPMap<RGBSpectrum>(res, rawImage.get()));
-		//¼ÆËã±êÁ¿
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		std::unique_ptr<Float[]> img(new Float[res.x*res.y]);
 		
 		Float filterWidth = 1.0/std::max(res.x, res.y);
 		for (int j = 0; j < res.y; ++j) {
-			//¼ÆËã·ÀÖ¹Å¤ÇúµÄsintheta
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ö¹Å¤ï¿½ï¿½ï¿½ï¿½sintheta
 			Float sinTheta=std::sin((Float(j + 0.5)/res.y)*Pi);
 			Float v = (Float)j / res.y;
 			for (int i = 0; i < res.x; ++i) {
 				Float u = (Float)i / res.x;
-				//°ÑÏàÓ¦µÄRGBÖµ×ª»»³É±êÁ¿
+				//ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½RGBÖµ×ªï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½
 				img[j*res.x + i] = _Lmap->Lookup(Point2f(u,v),filterWidth).y();
-				//³ËÒÔ·ÀÖ¹2Dµ½ÇòÃæÓ³ÉäµÄÅ¤ÇúµÄÏµÊý
+				//ï¿½ï¿½ï¿½Ô·ï¿½Ö¹2Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½Å¤ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 				img[j*res.x + i] *= sinTheta;
 			}
 		}
 
-		//ÔÙ°Ñ±êÁ¿×ª»»³É2D PDF
+		//ï¿½Ù°Ñ±ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½2D PDF
 		_distribution.reset(new Distribution2D(img.get(),res.x,res.y));
 	}
 
 	virtual void Preprocess(Scene& scene) override {
-		//¼ÆËãÊÀ½ç°üÎ§Çò
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½
 		scene.WorldBound().BoundingSphere(&_worldCenter, &_worldRadius);
 	}
 
 	virtual Spectrum Le(const RayDifferential& ray)  const override  {
-		//×ª»»ÊÀ½ç×ø±êÏµÏÂµÄ·½Ïòµ½¹âÔ´×ø±êÏµÏÂ
+		//×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ÂµÄ·ï¿½ï¿½òµ½¹ï¿½Ô´ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 		Vector3f dir=Normalize(_worldToLight(ray.d));
-		//°Ñ·½Ïò(Á¢Ìå½Ç¿Õ¼ä)×ª»»µ½ÇòÃæ×ø±ê
+		//ï¿½Ñ·ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½Ç¿Õ¼ï¿½)×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		Float phi = SphericalPhi(dir);
 		Float theta = SphericalTheta(dir);
-		//´ÓÇòÃæ×ø±êÏò[0~1]¿Õ¼ä×ª»»
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[0~1]ï¿½Õ¼ï¿½×ªï¿½ï¿½
 		Point2f uv;
 		uv[1] = theta*InvPi;
 		uv[0] = phi * Inv2Pi;
 		
-		//²ÉÑùradiance
+		//ï¿½ï¿½ï¿½ï¿½radiance
 		return Spectrum(_Lmap->Lookup(uv));
 	};
-	//·µ»ØÈëÉä¹âÏß·½ÏòÒÔ¼°ÏàÓ¦µÄradiance
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß·ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½radiance
 	virtual Spectrum Sample_Li(const Interaction& interaction, const Point2f &u, Vector3f* wi, Float* pdf, VisibilityTester* vis) const override {
-		//ÏÈ²ÉÑù2D·Ö²¼»ñÈ¡¾ßÌåµÄuvºÍpdf
+		//ï¿½È²ï¿½ï¿½ï¿½2Dï¿½Ö²ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½uvï¿½ï¿½pdf
 		Float pdf2D;
 		Point2f uv= _distribution->SampleContinuous(u,&pdf2D);
 		if (pdf2D == 0) {
 			return Spectrum(0);
 		}
-		//´ÓUV×ª»»µ½ÇòÃæ×ø±ê
+		//ï¿½ï¿½UV×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		Float phi = uv[0] * Pi * 2;
 		Float theta = uv[1] * Pi;
 
 		Float cosTheta = std::cos(theta);
 		Float sinTheta = std::sin(theta);
 
-		//´ÓÇòÃæ×ø±êµ½Á¢Ìå½Ç¿Õ¼ä
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½êµ½ï¿½ï¿½ï¿½ï¿½Ç¿Õ¼ï¿½
 		Vector3f w=SphericalDirection(sinTheta,cosTheta,phi);
 		*wi = _lightToWorld(w);
 
@@ -100,16 +101,16 @@ public:
 			return Spectrum(0.0);
 		}
 
-		//¼ÆËãÁ¢Ìå½Ç¿Õ¼äÏÂµÄpdf
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¿Õ¼ï¿½ï¿½Âµï¿½pdf
 		*pdf = pdf2D / (2 * Pi*Pi*sinTheta);
 		
 
-		//Õâ¾ÍÃ»É¶ºÃ½âÊÍÁË
+		//ï¿½ï¿½ï¿½Ã»É¶ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½
 		*vis = VisibilityTester(interaction,Interaction(interaction.p+*wi*_worldRadius*2,interaction.time,mediumInterface));
 
 		return Spectrum(_Lmap->Lookup(uv));
 	}
-	//·µ»Ø²ÉÑùÈëÉä¹âÏßµÄpdf
+	//ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½pdf
 	virtual Float Pdf_Li(const Interaction &ref, const Vector3f &wi) const override {
 		Vector3f w =Normalize( _worldToLight(wi));
 		Float phi = SphericalPhi(w);
@@ -120,24 +121,24 @@ public:
 		}
 		Point2f uv(phi*Inv2Pi, theta*InvPi);
 		Float pdf=_distribution->Pdf(uv);
-		//×ª»»µ½Á¢Ìå½Ç¿Õ¼ä
+		//×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¿Õ¼ï¿½
 		return pdf / (2 * Pi*Pi*sinTheta);
 	}
-	//·µ»Ø¹âÔ´µÄflux
+	//ï¿½ï¿½ï¿½Ø¹ï¿½Ô´ï¿½ï¿½flux
 	virtual Spectrum Power() const override { 
 		return Pi*_worldRadius*_worldRadius*_Lmap->Lookup(Point2f(0.5,0.5),0.5);
 	};
-	//´Ó¹âÔ´½Ç¶È²ÉÑùradiance
+	//ï¿½Ó¹ï¿½Ô´ï¿½Ç¶È²ï¿½ï¿½ï¿½radiance
 	virtual Spectrum Sample_Le(const Point2f &u1, const Point2f &u2, Float time,
 		Ray *ray, Normal3f *nLight, Float *pdfPos,
 		Float *pdfDir) const override {
-	//ÏÈ²ÉÑù·½Ïò
+	//ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		Float pdf2D;
 		Point2f uv=_distribution->SampleContinuous(u1, &pdf2D);
 		if (pdf2D == 0) {
 			return Spectrum(0);
 		}
-		//×ª»»µ½ÇòÃæ×ø±ê
+		//×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		Float theta = uv[1] * Pi;
 		Float phi = uv[0] * 2 * Pi;
 		
@@ -146,24 +147,24 @@ public:
 		Float sinPhi = std::sin(phi);
 		Float cosPhi = std::cos(phi);
 
-		//TODO ÕâÀï¿ÉÒÔÓÅ»¯³É²»µ÷ÓÃº¯ÊýµÄÐÎÊ½
+		//TODO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å»ï¿½ï¿½É²ï¿½ï¿½ï¿½ï¿½Ãºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
 		Vector3f w=-_lightToWorld(SphericalDirection(sinTheta, cosTheta, phi));
 		*nLight = (Normal3f)w;
 
-		//²ÉÑùÔ²ÅÌ
+		//ï¿½ï¿½ï¿½ï¿½Ô²ï¿½ï¿½
 		Vector3f v1, v2;
 		CoordinateSystem(-w, &v1, &v2);
 		Point2f sample= ConcentricSampleDisk(u2);
 		Point3f posW=_worldCenter + _worldRadius*(sample.x*v1 + sample.y*v2);
 		*ray = Ray(posW+_worldRadius*(-w),w,Infinity,time);
 
-		//Á¢Ìå½Ç¿Õ¼ä
+		//ï¿½ï¿½ï¿½ï¿½Ç¿Õ¼ï¿½
 		*pdfDir = sinTheta == 0 ? 0 : pdf2D / (2 * Pi*Pi*sinTheta);
 		*pdfPos = 1.0 / (Pi*_worldRadius*_worldRadius);
 		
 		return Spectrum(_Lmap->Lookup(uv));
 	};
-	//·µ»Ø´Ó¹âÔ´²ÉÑù¹âÏßµÄpdfÏà¹ØÊý¾Ý
+	//ï¿½ï¿½ï¿½Ø´Ó¹ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½pdfï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	virtual void Pdf_Le(const Ray &ray, const Normal3f &nLight, Float *pdfPos,
 		Float *pdfDir) const override {
 		Vector3f d = Normalize(-_worldToLight(ray.d));

@@ -13,6 +13,7 @@
 #include "material.h"
 #include "spectrum.h"
 #include "medium.h"
+#include "mmath.h"
 class Interaction {
 public:
 	Point3f p; //交点

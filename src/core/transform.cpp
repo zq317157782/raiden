@@ -7,7 +7,7 @@
 
 #include "transform.h"
 #include "interaction.h"
-
+#include "mmath.h"
 //求解2X2线性系统
 bool SolveLinearSystem2x2(const Float A[2][2], const Float B[2], Float *x0,
 		Float *x1) {

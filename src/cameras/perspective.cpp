@@ -11,6 +11,7 @@
 #include "film.h"
 #include "interaction.h"
 #include "light.h"
+#include "mmath.h"
 
 PerspectiveCamera::PerspectiveCamera(const Transform& c2w,
 		const Bound2f& screenWindow, Float shutterOpen, Float shutterEnd,

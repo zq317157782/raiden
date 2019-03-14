@@ -7,7 +7,7 @@
 #include "film.h"
 #include "paramset.h"
 #include "imageio.h"
-
+#include "mmath.h"
 Film::Film(const Point2i &res /*分辨率*/, const Bound2f &cropped /*实际渲染窗口比例*/,
 		   std::unique_ptr<Filter> filt, const std::string &fileName /*输出文件名*/,
 		   Float maxSampleLuminance) : fullResolution(res), fileName(fileName), filter(std::move(filt)), _maxSampleLuminance(maxSampleLuminance)

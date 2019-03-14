@@ -1,7 +1,7 @@
 #pragma once
 #include "raiden.h"
 #include "geometry.h"
-
+#include "mmath.h"
 //Cubic Bezier曲线
 class CubicBezier{
 public:

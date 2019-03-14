@@ -7,6 +7,7 @@
 #include <ImfArray.h>
 #include "spectrum.h"
 #include "geometry.h"
+#include "mmath.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 

@@ -11,6 +11,7 @@
 #include "primitive.h"
 #include "geometry.h"
 #include "memory.h"
+#include "mmath.h"
 
 //体素结构
 struct Voxel {

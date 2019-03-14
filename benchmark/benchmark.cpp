@@ -1,5 +1,6 @@
 #include <benchmark.h>
 #include "raiden.h"
+#include "mmath.h"
 static void BM_PowInteger(benchmark::State& state) {
   Float i=0;
   for (auto _ : state){   

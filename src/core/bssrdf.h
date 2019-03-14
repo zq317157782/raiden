@@ -2,7 +2,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "reflection.h"
-
+#include "mmath.h"
 //从PBRT复制的两个工具函数
 //使用多项式近似来近似菲涅尔的第一M和第二M
 //参数使用的是折射系数的倒数(和PBRT的实现有关)

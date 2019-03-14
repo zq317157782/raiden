@@ -6,6 +6,7 @@
  */
 
 #include "texture.h"
+#include "mmath.h"
 Float Lanczos(Float x, Float tau) {
 	//当x非常接近0的时候，取1
 	//加快运算么？

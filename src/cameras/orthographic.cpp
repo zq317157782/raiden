@@ -9,6 +9,7 @@
 #include "sampling.h"
 #include "paramset.h"
 #include "film.h"
+#include "mmath.h"
 OrthoCamera::OrthoCamera(const Transform& c2w, const Bound2f& screenWindow,
 		Float shutterOpen, Float shutterEnd, Float lensr, Float focald, 
 		Film * f, const Medium* medium) :

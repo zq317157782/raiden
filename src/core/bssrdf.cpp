@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "scene.h"
 #include "primitive.h"
+#include "mmath.h"
 Float FresnelMoment1(Float eta) {
     Float eta2 = eta * eta, eta3 = eta2 * eta, eta4 = eta3 * eta,
           eta5 = eta4 * eta;

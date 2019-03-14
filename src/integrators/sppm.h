@@ -19,6 +19,7 @@
 #include "memory.h"
 #include "reflection.h"
 #include "lowdiscrepancy.h"
+#include "mmath.h"
 
 //PBRT所使用的哈希函数，会发生碰撞
 inline unsigned int hash(const Point3i &p, int hashSize) {

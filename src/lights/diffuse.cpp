@@ -8,6 +8,7 @@
 #include "paramset.h"
 #include "interaction.h"
 #include "sampling.h"
+#include "mmath.h"
 Spectrum DiffuseAreaLight::Sample_Li(const Interaction& ref, const Point2f &u,
 		Vector3f* wi, Float* pdf, VisibilityTester* vis) const {
 	//采样光源上的一个空间点

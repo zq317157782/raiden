@@ -13,6 +13,7 @@
 #include "material.h"
 #include "interaction.h"
 #include "rng.h"
+#include "mmath.h"
 //BxDF坐标系下
 //法线(0,0,1)与W(x,y,z)点乘等于W.z
 inline Float CosTheta(const Vector3f &w)

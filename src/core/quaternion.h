@@ -5,6 +5,7 @@
 #include "raiden.h"
 #include "geometry.h"
 #include "transform.h"
+#include "mmath.h"
 //4元数
 class Quaternion{
 public:

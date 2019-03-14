@@ -14,6 +14,7 @@
 #ifndef SRC_CORE_GEOMETRY_H_
 #define SRC_CORE_GEOMETRY_H_
 #include "raiden.h"
+#include "mmath.h"
 
 //判断是否有NaN的值出现
 template<typename T>

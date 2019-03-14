@@ -11,6 +11,7 @@
 #include <atomic>
 #include <mutex>
 #include "geometry.h"
+#include "mmath.h"
 
 //原子操作的Float类型
 //c++不支持原子的Float操作

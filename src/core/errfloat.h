@@ -12,7 +12,7 @@
 #define SRC_CORE_ERRFLOAT_H_
 
 #include "raiden.h"
-
+#include "mmath.h"
 class EFloat {
 private:
 	float _value; //浮点数round后的值

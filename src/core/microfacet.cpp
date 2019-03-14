@@ -1,6 +1,6 @@
 #include "microfacet.h"
 #include "reflection.h"
-
+#include "mmath.h"
 
 //直接copy自PBRT的GGX粗糙度到alpha的工具函数
 Float GGXRoughnessToAlpha(Float roughness) {

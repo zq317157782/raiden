@@ -6,6 +6,7 @@
  */
 #include "sampling.h"
 #include "rng.h"
+#include "mmath.h"
 void StratifiedSample1D(Float *samples, int nsamples, RNG &rng, bool jitter) {
 	Float invNumSamples = 1.0f / nsamples;
 	for (int i = 0; i < nsamples; ++i) {

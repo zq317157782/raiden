@@ -9,6 +9,7 @@
 #define SRC_CORE_TEXTURE_H_
 #include "raiden.h"
 #include "interaction.h"
+#include "mmath.h"
 //二维纹理映射
 class TextureMapping2D {
 public:

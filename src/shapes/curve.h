@@ -1,6 +1,7 @@
 #pragma once
 #include "shape.h"
 #include "bezier.h"
+#include "mmath.h"
 //曲线的类型
 enum class CurveType
 {
