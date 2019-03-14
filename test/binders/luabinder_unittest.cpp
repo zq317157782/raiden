@@ -16,10 +16,3 @@ static void LuaTestTable(lua_State *L) {
     lua_pop(L,1);
     EXPECT_TRUE(lua_istable(L,-1)==true);
 }
-
-TEST(Lua,API){
-   lua_State * _L=luaL_newstate();
-   luaL_openlibs(_L);
-   lua_register(_L, "LuaTestTable", (lua_CFunction )LuaTestTable);
-   luaL_dostring(_L,"LuaTestTable({'float',1})");
-}

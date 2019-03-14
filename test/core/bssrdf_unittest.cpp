@@ -29,49 +29,12 @@ TEST(DuffusionEquation,ComputeBeamDiffusionBSSRDF){
     EXPECT_FLOAT_EQ(table.radiusSamples[7],0.0074649611);
 }
 
-
-TEST(DuffusionEquation,ProfileFile100X64){
-    BSSRDFTable table(100,64);
-    ComputeBeamDiffusionBSSRDF(0,1.3,&table);
-    std::ofstream myfile;
-    myfile.open ("profile_samples.data");
-    myfile<<" #albedo radius profile_data\n";
-    for(int i=0;i<100;++i){
-        for(int j=0;j<64;++j){
-            myfile<<table.albedoSamples[i]<<" "<<table.radiusSamples[j]<<" "<<table.profile[i*64+j]<<"\n";
-        }
-    }
-    
-    myfile.close();
-}
-
-
-TEST(DuffusionEquation,RadiuSamplesData){
-    std::ofstream myfile;
-    myfile.open ("sr_samples.data");
-    myfile<<" #radius samples\n";
-    myfile<<"\"raw samples\"\n";
-    float radius[64];
-    radius[0]=0;
-    radius[1]=2.5e-3 ;
-    for(int i=2;i<64;++i){
-        radius[i]=radius[i-1]*1.2f;
-    }
-    for(int i=0;i<64;++i){
-        myfile<<i<<" "<<radius[i]<<'\n';
-    }
-}
-
-
-
-
 TEST(SeparableBSSRDFA,Sw){
     auto Sw=[](const Vector3f& wi,Float eta){
          float c=1-2*FresnelMoment1(1/eta);
         //wi是BSSRDF局部空间的
         return (1-FrDielectric(CosTheta(wi),1,eta))/(c*Pi);
     };
-
     RNG rng;
     Spectrum sum=0;
     const int numSample=30000;
@@ -88,92 +51,3 @@ TEST(SeparableBSSRDFA,Sw){
 
 }
 
-
-#include <ImfNamespace.h>
-#include <ImfRgbaFile.h>
-#include <ImfStringAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfArray.h>
-namespace IMF = OPENEXR_IMF_NAMESPACE;
-
-
-TEST(BeamDiffusionMS,2DPreview){
-    //输出皮肤的dipole preview
-
-    /*
-     t->radiusSamples[0]=0;
-    t->radiusSamples[1]=2.5e-3;//PBRT为何使用这个指数分布呢？？？
-    for(int i=2;i<t->numRadiusSample;++i){
-        t->radiusSamples[i]=t->radiusSamples[i-1]*1.2f;
-    }
-    */
-    float radius[64];
-    radius[0]=0;
-    radius[1]=2.5e-3 ;
-    for(int i=2;i<64;++i){
-        radius[i]=radius[i-1]*1.2f;
-    }
-
-    float eta=1.3f;
-    float g=0;
-    std::vector<IMF::Rgba> image;
-
-    // for(int i=0;i<128;++i){
-    //     float r=radius[i];
-    //     float red=BeamDiffusionMS(0.740/(0.740+0.032),0.032/(0.740+0.032),g,eta,r);
-    //     LInfo<<"r:"<<r<<" v:"<<red;
-    // }   
-    for(int i=0;i<128;++i){
-        for(int j=0;j<128;++j){
-            float r=0;
-
-            float w=std::abs(i+0.5f-64);
-            float h=std::abs(j+0.5f-64);
-            int d=(int)std::sqrt(w*w+h*h);
-            if(d>=64){
-                d=63;
-            }
-            r=radius[d];
-            
-
-            
-
-            float red=BeamDiffusionMS(0.740/(0.740+0.032),0.032/(0.740+0.032),g,eta,r);
-            float green=BeamDiffusionMS(0.880/(0.880+0.170),0.170/(0.880+0.170),g,eta,r);
-            float blue=BeamDiffusionMS(1.010/(1.010+0.480),0.480/(1.010+0.480),g,eta,r);
-            image.push_back(IMF::Rgba{red, green, blue, (float)1});
-        }
-    }
-
-    
-     //WriteOpenEXR(, &image[0], 256, 256);
-
-    IMF::RgbaOutputFile file("BeamDiffusionMS.exr", 128, 128, IMF::WRITE_RGBA);
-    file.setFrameBuffer(&image[0], 1, 128);
-    file.writePixels(128);
-}
-
-// TEST(SeparableBSSRDFAdapter,Sw){
-
-//     SurfaceInteraction po;
-//     po.p=Point3f(0,0,0);
-//     BSSRDFTable table(10,10);
-//     TabulatedBSSRDF bssrdf(po,nullptr,1.5,Spectrum(0),Spectrum(0),table);
-//     SeparableBSSRDFAdapter adapter(&bssrdf);
-    
-
-//     RNG rng;
-//     Spectrum sum=0;
-//     const int numSample=30000;
-//     for(int i=0;i<numSample;++i){
-//         Vector3f wo(0,0,1);
-//         Vector3f wi;
-//         Float pdf;
-//         auto f=adapter.Sample_f(wo,&wi,Point2f(rng.UniformFloat(),rng.UniformFloat()),&pdf);
-
-//         sum=sum+f*AbsCosTheta(wi)/pdf;
-//     }
-//     sum=sum/numSample;
-//     EXPECT_EQ(sum,1);
-
-// }
